@@ -1,4 +1,4 @@
-# Requirements Document 
+# Requirements Document
 
 Authors:
 
@@ -12,8 +12,8 @@ Version:
 - [Stakeholders](#stakeholders)
 - [Context Diagram and interfaces](#context-diagram-and-interfaces)
 	+ [Context Diagram](#context-diagram)
-	+ [Interfaces](#interfaces) 
-	
+	+ [Interfaces](#interfaces)
+
 - [Stories and personas](#stories-and-personas)
 - [Functional and non functional requirements](#functional-and-non-functional-requirements)
 	+ [Functional Requirements](#functional-requirements)
@@ -28,7 +28,7 @@ Version:
 
 # Essential description
 
-Small shops require a simple application to support the owner or manager. A small shop (ex a food shop) occupies 50-200 square meters, sells 500-2000 different item types, has one or a few cash registers 
+Small shops require a simple application to support the owner or manager. A small shop (ex a food shop) occupies 50-200 square meters, sells 500-2000 different item types, has one or a few cash registers
 EZShop is a software application to:
 * manage sales
 * manage inventory
@@ -38,10 +38,16 @@ EZShop is a software application to:
 
 # Stakeholders
 
-
-| Stakeholder name  | Description | 
+| Stakeholder name  | Description |
 | ----------------- |:-----------:|
-|   Stakeholder x..     |             | 
+| Employee | A generic employee of the shop, can be store manager, accountant or cashier. |
+| Store manager | Manages store, can insert, modify and delete users and products. |
+| Accountant | Views expenses and income, can manage products on sale and prices. |
+| Cashier | Registers sales and updates stock levels. |
+| Supplier | Views reorder needs of shop and updates stock levels upon delivery. |
+| Anonymous customer | Buys products from the shop. |
+| Customer | Creates fidelity account to receive discounts when shopping. |
+| Developer | Maintains application and receives license payments. |
 
 # Context Diagram and interfaces
 
@@ -76,10 +82,10 @@ EZShop is a software application to:
 \<they match to high level use cases>
 
 | ID        | Description  |
-| ------------- |:-------------:| 
+| ------------- |:-------------:|
 |  FR1     |  |
 |  FR2     |   |
-| FRx..  | | 
+| FRx..  | |
 
 ## Non Functional Requirements
 
@@ -90,7 +96,7 @@ EZShop is a software application to:
 |  NFR1     |   |  | |
 |  NFR2     | |  | |
 |  NFR3     | | | |
-| NFRx .. | | | | 
+| NFRx .. | | | |
 
 
 # Use case diagram and use cases
@@ -103,13 +109,13 @@ EZShop is a software application to:
 \<next describe here each use case in the UCD>
 ### Use case 1, UC1
 | Actors Involved        |  |
-| ------------- |:-------------:| 
+| ------------- |:-------------:|
 |  Precondition     | \<Boolean expression, must evaluate to true before the UC can start> |  
 |  Post condition     | \<Boolean expression, must evaluate to true after UC is finished> |
 |  Nominal Scenario     | \<Textual description of actions executed by the UC> |
 |  Variants     | \<other executions, ex in case of errors> |
 
-##### Scenario 1.1 
+##### Scenario 1.1
 
 \<describe here scenarios instances of UC1>
 
@@ -120,7 +126,7 @@ EZShop is a software application to:
 \<only relevant scenarios should be described>
 
 | Scenario 1.1 | |
-| ------------- |:-------------:| 
+| ------------- |:-------------:|
 |  Precondition     | \<Boolean expression, must evaluate to true before the scenario can start> |
 |  Post condition     | \<Boolean expression, must evaluate to true after scenario is finished> |
 | Step#        | Description  |
@@ -142,7 +148,7 @@ EZShop is a software application to:
 
 # Glossary
 
-\<use UML class diagram to define important terms, or concepts in the domain of the system, and their relationships> 
+\<use UML class diagram to define important terms, or concepts in the domain of the system, and their relationships>
 
 \<concepts are used consistently all over the document, ex in use cases, requirements etc>
 
@@ -151,7 +157,6 @@ EZShop is a software application to:
 
 \<must be consistent with Context diagram>
 
-# Deployment Diagram 
+# Deployment Diagram
 
 \<describe here deployment diagram >
-
