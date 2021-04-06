@@ -56,6 +56,24 @@ EZShop is a software application to:
 
 \<actors are a subset of stakeholders>
 
+```plantuml
+top to bottom direction
+actor Employee as e
+actor :Store Manager: as m
+actor Accountant as a
+actor Cashier as c
+actor Supplier as s
+actor Customer as rc
+actor :Anonymous Customer: as ac
+m -up-|> a
+a -up-|> e
+c -up-|> e
+rc -up-|> ac
+e -> (EZShop)
+s -> (EZShop)
+ac -> (EZShop)
+```
+
 ## Interfaces
 \<describe here each interface in the context diagram>
 
