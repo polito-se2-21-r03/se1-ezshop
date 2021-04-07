@@ -98,10 +98,6 @@ ac -> (EZShop)
 
 ## Functional Requirements
 
-\<In the form DO SOMETHING, or VERB NOUN, describe high level capabilities of the system>
-
-\<they match to high level use cases>
-
 | ID        | Description  |
 | ------------- |:-------------:|
 |  FR1     | Manage rights. Authorize access to functions to specific actors according to access rights |
@@ -187,10 +183,7 @@ ac -> (EZShop)
 
 
 ## Use case diagram
-\<define here UML Use case diagram UCD summarizing all use cases, and their relationships>
 
-
-\<next describe here each use case in the UCD>
 ### Use case 1, UC1 - Manage rights
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
@@ -244,7 +237,7 @@ ac -> (EZShop)
 |  Nominal Scenario  | When P.units <= 5 the Cashier or Manager can tick the square if the product is to be resupplied |
 |  Variants          | If P.essential = 'yes' the product will be automatically flagged to be supplied when P.units <= 10 |
 
-### Use case X, UCX - Insert a new category
+### Use case 6, UC6 - Insert a new category
 | Actors Involved    | Store manager |
 | ------------------ |:-------------:|
 |  Precondition      | - |  
@@ -253,7 +246,7 @@ ac -> (EZShop)
 |  Variants          | A category with the same name already exists and the application shows an error message. |
 |  		             | The assignment of the parent category generates a loop in the hierarchy and the operation is aborted with an error message. |
 
-### Use case X, UCX - Update an existing category
+### Use case 7, UC7 - Update an existing category
 | Actors Involved    | Store manager |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |  
@@ -262,7 +255,7 @@ ac -> (EZShop)
 |  Variants          | A category with the same name already exists and the operation is aborted. |
 |  		             | The assignment of the parent category generates a loop in the hierarchy and the operation is aborted with an error message. |
 
-### Use case X, UCX - List all products associated with the category
+### Use case 8, UC8 - List all products associated with the category
 | Actors Involved    | Store manager |
 | ------------------ |:-------------:|
 |  Precondition      | - |
@@ -270,7 +263,7 @@ ac -> (EZShop)
 |  Nominal Scenario  | The store manager enters the name of a category. If one or more categories match with the parameter, the system shows their details and the products associated with them. |
 |  Variants          | - |
 
-### Use case X, UCX - Delete a category
+### Use case 9, UC9 - Delete a category
 | Actors Involved    | Store manager |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |
@@ -278,7 +271,7 @@ ac -> (EZShop)
 |  Nominal Scenario  | The store manager selects a category and removes it. |
 |  Variants          | There is at least one product associated with category C: the operation is aborted with an error message. |
 
-### Use case X, UCX - Define a discount for products belonging to a category
+### Use case 10, UC10 - Define a discount for products belonging to a category
 | Actors Involved    | Store manager |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |
@@ -286,7 +279,7 @@ ac -> (EZShop)
 |  Nominal Scenario  | The store manager defines a percentage discount for products belonging to category C. The discount may or may not be reserved to fidelity card owners. |
 |  Variants          | - |
 
-### Use case X, UCX - Creation of a new sale transaction
+### Use case 11, UC11 - Creation of a new sale transaction
 | Actors Involved     | Cashier, Customer |
 | ------------------- |:-------------:|
 |  Precondition       | The cash register CR is not processing other transactions (CR.state == 'ready'). |  
@@ -296,8 +289,8 @@ ac -> (EZShop)
 |  Nominal Scenario   | The cashier creates a new sale transaction T. |
 |  Variants           | The customer shows a fidelity card FC. |
 
-##### Scenario X.1
-| Scenario X.1      | The customer shows a fidelity card. |
+##### Scenario 11.1
+| Scenario 11.1      | The customer shows a fidelity card. |
 | ----------------- |:-------------:|
 |  Precondition     | The cash register is not processing other transactions (CR.state == 'ready'). |
 |  Post condition   | Transaction T is created. |
@@ -309,7 +302,7 @@ ac -> (EZShop)
 |  2     | The cashier scans the fidelity card FC of the customer. |
 |  3     | The fidelity card FC is attached to the transaction. |
 
-### Use case X, UCX - Attach a product to a transaction
+### Use case 12, UC12 - Attach a product to a transaction
 | Actors Involved     | Cashier |
 | ------------------- |:-------------:|
 |  Precondition       | Transaction T exists. |
@@ -323,7 +316,7 @@ ac -> (EZShop)
 |  Variants           | - |
 
 
-### Use case X, UCX - Remove a product from a transaction
+### Use case 13, UC13 - Remove a product from a transaction
 | Actors Involved     | Cashier |
 | ------------------- |:-------------:|
 |  Precondition       | Transaction T exists. |
@@ -337,7 +330,7 @@ ac -> (EZShop)
 |  Variants           | - |
 
 
-### Use case X, UCX - Payment of a transaction
+### Use case 14, UC14 - Payment of a transaction
 | Actors Involved     | Cashier, Customer |
 | ------------------- |:-------------:|
 |  Precondition       | Transaction T exists. |
@@ -348,8 +341,8 @@ ac -> (EZShop)
 |  Variants           | The customer pays in cash but he has not enough money. |
 
 
-##### Scenario X.1
-| Scenario X.1      | The customer pays in cash and the transaction is completed successfully. |
+##### Scenario 14.1
+| Scenario 14.1      | The customer pays in cash and the transaction is completed successfully. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
@@ -364,8 +357,8 @@ ac -> (EZShop)
 |  5     | T is recorded in the transaction register. |
 
 
-##### Scenario X.2
-| Scenario X.2      | The customer pays in cash but he has not enough money. |
+##### Scenario 14.2
+| Scenario 14.2      | The customer pays in cash but he has not enough money. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
@@ -378,8 +371,8 @@ ac -> (EZShop)
 |  2     | C selects the 'cash' payment method but the customer has not enough cash. A warning is raised and the transaction is NOT aborted. The cashier can either remove products from the transaction or cancel it. |
 
 
-##### Scenario X.3
-| Scenario X.3      | The customer pays with credit card and the transaction is completed successfully. |
+##### Scenario 14.3
+| Scenario 14.3      | The customer pays with credit card and the transaction is completed successfully. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
@@ -396,8 +389,8 @@ ac -> (EZShop)
 |  5     | T is recorded in the transaction register. |
 
 
-##### Scenario X.4
-| Scenario X.4      | The customer pays with credit card but the POS system notifies a payment exception. |
+##### Scenario 14.4
+| Scenario 14.4      | The customer pays with credit card but the POS system notifies a payment exception. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
@@ -413,7 +406,7 @@ ac -> (EZShop)
 |  4     | Depending on the type of the exception raised by the POS system, the cashier can either proceed with the checkout using a different payment method or cancel the transaction. |
 
 
-### Use case X, UCX - Cancel a running sale transaction
+### Use case 15, UC15 - Cancel a running sale transaction
 | Actors Involved     | Cashier |
 | ------------------- |:-------------:|
 |  Precondition       | Transaction T exists. | 
@@ -426,7 +419,7 @@ ac -> (EZShop)
 |  Variants           | - |
 
 
-### Use case 1, UC1 - Check resupply needs
+### Use case 16, UC16 - Check resupply needs
 | Actors Involved | Supplier |
 | ------------- |:-------------:|
 | Precondition | Supplier S is logged into the system |  
@@ -434,7 +427,7 @@ ac -> (EZShop)
 | Nominal Scenario | S checks the resupply needs of the shop |
 
 ​
-### Use case 2, UC2 - Post resupply claim
+### Use case 17, UC17 - Post resupply claim
 | Actors Involved | Supplier |
 | ------------- |:-------------:|
 | Precondition | Supplier S is logged into the system |
@@ -446,7 +439,7 @@ ac -> (EZShop)
 | | Some items are not fully resupplied to the desired quantity |
 
 ​
-### Use case 3, UC3 - Edit pending resupply claim
+### Use case 18, UC18 - Edit pending resupply claim
 | Actors Involved | Supplier |
 | ------------- |:-------------:|
 | Precondition | Supplier S is logged into the system |
@@ -459,7 +452,7 @@ ac -> (EZShop)
 | | The quantity to be delivered is changed in C |
 
 ​
-### Use case 4, UC4 - Approve pending resupply claim
+### Use case 19, UC19 - Approve pending resupply claim
 | Actors Involved | Employee |
 | ------------- |:-------------:|
 | Precondition | An employee E is logged into the system |
@@ -469,7 +462,7 @@ ac -> (EZShop)
 | Nominal Scenario | E has received and checked the delivery described in C; E approves C, removing it from the pending resupply claims and stock levels are updated |
 
 ​
-### Use case 5, UC5 - View shop's expenses and earnings
+### Use case 20, UC20 - View shop's expenses and earnings
 | Actors Involved | Accountant |
 | ------------- |:-------------:|
 | Precondition | Accountant A is logged into the system |  
@@ -478,38 +471,7 @@ ac -> (EZShop)
 | Variants | A can see detailed information for each product sold in the store |
 | | A can specify a time frame to analyse accounting data |
 
-
-##### Scenario 1.1
-
-\<describe here scenarios instances of UC1>
-
-\<a scenario is a sequence of steps that corresponds to a particular execution of one use case>
-
-\<a scenario is a more formal description of a story>
-
-\<only relevant scenarios should be described>
-
-| Scenario 1.1 | |
-| ------------- |:-------------:|
-|  Precondition     | \<Boolean expression, must evaluate to true before the scenario can start> |
-|  Post condition     | \<Boolean expression, must evaluate to true after scenario is finished> |
-| Step#        | Description  |
-|  1     |  |  
-|  2     |  |
-|  ...     |  |
-
-##### Scenario 1.2
-
-##### Scenario 1.x
-
-### Use case 2, UC2
-..
-
-### Use case x, UCx
-..
-
-
-### Use case X, UCX - Define a new customer
+### Use case 21, UC21 - Define a new customer
 | Actors Involved     | Manager, Cashier |
 | ------------------- |:-------------:|
 |  Precondition       | The Actor can fill the all essential informations about customer |
@@ -521,7 +483,7 @@ ac -> (EZShop)
 |  Variants           | The email address or phone number is associated to another Customer: raise an error after "Submit" button is clicked |
 |  Variants           | Some information marked with "*" (important) are missing: raise an error after "Submit" button is clicked |
 
-### Use case X, UCX - Delete a customer
+### Use case 22, UC22 - Delete a customer
 | Actors Involved     | Manager, Cashier |
 | ------------------- |:-------------:|
 |  Precondition       | Customer exists in the system. |  
@@ -530,7 +492,7 @@ ac -> (EZShop)
 |  Nominal Scenario   | Actor reaches the GUI of Customer via browser. The Actor Search the Customer through the list and clicks on "Delete" button. After the confirmation the Customer is deleted from the database and his Card deactivated. |
 |  Variants           | If Customer's Fidelity Card has some points left, raise a Warning after pressing the "Delete" button. |
 
-### Use case X, UCX - Modify the customer
+### Use case 23, UC23 - Modify the customer
 | Actors Involved     | Manager, Cashier |
 | ------------------- |:-------------:|
 |  Precondition       | Customer exists in the system. |  
@@ -539,7 +501,7 @@ ac -> (EZShop)
 |  Variants           | The new email address/phone number is associated to another Customer: raise an error after "Submit" button is clicked |
 |  Variants           | The Customer has lost his Fidelity Card, so the Actor gives him a new one with a new ID, restoring Customer's points and deactivates the old one |
 
-### Use case X, UCX - Manage the catalogue (Insert or Update the catalogue)
+### Use case 24, UC24 - Manage the catalogue (Insert or Update the catalogue)
 
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
@@ -551,7 +513,7 @@ ac -> (EZShop)
 |  Nominal Scenario  | The Actor sets price, category and description of the product. |
 |  Variants          |  |
 
-### Use case X, UCX - Update a product
+### Use case 25, UC25 - Update a product
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
 |  Precondition      | Product P is inside the catalogue | 
@@ -561,7 +523,7 @@ ac -> (EZShop)
 |  Nominal Scenario  | The Actor search P from the lists and modifies price, category or description of the product. |
 |  Variants          |  |
 
-### Use case X, UCX - Delete a product
+### Use case 26, UC26 - Delete a product
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
 |  Precondition       | Product exists in the system. |
@@ -569,7 +531,7 @@ ac -> (EZShop)
 |  Nominal Scenario   | The product is no longer for sale so the Actor removes it from the Catalogue through the Web GUI |
 |  Variants           | |
 
-### Use case X, UCX - Define a special offer to product
+### Use case 27, UC27 - Define a special offer to product
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
 |  Precondition       | Product exists in the system. |  
@@ -580,7 +542,7 @@ ac -> (EZShop)
 |  								    | 3. Actor fills the percentage discount of the product for anonymous customer and for fidelity card |
 |  Variants           | |
 
-### Use case X, UCX - Define a special offer to product
+### Use case 28, UC28 - Define a special offer to product
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
 |  Precondition       | Product exists in the system. |  
