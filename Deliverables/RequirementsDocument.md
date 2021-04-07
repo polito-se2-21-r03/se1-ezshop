@@ -111,19 +111,21 @@ ac -> (EZShop)
 |  FR2.3   | Remove a product from the inventory |
 |  FR2.4   | Notify the Manager that a product needs to be reordered |
 |  FR2.5   | Link the product to its product descriptor |
-|  FR2.6   | Manage categories |
+|  FR2.6   | Category management |
 |  FR2.6.1 | Create/Update a category |
 |  FR2.6.2 | Assign a product to a category |
 |  FR2.6.3 | Delete a category |
 |  FR2.6.4 | List categories |
+|  FR2.6.4 | Show products associated with a category |
 |  FR2.7   | Search a product |
-|  FR3     | Manage sales |
+|  FR3     | Sales management |
 |  FR3.1   | Start a transaction |
 |  FR3.2   | Add or delete products to the transaction |
-|  FR3.3   | Add a payment method |
-|  FR3.4   | Apply discount and special offers, possibly depending on the fidelity card |
-|  FR3.5   | Complete checkout and print receipt |
-|  FR3.6   | Keep transaction informations |
+|  FR3.3   | Cancel a running transaction |
+|  FR3.4   | Add a payment method |
+|  FR3.5   | Apply discount and special offers, possibly depending on the fidelity card |
+|  FR3.6   | Complete checkout and print receipt |
+|  FR3.7   | Keep transaction informations |
 |  FR4     | Manage customers |
 |  FR4.1   | Define a new customer, or modify an existing one |
 |  FR4.2   | Create a fidelity card for the customer |
@@ -241,35 +243,39 @@ ac -> (EZShop)
 |  Nominal Scenario  | When P.units <= 5 the Cashier or Manager can tick the square if the product is to be resupplied |
 |  Variants          | If P.essential = 'yes' the product will be automatically flagged to be supplied when P.units <= 10 |
 
-### Use case X, UCX - Insertion of a new category
+### Use case X, UCX - Insert a new category
 | Actors Involved    | Store manager |
 | ------------------ |:-------------:|
-|  Precondition      | Category C does not exist. |  
+|  Precondition      | - |  
 |  Post condition    | Category C is created. |
-|  Nominal Scenario  | The store manager creates a new category by entering its properties. |
+|  Nominal Scenario  | The store manager creates a new category by entering its properties (name, description, vat percentage and possibly a parent category). |
 |  Variants          | A category with the same name already exists and the application shows an error message. |
-|  		             |The assignment of the parent category generates a loop in the hierarchy and the operation is aborted. |
-
+|  		             | The assignment of the parent category generates a loop in the hierarchy and the operation is aborted with an error message. |
 
 ### Use case X, UCX - Update an existing category
 | Actors Involved    | Store manager |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |  
 |  Post condition    | Category C is updated. |
-|  Nominal Scenario  | The store manager selects a category and changes its properties. |
+|  Nominal Scenario  | The store manager selects a category and changes its properties (name, description, vat percentage). |
 |  Variants          | A category with the same name already exists and the operation is aborted. |
-|  		             | The assignment of the parent category generates a loop in the hierarchy and the operation is aborted. |
+|  		             | The assignment of the parent category generates a loop in the hierarchy and the operation is aborted with an error message. |
 
-
-### Use case X, UCX - Assignment of a product to a category
+### Use case X, UCX - List all products associated with the category
 | Actors Involved    | Store manager |
 | ------------------ |:-------------:|
-|  Precondition      | Product P exists. |
-|                    | Category C exists. |
-|  Post condition    | Product P is associated with category C (P.category = C). |
-|  Nominal Scenario  | The store manager selects a product and associates a category to it (P.category = C). |
+|  Precondition      | - |
+|  Post condition    | - |
+|  Nominal Scenario  | The store manager enters the name of a category. If one or more categories match with the parameter, the system shows their details and the products associated with them. |
 |  Variants          | - |
 
+### Use case X, UCX - Delete a category
+| Actors Involved    | Store manager |
+| ------------------ |:-------------:|
+|  Precondition      | Category C exists. |
+|  Post condition    | Category C is removed. |
+|  Nominal Scenario  | The store manager selects a category and removes it. |
+|  Variants          | There is at least one product associated with category C: the operation is aborted with an error message. |
 
 ### Use case X, UCX - Creation of a new sale transaction
 | Actors Involved     | Cashier, Customer |
@@ -279,24 +285,20 @@ ac -> (EZShop)
 |                     | Transaction T is ready and associated with the cash register CR that created it (T.state == 'ready' && T.cash_register == CR) |
 |                     | The cash register CR is ready to modify the list of products associated to T (CR.state == 'busy'). |
 |  Nominal Scenario   | The cashier creates a new sale transaction T. |
-|  Variants           | The customer shows a loyalty card LC. |
-|                     | The customer shows an expired loyalty card LC. |
-
+|  Variants           | The customer shows a fidelity card FC. |
 
 ##### Scenario X.1
-| Scenario X.1      | The customer shows a loyalty card. |
+| Scenario X.1      | The customer shows a fidelity card. |
 | ----------------- |:-------------:|
 |  Precondition     | The cash register is not processing other transactions (CR.state == 'ready'). |
-|                   | The loyalty card is not expired (LC.expiration_date < now()) |
 |  Post condition   | Transaction T is created. |
 |                   | Transaction T is ready and associated with the cash register CR that created it (T.state == 'ready' && T.cash_register == CR) |
-|                   | The loyalty card LC is attached to the transaction T. |
+|                   | The fidelity card FC is attached to the transaction T. |
 |                   | The cash register CR is ready to modify the list of products associated to T (CR.state == 'busy'). |
 | Step#  | Description  |
 |  1     | The cashier starts a new transaction T. |
-|  2     | The cashier scans the loyalty card LC of the customer. |
-|  3     | The loyalty card LC is attached to the transaction. |
-
+|  2     | The cashier scans the fidelity card FC of the customer. |
+|  3     | The fidelity card FC is attached to the transaction. |
 
 ### Use case X, UCX - Attach a product to a transaction
 | Actors Involved     | Cashier |
@@ -334,7 +336,7 @@ ac -> (EZShop)
 |                     | Cash register is ready to modify transaction T (T.cash_register == CR). |
 |  Post condition     | Transaction T is completed, either successfully or with an exception. |
 |  Nominal Scenario   | The customer pays in cash and the transaction is completed successfully. |
-|  Variants           | The customer pays in cash but the cash register has not enough rest. |
+|  Variants           | The customer pays in cash but he has not enough money. |
 
 
 ##### Scenario X.1
@@ -346,7 +348,7 @@ ac -> (EZShop)
 |  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
 |                   | The sale transaction is recorded in the the transaction register. |
 | Step#  | Description  |
-|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the loyalty program benefits: total = sum([p.n * p.price * (1 - discount) * (1 - loyalty_benefit) for p in products]). |
+|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
 |  2     | The cashier selects the 'cash' payment method and types the cash amount given by the customer. |
 |  3     | The cash register CR computes the change. |
 |  4     | The checkout is completed successfully and a receipt is printed. |
@@ -363,8 +365,8 @@ ac -> (EZShop)
 |                   | The inventory level for products attached to the transaction is restored. |
 |                   | The sale transaction is NOT recorded in the the transaction register. |
 | Step#  | Description  |
-|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the loyalty program benefits: total = sum([p.price * (1 - discount) * (1 - loyalty_benefit) for p in products]). |
-|  2     | C selects the 'cash' payment method but the customer has not enough cash. A warning is raised. |
+|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
+|  2     | C selects the 'cash' payment method but the customer has not enough cash. A warning is raised and the transaction is NOT aborted. The cashier can either remove products from the transaction or cancel it. |
 
 
 ##### Scenario X.3
@@ -378,7 +380,7 @@ ac -> (EZShop)
 |                   | The inventory level for products affected by the sale transaction is updated. |
 |                   | The sale transaction is recorded in the the transaction register. |
 | Step#  | Description  |
-|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the loyalty program benefits: total = sum([p.price * (1 - discount) * (1 - loyalty_benefit) for p in products]). |
+|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
 |  2     | The cash register CR communicates the total to the credit card POS system. |
 |  3     | The credit card POS system notifies a successful payment. |
 |  4     | The checkout is completed successfully and a receipt is printed. |
@@ -396,10 +398,23 @@ ac -> (EZShop)
 |                   | The inventory level for products attached to the transaction is restored. |
 |                   | The sale transaction is NOT recorded in the the transaction register. |
 | Step#  | Description  |
-|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the loyalty program benefits: total = sum([p.price * (1 - discount) * (1 - loyalty_benefit) for p in products]). |
+|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
 |  2     | The cash register CR communicates the total to the credit card POS system. |
 |  3     | The credit card POS system notifies an exception. |
-|  4     | The transaction is aborted or the checkout can be repeated depending on the type of the ex. |
+|  4     | Depending on the type of the exception raised by the POS system, the cashier can either proceed with the checkout using a different payment method or cancel the transaction. |
+
+
+### Use case X, UCX - Cancel a running sale transaction
+| Actors Involved     | Cashier |
+| ------------------- |:-------------:|
+|  Precondition       | Transaction T exists. | 
+|                     | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|  Post condition     | Transaction T is cancelled. |
+|                     | CR is ready for processing another transaction (CR.state == 'ready'). |
+|                     | The inventory level for products attached to the transaction is restored. |
+|                     | The sale transaction is NOT recorded in the the transaction register. |
+|  Nominal Scenario   | The cashier cancels the transaction. |
+|  Variants           | - |
 
 
 ### Use case 1, UC1 - Check resupply needs
