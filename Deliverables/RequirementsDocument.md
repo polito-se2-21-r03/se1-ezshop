@@ -81,7 +81,10 @@ ac -> (EZShop)
 
 | Actor | Logical Interface | Physical Interface  |
 | ------------- |:-------------:| -----:|
-|   Actor x..     |  |  |
+| Manager, Accountant | Web GUI | Screen, Keyboard, Mouse on PC |
+| Cashier | Web GUI | Cash Register, Barcode Scanner, Screen, Keyboard, Mouse on PC |
+| Supplier | API | Supplier managment system |
+| Customer | GUI + API | Automatic Cash Register, Barcode Scanner, Touchscreen Display |
 
 # Stories and personas
 \<A Persona is a realistic impersonation of an actor. Define here a few personas and describe in plain text how a persona interacts with the system>
@@ -101,21 +104,83 @@ ac -> (EZShop)
 
 | ID        | Description  |
 | ------------- |:-------------:|
-|  FR1     |  |
-|  FR2     |   |
-| FRx..  | |
+|  FR1     | Manage rights. Authorize access to functions to specific actors according to access rights |
+|  FR2     | Manage inventory |
+|  FR2.1   | Insert a new product inside the inventory |
+|  FR2.2   | Update the inventory level for a product |
+|  FR2.3   | Remove a product from the inventory |
+|  FR2.4   | Notify the Manager that a product needs to be reordered |
+|  FR2.5   | Link the product to its product descriptor |
+|  FR2.6   | Manage position in the warehouse and on the shelves |
+|  FR2.7   | Manage categories |
+|  FR2.7.1 | Create/Update a category |
+|  FR2.7.2 | Assign a product to a category |
+|  FR2.7.3 | Delete a category |
+|  FR2.7.4 | List categories |
+|  FR2.8   | Search a product |
+|  FR3     | Manage sales |
+|  FR3.1   | Start a transaction |
+|  FR3.2   | Add or delete products to the transaction |
+|  FR3.3   | Add a payment method |
+|  FR3.4   | Apply discount and special offers, possibly depending on the fidelity card |
+|  FR3.5   | Complete checkout and print receipt |
+|  FR3.6   | Keep transaction informations |
+|  FR4     | Manage customers |
+|  FR4.1   | Define a new customer, or modify an existing one |
+|  FR4.2   | Create a fidelity card for the customer |
+|  FR4.3   | Delete a customer |
+|  FR4.4   | Search a customer |
+|  FR5     | Manage catalogue (prices): |
+|  FR5.1   | Insert/Update/Remove a product descriptor |
+|  FR5.2   | Define a special offer for the product |
+|  FR5.3   | Define special offers for fidelity plans |
+|  FR6     | Manage accounting |
+|  FR6.1   | Manage incomes and expenses |
+|  FR6.2   | Compute a balance |
+|  FR6.3   | Write a report |
+|  FR7     | Manage orders |
+|  FR7.1   | Issue an order |
+|  FR7.2   | Keep track of orders |
+|  FR7.3   | Keep track of expenses |
+
+### Access right, actor vs function
+
+| Function | Store Manager | Cashier | Customer | Anonymous Customer | Accountant |
+| ------------- |:-------------|--|--|--|--|
+| FR1 | yes | no | no | no | no |
+| FR2.1 | yes | no | no | no | no |
+| FR2.2 | yes | no | no | no | no |
+| FR2.3 | yes | no | no | no | no |
+| FR2.4 | yes | yes | no | no | no |
+| FR2.5 | yes | no | no | no | no |
+| FR2.6 | yes | yes | no | no | no |
+| FR2.7 | yes | no | no | no | no |
+| FR3 | yes | yes | yes | yes | no |
+| FR4.1 | yes | yes | Only Customer X for Customer X | no | no |
+| FR4.2 | yes | yes | no | no | no |
+| FR4.3 | yes | yes | Only Customer X for Customer X | no | no |
+| FR4.4 | yes | yes | no | no | no |
+| FR5   | yes | no | no | no | yes |
+| FR6   | yes | no | no | no | yes |
+| FR7.1   | yes | no | no | no | no |
+| FR7.2   | yes | no | no | no | no |
+| FR7.3   | yes | no | no | no | yes |
+
 
 ## Non Functional Requirements
 
 \<Describe constraints on functional requirements>
 
-| ID        | Type (efficiency, reliability, ..)           | Description  | Refers to |
+| ID        | Type | Description  | Refers to |
 | ------------- |:-------------:| :-----:| -----:|
-|  NFR1     |   |  | |
-|  NFR2     | |  | |
-|  NFR3     | | | |
-| NFRx .. | | | |
-
+|  NFR1     | Privacy  | Ensure customer data are stored safely and can't be accessed by non authorized users. | All FR |
+|  NFR2     | Privacy | The system complies with local privacy law requirements (GDPR in Europe). | All FR |
+|  NFR4     | Reliability | The software should be able to correctly update the inventory level in any situation (even if an error occurs) | All FR |
+|  NFR5     | Portability | The application should be accessed by Chrome (version 81 and more recent), and Safari (version 13 and more recent) (this covers around 80% of installed browsers); and from the operating systems where these browsers are available (Windows, MacOS, Unix). | All FR |
+|  NFR6     | Security | All the users of the systems should be authenticated and no information should be visible to the outside. | All FR |
+|  NFR7     | Performance |  The application should complete operations in less than 1 second. | All FR |
+|  NFR8     | Maintainability | The application should be always up to date with law requirements and security standards | All FR |
+|  NFR3     | Usability | The application should be used with no specific training.| All FR |
 
 # Use case diagram and use cases
 
