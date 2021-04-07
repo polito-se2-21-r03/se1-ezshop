@@ -125,6 +125,169 @@ ac -> (EZShop)
 
 
 \<next describe here each use case in the UCD>
+
+
+### Use case X, UCX - Insertion of a new category
+| Actors Involved    | Store manager |
+| ------------------ |:-------------:| 
+|  Precondition      | Category C does not exist. |  
+|  Post condition    | Category C is created. |
+|  Nominal Scenario  | The store manager creates a new category by entering its properties. |
+|  Variants          | A category with the same name already exists and the application shows an error message. |
+|  		             |The assignment of the parent category generates a loop in the hierarchy and the operation is aborted. |
+
+
+### Use case X, UCX - Update an existing category
+| Actors Involved    | Store manager |
+| ------------------ |:-------------:| 
+|  Precondition      | Category C exists. |  
+|  Post condition    | Category C is updated. |
+|  Nominal Scenario  | The store manager selects a category and changes its properties. |
+|  Variants          | A category with the same name already exists and the operation is aborted. |
+|  		             | The assignment of the parent category generates a loop in the hierarchy and the operation is aborted. |
+
+
+### Use case X, UCX - Assignment of a product to a category
+| Actors Involved    | Store manager |
+| ------------------ |:-------------:| 
+|  Precondition      | Product P exists. |
+|                    | Category C exists. |
+|  Post condition    | Product P is associated with category C (P.category = C). |
+|  Nominal Scenario  | The store manager selects a product and associates a category to it (P.category = C). |
+|  Variants          | - |
+
+
+### Use case X, UCX - Creation of a new sale transaction
+| Actors Involved     | Cashier, Customer |
+| ------------------- |:-------------:| 
+|  Precondition       | The cash register CR is not processing other transactions (CR.state == 'ready'). |  
+|  Post condition     | Transaction T is created. |
+|                     | Transaction T is ready and associated with the cash register CR that created it (T.state == 'ready' && T.cash_register == CR) |
+|                     | The cash register CR is ready to modify the list of products associated to T (CR.state == 'busy'). |
+|  Nominal Scenario   | The cashier creates a new sale transaction T. |
+|  Variants           | The customer shows a loyalty card LC. |
+|                     | The customer shows an expired loyalty card LC. |
+
+
+##### Scenario X.1 
+| Scenario X.1      | The customer shows a loyalty card. |
+| ----------------- |:-------------:| 
+|  Precondition     | The cash register is not processing other transactions (CR.state == 'ready'). |
+|                   | The loyalty card is not expired (LC.expiration_date < now()) |
+|  Post condition   | Transaction T is created. |
+|                   | Transaction T is ready and associated with the cash register CR that created it (T.state == 'ready' && T.cash_register == CR) |
+|                   | The loyalty card LC is attached to the transaction T. |
+|                   | The cash register CR is ready to modify the list of products associated to T (CR.state == 'busy'). |
+| Step#  | Description  |
+|  1     | The cashier starts a new transaction T. |
+|  2     | The cashier scans the loyalty card LC of the customer. |
+|  3     | The loyalty card LC is attached to the transaction. |
+
+
+### Use case X, UCX - Attach a product to a transaction
+| Actors Involved     | Cashier |
+| ------------------- |:-------------:| 
+|  Precondition       | Transaction T exists. |
+|                     | Product P exists and its inventory level is at least n (P.units >= n) |  
+|                     | Cash register is ready to modify transaction T (T.cash_register == CR). |  
+|  Post condition     | CR is ready to further modify the list of products associated to T. |
+|                     | CR is ready to complete check-out for transaction T. |
+|                     | Product P is added to the products list of transaction T with quantity n. |
+|                     | The inventory level for product P is updated (P.units -= n) |
+|  Nominal Scenario   | The cashier adds product P to the products list of transaction T with quantity n; the application updates the inventory level for product P. |
+|  Variants           | - |
+
+
+### Use case X, UCX - Remove a product from a transaction
+| Actors Involved     | Cashier |
+| ------------------- |:-------------:| 
+|  Precondition       | Transaction T exists. |
+|                     | Product P is attached to the transaction with quantity n (P in T.products && T.products[P] == n) |  
+|                     | Cash register is ready to modify transaction T (T.cash_register == CR && CR.state == 'busy'). |
+|  Post condition     | CR is ready to further modify the list of products associated to T. |
+|                     | CR is ready to complete check-out for transaction T. |
+|                     | Product P is removed from the products list of transaction T. |
+|                     | The inventory level for product P is restored (P.units += n) |
+|  Nominal Scenario   | The cashier removes product P from the transaction; the application updates the inventory level for product P. |
+|  Variants           | - |
+
+
+### Use case X, UCX - Payment of a transaction
+| Actors Involved     | Cashier, Customer |
+| ------------------- |:-------------:| 
+|  Precondition       | Transaction T exists. |
+|                     | At least one product is attached to transaction T (T.products.length > 0). |  
+|                     | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|  Post condition     | Transaction T is completed, either successfully or with an exception. |
+|  Nominal Scenario   | The customer pays in cash and the transaction is completed successfully. |
+|  Variants           | The customer pays in cash but the cash register has not enough rest. |
+
+
+##### Scenario X.1 
+| Scenario X.1      | The customer pays in cash and the transaction is completed successfully. |
+| ----------------- |:-------------:| 
+|  Precondition     | Transaction T exists. |
+|                   | At least one product is attached to transaction T (T.products.length > 0). |  
+|                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
+|                   | The sale transaction is recorded in the the transaction register. |
+| Step#  | Description  |
+|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the loyalty program benefits: total = sum([p.n * p.price * (1 - discount) * (1 - loyalty_benefit) for p in products]). |
+|  2     | The cashier selects the 'cash' payment method and types the cash amount given by the customer. |
+|  3     | The cash register CR computes the change. |
+|  4     | The checkout is completed successfully and a receipt is printed. |
+|  5     | T is recorded in the transaction register. |
+
+
+##### Scenario X.2
+| Scenario X.2      | The customer pays in cash but he has not enough money. |
+| ----------------- |:-------------:| 
+|  Precondition     | Transaction T exists. |
+|                   | At least one product is attached to transaction T (T.products.length > 0). |  
+|                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
+|                   | The inventory level for products attached to the transaction is restored. |
+|                   | The sale transaction is NOT recorded in the the transaction register. |
+| Step#  | Description  |
+|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the loyalty program benefits: total = sum([p.price * (1 - discount) * (1 - loyalty_benefit) for p in products]). |
+|  2     | C selects the 'cash' payment method but the customer has not enough cash. A warning is raised. |
+
+
+##### Scenario X.3
+| Scenario X.3      | The customer pays with credit card and the transaction is completed successfully. |
+| ----------------- |:-------------:| 
+|  Precondition     | Transaction T exists. |
+|                   | At least one product is attached to transaction T (T.products.length > 0). |  
+|                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|                   | The credit card POS system is ready. |
+|  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
+|                   | The inventory level for products affected by the sale transaction is updated. |
+|                   | The sale transaction is recorded in the the transaction register. |
+| Step#  | Description  |
+|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the loyalty program benefits: total = sum([p.price * (1 - discount) * (1 - loyalty_benefit) for p in products]). |
+|  2     | The cash register CR communicates the total to the credit card POS system. |
+|  3     | The credit card POS system notifies a successful payment. |
+|  4     | The checkout is completed successfully and a receipt is printed. |
+|  5     | T is recorded in the transaction register. |
+
+
+##### Scenario X.4
+| Scenario X.4      | The customer pays with credit card but the POS system notifies a payment exception. |
+| ----------------- |:-------------:| 
+|  Precondition     | Transaction T exists. |
+|                   | At least one product is attached to transaction T (T.products.length > 0). |  
+|                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|                   | The credit card POS system is ready. |
+|  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
+|                   | The inventory level for products attached to the transaction is restored. |
+|                   | The sale transaction is NOT recorded in the the transaction register. |
+| Step#  | Description  |
+|  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the loyalty program benefits: total = sum([p.price * (1 - discount) * (1 - loyalty_benefit) for p in products]). |
+|  2     | The cash register CR communicates the total to the credit card POS system. |
+|  3     | The credit card POS system notifies an exception. |
+|  4     | The transaction is aborted or the checkout can be repeated depending on the type of the ex. |
+
+
 ### Use case 1, UC1 - Check resupply needs
 | Actors Involved | Supplier |
 | ------------- |:-------------:|
