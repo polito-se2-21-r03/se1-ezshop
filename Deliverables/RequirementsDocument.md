@@ -117,6 +117,7 @@ ac -> (EZShop)
 |  FR2.6.3 | Delete a category |
 |  FR2.6.4 | List categories |
 |  FR2.6.4 | Show products associated with a category |
+|  FR2.6.5 | Define a discount for products belonging to a category |
 |  FR2.7   | Search a product |
 |  FR3     | Sales management |
 |  FR3.1   | Start a transaction |
@@ -276,6 +277,14 @@ ac -> (EZShop)
 |  Post condition    | Category C is removed. |
 |  Nominal Scenario  | The store manager selects a category and removes it. |
 |  Variants          | There is at least one product associated with category C: the operation is aborted with an error message. |
+
+### Use case X, UCX - Define a discount for products belonging to a category
+| Actors Involved    | Store manager |
+| ------------------ |:-------------:|
+|  Precondition      | Category C exists. |
+|  Post condition    | Discounts associated with category C are updated. |
+|  Nominal Scenario  | The store manager defines a percentage discount for products belonging to category C. The discount may or may not be reserved to fidelity card owners. |
+|  Variants          | - |
 
 ### Use case X, UCX - Creation of a new sale transaction
 | Actors Involved     | Cashier, Customer |
