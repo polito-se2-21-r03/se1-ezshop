@@ -125,13 +125,58 @@ ac -> (EZShop)
 
 
 \<next describe here each use case in the UCD>
-### Use case 1, UC1
-| Actors Involved        |  |
+### Use case 1, UC1 - Check resupply needs
+| Actors Involved | Supplier |
 | ------------- |:-------------:|
-|  Precondition     | \<Boolean expression, must evaluate to true before the UC can start> |  
-|  Post condition     | \<Boolean expression, must evaluate to true after UC is finished> |
-|  Nominal Scenario     | \<Textual description of actions executed by the UC> |
-|  Variants     | \<other executions, ex in case of errors> |
+| Precondition | Supplier S is logged into the system |  
+| Post condition | S sees list of products and quantities to be resupplied |
+| Nominal Scenario | S checks the resupply needs of the shop |
+
+​
+### Use case 2, UC2 - Post resupply claim
+| Actors Involved | Supplier |
+| ------------- |:-------------:|
+| Precondition | Supplier S is logged into the system |
+| | The shop is not fully stocked |
+| Post condition | A pending resupply claim is created |
+| Nominal Scenario | The shop is running low on some items; S checks the shops resupply needs and delivers items; S creates a resupply claim indicating which items have been delivered to the shop |
+| Variants | Shop is being fully resupplied |
+| | Only a subset of items is being resupplied |
+| | Some items are not fully resupplied to the desired quantity |
+
+​
+### Use case 3, UC3 - Edit pending resupply claim
+| Actors Involved | Supplier |
+| ------------- |:-------------:|
+| Precondition | Supplier S is logged into the system |
+| | S has posted a resupply claim C to the system |
+| | No shop employee has approved C yet |
+| Post condition | C is updated with the products and quantities about to be delivered |
+| Nominal Scenario | S has created C; Before any employee of the shop approves C, S notices a mistake; S updates C with the correct products and quantities he is intending to deliver |
+| Variants | A product is removed from C |
+| | A product is added to C |
+| | The quantity to be delivered is changed in C |
+
+​
+### Use case 4, UC4 - Approve pending resupply claim
+| Actors Involved | Employee |
+| ------------- |:-------------:|
+| Precondition | An employee E is logged into the system |
+| | A pending resupply claim C exists |
+| Post condition | The items from C are added to the shops stock |
+| | C is no longer marked as pending |
+| Nominal Scenario | E has received and checked the delivery described in C; E approves C, removing it from the pending resupply claims and stock levels are updated |
+
+​
+### Use case 5, UC5 - View shop's expenses and earnings
+| Actors Involved | Accountant |
+| ------------- |:-------------:|
+| Precondition | Accountant A is logged into the system |  
+| Post condition | A sees a list of expenses and earnings for the shop |
+| Nominal Scenario | A analyses the shops expenses and earnings from sales |
+| Variants | A can see detailed information for each product sold in the store |
+| | A can specify a time frame to analyse accounting data |
+
 
 ##### Scenario 1.1
 
