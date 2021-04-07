@@ -190,7 +190,58 @@ ac -> (EZShop)
 
 
 \<next describe here each use case in the UCD>
+### Use case 1, UC1 - Manage rights
+| Actors Involved    | Store Manager |
+| ------------------ |:-------------:|
+|  Precondition      | The new employee does not have an account |  
+|  Post condition    | The new employee have an account on the system |
+|  Nominal Scenario  | The Store Manager hires a new employee and creates a new account with 'accountant' or 'cashier' rights |
+|  Variants          | The Store Manager updates the rights of an employee |
 
+### Use case 2, UC2 -  Insert a new product inside the inventory
+| Actors Involved    | Store Manager |
+| ------------------ |:-------------:|
+|  Precondition      | Product P does not exist inside the inventory |  
+|  Post condition    | Manager inserts product P inside the inventory |
+| | P.units is set according to the number of units of product P available |
+| | P.cost is set according to the actual cost of each unit |
+| | P.cost_total = P.cost*P.units |
+| | P.cathegory is set |
+| | P.desc is set, which is a string that describes the product |
+| | If the item is for sale, P.forsale = 'yes' is set and P.price is set, which is the price tag for each unit of the product |
+| | If the item is part of the shop's furnitures P.forsale = 'no'  |
+| | If the item is considered to be essential, P.essential = 'yes' |
+|  Nominal Scenario  | A new product is supplied, so the Manager enters all the infos inside the inventory. If P.forsale = 'yes' then set P.price |
+|  Variants          | If P.forsale = 'no', the new product is part of the furniture of the shop (i.e. shelves, cash registers etc.) |
+
+### Use case 3, UC3 - Update the inventory level for a product
+| Actors Involved    | Store Manager |
+| ------------------ |:-------------:|
+|  Precondition      | Product P already exists inside the inventory |  
+|  Post condition    | Store Manager updates product P infos inside the inventory |
+| | P.newunits is set according to the number of new units arrived at the shop |
+| | P.units = P.units + P.newunits |
+| | P.desc can be modified |
+| | P.newcost is set according to the new cost of each new unit |
+| | P.newcost_total = P.cost_total + P.newcost*P.newunits |
+|  Nominal Scenario  | New supplies of product P arrive at the shop, the Store Manager has to set the entries P.newunits and P.newcost |
+|  Variants          | - |
+
+### Use case 4, UC4 - Remove a product from the inventory
+| Actors Involved    | Store Manager |
+| ------------------ |:-------------:|
+|  Precondition      | Product P exists inside the inventory |  
+|  Post condition    | Product P is deleted from the inventory |
+|  Nominal Scenario  | The Manager deletes a product from the system, and he has to confirm his choice |
+|  Variants          | - |
+
+### Use case 5, UC5 - Notify that a product needs to be reordered
+| Actors Involved    | Store Manager, Cashier |
+| ------------------ |:-------------:|
+|  Precondition      | Shop is running out of supplies of Product P  |  
+|  Post condition    | P.supply = 'yes' flag is set |
+|  Nominal Scenario  | When P.units <= 5 the Cashier or Manager can tick the square if the product is to be resupplied |
+|  Variants          | If P.essential = 'yes' the product will be automatically flagged to be supplied when P.units <= 10 |
 
 ### Use case X, UCX - Insertion of a new category
 | Actors Involved    | Store manager |
