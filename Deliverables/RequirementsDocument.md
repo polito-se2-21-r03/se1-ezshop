@@ -111,13 +111,12 @@ ac -> (EZShop)
 |  FR2.3   | Remove a product from the inventory |
 |  FR2.4   | Notify the Manager that a product needs to be reordered |
 |  FR2.5   | Link the product to its product descriptor |
-|  FR2.6   | Manage position in the warehouse and on the shelves |
-|  FR2.7   | Manage categories |
-|  FR2.7.1 | Create/Update a category |
-|  FR2.7.2 | Assign a product to a category |
-|  FR2.7.3 | Delete a category |
-|  FR2.7.4 | List categories |
-|  FR2.8   | Search a product |
+|  FR2.6   | Manage categories |
+|  FR2.6.1 | Create/Update a category |
+|  FR2.6.2 | Assign a product to a category |
+|  FR2.6.3 | Delete a category |
+|  FR2.6.4 | List categories |
+|  FR2.7   | Search a product |
 |  FR3     | Manage sales |
 |  FR3.1   | Start a transaction |
 |  FR3.2   | Add or delete products to the transaction |
@@ -153,7 +152,6 @@ ac -> (EZShop)
 | FR2.3 | yes | no | no | no | no |
 | FR2.4 | yes | yes | no | no | no |
 | FR2.5 | yes | no | no | no | no |
-| FR2.6 | yes | yes | no | no | no |
 | FR2.7 | yes | no | no | no | no |
 | FR3 | yes | yes | yes | yes | no |
 | FR4.1 | yes | yes | Only Customer X for Customer X | no | no |
@@ -207,7 +205,7 @@ ac -> (EZShop)
 | | P.cost is set according to the actual cost of each unit |
 | | P.cost_total = P.cost*P.units |
 | | P.cathegory is set |
-| | P.desc is set, which is a string that describes the product |
+| | P.id is set, which is the barcode of the product |
 | | If the item is for sale, P.forsale = 'yes' is set and P.price is set, which is the price tag for each unit of the product |
 | | If the item is part of the shop's furnitures P.forsale = 'no'  |
 | | If the item is considered to be essential, P.essential = 'yes' |
@@ -488,157 +486,73 @@ ac -> (EZShop)
 
 
 ### Use case X, UCX - Define a new customer
-| Actors Involved     | Manager, Cashier, Customer |
+| Actors Involved     | Manager, Cashier |
 | ------------------- |:-------------:|
-|  Precondition       | The Actor can fill the all essential informations about customer. |
-|                     | Customer does not exist in the system. |  
-|  Post condition     | The customer is added to the system. |
-|                     | A fidelity  card is given to the customer.|
-|  Nominal Scenario   | 1. Actor reaches the GUI of create new member via a browser.|
-|  								    | 2. Actor fills the essential information of customer. |
-|  								    | 3. The informations is submitted. |
-|  								    | 4. A fidelity card is paired with customer. |
-|  								    | 5. The fidelity card is given to the customer. |
-|  Variants           | |
-
-### Use case X, UCX - Define a new customer
-| Actors Involved     | Manager, Cashier, Customer |
-| ------------------- |:-------------:|
-|  Precondition       | The Actor can not fill the all essential informations about customer. |
-|                     | Customer does not exist in the system. |  
-|  Post condition     | The transaction has not finished. |
-|                     | The “Missing information” error is raised.|
-| Exceptional Scenario| 1. Actor reaches the GUI of create new member via a browser.|
-|  								    | 2. Actor fills the essential information of customer. |
-|  								    | 3. When the submit button is clicked, an error is raised.  |
-|  Variants           | |
-
-### Use case X, UCX - Define a new customer
-| Actors Involved     | Manager, Cashier, Customer |
-| ------------------- |:-------------:|
-|  Precondition       | The Actor can fill the all essential informations about customer. |
-|                     | Customer exists in the system. |  
-|  Post condition     | The customer is added to the system. |
-|                     | A fidelity  card is given to the customer.|
-| Exceptional Scenario| 1. Actor reaches the GUI of create new member via a browser.|
-|  								    | 2. Actor fills the essential information of customer. |
-|  								    | 3. When the informations is submitted correctly, a trigger is activated. And if there found a customer with same ID number, an error is raised and the transaction is rolled back |
-|  Variants           | |
+|  Precondition       | The Actor can fill the all essential informations about customer |
+|                     | Customer does not exist in the system | 
+|  Post condition     | Actor fills the Customer's info |
+|  					  | A fidelity card is paired with customer |
+|                     | The Customer is added to the system |
+|  Nominal Scenario   | Actor reaches the GUI of Customer via a browser. After having filled all the needed information, the Actor gives the Fidelity Card to the new Customer. |
+|  Variants           | The email address or phone number is associated to another Customer: raise an error after "Submit" button is clicked |
+|  Variants           | Some information marked with "*" (important) are missing: raise an error after "Submit" button is clicked |
 
 ### Use case X, UCX - Delete a customer
-| Actors Involved     | Manager, Cashier, Customer |
+| Actors Involved     | Manager, Cashier |
 | ------------------- |:-------------:|
 |  Precondition       | Customer exists in the system. |  
-|  Post condition     | The customer deleted from the system. |
-|                     | Active fidelity cards list has been upgraded on the system.|
-|  Nominal Scenario   | 1. Actor reaches the GUI of deleting page via browser.|
-|  								    | 2. Actor fills the essential information of customer|
-|  								    | 3. The informations is submitted. |
-|  								    | 4. The informations of customer and the fidelity card number is deleted from server. |
-|  Variants           | |
+|  Post condition     | The Customer deleted from the system. |
+|                     | Deactivate Fidelity Card of Customer |
+|  Nominal Scenario   | Actor reaches the GUI of Customer via browser. The Actor Search the Customer through the list and clicks on "Delete" button. After the confirmation the Customer is deleted from the database and his Card deactivated. |
+|  Variants           | If Customer's Fidelity Card has some points left, raise a Warning after pressing the "Delete" button. |
 
 ### Use case X, UCX - Modify the customer
-| Actors Involved     | Manager, Cashier, Customer |
+| Actors Involved     | Manager, Cashier |
 | ------------------- |:-------------:|
 |  Precondition       | Customer exists in the system. |  
-|											| There is not an other customer with same ID on the system. |
 |  Post condition     | The customer information has been updated on the system. |
-|  Nominal Scenario   | 1. Actor reaches the GUI of the member’s page via browser. |
-|  								    | 2. Actor fills the essential information of customer.|
-|  								    | 3. The informations is submitted. |
-|  Variants           | |
+|  Nominal Scenario   | Actor reaches the GUI of Customer via browser. After having filled all the information that need to be modified, the Actor saves the changes. |
+|  Variants           | The new email address/phone number is associated to another Customer: raise an error after "Submit" button is clicked |
+|  Variants           | The Customer has lost his Fidelity Card, so the Actor gives him a new one with a new ID, restoring Customer's points and deactivates the old one |
 
-### Use case X, UCX - Modify the customer
-| Actors Involved     | Manager, Cashier, Customer |
-| ------------------- |:-------------:|
-|  Precondition       | Customer exists in the system. |  
-|											| There is an other customer with same ID on the system. |
-|  Post condition     | The customer information has not been updated on the system. |
-| Exceptional Scenario| 1. Actor reaches the GUI of the member’s page via browser. |
-|  								    | 2. Actor fills the essential information of customer.|
-|  								    | 3. The informations is submitted. |
-|											| 4. A customer with the same id (SSN) is found. An error is raised. |
-|  Variants           | |
+### Use case X, UCX - Manage the catalogue (Insert or Update the catalogue)
 
-### Use case X, UCX - Insert a new product
-| Actors Involved     | Manager, Accountant |
-| ------------------- |:-------------:|
-|  Precondition       | Product does not exist in the system. |  
-|											| There is not an other product with the same name. |
-|  Post condition     | Product has been added into the system with the timestamp.  |
-|  Nominal Scenario   | 1. Actor reaches the GUI of product catalogue via browser. |
-|  								    | 2.Actor fills the properties of the product.|
-|  								    | 3.Actor submits the transection. |
-|  Variants           | |
-
-### Use case X, UCX - Insert a new product
-| Actors Involved     | Manager, Accountant |
-| ------------------- |:-------------:|
-|  Precondition       | Product exists in the system. |  
-|											| There is an other product with the same name. |
-|  Post condition     | Product has not been added into the system. |
-| Exceptional Scenario| 1. Actor reaches the GUI of product catalogue via browser. |
-|  								    | 2.Actor fills the properties of the product.|
-|  								    | 3.When the informations is submitted, a trigger is activated. And if there found a product with same name, an error is raised and the transaction is rolled back. |
-|  Variants           | |
+| Actors Involved    | Store Manager, Accountant |
+| ------------------ |:-------------:|
+|  Precondition      | Product P is inside the inventory | 
+| | Product P is for sale (P.forsale = 'yes') | 
+|  Post condition    | P.description is set, which is a string that describes the product |
+| | P.category is set |
+| | P.price is set, which is the base price of the Product |
+|  Nominal Scenario  | The Actor sets price, category and description of the product. |
+|  Variants          |  |
 
 ### Use case X, UCX - Update a product
-| Actors Involved     | Manager, Accountant |
-| ------------------- |:-------------:|
-|  Precondition       | Product exists in the system. |  
-|											| There is not a product which shares same name or identification number after update. |
-|  Post condition     | Information of a product has been updated on the system. |
-|  Nominal Scenario   | 1.Actor reaches the GUI of product catalogue via browser. |
-|  								    | 2.Actor finds the page of the product. |
-|  								    | 3. Actor upgrades the information of the product. |
-|											| 4. Actor submits the transaction. |
-|  Variants           | |
-
-### Use case X, UCX - Update a product
-| Actors Involved     | Manager, Accountant |
-| ------------------- |:-------------:|
-|  Precondition       | Product exists in the system. |  
-|											| There is a product which shares same name or identification number after update. |
-|  Post condition     | The system raises an error that “there is another product with the same name or the identification number.” and transactions is rolled back. |
-| Exceptional Scenario| 1.Actor reaches the GUI of product catalogue via browser. |
-|  								    | 2.Actor finds the page of the product. |
-|  								    | 3. Actor upgrades the information of the product. |
-|											| 4. Actor submits the transaction. |
-|											| 5. When a submit happen, a trigger is activated. If the rigger find a product which shares the same name or identification number with the upgraded product. The system raises an error and transactions is rolled back. |
-|  Variants           | |
+| Actors Involved    | Store Manager, Accountant |
+| ------------------ |:-------------:|
+|  Precondition      | Product P is inside the catalogue | 
+|  Post condition    | P.description can be updated |
+| | P.category can be modified |
+| | P.price can be changed, which is the base price of the Product |
+|  Nominal Scenario  | The Actor search P from the lists and modifies price, category or description of the product. |
+|  Variants          |  |
 
 ### Use case X, UCX - Delete a product
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
-|  Precondition       | Product exists in the system. |  
-|											| There is not product stock in storage or shelters. |
+|  Precondition       | Product exists in the system. |
 |  Post condition     | Product has been deleted on the system. |
-|  Nominal Scenario   | 1.Actor reaches the GUI of product catalogue via browser. |
-|  								    | 2.Actor finds the page of the product. |
-|  								    | 3. Actor clicks the delete button of the product. |
-|  Variants           | |
-
-### Use case X, UCX - Delete a product
-| Actors Involved     | Manager, Accountant |
-| ------------------- |:-------------:|
-|  Precondition       | Product exists in the system. |  
-|											| There is product stock in storage or shelters. |
-|  Post condition     | Product has not been deleted on the system. |
-|											| An error that “There is still stock of product.” is raised. |
-| Exceptional Scenario| 1.Actor reaches the GUI of product catalogue via browser. |
-|  								    | 2.Actor finds the page of the product. |
-|  								    | 3. Actor clicks the delete button of the product. |
-|											| 4. An error is raised and the transactions is rolled back.|
+|  Nominal Scenario   | The product is no longer for sale so the Actor removes it from the Catalogue through the Web GUI |
 |  Variants           | |
 
 ### Use case X, UCX - Define a special offer to product
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
 |  Precondition       | Product exists in the system. |  
-|											| There is not previous offer on the product with same type discounts. |
+| | There is not previous offer on the product with same type discounts. |
 |  Post condition     | The price of product has been recalculated on the system. |
 |  Nominal Scenario   | 1.Actor reaches the GUI of product catalogue via browser. |
-|  								    | 2.Actor selects one or more products. |
+|  | 2.Actor selects one or more products. |
 |  								    | 3. Actor fills the percentage discount of the product for anonymous customer and for fidelity card |
 |  Variants           | |
 
