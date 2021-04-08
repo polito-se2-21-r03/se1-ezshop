@@ -181,8 +181,165 @@ ac -> (EZShop)
 
 # Use case diagram and use cases
 
-
 ## Use case diagram
+```plantuml
+"Store manager" as StoreManager
+(Manage access rights) as FR1
+(Manage access rights) as UC1
+
+FR1 ..> UC1 :include
+
+StoreManager -> UC1
+```
+
+```plantuml
+"Store manager" as StoreManager
+
+(Manage inventory) as FR2
+(Manage categories) as FR2_7
+
+(Insert a new product) as UC2
+(Update the level) as UC3
+(Remove a product) as UC4
+(Notify reordering needs) as UC5
+(Insert a new category) as UC6
+(Update a category) as UC7
+(List all products) as UC8
+(Delete a category) as UC9
+(Define a discount) as UC10
+
+/' Inventory management (UC2, UC3, UC4, UC5) '/
+FR2 ...> UC2 :include
+FR2 ...> UC3 :include
+FR2 ....> UC4 :include
+FR2 ....> UC5 :include
+
+/' Category management (UC6, UC7, UC8, UC9, UC10) '/
+FR2 ..> FR2_7 :include
+FR2_7 ...> UC6 :include
+FR2_7 ...> UC7 :include
+FR2_7 ..> UC8 :include
+FR2_7 ..> UC9 :include
+FR2_7 ..> UC10 :include
+
+UC2 <-- StoreManager
+UC3 <-- StoreManager
+UC4 <-- StoreManager
+UC5 <-- StoreManager
+UC6 <-- StoreManager
+UC7 <-- StoreManager
+UC8 <--> StoreManager
+UC9 <-- StoreManager
+UC10 <-- StoreManager
+```
+
+```plantuml
+"Customer" as Customer
+"Cashier" as Cashier
+
+(Manage sales) as FR3
+
+(Creation of a new transaction) as UC11
+(Attach a product to the transaction) as UC12
+(Remove a product from the transaction) as UC13
+(Payment) as UC14
+(Cancel a transaction) as UC15
+
+/' Sale transactions management (UC11, UC12, UC13, UC14, UC15) '/
+FR3 ..> UC11 :include
+FR3 ..> UC12 :include
+FR3 ..> UC13 :include
+FR3 ..> UC14 :include
+FR3 ..> UC15 :include
+
+UC11 <-- Cashier
+UC12 <-- Cashier
+UC13 <-- Cashier
+UC14 <-- Cashier
+UC15 <-- Cashier
+
+UC14 <-- Customer
+```
+
+```plantuml
+"Supplier" as Supplier
+"Employee" as Employee
+
+(Manage orders) as FR7
+
+/' Orders management (UC16, UC17, UC18, UC19) '/
+(Check resupply needs) as UC16
+(Post resupply claim) as UC17
+(Edit pending resupply claim) as UC18
+(Approve pending resupply claim) as UC19
+
+FR7 ..> UC16 :include
+FR7 ..> UC17 :include
+FR7 ..> UC18 :include
+FR7 ..> UC19 :include
+
+UC16 <-- Supplier
+UC17 <-- Supplier
+UC18 <-- Supplier
+UC19 <-- Employee
+```
+
+```plantuml
+"Accountant" as Accountant
+
+(Manage accounting) as FR6
+
+/' Manage accounting (UC20) '/
+(View expenses and earnings) as UC20
+
+FR6 ..> UC20 :include
+
+UC20 --> Accountant
+```
+
+```plantuml
+"Cashier, Store manager" as StoreManagerCashier
+
+(Manage customers) as FR4 
+
+/' Customers management (UC21, UC22, UC23) '/
+(Define a new customer) as UC21
+(Delete a customer) as UC22
+(Modify the customer) as UC23
+
+FR4 ..> UC21 :include
+FR4 ..> UC22 :include
+FR4 ..> UC23 :include
+
+UC21 <-- StoreManagerCashier
+UC22 <-- StoreManagerCashier
+UC23 <-- StoreManagerCashier
+```
+
+```plantuml
+"Accountant" as Accountant
+
+(Manage catalogue) as FR5
+
+/' Catalogue management (UC24, UC25, UC26, UC27, UC28) '/
+(Manage the catalogue) as UC24
+(Update a product) as UC25
+(Delete a product) as UC26
+(Define a special offer) as UC27
+(Define a special offer) as UC28
+
+FR5 ..> UC24 :include
+FR5 ..> UC25 :include
+FR5 ..> UC26 :include
+FR5 ..> UC27 :include
+FR5 ..> UC28 :include
+
+UC24 <-- Accountant
+UC25 <-- Accountant
+UC26 <-- Accountant
+UC27 <-- Accountant
+UC28 <-- Accountant
+```
 
 ### Use case 1, UC1 - Manage rights
 | Actors Involved    | Store Manager |
