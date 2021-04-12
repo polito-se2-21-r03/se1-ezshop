@@ -44,16 +44,15 @@ EZShop is a software application to:
 | Accountant | Views expenses and income, can manage products on sale and prices. |
 | Shop worker | Registers sales and updates stock levels. |
 | Supplier | Views reorder needs of shop and updates stock levels upon delivery. |
-| Anonymous customer | Buys products from the shop. |
-| Customer | Creates fidelity account to receive discounts when shopping. |
+| Anonymous customer | A customer of the shop not associated with a fidelity card. |
+| Customer | A customer of the shop associated with a fidelity card. |
 | Developer | Maintains application and receives license payments. |
+| SumUp Terminal | POS system that processes credit card payments. |
+| Product | An item stored in the shop's inventory that may be for sale. |
 
 # Context Diagram and interfaces
 
 ## Context Diagram
-\<Define here Context diagram using UML use case diagram>
-
-\<actors are a subset of stakeholders>
 
 ```plantuml
 @startuml
@@ -84,16 +83,15 @@ SumUp <-left-> (EZShop)
 ```
 
 ## Interfaces
-\<describe here each interface in the context diagram>
-
-\<GUIs will be described graphically in a separate document>
-
 | Actor | Logical Interface | Physical Interface  |
 | ------------- |:-------------:| -----:|
-| Manager, Accountant | Web GUI | Screen, Keyboard, Mouse on PC |
-| Cashier | Web GUI | Cash Register, Barcode Scanner, Screen, Keyboard, Mouse on PC |
-| Supplier | API | Supplier managment system |
-| Customer | GUI + API | Automatic Cash Register, Barcode Scanner, Touchscreen Display |
+| Manager, Accountant          | Web GUI         | Screen, Keyboard, Mouse on PC |
+| Shop Worker                  | Web GUI         | Cash Register, Screen, Keyboard, Mouse on PC |
+| Supplier                     | API             | Supplier managment system |
+| Anonymous Customer, Customer | Web GUI + API   | Touchscreen display of the automatic cash register |
+| Product                      | Barcode         | Barcode scanner |
+| SumUp Terminal               | API provided by the [SumUp SDK](https://developer.sumup.com/docs/terminal-overview/) | [Web bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) |
+| Developer                    | -               | Remote access (ssh) to the production server for deployments |
 
 # Stories and personas
 
@@ -103,7 +101,7 @@ Eric is 33 and is an accountant. He needs to periodically generate reports of al
 
 Julia is 27 and is the head of a supplying company that supplies goods to many local shops. She needs an interface for querying the inventory of the shops and generate resupply claim for products that have a low inventory level. When products are delivered to the shop, a shop worker flags the resupply claim as approved, completing the process.
 
-Laura is 36 and is a worker in charge of maintaining the inventory of the shop. When a batch of goods is delivered to the shop she approves the resupply claim and updates the inventory level. She desires to define product categories according to the applied VAT and the type of the product. She also needs to flag products that are stored in the warehouse but not available for sale.
+Laura is 36 and is a shop worker in a local shop. She mainly works at the cashier and maintains the inventory of the shop. When a batch of goods is delivered to the shop she approves the resupply claim and updates the inventory level. She desires to define product categories according to the applied VAT and the type of the product. She also needs to flag products that are stored in the warehouse but not available for sale.
 
 Marco is 35 and is a full-time office worker. He is always in a hurry, so he prefers to use the automatic cash register for his daily grocery shopping whenever possible. Also, he doesn't like to bring banknotes and coins along, so he only pays with his credit card.
 
@@ -156,20 +154,12 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 
 ### Access right, actor vs function
 
-| Function | Store Manager | Cashier | Customer | Anonymous Customer | Accountant |
+| Function | Store Manager | Shop Worker | Customer | Anonymous Customer | Accountant |
 | ------------- |:-------------|--|--|--|--|
 | FR1 | yes | no | no | no | no |
-| FR2.1 | yes | no | no | no | no |
-| FR2.2 | yes | no | no | no | no |
-| FR2.3 | yes | no | no | no | no |
-| FR2.4 | yes | yes | no | no | no |
-| FR2.5 | yes | no | no | no | no |
-| FR2.7 | yes | no | no | no | no |
+| FR2 | yes | yes | no | no | no |
 | FR3 | yes | yes | yes | yes | no |
-| FR4.1 | yes | yes | Only Customer X for Customer X | no | no |
-| FR4.2 | yes | yes | no | no | no |
-| FR4.3 | yes | yes | Only Customer X for Customer X | no | no |
-| FR4.4 | yes | yes | no | no | no |
+| FR4 | yes | yes | no | no | no |
 | FR5   | yes | no | no | no | yes |
 | FR6   | yes | no | no | no | yes |
 | FR7.1   | yes | no | no | no | no |
@@ -179,18 +169,16 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 
 ## Non Functional Requirements
 
-\<Describe constraints on functional requirements>
-
 | ID        | Type | Description  | Refers to |
 | ------------- |:-------------:| :-----:| -----:|
 |  NFR1     | Privacy  | Ensure customer data are stored safely and can't be accessed by non authorized users. | All FR |
 |  NFR2     | Privacy | The system complies with local privacy law requirements (GDPR in Europe). | All FR |
 |  NFR4     | Reliability | The software should be able to correctly update the inventory level in any situation (even if an error occurs) | All FR |
-|  NFR5     | Portability | The application should be accessed by Chrome (version 81 and more recent), and Safari (version 13 and more recent) (this covers around 80% of installed browsers); and from the operating systems where these browsers are available (Windows, MacOS, Unix). | All FR |
+|  NFR5     | Portability | The application is accessible from any modern browser. The integration with the SumUp terminal is restricted to Chrome 56+ and Edge 79+ due to the compatibility with the Web Bluetooth API required to communicate with the POS terminal.  | All FR |
 |  NFR6     | Security | All the users of the systems should be authenticated and no information should be visible to the outside. | All FR |
 |  NFR7     | Performance |  The application should complete operations in less than 1 second. | All FR |
 |  NFR8     | Maintainability | The application should be always up to date with law requirements and security standards | All FR |
-|  NFR3     | Usability | The application should be used with no specific training.| All FR |
+|  NFR9     | Usability | The application should be used with no specific training. | All FR |
 
 # Use case diagram and use cases
 
@@ -206,7 +194,7 @@ StoreManager -> UC1
 ```
 
 ```plantuml
-"Store manager" as StoreManager
+"Shop worker" as ShopWorker
 
 (Manage inventory) as FR2
 (Manage categories) as FR2_7
@@ -235,20 +223,21 @@ FR2_7 ..> UC8 :include
 FR2_7 ..> UC9 :include
 FR2_7 ..> UC10 :include
 
-UC2 <-- StoreManager
-UC3 <-- StoreManager
-UC4 <-- StoreManager
-UC5 <-- StoreManager
-UC6 <-- StoreManager
-UC7 <-- StoreManager
-UC8 <--> StoreManager
-UC9 <-- StoreManager
-UC10 <-- StoreManager
+UC2 <-- ShopWorker
+UC3 <-- ShopWorker
+UC4 <-- ShopWorker
+UC5 <-- ShopWorker
+UC6 <-- ShopWorker
+UC7 <-- ShopWorker
+UC8 <--> ShopWorker
+UC9 <-- ShopWorker
+UC10 <-- ShopWorker
 ```
 
 ```plantuml
-"Customer" as Customer
-"Cashier" as Cashier
+"Anonymous Customer, Customer, Shop Worker" as ACCSW
+"SumUp Terminal" as SumUpTerminal
+"Product" as Product
 
 (Manage sales) as FR3
 
@@ -265,13 +254,15 @@ FR3 ..> UC13 :include
 FR3 ..> UC14 :include
 FR3 ..> UC15 :include
 
-UC11 <-- Cashier
-UC12 <-- Cashier
-UC13 <-- Cashier
-UC14 <-- Cashier
-UC15 <-- Cashier
+UC12 <-- ACCSW
+UC11 <-- ACCSW
+UC13 <-- ACCSW
+UC15 <-- ACCSW
+UC14 <--> ACCSW
 
-UC14 <-- Customer
+UC14 <--> SumUpTerminal
+
+UC12 <-- Product
 ```
 
 ```plantuml
@@ -311,7 +302,7 @@ UC20 --> Accountant
 ```
 
 ```plantuml
-"Cashier, Store manager" as StoreManagerCashier
+"Shop Worker" as ShopWorker
 
 (Manage customers) as FR4 
 
@@ -324,9 +315,9 @@ FR4 ..> UC21 :include
 FR4 ..> UC22 :include
 FR4 ..> UC23 :include
 
-UC21 <-- StoreManagerCashier
-UC22 <-- StoreManagerCashier
-UC23 <-- StoreManagerCashier
+UC21 <-- ShopWorker
+UC22 <-- ShopWorker
+UC23 <-- ShopWorker
 ```
 
 ```plantuml
@@ -357,10 +348,10 @@ UC28 <-- Accountant
 ### Use case 1, UC1 - Manage rights
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
-|  Precondition      | The new employee does not have an account |  
-|  Post condition    | The new employee have an account on the system |
-|  Nominal Scenario  | The Store Manager hires a new employee and creates a new account with 'accountant' or 'cashier' rights |
-|  Variants          | The Store Manager updates the rights of an employee |
+|  Precondition      | The new employee E does not have an account on the system. |  
+|  Post condition    | The new employee E have an account on the system. |
+|  Nominal Scenario  | The Store Manager hires a new employee E and creates a new account with either 'accountant' or 'shop-worker' rights. |
+|  Variants          | The Store Manager updates the rights of an employee E. |
 
 ### Use case 2, UC2 -  Insert a new product inside the inventory
 | Actors Involved    | Store Manager |
@@ -400,110 +391,112 @@ UC28 <-- Accountant
 |  Variants          | - |
 
 ### Use case 5, UC5 - Notify that a product needs to be reordered
-| Actors Involved    | Store Manager, Cashier |
+| Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Shop is running out of supplies of Product P  |  
 |  Post condition    | P.supply = 'yes' flag is set |
-|  Nominal Scenario  | When P.units <= 5 the Cashier or Manager can tick the square if the product is to be resupplied |
+|  Nominal Scenario  | When P.units <= 5 the shop worker can tick the square if the product is to be resupplied |
 |  Variants          | If P.essential = 'yes' the product will be automatically flagged to be supplied when P.units <= 10 |
 
 ### Use case 6, UC6 - Insert a new category
-| Actors Involved    | Store manager |
+| Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | - |  
 |  Post condition    | Category C is created. |
-|  Nominal Scenario  | The store manager creates a new category by entering its properties (name, description, vat percentage and possibly a parent category). |
+|  Nominal Scenario  | The shop worker S creates a new category by entering its properties (name, description, vat percentage and possibly a parent category). |
 |  Variants          | A category with the same name already exists and the application shows an error message. |
 |  		             | The assignment of the parent category generates a loop in the hierarchy and the operation is aborted with an error message. |
 
 ### Use case 7, UC7 - Update an existing category
-| Actors Involved    | Store manager |
+| Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |  
 |  Post condition    | Category C is updated. |
-|  Nominal Scenario  | The store manager selects a category and changes its properties (name, description, vat percentage). |
+|  Nominal Scenario  | The shop worker S selects a category and changes its properties (name, description, vat percentage). |
 |  Variants          | A category with the same name already exists and the operation is aborted. |
 |  		             | The assignment of the parent category generates a loop in the hierarchy and the operation is aborted with an error message. |
 
 ### Use case 8, UC8 - List all products associated with the category
-| Actors Involved    | Store manager |
+| Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | - |
 |  Post condition    | - |
-|  Nominal Scenario  | The store manager enters the name of a category. If one or more categories match with the parameter, the system shows their details and the products associated with them. |
+|  Nominal Scenario  | The shop worker S enters the name of a category. If one or more categories match with the parameter, the system shows their details and the products associated with them. |
 |  Variants          | - |
 
 ### Use case 9, UC9 - Delete a category
-| Actors Involved    | Store manager |
+| Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |
 |  Post condition    | Category C is removed. |
-|  Nominal Scenario  | The store manager selects a category and removes it. |
+|  Nominal Scenario  | The shop worker S selects a category and removes it. |
 |  Variants          | There is at least one product associated with category C: the operation is aborted with an error message. |
 
 ### Use case 10, UC10 - Define a discount for products belonging to a category
-| Actors Involved    | Store manager |
+| Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |
 |  Post condition    | Discounts associated with category C are updated. |
-|  Nominal Scenario  | The store manager defines a percentage discount for products belonging to category C. The discount may or may not be reserved to fidelity card owners. |
+|  Nominal Scenario  | The shop worker S defines a percentage discount for products belonging to category C. The discount may or may not be reserved to fidelity card owners. |
 |  Variants          | - |
 
 ### Use case 11, UC11 - Creation of a new sale transaction
-| Actors Involved     | Cashier, Customer |
+| Actors Involved     | Shop Worker, Anonymous Customer, Customer |
 | ------------------- |:-------------:|
 |  Precondition       | The cash register CR is not processing other transactions (CR.state == 'ready'). |  
 |  Post condition     | Transaction T is created. |
 |                     | Transaction T is ready and associated with the cash register CR that created it (T.state == 'ready' && T.cash_register == CR) |
 |                     | The cash register CR is ready to modify the list of products associated to T (CR.state == 'busy'). |
-|  Nominal Scenario   | The cashier creates a new sale transaction T. |
-|  Variants           | The customer shows a fidelity card FC. |
+|  Nominal Scenario   | The shop worker S creates a new sale transaction T for the anonymous customer. |
+|  Variants           | The shop worker S creates a new sale transaction T and the customer shows a fidelity card. |
+|                     | The anonymous customer AC creates a new sale transaction. |
+|                     | The customer C creates a new sale transaction and shows a fidelity card. |
 
 ##### Scenario 11.1
-| Scenario 11.1      | The customer shows a fidelity card. |
+| Scenario 11.1     | The shop worker S creates a new sale transaction T and the customer shows a fidelity card. |
 | ----------------- |:-------------:|
-|  Precondition     | The cash register is not processing other transactions (CR.state == 'ready'). |
+|  Precondition     | The cash register CR is not processing other transactions (CR.state == 'ready'). |
 |  Post condition   | Transaction T is created. |
 |                   | Transaction T is ready and associated with the cash register CR that created it (T.state == 'ready' && T.cash_register == CR) |
 |                   | The fidelity card FC is attached to the transaction T. |
 |                   | The cash register CR is ready to modify the list of products associated to T (CR.state == 'busy'). |
 | Step#  | Description  |
-|  1     | The cashier starts a new transaction T. |
-|  2     | The cashier scans the fidelity card FC of the customer. |
+|  1     | The shop worker S starts a new transaction T. |
+|  2     | The shop worker S scans the fidelity card FC of the customer. |
 |  3     | The fidelity card FC is attached to the transaction. |
 
 ### Use case 12, UC12 - Attach a product to a transaction
-| Actors Involved     | Cashier |
+| Actors Involved     | Shop Worker, Anonymous Customer, Customer, Product |
 | ------------------- |:-------------:|
-|  Precondition       | Transaction T exists. |
+|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                     | Product P exists and its inventory level is at least n (P.units >= n) |  
-|                     | Cash register is ready to modify transaction T (T.cash_register == CR). |  
+|                     | Cash register is ready to modify transaction T (T.cash_register == CR). |
 |  Post condition     | CR is ready to further modify the list of products associated to T. |
 |                     | CR is ready to complete check-out for transaction T. |
 |                     | Product P is added to the products list of transaction T with quantity n. |
 |                     | The inventory level for product P is updated (P.units -= n) |
-|  Nominal Scenario   | The cashier adds product P to the products list of transaction T with quantity n; the application updates the inventory level for product P. |
+|  Nominal Scenario   | The actor A adds product P to the products list of transaction T with quantity n; the application updates the inventory level for product P. |
 |  Variants           | - |
 
 
 ### Use case 13, UC13 - Remove a product from a transaction
-| Actors Involved     | Cashier |
+| Actors Involved     | Shop Worker, Anonymous Customer, Customer, Product |
 | ------------------- |:-------------:|
-|  Precondition       | Transaction T exists. |
+|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                     | Product P is attached to the transaction with quantity n (P in T.products && T.products[P] == n) |  
 |                     | Cash register is ready to modify transaction T (T.cash_register == CR && CR.state == 'busy'). |
 |  Post condition     | CR is ready to further modify the list of products associated to T. |
 |                     | CR is ready to complete check-out for transaction T. |
 |                     | Product P is removed from the products list of transaction T. |
 |                     | The inventory level for product P is restored (P.units += n) |
-|  Nominal Scenario   | The cashier removes product P from the transaction; the application updates the inventory level for product P. |
+|  Nominal Scenario   | The actor A removes product P from the transaction; the application updates the inventory level for product P. |
 |  Variants           | - |
 
 
 ### Use case 14, UC14 - Payment of a transaction
-| Actors Involved     | Cashier, Customer |
+| Actors Involved     | Shop Worker, Anonymous Customer, Customer, SumUp Terminal |
 | ------------------- |:-------------:|
-|  Precondition       | Transaction T exists. |
+|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                     | At least one product is attached to transaction T (T.products.length > 0). |  
 |                     | Cash register is ready to modify transaction T (T.cash_register == CR). |
 |  Post condition     | Transaction T is completed, either successfully or with an exception. |
@@ -514,14 +507,14 @@ UC28 <-- Accountant
 ##### Scenario 14.1
 | Scenario 14.1      | The customer pays in cash and the transaction is completed successfully. |
 | ----------------- |:-------------:|
-|  Precondition     | Transaction T exists. |
+|  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
 |                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
 |  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
 |                   | The sale transaction is recorded in the the transaction register. |
 | Step#  | Description  |
 |  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
-|  2     | The cashier selects the 'cash' payment method and types the cash amount given by the customer. |
+|  2     | The actor A selects the 'cash' payment method and types the cash amount given by the customer. |
 |  3     | The cash register CR computes the change. |
 |  4     | The checkout is completed successfully and a receipt is printed. |
 |  5     | T is recorded in the transaction register. |
@@ -530,7 +523,7 @@ UC28 <-- Accountant
 ##### Scenario 14.2
 | Scenario 14.2      | The customer pays in cash but he has not enough money. |
 | ----------------- |:-------------:|
-|  Precondition     | Transaction T exists. |
+|  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
 |                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
 |  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
@@ -538,13 +531,13 @@ UC28 <-- Accountant
 |                   | The sale transaction is NOT recorded in the the transaction register. |
 | Step#  | Description  |
 |  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
-|  2     | C selects the 'cash' payment method but the customer has not enough cash. A warning is raised and the transaction is NOT aborted. The cashier can either remove products from the transaction or cancel it. |
+|  2     | C selects the 'cash' payment method but the customer has not enough cash. A warning is raised and the transaction is NOT aborted. The actor A can either remove products from the transaction or cancel it. |
 
 
 ##### Scenario 14.3
 | Scenario 14.3      | The customer pays with credit card and the transaction is completed successfully. |
 | ----------------- |:-------------:|
-|  Precondition     | Transaction T exists. |
+|  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
 |                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
 |                   | The credit card POS system is ready. |
@@ -554,7 +547,7 @@ UC28 <-- Accountant
 | Step#  | Description  |
 |  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
 |  2     | The cash register CR communicates the total to the credit card POS system. |
-|  3     | The credit card POS system notifies a successful payment. |
+|  3     | The SumUp Terminal notifies a successful payment. |
 |  4     | The checkout is completed successfully and a receipt is printed. |
 |  5     | T is recorded in the transaction register. |
 
@@ -562,7 +555,7 @@ UC28 <-- Accountant
 ##### Scenario 14.4
 | Scenario 14.4      | The customer pays with credit card but the POS system notifies a payment exception. |
 | ----------------- |:-------------:|
-|  Precondition     | Transaction T exists. |
+|  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
 |                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
 |                   | The credit card POS system is ready. |
@@ -572,20 +565,20 @@ UC28 <-- Accountant
 | Step#  | Description  |
 |  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
 |  2     | The cash register CR communicates the total to the credit card POS system. |
-|  3     | The credit card POS system notifies an exception. |
-|  4     | Depending on the type of the exception raised by the POS system, the cashier can either proceed with the checkout using a different payment method or cancel the transaction. |
+|  3     | The SumUp Terminal notifies an exception. |
+|  4     | Depending on the type of the exception raised by the POS system, the actor A can either proceed with the checkout using a different payment method or cancel the transaction. |
 
 
 ### Use case 15, UC15 - Cancel a running sale transaction
-| Actors Involved     | Cashier |
+| Actors Involved     | Shop Worker, Anonymous Customer, Customer |
 | ------------------- |:-------------:|
-|  Precondition       | Transaction T exists. | 
+|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. | 
 |                     | Cash register is ready to modify transaction T (T.cash_register == CR). |
 |  Post condition     | Transaction T is cancelled. |
 |                     | CR is ready for processing another transaction (CR.state == 'ready'). |
 |                     | The inventory level for products attached to the transaction is restored. |
 |                     | The sale transaction is NOT recorded in the the transaction register. |
-|  Nominal Scenario   | The cashier cancels the transaction. |
+|  Nominal Scenario   | The actor A cancels the transaction. |
 |  Variants           | - |
 
 
@@ -642,7 +635,7 @@ UC28 <-- Accountant
 | | A can specify a time frame to analyse accounting data |
 
 ### Use case 21, UC21 - Define a new customer
-| Actors Involved     | Manager, Cashier |
+| Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
 |  Precondition       | The Actor can fill the all essential informations about customer |
 |                     | Customer does not exist in the system | 
@@ -654,7 +647,7 @@ UC28 <-- Accountant
 |  Variants           | Some information marked with "*" (important) are missing: raise an error after "Submit" button is clicked |
 
 ### Use case 22, UC22 - Delete a customer
-| Actors Involved     | Manager, Cashier |
+| Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
 |  Precondition       | Customer exists in the system. |  
 |  Post condition     | The Customer deleted from the system. |
@@ -663,7 +656,7 @@ UC28 <-- Accountant
 |  Variants           | If Customer's Fidelity Card has some points left, raise a Warning after pressing the "Delete" button. |
 
 ### Use case 23, UC23 - Modify the customer
-| Actors Involved     | Manager, Cashier |
+| Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
 |  Precondition       | Customer exists in the system. |  
 |  Post condition     | The customer information has been updated on the system. |
