@@ -40,10 +40,9 @@ EZShop is a software application to:
 
 | Stakeholder name  | Description |
 | ----------------- |:-----------:|
-| Employee | A generic employee of the shop, can be store manager, accountant or cashier. |
 | Store manager | Manages store, can insert, modify and delete users and products. |
 | Accountant | Views expenses and income, can manage products on sale and prices. |
-| Cashier | Registers sales and updates stock levels. |
+| Shop worker | Registers sales and updates stock levels. |
 | Supplier | Views reorder needs of shop and updates stock levels upon delivery. |
 | Anonymous customer | Buys products from the shop. |
 | Customer | Creates fidelity account to receive discounts when shopping. |
@@ -57,21 +56,31 @@ EZShop is a software application to:
 \<actors are a subset of stakeholders>
 
 ```plantuml
+@startuml
 top to bottom direction
-actor Employee as e
-actor :Store Manager: as m
-actor Accountant as a
-actor Cashier as c
-actor Supplier as s
-actor Customer as rc
-actor :Anonymous Customer: as ac
-m -up-|> a
-a -up-|> e
-c -up-|> e
-rc -up-|> ac
-e -> (EZShop)
-s -> (EZShop)
-ac -> (EZShop)
+actor :Store Manager: as StoreManager
+
+actor :Shop Worker: as ShopWorker
+actor Accountant
+actor Supplier
+actor Developer
+actor :Anonymous Customer: as AnonCustomer
+actor :SumUp Terminal: as SumUp
+actor Product
+
+Customer -down-|> AnonCustomer
+StoreManager -up-|> ShopWorker
+StoreManager -up-|> Accountant
+
+Accountant -up-> (EZShop)
+ShopWorker -up-> (EZShop)
+
+Product -up-> (EZShop)
+Supplier -down-> (EZShop)
+Developer -down-> (EZShop)
+AnonCustomer -down-> (EZShop)
+SumUp <-left-> (EZShop)
+@enduml
 ```
 
 ## Interfaces
