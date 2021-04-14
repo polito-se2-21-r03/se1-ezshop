@@ -114,18 +114,18 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 |  FR1     | Manage rights. Authorize access to functions to specific actors according to access rights |
 |  FR2     | Manage inventory |
 |  FR2.1   | Insert a new product inside the inventory |
-|  FR2.2   | Update the inventory level for a product |
+|  FR2.2   | Update the properties of a product |
 |  FR2.3   | Remove a product from the inventory |
-|  FR2.4   | Notify the Manager that a product needs to be reordered |
-|  FR2.5   | Link the product to its product descriptor |
-|  FR2.6   | Category management |
-|  FR2.6.1 | Create/Update a category |
-|  FR2.6.2 | Assign a product to a category |
-|  FR2.6.3 | Delete a category |
-|  FR2.6.4 | List categories |
-|  FR2.6.4 | Show products associated with a category |
-|  FR2.6.5 | Define a discount for products belonging to a category |
-|  FR2.7   | Search a product |
+|  FR2.4   | Add product to the order list |
+|  FR2.5   | Category management |
+|  FR2.5.1 | Create/Update a category |
+|  FR2.5.2 | Assign a product to a category |
+|  FR2.5.3 | Delete a category |
+|  FR2.5.4 | List categories |
+|  FR2.5.4 | Show products associated with a category |
+|  FR2.5.5 | Define a discount for products belonging to a category |
+|  FR2.6   | Search a product |
+|  FR2.7   | Bind a product to a supplier |
 |  FR3     | Sales management |
 |  FR3.1   | Start a transaction |
 |  FR3.2   | Add or delete products to the transaction |
@@ -140,17 +140,24 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 |  FR4.3   | Delete a customer |
 |  FR4.4   | Search a customer |
 |  FR5     | Manage catalogue (prices): |
-|  FR5.1   | Insert/Update/Remove a product descriptor |
-|  FR5.2   | Define a special offer for the product |
-|  FR5.3   | Define special offers for fidelity plans |
+|  FR5.1   | Insert/Update a catalogue entry |
+|  FR5.2   | Remove a catalogue entry |
+|  FR5.3   | Define a special offer for the catalogue entry |
+|  FR5.4   | Define special offers for fidelity plans |
 |  FR6     | Manage accounting |
 |  FR6.1   | Manage incomes and expenses |
 |  FR6.2   | Compute a balance |
 |  FR6.3   | Write a report |
+|  FR6.4   | Add an expense (amount, type (bill, salary, tax, rent, other), date) |
 |  FR7     | Manage orders |
-|  FR7.1   | Issue an order |
-|  FR7.2   | Keep track of orders |
-|  FR7.3   | Keep track of expenses |
+|  FR7.1   | Show the order list for the supplier |
+|  FR7.2   | The supplier creates a delivery |
+|  FR7.3   | The shop worker accepts a delivery |
+|  FR8     | Manage supplier |
+|  FR8.1   | Insert/update supplier |
+|  FR8.2   | Delete supplier |
+
+
 
 ### Access right, actor vs function
 
