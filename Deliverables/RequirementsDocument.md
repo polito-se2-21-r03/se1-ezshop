@@ -13,7 +13,6 @@ Version:
 - [Context Diagram and interfaces](#context-diagram-and-interfaces)
 	+ [Context Diagram](#context-diagram)
 	+ [Interfaces](#interfaces)
-
 - [Stories and personas](#stories-and-personas)
 - [Functional and non functional requirements](#functional-and-non-functional-requirements)
 	+ [Functional Requirements](#functional-requirements)
@@ -116,14 +115,13 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 |  FR2.1   | Insert a new product inside the inventory |
 |  FR2.2   | Update the properties of a product |
 |  FR2.3   | Remove a product from the inventory |
-|  FR2.4   | Add product to the order list |
+|  FR2.4   | Add product to the order list of a supplier |
 |  FR2.5   | Category management |
 |  FR2.5.1 | Create/Update a category |
 |  FR2.5.2 | Assign a product to a category |
 |  FR2.5.3 | Delete a category |
 |  FR2.5.4 | List categories |
 |  FR2.5.4 | Show products associated with a category |
-|  FR2.5.5 | Define a discount for products belonging to a category |
 |  FR2.6   | Search a product |
 |  FR2.7   | Bind a product to a supplier |
 |  FR3     | Sales management |
@@ -141,18 +139,17 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 |  FR4.4   | Search a customer |
 |  FR5     | Manage catalogue (prices): |
 |  FR5.1   | Insert/Update a catalogue entry |
-|  FR5.2   | Remove a catalogue entry |
+|  *FR5.2   | Remove a catalogue entry |
 |  FR5.3   | Define a special offer for the catalogue entry |
 |  FR5.4   | Define special offers for fidelity plans |
 |  FR6     | Manage accounting |
-|  FR6.1   | Manage incomes and expenses |
-|  FR6.2   | Compute a balance |
-|  FR6.3   | Write a report |
-|  FR6.4   | Add an expense (amount, type (bill, salary, tax, rent, other), date) |
+|  FR6.1   | Add an expense |
+|  FR6.2   | Compute balance |
 |  FR7     | Manage orders |
-|  FR7.1   | Show the order list for the supplier |
-|  FR7.2   | The supplier creates a delivery |
-|  FR7.3   | The shop worker accepts a delivery |
+|  *FR7.1   | Show the order list for the supplier |
+|  *FR7.2   | The supplier creates/updates a delivery |
+|  *FR7.3   | List all pending deliveries for supplier S |
+|  *FR7.4   | The shop worker accepts a delivery |
 |  FR8     | Manage supplier |
 |  FR8.1   | Insert/update supplier |
 |  FR8.2   | Delete supplier |
@@ -161,17 +158,18 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 
 ### Access right, actor vs function
 
-| Function | Store Manager | Shop Worker | Customer | Anonymous Customer | Accountant |
-| ------------- |:-------------|--|--|--|--|
-| FR1 | yes | no | no | no | no |
-| FR2 | yes | yes | no | no | no |
-| FR3 | yes | yes | yes | yes | no |
-| FR4 | yes | yes | no | no | no |
-| FR5   | yes | no | no | no | yes |
-| FR6   | yes | no | no | no | yes |
-| FR7.1   | yes | no | no | no | no |
-| FR7.2   | yes | no | no | no | no |
-| FR7.3   | yes | no | no | no | yes |
+| Function | Store Manager | Shop Worker | Customer | Anonymous Customer | Accountant | Supplier |
+| ------------- |:-------------|--|--|--|--|--|
+| FR1 | yes | no | no | no | no | no |
+| FR2 | yes | yes | no | no | no | no |
+| FR3 | yes | yes | yes | yes | no | no |
+| FR4 | yes | yes | no | no | no | no |
+| FR5   | yes | no | no | no | yes | no |
+| FR6   | yes | no | no | no | yes | no |
+| FR7.1   | yes | yes | no | no | no | yes |
+| FR7.2   | no | no | no | no | no | yes |
+| FR7.3   | yes | yes | no | no | no | no |
+| FR8   | yes | no | no | no | no | no |
 
 
 ## Non Functional Requirements
@@ -360,92 +358,216 @@ UC28 <-- Accountant
 |  Nominal Scenario  | The Store Manager hires a new employee E and creates a new account with either 'accountant' or 'shop-worker' rights. |
 |  Variants          | The Store Manager updates the rights of an employee E. |
 
+
 ### Use case 2, UC2 -  Insert a new product inside the inventory
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
-|  Precondition      | Product P does not exist inside the inventory |  
-|  Post condition    | Manager inserts product P inside the inventory |
-| | P.units is set according to the number of units of product P available |
-| | P.cost is set according to the actual cost of each unit |
-| | P.cost_total = P.cost*P.units |
-| | P.cathegory is set |
-| | P.id is set, which is the barcode of the product |
-| | If the item is for sale, P.forsale = 'yes' is set and P.price is set, which is the price tag for each unit of the product |
-| | If the item is part of the shop's furnitures P.forsale = 'no'  |
-| | If the item is considered to be essential, P.essential = 'yes' |
-|  Nominal Scenario  | A new product is supplied, so the Manager enters all the infos inside the inventory. If P.forsale = 'yes' then set P.price |
-|  Variants          | If P.forsale = 'no', the new product is part of the furniture of the shop (i.e. shelves, cash registers etc.) |
+|  Precondition      | Product P does not exist inside the inventory. |  
+|  Post condition    | Manager inserts product P inside the inventory and catalogue. |
+|                    | P's properties, quantity and supplier informations are set.  |
+|  Nominal Scenario  | A new product is inserted, so the Manager enters all the infos inside the inventory. |
+|  Variants          | - |
 
-### Use case 3, UC3 - Update the inventory level for a product
+
+### Use case 3, UC3 - Update the properties of a product
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
 |  Precondition      | Product P already exists inside the inventory |  
 |  Post condition    | Store Manager updates product P infos inside the inventory |
-| | P.newunits is set according to the number of new units arrived at the shop |
-| | P.units = P.units + P.newunits |
-| | P.desc can be modified |
-| | P.newcost is set according to the new cost of each new unit |
-| | P.newcost_total = P.cost_total + P.newcost*P.newunits |
-|  Nominal Scenario  | New supplies of product P arrive at the shop, the Store Manager has to set the entries P.newunits and P.newcost |
+| | P's properties, quantity and supplier informations are updated. |
+|  Nominal Scenario  | New supplies of product P arrive at the shop, the Store Manager has to set the entries P.newunits. |
 |  Variants          | - |
+
 
 ### Use case 4, UC4 - Remove a product from the inventory
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
 |  Precondition      | Product P exists inside the inventory |  
-|  Post condition    | Product P is deleted from the inventory |
+|  Post condition    | Product P is deleted from the inventory. |
+|                    | The catalogue entry for product P is removed.|
 |  Nominal Scenario  | The Manager deletes a product from the system, and he has to confirm his choice |
 |  Variants          | - |
 
-### Use case 5, UC5 - Notify that a product needs to be reordered
+
+### Use case 5, UC5 - Add product to the order list
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
-|  Precondition      | Shop is running out of supplies of Product P  |  
-|  Post condition    | P.supply = 'yes' flag is set |
-|  Nominal Scenario  | When P.units <= 5 the shop worker can tick the square if the product is to be resupplied |
-|  Variants          | If P.essential = 'yes' the product will be automatically flagged to be supplied when P.units <= 10 |
+|  Precondition      | Product P is inside the inventory.  |
+|  Post condition    | The entry for product P in the order list of its supplier is possibly updated. |
+|  Nominal Scenario  | Product P is already in the order list of its supplier. |
+|  Variants          | Product P is NOT associated with a supplier. |
+|                    | Product P is NOT already in the order list of its supplier. |
+|                    | Product P's resupply quantity is NOT defined. |
+
+##### Scenario 5.1
+| Scenario 5.1      | Product is already in the order list of its supplier. |
+| ----------------- |:-------------:|
+|  Precondition     | Product P is inside the inventory. |
+|                   | A supplier S is associated with P (S = P.supplier). |
+|                   | Product P is already in the order list of supplier S (S.order_list[P] is defined). |
+|                   | P.instant_resupply_quantity is defined. |
+|  Post condition   | The entry for product P in the order list of one supplier is possibly updated. |
+| Step#  | Description  |
+| 1      | The shop worker selects a product P from the inventory. |
+| 2      | The shop worker selects to resupply product P. |
+| 3      | The entry for product P in the order list of the supplier S is updated (S.order_list[P] += P.instant_resupply_quantity). |
+
+##### Scenario 5.2
+| Scenario 5.2      | Product is NOT associated with a supplier. |
+| ----------------- |:-------------:|
+|  Precondition     | Product P is inside the inventory. |
+|                   | A supplier is NOT associated with P (P.supplier is NOT defined). |
+|  Post condition   | - |
+| Step#  | Description  |
+| 1      | The shop worker selects a product P from the inventory. |
+| 2      | The shop worker selects to resupply product P. |
+| 3      | Product P is not associated with a supplier; an error is raised. |
+
+##### Scenario 5.3
+| Scenario 5.3      | Product is NOT already in the order list of its supplier. |
+| ----------------- |:-------------:|
+|  Precondition     | Product P is inside the inventory. |
+|                   | A supplier S is associated with P (S = P.supplier). |
+|                   | Product P is already in the order list of supplier S (S.order_list[P] is NOT defined). |
+|  Post condition   | Product P is inserted in the order list of its supplier. |
+| Step#  | Description  |
+| 1      | The shop worker selects a product P from the inventory. |
+| 2      | The shop worker selects to resupply product P. |
+| 3      | The entry for product P is inserted in the order list of supplier S (S.order_list[P] = P.instant_resupply_quantity). |
+
+##### Scenario 5.4
+| Scenario 5.4      | Product P's resupply quantity is NOT defined. |
+| ----------------- |:-------------:|
+|  Precondition     | Product P is inside the inventory. |
+|                   | P.instant_resupply_quantity is NOT defined. |
+|  Post condition   | - |
+| Step#  | Description  |
+| 1      | The shop worker selects a product P from the inventory. |
+| 2      | The shop worker selects to resupply product P. |
+| 3      | The entry for product P is inserted in the order list of supplier S (S.order_list[P] = P.instant_resupply_quantity). |
+
 
 ### Use case 6, UC6 - Insert a new category
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | - |  
 |  Post condition    | Category C is created. |
-|  Nominal Scenario  | The shop worker S creates a new category by entering its properties (name, description, vat percentage and possibly a parent category). |
-|  Variants          | A category with the same name already exists and the application shows an error message. |
-|  		             | The assignment of the parent category generates a loop in the hierarchy and the operation is aborted with an error message. |
+|  Nominal Scenario  | A new category is created successfully. |
+|  Variants          | A category with the same name already exists. |
+
+##### Scenario 6.1
+| Scenario 6.1      | A new category is created successfully. |
+| ----------------- |:-------------:|
+|  Precondition     | - |
+|  Post condition   | Category C is created. |
+| Step#  | Description  |
+| 1      | The shop worker defines the properties of a new category C. |
+| 2      | C is created. |
+
+##### Scenario 6.2
+| Scenario 6.2      | A category with the same name already exists. |
+| ----------------- |:-------------:|
+|  Precondition     | - |
+|  Post condition   | - |
+| Step#  | Description  |
+| 1      | The shop worker defines the properties of a new category C. |
+| 2      | A category with the same name already exists and an error is raised. |
+
 
 ### Use case 7, UC7 - Update an existing category
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |  
-|  Post condition    | Category C is updated. |
-|  Nominal Scenario  | The shop worker S selects a category and changes its properties (name, description, vat percentage). |
-|  Variants          | A category with the same name already exists and the operation is aborted. |
-|  		             | The assignment of the parent category generates a loop in the hierarchy and the operation is aborted with an error message. |
+|  Post condition    | Category C is possibly updated. |
+|  Nominal Scenario  | The category is updated successfully. |
+|  Variants          | A category with the same name already exists and an error is raised. |
 
-### Use case 8, UC8 - List all products associated with the category
+##### Scenario 7.1
+| Scenario 7.1      | The category is updated successfully. |
+| ----------------- |:-------------:|
+|  Precondition     | Category C exists |
+|  Post condition   | C is updated successfully. |
+| Step#  | Description  |
+| 1      | The shop worker selects a category C. |
+| 2      | The shop worker modifies the properties of C. |
+| 3      | C is updated successfully. |
+
+##### Scenario 7.2
+| Scenario 7.2      | A category with the same name already exists and an error is raised. |
+| ----------------- |:-------------:|
+|  Precondition     | Category C exists |
+|  Post condition   | - |
+| Step#  | Description  |
+| 1      | The shop worker selects a category C. |
+| 2      | The shop worker modifies the properties of C. |
+| 3      | A category with the same name already exists and an error is raised. |
+
+
+### Use case 8, UC8 - List all the products associated with a category
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
-|  Precondition      | - |
+|  Precondition      | Category C exists. |
 |  Post condition    | - |
-|  Nominal Scenario  | The shop worker S enters the name of a category. If one or more categories match with the parameter, the system shows their details and the products associated with them. |
+|  Nominal Scenario  | List all the products associated with a category C. |
 |  Variants          | - |
+
+##### Scenario 8.1
+| Scenario 8.1      | List all the products associated with a category. |
+| ----------------- |:-------------:|
+|  Precondition     | Category C exists. |
+|  Post condition   | - |
+| Step#  | Description  |
+| 1      | The shop worker selects a category C. |
+| 2      | The system shows all the products associated with category C. |
+
 
 ### Use case 9, UC9 - Delete a category
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |
-|  Post condition    | Category C is removed. |
-|  Nominal Scenario  | The shop worker S selects a category and removes it. |
-|  Variants          | There is at least one product associated with category C: the operation is aborted with an error message. |
+|  Post condition    | Category C is possibly removed. |
+|  Nominal Scenario  | The shop worker selects a category and removes it. |
+|  Variants          | There are products associated to category C. |
 
-### Use case 10, UC10 - Define a discount for products belonging to a category
+##### Scenario 9.1
+| Scenario 9.1      | The shop worker selects a category and removes it.  |
+| ----------------- |:-------------:|
+|  Precondition     | Category C exists. |
+|  Post condition   | Category C is removed. |
+| Step#  | Description  |
+| 1      | The shop worker selects a category C. |
+| 2      | Category C is removed. |
+
+##### Scenario 9.2
+| Scenario 9.2      | There are products associated to the category.  |
+| ----------------- |:-------------:|
+|  Precondition     | Category C exists. |
+|  Post condition   | - |
+| Step#  | Description  |
+| 1      | The shop worker selects a category C. |
+| 2      | There are products associated to category C (C.products.length > 0): the category is not removed and an error is raised. |
+
+
+### Use case 10, UC10 - Bind a product to a supplier
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
-|  Precondition      | Category C exists. |
-|  Post condition    | Discounts associated with category C are updated. |
-|  Nominal Scenario  | The shop worker S defines a percentage discount for products belonging to category C. The discount may or may not be reserved to fidelity card owners. |
+|  Precondition      | Product P is inside the inventory. |
+|                    | Supplier S exists. |
+|  Post condition    | P.supplier = S. |
+|  Nominal Scenario  | A supplier is associated with the product. |
 |  Variants          | - |
+
+##### Scenario 10.1
+| Scenario 10.1      | A supplier is associated with the product. |
+| ----------------- |:-------------:|
+|  Precondition      | Product P is inside the inventory. |
+|                    | Supplier S exists. |
+|  Post condition    | P.supplier = S. |
+| Step#  | Description  |
+| 1      | The shop worker selects product P. |
+| 2      | The shop worker selects a supplier S. |
+| 3      | Product P is associated with supplier S (P.supplier = S). |
+
 
 ### Use case 11, UC11 - Creation of a new sale transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer |
@@ -471,6 +593,7 @@ UC28 <-- Accountant
 |  1     | The shop worker S starts a new transaction T. |
 |  2     | The shop worker S scans the fidelity card FC of the customer. |
 |  3     | The fidelity card FC is attached to the transaction. |
+
 
 ### Use case 12, UC12 - Attach a product to a transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer, Product |
@@ -510,7 +633,6 @@ UC28 <-- Accountant
 |  Nominal Scenario   | The customer pays in cash and the transaction is completed successfully. |
 |  Variants           | The customer pays in cash but he has not enough money. |
 
-
 ##### Scenario 14.1
 | Scenario 14.1      | The customer pays in cash and the transaction is completed successfully. |
 | ----------------- |:-------------:|
@@ -526,7 +648,6 @@ UC28 <-- Accountant
 |  4     | The checkout is completed successfully and a receipt is printed. |
 |  5     | T is recorded in the transaction register. |
 
-
 ##### Scenario 14.2
 | Scenario 14.2      | The customer pays in cash but he has not enough money. |
 | ----------------- |:-------------:|
@@ -539,7 +660,6 @@ UC28 <-- Accountant
 | Step#  | Description  |
 |  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
 |  2     | C selects the 'cash' payment method but the customer has not enough cash. A warning is raised and the transaction is NOT aborted. The actor A can either remove products from the transaction or cancel it. |
-
 
 ##### Scenario 14.3
 | Scenario 14.3      | The customer pays with credit card and the transaction is completed successfully. |
@@ -557,7 +677,6 @@ UC28 <-- Accountant
 |  3     | The SumUp Terminal notifies a successful payment. |
 |  4     | The checkout is completed successfully and a receipt is printed. |
 |  5     | T is recorded in the transaction register. |
-
 
 ##### Scenario 14.4
 | Scenario 14.4      | The customer pays with credit card but the POS system notifies a payment exception. |
@@ -589,57 +708,84 @@ UC28 <-- Accountant
 |  Variants           | - |
 
 
-### Use case 16, UC16 - Check resupply needs
-| Actors Involved | Supplier |
-| ------------- |:-------------:|
-| Precondition | Supplier S is logged into the system |  
-| Post condition | S sees list of products and quantities to be resupplied |
-| Nominal Scenario | S checks the resupply needs of the shop |
+### Use case 16, UC16 - Show the order list for the supplier
+| Actors Involved  | Supplier |
+| ---------------- |:-------------:|
+| Precondition     | - |  
+| Post condition   | - |
+| Nominal Scenario | The supplier views its order list. |
+|  Variants        | - |
 
 ​
-### Use case 17, UC17 - Post resupply claim
-| Actors Involved | Supplier |
-| ------------- |:-------------:|
-| Precondition | Supplier S is logged into the system |
-| | The shop is not fully stocked |
-| Post condition | A pending resupply claim is created |
+### Use case 17, UC17 - Create/update a delivery
+| Actors Involved  | Supplier |
+| ---------------- |:-------------:|
+| Precondition     | Supplier S is logged into the system |
+|                  | The shop is not fully stocked |
+| Post condition   | A pending resupply claim is created |
 | Nominal Scenario | The shop is running low on some items; S checks the shops resupply needs and delivers items; S creates a resupply claim indicating which items have been delivered to the shop |
-| Variants | Shop is being fully resupplied |
-| | Only a subset of items is being resupplied |
-| | Some items are not fully resupplied to the desired quantity |
+| Variants         | Shop is being fully resupplied |
+|                  | Only a subset of items is being resupplied |
+|                  | Some items are not fully resupplied to the desired quantity |
 
 ​
-### Use case 18, UC18 - Edit pending resupply claim
+### Use case 18, UC18 - List all pending deliveries for supplier S
 | Actors Involved | Supplier |
 | ------------- |:-------------:|
 | Precondition | Supplier S is logged into the system |
 | | S has posted a resupply claim C to the system |
 | | No shop employee has approved C yet |
 | Post condition | C is updated with the products and quantities about to be delivered |
-| Nominal Scenario | S has created C; Before any employee of the shop approves C, S notices a mistake; S updates C with the correct products and quantities he is intending to deliver |
-| Variants | A product is removed from C |
-| | A product is added to C |
-| | The quantity to be delivered is changed in C |
+| Nominal Scenario | .... |
+| Variants | ... |
 
 ​
-### Use case 19, UC19 - Approve pending resupply claim
+### Use case 19, UC19 - Accepts a delivery
 | Actors Involved | Employee |
 | ------------- |:-------------:|
 | Precondition | An employee E is logged into the system |
 | | A pending resupply claim C exists |
 | Post condition | The items from C are added to the shops stock |
 | | C is no longer marked as pending |
-| Nominal Scenario | E has received and checked the delivery described in C; E approves C, removing it from the pending resupply claims and stock levels are updated |
+| Nominal Scenario | ... |
 
+
+### Use case 20, UC20 - Add an expense
+| Actors Involved  | Accountant |
+| ---------------- |:-------------:|
+| Precondition     | - |  
+| Post condition   | An expense E is added to the accounting register. |
+| Nominal Scenario | The accountant manually enters an expense E to the accounting register. |
+| Variants         | - |
+
+##### Scenario 20.1
+| Scenario 20.1     | The accountant manually enters an expense to the accounting register. |
+| ----------------- |:-------------:|
+|  Precondition     | - |
+|  Post condition   | An expense E is added to the accounting register. |
+| Step#  | Description  |
+| 1      | The accountant enters the properties of a new expense E. |
+| 2      | Expense E is associated with an expense type (i.e bill, salary, rent, etc...). |
+| 3      | An expense E is added to the accounting register. |
 ​
-### Use case 20, UC20 - View shop's expenses and earnings
-| Actors Involved | Accountant |
-| ------------- |:-------------:|
-| Precondition | Accountant A is logged into the system |  
-| Post condition | A sees a list of expenses and earnings for the shop |
-| Nominal Scenario | A analyses the shops expenses and earnings from sales |
-| Variants | A can see detailed information for each product sold in the store |
-| | A can specify a time frame to analyse accounting data |
+
+### Use case 20, UC20 - Compute balance
+| Actors Involved  | Accountant |
+| ---------------- |:-------------:|
+| Precondition     | - |  
+| Post condition   | A report of the expenses and earning of the shop is produced. |
+| Nominal Scenario | The system shows the expenses and earnings for the shop. |
+| Variants         | - |
+
+##### Scenario 21.1
+| Scenario 21.1     | The system shows the expenses and earnings for the shop. |
+| ----------------- |:-------------:|
+|  Precondition     | - |
+|  Post condition   | A report of the expenses and earning of the shop is produced. |
+| Step#  | Description  |
+| 1      | The accountant selects a time window and a set of expense/earning types. |
+| 2      | The system produces a detailed report of the transaction (expenses and earnings) based on the time window and the types selected.  |
+
 
 ### Use case 21, UC21 - Define a new customer
 | Actors Involved     | Shop Worker |
@@ -653,6 +799,7 @@ UC28 <-- Accountant
 |  Variants           | The email address or phone number is associated to another Customer: raise an error after "Submit" button is clicked |
 |  Variants           | Some information marked with "*" (important) are missing: raise an error after "Submit" button is clicked |
 
+
 ### Use case 22, UC22 - Delete a customer
 | Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
@@ -662,6 +809,7 @@ UC28 <-- Accountant
 |  Nominal Scenario   | Actor reaches the GUI of Customer via browser. The Actor Search the Customer through the list and clicks on "Delete" button. After the confirmation the Customer is deleted from the database and his Card deactivated. |
 |  Variants           | If Customer's Fidelity Card has some points left, raise a Warning after pressing the "Delete" button. |
 
+
 ### Use case 23, UC23 - Modify the customer
 | Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
@@ -670,6 +818,7 @@ UC28 <-- Accountant
 |  Nominal Scenario   | Actor reaches the GUI of Customer via browser. After having filled all the information that need to be modified, the Actor saves the changes. |
 |  Variants           | The new email address/phone number is associated to another Customer: raise an error after "Submit" button is clicked |
 |  Variants           | The Customer has lost his Fidelity Card, so the Actor gives him a new one with a new ID, restoring Customer's points and deactivates the old one |
+
 
 ### Use case 24, UC24 - Manage the catalogue (Insert or Update the catalogue)
 
@@ -683,6 +832,7 @@ UC28 <-- Accountant
 |  Nominal Scenario  | The Actor sets price, category and description of the product. |
 |  Variants          |  |
 
+
 ### Use case 25, UC25 - Update a product
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
@@ -693,6 +843,7 @@ UC28 <-- Accountant
 |  Nominal Scenario  | The Actor search P from the lists and modifies price, category or description of the product. |
 |  Variants          |  |
 
+
 ### Use case 26, UC26 - Delete a product
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
@@ -700,6 +851,7 @@ UC28 <-- Accountant
 |  Post condition     | Product has been deleted on the system. |
 |  Nominal Scenario   | The product is no longer for sale so the Actor removes it from the Catalogue through the Web GUI |
 |  Variants           | |
+
 
 ### Use case 27, UC27 - Define a special offer to product
 | Actors Involved     | Manager, Accountant |
@@ -711,6 +863,7 @@ UC28 <-- Accountant
 |  | 2.Actor selects one or more products. |
 |  								    | 3. Actor fills the percentage discount of the product for anonymous customer and for fidelity card |
 |  Variants           | |
+
 
 ### Use case 28, UC28 - Define a special offer to product
 | Actors Involved     | Manager, Accountant |
@@ -724,6 +877,51 @@ UC28 <-- Accountant
 |  								    | 3. Actor fills the percentage discount of the product for anonymous customer and for fidelity card |
 |											| 4. An error is raised and the transactions is rolled back. |
 |  Variants           | |
+
+
+### Use case 29, UC29 - Insert/Update a supplier
+| Actors Involved  | Store manager |
+| ---------------- |:-------------:|
+| Precondition     | - |  
+| Post condition   | A supplier S is created. |
+| Nominal Scenario | A new supplier S is created successfully. |
+| Variants         | - |
+
+##### Scenario 29.1
+| Scenario 29.1     | A new supplier is created successfully. |
+| ----------------- |:-------------:|
+| Precondition      | - |
+| Post condition    | A supplier S is created. |
+| Step#  | Description  |
+| 1      | The store manager enters the properties of a supplier S. |
+| 2      | The supplier S is created. |
+
+
+### Use case 30, UC30 - Delete a supplier
+| Actors Involved  | Store manager |
+| ---------------- |:-------------:|
+| Precondition     | Supplier S exists. |  
+| Post condition   | Supplier S is possibly removed. |
+| Nominal Scenario | Supplier S is removed successfully. |
+| Variants         | Supplier S is associated to at least one product. |
+
+##### Scenario 30.1
+| Scenario 30.1     | Supplier S is removed successfully. |
+| ----------------- |:-------------:|
+| Precondition      | Supplier S exists. |
+| Post condition    | Supplier S is possibly removed. |
+| Step#  | Description  |
+| 1      | The store manager selects a supplier S. |
+| 2      | Supplier S is removed. |
+
+##### Scenario 30.2
+| Scenario 30.2     | Supplier S is associated to at least one product. |
+| ----------------- |:-------------:|
+| Precondition      | Supplier S exists. |
+| Post condition    | - |
+| Step#  | Description  |
+| 1      | The store manager selects a supplier S. |
+| 2      | At least one product is associated with supplier S: an error is raised. |
 
 
 # Glossary
