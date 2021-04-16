@@ -954,3 +954,13 @@ c -- Printer
 # Deployment Diagram
 
 \<describe here deployment diagram >
+
+Client server model. The application runs on a server or virtual machine, users interact with it through a PC.
+
+```plantuml
+artifact "EZShop Application" as ezshop
+node "server" as s
+node "PC client" as pc
+s -- ezshop
+s -- "*" pc
+```
