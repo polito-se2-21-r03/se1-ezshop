@@ -96,7 +96,7 @@ SumUp <-left-> (EZShop)
 
 Sarah is 45 and is the manager of a small grocery shop. She desires to replace those bulky cash registers from the past with a modern solution that can run on commercial off-the-shelf computers equipped with a touch screen display. Periodically Sarah defines special offers for specific products or categories. She wants to track all the sales transaction in an (almost) real-time fashion from her office.
 
-Eric is 33 and is an accountant. He needs to periodically generate reports of all the incomes and expenses of the shops he supervises. Reports include the final balance of the shop for the selected timeframe and the amount of the Value Added Tax (VAT) due to the income revenue authority. 
+Eric is 33 and is an accountant. He needs to periodically generate reports of all the incomes and expenses of the shops he supervises. Reports include the final balance of the shop for the selected timeframe and the amount of the Value Added Tax (VAT) due to the income revenue authority.
 
 Julia is 27 and is the head of a supplying company that supplies goods to many local shops. She needs an interface for querying the inventory of the shops and generate resupply claim for products that have a low inventory level. When products are delivered to the shop, a shop worker flags the resupply claim as approved, completing the process.
 
@@ -309,7 +309,7 @@ UC20 --> Accountant
 ```plantuml
 "Shop Worker" as ShopWorker
 
-(Manage customers) as FR4 
+(Manage customers) as FR4
 
 /' Customers management (UC21, UC22, UC23) '/
 (Define a new customer) as UC21
@@ -698,7 +698,7 @@ UC28 <-- Accountant
 ### Use case 15, UC15 - Cancel a running sale transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer |
 | ------------------- |:-------------:|
-|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. | 
+|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
 |                     | Cash register is ready to modify transaction T (T.cash_register == CR). |
 |  Post condition     | Transaction T is cancelled. |
 |                     | CR is ready for processing another transaction (CR.state == 'ready'). |
@@ -791,7 +791,7 @@ UC28 <-- Accountant
 | Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
 |  Precondition       | The Actor can fill the all essential informations about customer |
-|                     | Customer does not exist in the system | 
+|                     | Customer does not exist in the system |
 |  Post condition     | Actor fills the Customer's info |
 |  					  | A fidelity card is paired with customer |
 |                     | The Customer is added to the system |
@@ -824,8 +824,8 @@ UC28 <-- Accountant
 
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
-|  Precondition      | Product P is inside the inventory | 
-| | Product P is for sale (P.forsale = 'yes') | 
+|  Precondition      | Product P is inside the inventory |
+| | Product P is for sale (P.forsale = 'yes') |
 |  Post condition    | P.description is set, which is a string that describes the product |
 | | P.category is set |
 | | P.price is set, which is the base price of the Product |
@@ -836,7 +836,7 @@ UC28 <-- Accountant
 ### Use case 25, UC25 - Update a product
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
-|  Precondition      | Product P is inside the catalogue | 
+|  Precondition      | Product P is inside the catalogue |
 |  Post condition    | P.description can be updated |
 | | P.category can be modified |
 | | P.price can be changed, which is the base price of the Product |
@@ -934,6 +934,22 @@ UC28 <-- Accountant
 \<describe here system design>
 
 \<must be consistent with Context diagram>
+
+```plantuml
+class EZShop
+class "Checkout Computer" as c
+class "SumUp Terminal" as s
+class "Barcode Reader" as b
+class Printer
+
+note "printer for receipt part of system design?" as N1
+N1 .. Printer
+
+EZShop -- "*" c
+c -- s
+c -- b
+c -- Printer
+```
 
 # Deployment Diagram
 
