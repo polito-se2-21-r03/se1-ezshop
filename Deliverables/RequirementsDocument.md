@@ -86,8 +86,8 @@ SumUp <-left-> (EZShop)
 | ------------- |:-------------:| -----:|
 | Manager, Accountant          | Web GUI         | Screen, Keyboard, Mouse on PC |
 | Shop Worker                  | Web GUI         | Cash Register, Screen, Keyboard, Mouse on PC |
-| Supplier                     | API             | Supplier managment system |
-| Anonymous Customer, Customer | Web GUI + API   | Touchscreen display of the automatic cash register |
+| Supplier                     | Web GUI         | Screen, Keyboard, Mouse on PC |
+| Anonymous Customer, Customer | Web GUI         | Touchscreen display of the automatic cash register |
 | Product                      | Barcode         | Barcode scanner |
 | SumUp Terminal               | API provided by the [SumUp SDK](https://developer.sumup.com/docs/terminal-overview/) | [Web bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) |
 | Developer                    | -               | Remote access (ssh) to the production server for deployments |
@@ -138,7 +138,7 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 |  FR4.3   | Delete a customer |
 |  FR4.4   | Search a customer |
 |  FR5     | Manage catalogue (prices): |
-|  FR5.1   | Insert/Update a catalogue entry |
+|  *FR5.1   | Insert/Update a catalogue entry |
 |  *FR5.2   | Remove a catalogue entry |
 |  FR5.3   | Define a special offer for the catalogue entry |
 |  FR5.4   | Define special offers for fidelity plans |
@@ -146,10 +146,10 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 |  FR6.1   | Add an expense |
 |  FR6.2   | Compute balance |
 |  FR7     | Manage orders |
-|  *FR7.1   | Show the order list for the supplier |
-|  *FR7.2   | The supplier creates/updates a delivery |
-|  *FR7.3   | List all pending deliveries for supplier S |
-|  *FR7.4   | The shop worker accepts a delivery |
+|  FR7.1   | Show the order list for the supplier |
+|  FR7.2   | Create a new delivery |
+|  FR7.3   | List all deliveries for the supplier |
+|  FR7.4   | Accepts a delivery |
 |  FR8     | Manage supplier |
 |  FR8.1   | Insert/update supplier |
 |  FR8.2   | Delete supplier |
@@ -363,7 +363,7 @@ UC28 <-- Accountant
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
 |  Precondition      | Product P does not exist inside the inventory. |  
-|  Post condition    | Manager inserts product P inside the inventory and catalogue. |
+|  Post condition    | Product P is created. |
 |                    | P's properties, quantity and supplier informations are set.  |
 |  Nominal Scenario  | A new product is inserted, so the Manager enters all the infos inside the inventory. |
 |  Variants          | - |
@@ -372,7 +372,7 @@ UC28 <-- Accountant
 ### Use case 3, UC3 - Update the properties of a product
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
-|  Precondition      | Product P already exists inside the inventory |  
+|  Precondition      | Product P already exists inside the inventory. |  
 |  Post condition    | Store Manager updates product P infos inside the inventory |
 | | P's properties, quantity and supplier informations are updated. |
 |  Nominal Scenario  | New supplies of product P arrive at the shop, the Store Manager has to set the entries P.newunits. |
@@ -507,15 +507,15 @@ UC28 <-- Accountant
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |
-|  Post condition    | - |
-|  Nominal Scenario  | List all the products associated with a category C. |
+|  Post condition    | A list of products associated with category C is shown. |
+|  Nominal Scenario  | List all the products associated with category C. |
 |  Variants          | - |
 
 ##### Scenario 8.1
 | Scenario 8.1      | List all the products associated with a category. |
 | ----------------- |:-------------:|
 |  Precondition     | Category C exists. |
-|  Post condition   | - |
+|  Post condition   | A list of products associated with category C is shown. |
 | Step#  | Description  |
 | 1      | The shop worker selects a category C. |
 | 2      | The system shows all the products associated with category C. |
@@ -559,7 +559,7 @@ UC28 <-- Accountant
 
 ##### Scenario 10.1
 | Scenario 10.1      | A supplier is associated with the product. |
-| ----------------- |:-------------:|
+| ------------------ |:-------------:|
 |  Precondition      | Product P is inside the inventory. |
 |                    | Supplier S exists. |
 |  Post condition    | P.supplier = S. |
@@ -574,8 +574,8 @@ UC28 <-- Accountant
 | ------------------- |:-------------:|
 |  Precondition       | The cash register CR is not processing other transactions (CR.state == 'ready'). |  
 |  Post condition     | Transaction T is created. |
-|                     | Transaction T is ready and associated with the cash register CR that created it (T.state == 'ready' && T.cash_register == CR) |
-|                     | The cash register CR is ready to modify the list of products associated to T (CR.state == 'busy'). |
+|                     | Transaction T is ready and associated with the cash register that created it (T.state == 'ready') |
+|                     | The cash register CR is ready to modify the list of products associated to T (state == 'busy'). |
 |  Nominal Scenario   | The shop worker S creates a new sale transaction T for the anonymous customer. |
 |  Variants           | The shop worker S creates a new sale transaction T and the customer shows a fidelity card. |
 |                     | The anonymous customer AC creates a new sale transaction. |
@@ -598,7 +598,7 @@ UC28 <-- Accountant
 ### Use case 12, UC12 - Attach a product to a transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer, Product |
 | ------------------- |:-------------:|
-|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
+|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
 |                     | Product P exists and its inventory level is at least n (P.units >= n) |  
 |                     | Cash register is ready to modify transaction T (T.cash_register == CR). |
 |  Post condition     | CR is ready to further modify the list of products associated to T. |
@@ -612,7 +612,7 @@ UC28 <-- Accountant
 ### Use case 13, UC13 - Remove a product from a transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer, Product |
 | ------------------- |:-------------:|
-|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
+|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
 |                     | Product P is attached to the transaction with quantity n (P in T.products && T.products[P] == n) |  
 |                     | Cash register is ready to modify transaction T (T.cash_register == CR && CR.state == 'busy'). |
 |  Post condition     | CR is ready to further modify the list of products associated to T. |
@@ -711,43 +711,106 @@ UC28 <-- Accountant
 ### Use case 16, UC16 - Show the order list for the supplier
 | Actors Involved  | Supplier |
 | ---------------- |:-------------:|
-| Precondition     | - |  
-| Post condition   | - |
-| Nominal Scenario | The supplier views its order list. |
-|  Variants        | - |
+| Precondition     | Supplier S exists and is logged in. |  
+| Post condition   | The order list of supplier S is shown. |
+| Nominal Scenario | The supplier S views its order list. |
+| Variants         | - |
 
-​
-### Use case 17, UC17 - Create/update a delivery
+##### Scenario 16.1
+| Scenario 16.1     | The supplier views its order list. |
+| ----------------- |:-------------:|
+| Precondition      | Supplier S exists and is logged in. |  
+| Post condition    | The order list of supplier S is shown. |
+| Step#  | Description  |
+| 1      | The supplier selects to show the products included in its order list, possibly filtering by category. |
+| 2      | The application shows the order list. |
+
+
+### Use case 17, UC17 - Create a delivery
+| Actors Involved  | Supplier |
+| ---------------- |:-------------:|
+| Precondition     | Supplier S exists and is logged in. |
+|                  | The shop is not fully stocked: at least one product in the order list of the supplier is pending resupply (S.order_list[P] > 0). |
+|                  | The application is showing the order list for supplier S. |
+| Post condition   | A pending delivery D is created (D.state = 'pending'). |
+| Nominal Scenario | A new delivery is created. |
+| Variants         | - |
+
+| Scenario 17.1     | A new delivery is created |
+| ----------------- |:-------------:|
+| Precondition      | Supplier S exists and is logged in. |
+|                   | The shop is not fully stocked: at least one product in the order list of the supplier is pending resupply. |
+|                   | The application is showing the order list for supplier S. |
+| Post condition    | A pending delivery D is created. |
+| Step#  | Description  |
+| 1      | The supplier S selects one or more products from its order list. |
+| 2      | For each product, the supplier S indicates the quantity n that is going to be delivered to the shop. The quantity n should be less or equal than the quantity specified in the order list (n <= S.order_list[P]) |
+| 3      | For each product in the order list, its order quantity is decremented by n (S.order_list[P] -= n) |
+| 3      | A pending delivery for the selected products and quantities is created. |
+
+
+### Use case 18, UC18 - List all deliveries for the supplier
 | Actors Involved  | Supplier |
 | ---------------- |:-------------:|
 | Precondition     | Supplier S is logged into the system |
-|                  | The shop is not fully stocked |
-| Post condition   | A pending resupply claim is created |
-| Nominal Scenario | The shop is running low on some items; S checks the shops resupply needs and delivers items; S creates a resupply claim indicating which items have been delivered to the shop |
-| Variants         | Shop is being fully resupplied |
-|                  | Only a subset of items is being resupplied |
-|                  | Some items are not fully resupplied to the desired quantity |
+| Post condition   | A list of deliveries of supplier S is shown. |
+| Nominal Scenario | List all deliveries for supplier S. |
+| Variants | - |
 
-​
-### Use case 18, UC18 - List all pending deliveries for supplier S
-| Actors Involved | Supplier |
-| ------------- |:-------------:|
-| Precondition | Supplier S is logged into the system |
-| | S has posted a resupply claim C to the system |
-| | No shop employee has approved C yet |
-| Post condition | C is updated with the products and quantities about to be delivered |
-| Nominal Scenario | .... |
-| Variants | ... |
 
-​
-### Use case 19, UC19 - Accepts a delivery
-| Actors Involved | Employee |
-| ------------- |:-------------:|
-| Precondition | An employee E is logged into the system |
-| | A pending resupply claim C exists |
-| Post condition | The items from C are added to the shops stock |
-| | C is no longer marked as pending |
-| Nominal Scenario | ... |
+### Use case 19, UC19 - Update a delivery
+| Actors Involved  | Supplier |
+| ---------------- |:-------------:|
+| Precondition     | Supplier S exists and is logged in. |
+|                  | The application is showing a list of deliveries for supplier S. |
+|                  | A pending delivery D exists (D.state == 'pending'). |
+| Post condition   | Delivery D is updated. |
+| Nominal Scenario | Update a delivery. |
+| Variants         | - |
+
+| Scenario 17.1     | Update a delivery |
+| ----------------- |:-------------:|
+| Precondition      | Supplier S exists and is logged in. |
+|                   | The application is showing a list of deliveries for supplier S. |
+|                   | A pending delivery D exists (D.state == 'pending'). |
+| Post condition    | Delivery D is updated. |
+| Step#  | Description  |
+| 1      | The supplier S selects a pending delivery (D.state == 'pending'). |
+| 2      | For each product in the delivery, the supplier S updates the quantity n that is going to be delivered to the shop. The quantity n should be less or equal than the quantity specified in the order list (n <= S.order_list[P]) |
+| 3      | For each product in the order list, its order quantity is decremented by n (S.order_list[P] -= n) |
+| 3      | A pending delivery for the selected products and quantities is created. |
+
+
+### Use case 19, UC19 - Accept a delivery
+| Actors Involved  | Employee |
+| ---------------- |:-------------:|
+| Precondition     | A pending delivery D exists (D.state == 'pending'). |
+| Post condition   | The items from D are added to the shop's inventory. |
+|                  | D is marked as completed (D.state = 'completed'). |
+| Nominal Scenario | The products delivered correspond to the agreed amount. |
+| Variants         | The products delivered do NOT correspond to the agreed amount. |
+
+| Scenario 19.1     | The products delivered correspond to the agreed amount |
+| ----------------- |:-------------:|
+| Precondition      | A pending delivery D exists (D.state == 'pending'). |
+| Post condition    | The items from D are added to the shop's inventory. |
+|                   | D is marked as completed (D.state = 'completed'). |
+| Post condition    | Delivery D is updated. |
+| Step#  | Description  |
+| 1      | For each product inside the delivery, the inventory level of the product is incremented by the quantity delivered. |
+| 2      | D is marked as completed (D.state = 'completed'). |
+
+| Scenario 19.2     | The products delivered do NOT correspond to the agreed amount |
+| ----------------- |:-------------:|
+| Precondition      | A pending delivery D exists (D.state == 'pending'). |
+|                   | The delivery contains a product P whose delivered amount is less than the agreed quantity. |
+| Post condition    | The inventory entry for product P is incremented by the delivered quantity. |
+|                   | In the order list of the supplier associated with D, the entry for product P is updated. |
+| Post condition    | Delivery D is updated. |
+| Step#  | Description  |
+| 1      | The inventory level of the product is incremented by the quantity delivered. |
+| 2      | In the order list of the supplier associated with D, the entry for product P is incremented by the difference between the agreed amount for the delivery and the actuallly delivered quantity. |
+| 2      | D is marked as completed (D.state = 'completed'). |
 
 
 ### Use case 20, UC20 - Add an expense
@@ -833,7 +896,7 @@ UC28 <-- Accountant
 |  Variants          |  |
 
 
-### Use case 25, UC25 - Update a product
+### Use case 25, UC25 - Update a product in the catalogue
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
 |  Precondition      | Product P is inside the catalogue |
@@ -844,7 +907,7 @@ UC28 <-- Accountant
 |  Variants          |  |
 
 
-### Use case 26, UC26 - Delete a product
+### Use case 26, UC26 - Delete a product from the catalogue
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
 |  Precondition       | Product exists in the system. |
