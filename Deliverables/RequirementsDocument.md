@@ -151,9 +151,10 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 |  FR7.3   | List all deliveries for the supplier |
 |  FR7.4   | Accepts a delivery |
 |  FR8     | Manage supplier |
-|  FR8.1   | Insert/update supplier |
-|  FR8.2   | Delete supplier |
-
+|  FR8.1   | Insert a supplier |
+|  FR8.2   | List all suppliers |
+|  FR8.3   | Update a supplier |
+|  FR8.4   | Delete supplier |
 
 
 ### Access right, actor vs function
@@ -350,6 +351,28 @@ UC27 <-- Accountant
 UC28 <-- Accountant
 ```
 
+```plantuml
+"Store manager" as StoreManager
+
+(Manage suppliers) as FR
+
+/' Supplier management (UC31, UC32, UC33, UC34) '/
+(Insert a supplier) as UC31
+(List all suppliers) as UC32
+(Update a supplier) as UC33
+(Delete a supplier) as UC34
+
+FR ..> UC31 :include
+FR ..> UC32 :include
+FR ..> UC33 :include
+FR ..> UC34 :include
+
+UC31 <-- StoreManager
+UC32 <-- StoreManager
+UC33 <-- StoreManager
+UC34 <-- StoreManager
+```
+
 ### Use case 1, UC1 - Manage rights
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
@@ -359,7 +382,7 @@ UC28 <-- Accountant
 |  Variants          | The Store Manager updates the rights of an employee E. |
 
 
-### Use case 2, UC2 -  Insert a new product inside the inventory
+### Use case 2, UC2 - Insert a new product inside the inventory
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
 |  Precondition      | Product P does not exist inside the inventory. |  
@@ -736,6 +759,7 @@ UC28 <-- Accountant
 | Nominal Scenario | A new delivery is created. |
 | Variants         | - |
 
+##### Scenario 17.1
 | Scenario 17.1     | A new delivery is created |
 | ----------------- |:-------------:|
 | Precondition      | Supplier S exists and is logged in. |
@@ -768,7 +792,8 @@ UC28 <-- Accountant
 | Nominal Scenario | Update a delivery. |
 | Variants         | - |
 
-| Scenario 17.1     | Update a delivery |
+##### Scenario 19.1
+| Scenario 19.1     | Update a delivery |
 | ----------------- |:-------------:|
 | Precondition      | Supplier S exists and is logged in. |
 |                   | The application is showing a list of deliveries for supplier S. |
@@ -781,7 +806,7 @@ UC28 <-- Accountant
 | 3      | A pending delivery for the selected products and quantities is created. |
 
 
-### Use case 19, UC19 - Accept a delivery
+### Use case 20, UC20 - Accept a delivery
 | Actors Involved  | Employee |
 | ---------------- |:-------------:|
 | Precondition     | A pending delivery D exists (D.state == 'pending'). |
@@ -790,7 +815,8 @@ UC28 <-- Accountant
 | Nominal Scenario | The products delivered correspond to the agreed amount. |
 | Variants         | The products delivered do NOT correspond to the agreed amount. |
 
-| Scenario 19.1     | The products delivered correspond to the agreed amount |
+##### Scenario 20.1
+| Scenario 20.1     | The products delivered correspond to the agreed amount |
 | ----------------- |:-------------:|
 | Precondition      | A pending delivery D exists (D.state == 'pending'). |
 | Post condition    | The items from D are added to the shop's inventory. |
@@ -800,7 +826,8 @@ UC28 <-- Accountant
 | 1      | For each product inside the delivery, the inventory level of the product is incremented by the quantity delivered. |
 | 2      | D is marked as completed (D.state = 'completed'). |
 
-| Scenario 19.2     | The products delivered do NOT correspond to the agreed amount |
+##### Scenario 20.2
+| Scenario 20.2     | The products delivered do NOT correspond to the agreed amount |
 | ----------------- |:-------------:|
 | Precondition      | A pending delivery D exists (D.state == 'pending'). |
 |                   | The delivery contains a product P whose delivered amount is less than the agreed quantity. |
@@ -813,7 +840,7 @@ UC28 <-- Accountant
 | 2      | D is marked as completed (D.state = 'completed'). |
 
 
-### Use case 20, UC20 - Add an expense
+### Use case 21, UC21 - Add an expense
 | Actors Involved  | Accountant |
 | ---------------- |:-------------:|
 | Precondition     | - |  
@@ -821,8 +848,8 @@ UC28 <-- Accountant
 | Nominal Scenario | The accountant manually enters an expense E to the accounting register. |
 | Variants         | - |
 
-##### Scenario 20.1
-| Scenario 20.1     | The accountant manually enters an expense to the accounting register. |
+##### Scenario 21.1
+| Scenario 21.1     | The accountant manually enters an expense to the accounting register. |
 | ----------------- |:-------------:|
 |  Precondition     | - |
 |  Post condition   | An expense E is added to the accounting register. |
@@ -832,7 +859,7 @@ UC28 <-- Accountant
 | 3      | An expense E is added to the accounting register. |
 ​
 
-### Use case 20, UC20 - Compute balance
+### Use case 22, UC22 - Compute balance
 | Actors Involved  | Accountant |
 | ---------------- |:-------------:|
 | Precondition     | - |  
@@ -840,8 +867,8 @@ UC28 <-- Accountant
 | Nominal Scenario | The system shows the expenses and earnings for the shop. |
 | Variants         | - |
 
-##### Scenario 21.1
-| Scenario 21.1     | The system shows the expenses and earnings for the shop. |
+##### Scenario 22.1
+| Scenario 22.1     | The system shows the expenses and earnings for the shop. |
 | ----------------- |:-------------:|
 |  Precondition     | - |
 |  Post condition   | A report of the expenses and earning of the shop is produced. |
@@ -850,7 +877,7 @@ UC28 <-- Accountant
 | 2      | The system produces a detailed report of the transaction (expenses and earnings) based on the time window and the types selected.  |
 
 
-### Use case 21, UC21 - Define a new customer
+### Use case 23, UC23 - Define a new customer
 | Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
 |  Precondition       | The Actor can fill the all essential informations about customer |
@@ -863,7 +890,7 @@ UC28 <-- Accountant
 |  Variants           | Some information marked with "*" (important) are missing: raise an error after "Submit" button is clicked |
 
 
-### Use case 22, UC22 - Delete a customer
+### Use case 24, UC24 - Delete a customer
 | Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
 |  Precondition       | Customer exists in the system. |  
@@ -873,7 +900,7 @@ UC28 <-- Accountant
 |  Variants           | If Customer's Fidelity Card has some points left, raise a Warning after pressing the "Delete" button. |
 
 
-### Use case 23, UC23 - Modify the customer
+### Use case 25, UC25 - Modify the customer
 | Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
 |  Precondition       | Customer exists in the system. |  
@@ -883,7 +910,7 @@ UC28 <-- Accountant
 |  Variants           | The Customer has lost his Fidelity Card, so the Actor gives him a new one with a new ID, restoring Customer's points and deactivates the old one |
 
 
-### Use case 24, UC24 - Manage the catalogue (Insert or Update the catalogue)
+### Use case 26, UC26 - Manage the catalogue (Insert or Update the catalogue)
 
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
@@ -896,7 +923,7 @@ UC28 <-- Accountant
 |  Variants          |  |
 
 
-### Use case 25, UC25 - Update a product in the catalogue
+### Use case 27, UC27 - Update a product in the catalogue
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
 |  Precondition      | Product P is inside the catalogue |
@@ -907,7 +934,7 @@ UC28 <-- Accountant
 |  Variants          |  |
 
 
-### Use case 26, UC26 - Delete a product from the catalogue
+### Use case 28, UC28 - Delete a product from the catalogue
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
 |  Precondition       | Product exists in the system. |
@@ -916,7 +943,7 @@ UC28 <-- Accountant
 |  Variants           | |
 
 
-### Use case 27, UC27 - Define a special offer to product
+### Use case 29, UC29 - Define a special offer to product
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
 |  Precondition       | Product exists in the system. |  
@@ -928,7 +955,7 @@ UC28 <-- Accountant
 |  Variants           | |
 
 
-### Use case 28, UC28 - Define a special offer to product
+### Use case 30, UC30 - Define a special offer to product
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
 |  Precondition       | Product exists in the system. |  
@@ -942,7 +969,7 @@ UC28 <-- Accountant
 |  Variants           | |
 
 
-### Use case 29, UC29 - Insert/Update a supplier
+### Use case 31, UC31 - Insert a supplier
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
 | Precondition     | - |  
@@ -950,8 +977,8 @@ UC28 <-- Accountant
 | Nominal Scenario | A new supplier S is created successfully. |
 | Variants         | - |
 
-##### Scenario 29.1
-| Scenario 29.1     | A new supplier is created successfully. |
+##### Scenario 31.1
+| Scenario 31.1     | A new supplier is created successfully. |
 | ----------------- |:-------------:|
 | Precondition      | - |
 | Post condition    | A supplier S is created. |
@@ -960,7 +987,25 @@ UC28 <-- Accountant
 | 2      | The supplier S is created. |
 
 
-### Use case 30, UC30 - Delete a supplier
+### Use case 32, UC32 - List all suppliers
+| Actors Involved  | Store manager |
+| ---------------- |:-------------:|
+| Precondition     | - |  
+| Post condition   | A list of suppliers is shown. |
+| Nominal Scenario | A list of all suppliers registered on the system is shown. |
+| Variants         | - |
+
+
+### Use case 33, UC33 - Update a supplier
+| Actors Involved  | Store manager |
+| ---------------- |:-------------:|
+| Precondition     | Supplier S exists. |  
+| Post condition   | Supplier S is updated. |
+| Nominal Scenario | The store manager selects a supplier S and updates the properties of supplier S. |
+| Variants         | - |
+
+
+### Use case 33, UC33 - Delete a supplier
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
 | Precondition     | Supplier S exists. |  
@@ -968,8 +1013,8 @@ UC28 <-- Accountant
 | Nominal Scenario | Supplier S is removed successfully. |
 | Variants         | Supplier S is associated to at least one product. |
 
-##### Scenario 30.1
-| Scenario 30.1     | Supplier S is removed successfully. |
+##### Scenario 33.1
+| Scenario 33.1     | Supplier S is removed successfully. |
 | ----------------- |:-------------:|
 | Precondition      | Supplier S exists. |
 | Post condition    | Supplier S is possibly removed. |
@@ -977,14 +1022,14 @@ UC28 <-- Accountant
 | 1      | The store manager selects a supplier S. |
 | 2      | Supplier S is removed. |
 
-##### Scenario 30.2
-| Scenario 30.2     | Supplier S is associated to at least one product. |
+##### Scenario 32.2
+| Scenario 33.2     | Supplier S is associated to at least one product. |
 | ----------------- |:-------------:|
 | Precondition      | Supplier S exists. |
 | Post condition    | - |
 | Step#  | Description  |
 | 1      | The store manager selects a supplier S. |
-| 2      | At least one product is associated with supplier S: an error is raised. |
+| 2      | At least one product is associated with supplier S and an error is raised. |
 
 
 # Glossary
