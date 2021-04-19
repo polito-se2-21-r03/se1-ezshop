@@ -595,10 +595,10 @@ UC34 <-- StoreManager
 ### Use case 11, UC11 - Creation of a new sale transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer |
 | ------------------- |:-------------:|
-|  Precondition       | The cash register CR is not processing other transactions (CR.state == 'ready'). |  
+|  Precondition       | The cash register CR is not processing other transactions (CR.state == 'ready' and CR.running_transaction == null). |  
 |  Post condition     | Transaction T is created. |
-|                     | Transaction T is ready and associated with the cash register that created it (T.state == 'ready') |
-|                     | The cash register CR is ready to modify the list of products associated to T (state == 'busy'). |
+|                     | Transaction T is ready (T.state = 'ready') and associated with the cash register that created it (CR.running_transaction = T.id and CR.state = 'busy') |
+|                     | Depending on the actor that created the transaction, the cash register mode is set. If the actor is a shop worker, the cash register runs in 'supervised' mode (all payment methods are available). If the actor is a customer, the cash register runs in 'unsupervised' mode (the cash payment method is not available and the actor can not cancel the transaction autonomously) |
 |  Nominal Scenario   | The shop worker S creates a new sale transaction T for the anonymous customer. |
 |  Variants           | The shop worker S creates a new sale transaction T and the customer shows a fidelity card. |
 |                     | The anonymous customer AC creates a new sale transaction. |
@@ -607,29 +607,59 @@ UC34 <-- StoreManager
 ##### Scenario 11.1
 | Scenario 11.1     | The shop worker S creates a new sale transaction T and the customer shows a fidelity card. |
 | ----------------- |:-------------:|
-|  Precondition     | The cash register CR is not processing other transactions (CR.state == 'ready'). |
+|  Precondition     | The cash register CR is not processing other transactions (CR.state == 'ready' and CR.running_transaction == null). |  
 |  Post condition   | Transaction T is created. |
-|                   | Transaction T is ready and associated with the cash register CR that created it (T.state == 'ready' && T.cash_register == CR) |
-|                   | The fidelity card FC is attached to the transaction T. |
-|                   | The cash register CR is ready to modify the list of products associated to T (CR.state == 'busy'). |
+|                   | Transaction T is ready (T.state = 'ready') and associated with the cash register that created it (CR.running_transaction = T.id and CR.state = 'busy') |
+|                   | The fidelity card FC is attached to the transaction T (T.fidelity_card). |
+|                   | The 'supervised' cash register mode is set (CR.mode = 'supervised'). |
 | Step#  | Description  |
 |  1     | The shop worker S starts a new transaction T. |
 |  2     | The shop worker S scans the fidelity card FC of the customer. |
 |  3     | The fidelity card FC is attached to the transaction. |
+|  4     | The cash register mode is set. |
+
+##### Scenario 11.2
+| Scenario 11.2     | The anonymous customer AC creates a new sale transaction. |
+| ----------------- |:-------------:|
+|  Precondition     | The cash register CR is not processing other transactions (CR.state == 'ready' and CR.running_transaction == null). |  
+|  Post condition   | Transaction T is created. |
+|                   | Transaction T is ready (T.state = 'ready') and associated with the cash register that created it (CR.running_transaction = T.id and CR.state = 'busy') |
+|                   | The fidelity card FC is attached to the transaction T (T.fidelity_card). |
+|                   | The 'unsupervised' cash register mode is set (CR.mode = 'unsupervised'). |
+| Step#  | Description  |
+|  1     | The shop worker S starts a new transaction T. |
+|  2     | The shop worker S scans the fidelity card FC of the customer. |
+|  3     | The fidelity card FC is attached to the transaction. |
+|  4     | The cash register mode is set. |
 
 
 ### Use case 12, UC12 - Attach a product to a transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer, Product |
 | ------------------- |:-------------:|
-|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
+|  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or the customer himself. |
 |                     | Product P exists and its inventory level is at least n (P.units >= n) |  
-|                     | Cash register is ready to modify transaction T (T.cash_register == CR). |
-|  Post condition     | CR is ready to further modify the list of products associated to T. |
-|                     | CR is ready to complete check-out for transaction T. |
+|                     | Cash register CR is ready to modify transaction T (CR.running_transaction == T and CR.state == 'busy'). |
+|  Post condition     | CR is ready to further modify the list of products associated to T (CR.running_transaction == T and CR.state == 'busy'). |
+|                     | CR is ready to complete check-out for transaction T (T.products.length > 0). |
 |                     | Product P is added to the products list of transaction T with quantity n. |
 |                     | The inventory level for product P is updated (P.units -= n) |
-|  Nominal Scenario   | The actor A adds product P to the products list of transaction T with quantity n; the application updates the inventory level for product P. |
+|  Nominal Scenario   | Attach a product to the transaction. |
 |  Variants           | - |
+
+##### Scenario 12.1
+| Scenario 12.1     | Attach a product to the transaction. |
+| ----------------- |:-------------:|
+|  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
+|                   | Product P exists and its inventory level is at least n (P.units >= n) |  
+|                   | Cash register CR is ready to modify transaction T (CR.running_transaction == T and CR.state == 'busy'). |
+|  Post condition   | CR is ready to further modify the list of products associated to T (CR.running_transaction == T and CR.state == 'busy'). |
+|                   | CR is ready to complete check-out for transaction T (T.products.length > 0). |
+|                   | Product P is added to the products list of transaction T with quantity n. |
+|                   | The inventory level for product P is updated (P.units -= n) |
+| Step#  | Description  |
+| 1      | The actor A scans the barcode of the product. |
+| 2      | The product informations are shown on the cash register's screen. |
+| 3      | The actor A possibly changes the quantity n of the product P in the transaction. |
 
 
 ### Use case 13, UC13 - Remove a product from a transaction
@@ -637,13 +667,27 @@ UC34 <-- StoreManager
 | ------------------- |:-------------:|
 |  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
 |                     | Product P is attached to the transaction with quantity n (P in T.products && T.products[P] == n) |  
-|                     | Cash register is ready to modify transaction T (T.cash_register == CR && CR.state == 'busy'). |
-|  Post condition     | CR is ready to further modify the list of products associated to T. |
-|                     | CR is ready to complete check-out for transaction T. |
+|                     | Cash register CR is ready to modify transaction T (CR.running_transaction == T && CR.state == 'busy'). |
+|  Post condition     | CR is ready to further modify the list of products associated to T (CR.running_transaction == T and CR.state == 'busy'). |
+|                     | CR is possibly ready to complete check-out for transaction T (T.products.length > 0). |
 |                     | Product P is removed from the products list of transaction T. |
 |                     | The inventory level for product P is restored (P.units += n) |
-|  Nominal Scenario   | The actor A removes product P from the transaction; the application updates the inventory level for product P. |
+|  Nominal Scenario   | Remove a product P from transaction T. |
 |  Variants           | - |
+
+##### Scenario 13.1
+| Scenario 13.1     | Remove a product from a transaction |
+| ----------------- |:-------------:|
+|  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
+|                   | Product P is attached to the transaction with quantity n (P in T.products && T.products[P] == n) |  
+|                   | Cash register is ready to modify transaction T (T.cash_register == CR && CR.state == 'busy'). |
+|  Post condition   | CR is ready to further modify the list of products associated to T. |
+|                   | CR is possibly ready to complete check-out for transaction T (T.products.length > 0). |
+|                   | Product P is removed from the products list of transaction T. |
+|                   | The inventory level for product P is restored (P.units += n) |
+| Step#  | Description  |
+| 1      | The actor A selects a product P to be removed from the transaction |
+| 2      | Product P is removed from the transaction and the inventory level for product P is restored. | 
 
 
 ### Use case 14, UC14 - Payment of a transaction
@@ -651,32 +695,36 @@ UC34 <-- StoreManager
 | ------------------- |:-------------:|
 |  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                     | At least one product is attached to transaction T (T.products.length > 0). |  
-|                     | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|                     | Cash register CR is ready to modify transaction T (CR.running_transaction == T and CR.state == 'busy'). |
 |  Post condition     | Transaction T is completed, either successfully or with an exception. |
 |  Nominal Scenario   | The customer pays in cash and the transaction is completed successfully. |
 |  Variants           | The customer pays in cash but he has not enough money. |
+|                     | The customer pays with credit card and the transaction is completed successfully. |
+|                     | The customer pays with credit card but the POS system notifies a payment exception. |
 
 ##### Scenario 14.1
 | Scenario 14.1      | The customer pays in cash and the transaction is completed successfully. |
 | ----------------- |:-------------:|
-|  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
+|  Precondition     | Transaction T exists and is run by a shop worker A. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
-|                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|                   | Cash register CR is ready to modify transaction T (CR.running_transaction == T and CR.state == 'busy'). |
+|                   | The cash register is running in 'supervised' mode (CR.mode == 'supervised'). |
 |  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
-|                   | The sale transaction is recorded in the the transaction register. |
+|                   | The sale transaction is recorded in the the transaction register (T.state = 'completed'). |
 | Step#  | Description  |
 |  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
-|  2     | The actor A selects the 'cash' payment method and types the cash amount given by the customer. |
+|  2     | The shop worker A selects the 'cash' payment method and types the cash amount given by the customer. |
 |  3     | The cash register CR computes the change. |
 |  4     | The checkout is completed successfully and a receipt is printed. |
 |  5     | T is recorded in the transaction register. |
 
 ##### Scenario 14.2
-| Scenario 14.2      | The customer pays in cash but he has not enough money. |
+| Scenario 14.2     | The customer pays in cash but he has not enough money. |
 | ----------------- |:-------------:|
-|  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
+|  Precondition     | Transaction T exists and is run by a shop worker A. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
-|                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|                   | Cash register CR is ready to modify transaction T (CR.running_transaction == T and CR.state == 'busy'). |
+|                   | The cash register is running in 'supervised' mode (CR.mode == 'supervised'). |
 |  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
 |                   | The inventory level for products attached to the transaction is restored. |
 |                   | The sale transaction is NOT recorded in the the transaction register. |
@@ -685,15 +733,14 @@ UC34 <-- StoreManager
 |  2     | C selects the 'cash' payment method but the customer has not enough cash. A warning is raised and the transaction is NOT aborted. The actor A can either remove products from the transaction or cancel it. |
 
 ##### Scenario 14.3
-| Scenario 14.3      | The customer pays with credit card and the transaction is completed successfully. |
+| Scenario 14.3     | The customer pays with credit card and the transaction is completed successfully. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
-|                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|                   | Cash register CR is ready to modify transaction T (CR.running_transaction == T and CR.state == 'busy'). |
 |                   | The credit card POS system is ready. |
 |  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
-|                   | The inventory level for products affected by the sale transaction is updated. |
-|                   | The sale transaction is recorded in the the transaction register. |
+|                   | The sale transaction is recorded in the the transaction register (T.state = 'completed'). |
 | Step#  | Description  |
 |  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
 |  2     | The cash register CR communicates the total to the credit card POS system. |
@@ -702,11 +749,11 @@ UC34 <-- StoreManager
 |  5     | T is recorded in the transaction register. |
 
 ##### Scenario 14.4
-| Scenario 14.4      | The customer pays with credit card but the POS system notifies a payment exception. |
+| Scenario 14.4     | The customer pays with credit card but the POS system notifies a payment exception. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
-|                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|                   | Cash register CR is ready to modify transaction T (CR.running_transaction == T and CR.state == 'busy'). |
 |                   | The credit card POS system is ready. |
 |  Post condition   | CR is ready for processing another transaction (CR.state == 'ready'). |
 |                   | The inventory level for products attached to the transaction is restored. |
@@ -727,8 +774,37 @@ UC34 <-- StoreManager
 |                     | CR is ready for processing another transaction (CR.state == 'ready'). |
 |                     | The inventory level for products attached to the transaction is restored. |
 |                     | The sale transaction is NOT recorded in the the transaction register. |
-|  Nominal Scenario   | The actor A cancels the transaction. |
-|  Variants           | - |
+|  Nominal Scenario   | The shop worker A cancels the transaction. |
+|  Variants           | The customer A cancels the transaction. |
+
+##### Scenario 15.1
+| Scenario 15.1     | The shop worker cancels the transaction |
+| ----------------- |:-------------:|
+|  Precondition     | Transaction T exists and is run by the shop worker A. |
+|                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|                   | The cash register is running in 'supervised' mode (CR.mode == 'supervised'). |
+|  Post condition   | Transaction T is cancelled. |
+|                   | CR is ready for processing another transaction (CR.state == 'ready'). |
+|                   | The inventory level for products attached to the transaction is restored. |
+|                   | The sale transaction is NOT recorded in the the transaction register. |
+| Step#  | Description  |
+| 1      | The actor A asks the application to cancel a transaction. |
+| 2      | The transaction is cancelled. |
+
+##### Scenario 15.2
+| Scenario 15.2     | The customer cancels the transaction |
+| ----------------- |:-------------:|
+|  Precondition     | Transaction T exists and is run by an customer A. |
+|                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
+|                   | The cash register is running in 'unsupervised' mode (CR.mode == 'unsupervised'). |
+|  Post condition   | Transaction T is cancelled (T.state = 'cancelled'). |
+|                   | CR is ready for processing another transaction (CR.state == 'ready'). |
+|                   | The inventory level for products attached to the transaction is restored. |
+|                   | The sale transaction is NOT recorded in the the transaction register. |
+| Step#  | Description  |
+| 1      | The actor A asks the application to cancel a transaction. |
+| 2      | The application requires authentication of a shop worker. The authentication request is repeated until the procedure is successful. |
+| 3      | The transaction is cancelled. |
 
 
 ### Use case 16, UC16 - Show the order list for the supplier
