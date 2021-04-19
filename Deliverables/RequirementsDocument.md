@@ -108,53 +108,53 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 
 ## Functional Requirements
 
-| ID        | Description  |
-| ------------- |:-------------:|
-|  FR1     | Manage rights. Authorize access to functions to specific actors according to access rights |
-|  FR2     | Manage inventory |
-|  FR2.1   | Insert a new product inside the inventory |
-|  FR2.2   | Update the properties of a product |
-|  FR2.3   | Remove a product from the inventory |
-|  FR2.4   | Add product to the order list of a supplier |
-|  FR2.5   | Category management |
-|  FR2.5.1 | Create/Update a category |
-|  FR2.5.2 | Assign a product to a category |
-|  FR2.5.3 | Delete a category |
-|  FR2.5.4 | List categories |
-|  FR2.5.4 | Show products associated with a category |
-|  FR2.6   | Search a product |
-|  FR2.7   | Bind a product to a supplier |
-|  FR3     | Sales management |
-|  FR3.1   | Start a transaction |
-|  FR3.2   | Add or delete products to the transaction |
-|  FR3.3   | Cancel a running transaction |
-|  FR3.4   | Add a payment method |
-|  FR3.5   | Apply discount and special offers, possibly depending on the fidelity card |
-|  FR3.6   | Complete checkout and print receipt |
-|  FR3.7   | Keep transaction informations |
-|  FR4     | Manage customers |
-|  FR4.1   | Define a new customer, or modify an existing one |
-|  FR4.2   | Create a fidelity card for the customer |
-|  FR4.3   | Delete a customer |
-|  FR4.4   | Search a customer |
-|  FR5     | Manage catalogue (prices): |
-|  *FR5.1   | Insert/Update a catalogue entry |
-|  *FR5.2   | Remove a catalogue entry |
-|  FR5.3   | Define a special offer for the catalogue entry |
-|  FR5.4   | Define special offers for fidelity plans |
-|  FR6     | Manage accounting |
-|  FR6.1   | Add an expense |
-|  FR6.2   | Compute balance |
-|  FR7     | Manage orders |
-|  FR7.1   | Show the order list for the supplier |
-|  FR7.2   | Create a new delivery |
-|  FR7.3   | List all deliveries for the supplier |
-|  FR7.4   | Accepts a delivery |
-|  FR8     | Manage supplier |
-|  FR8.1   | Insert a supplier |
-|  FR8.2   | List all suppliers |
-|  FR8.3   | Update a supplier |
-|  FR8.4   | Delete supplier |
+| ID           | Description  |
+| ------------ |:-------------|
+|  **FR1**     | **Manage rights. Authorize access to functions to specific actors according to access rights** |
+|  **FR2**     | **Manage inventory** |
+|  FR2.1       | Insert a new product inside the inventory |
+|  FR2.2       | Update the properties of a product |
+|  FR2.3       | Remove a product from the inventory |
+|  FR2.4       | Add product to the order list of a supplier |
+|  FR2.5       | Category management |
+|  FR2.5.1     | Create/Update a category |
+|  FR2.5.2     | Assign a product to a category |
+|  FR2.5.3     | Delete a category |
+|  FR2.5.4     | List categories |
+|  FR2.5.4     | Show products associated with a category |
+|  FR2.6       | Search a product |
+|  FR2.7       | Bind a product to a supplier |
+|  **FR3**     | **Sales management** |
+|  FR3.1       | Start a transaction |
+|  FR3.2       | Add or delete products to the transaction |
+|  FR3.3       | Cancel a running transaction |
+|  FR3.4       | Add a payment method |
+|  FR3.5       | Apply discount and special offers, possibly depending on the fidelity card |
+|  FR3.6       | Complete checkout and print receipt |
+|  FR3.7       | Keep transaction informations |
+|  **FR4**     | **Manage customers** |
+|  FR4.1       | Define a new customer, or modify an existing one |
+|  FR4.2       | Create a fidelity card for the customer |
+|  FR4.3       | Delete a customer |
+|  FR4.4       | Search a customer |
+|  **FR5**     | **Manage catalogue** |
+|  FR5.1       | List the catalogue entries |
+|  FR5.2       | Update a catalogue entry |
+|  FR5.3       | Remove a catalogue entry |
+|  FR5.4       | Define a special offer |
+|  **FR6**     | **Manage accounting** |
+|  FR6.1       | Add an expense |
+|  FR6.2       | Compute balance |
+|  **FR7**     | **Manage orders** |
+|  FR7.1       | Show the order list for the supplier |
+|  FR7.2       | Create a new delivery |
+|  FR7.3       | List all deliveries for the supplier |
+|  FR7.4       | Accepts a delivery |
+|  **FR8**     | **Manage supplier** |
+|  FR8.1       | Insert a supplier |
+|  FR8.2       | List all suppliers |
+|  FR8.3       | Update a supplier |
+|  FR8.4       | Delete supplier |
 
 
 ### Access right, actor vs function
@@ -910,66 +910,66 @@ UC34 <-- StoreManager
 |  Variants           | The Customer has lost his Fidelity Card, so the Actor gives him a new one with a new ID, restoring Customer's points and deactivates the old one |
 
 
-### Use case 26, UC26 - Manage the catalogue (Insert or Update the catalogue)
+### Use case 26, UC26 - List the catalogue entries
 
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
-|  Precondition      | Product P is inside the inventory |
-| | Product P is for sale (P.forsale = 'yes') |
-|  Post condition    | P.description is set, which is a string that describes the product |
-| | P.category is set |
-| | P.price is set, which is the base price of the Product |
-|  Nominal Scenario  | The Actor sets price, category and description of the product. |
-|  Variants          |  |
+|  Precondition      | - |
+|  Post condition    | A list of catalogue entries is produced. |
+|  Nominal Scenario  | Filter and list the catalogue entries. |
+|  Variants          | - |
+
+##### Scenario 26.1
+| Scenario 26.1     | Filter and list the catalogue entries |
+| ----------------- |:-------------:|
+| Precondition      | - |
+| Post condition    | A list of catalogue entries is produced. |
+| Step#  | Description  |
+| 1      | The actor possibly enters a text query. |
+| 2      | The application shows a list of catalogue entries, possibly filtering the names based on the provided query. |
 
 
-### Use case 27, UC27 - Update a product in the catalogue
+### Use case 27, UC27 - Update a catalogue entry
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
-|  Precondition      | Product P is inside the catalogue |
-|  Post condition    | P.description can be updated |
-| | P.category can be modified |
-| | P.price can be changed, which is the base price of the Product |
-|  Nominal Scenario  | The Actor search P from the lists and modifies price, category or description of the product. |
-|  Variants          |  |
+|  Precondition      | The application is showing a list of catalogue entries including P. |
+|  Post condition    | The properties of product P (price, description, ...) are updated. |
+|  Nominal Scenario  | The actor selects product P from the list and modifies its properties. |
+|  Variants          | - |
+
+##### Scenario 27.1
+| Scenario 27.1     | The actor selects a product from the lists and modifies its properties |
+| ----------------- |:-------------:|
+|  Precondition     | The application is showing a list of catalogue entries including P. |
+|  Post condition   | The properties of product P (price, description, ...) are updated. |
+| Step#  | Description  |
+| 1      | The actor selects a product P from the shown list. |
+| 2      | The actor modifies the properties of product P. |
+| 3      | The product P is updated. |
 
 
-### Use case 28, UC28 - Delete a product from the catalogue
+### Use case 28, UC28 - Define a special offer for the product
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
-|  Precondition       | Product exists in the system. |
-|  Post condition     | Product has been deleted on the system. |
-|  Nominal Scenario   | The product is no longer for sale so the Actor removes it from the Catalogue through the Web GUI |
-|  Variants           | |
+|  Precondition       | The application is showing a list of catalogue entries including P. |
+|  Post condition     | The special offers for a product P are updated. |
+|  Nominal Scenario   | The actor selects a product from the list and modifies its special offers |
+|  Variants           | - |
+
+##### Scenario 28.1
+| Scenario 28.1     | The actor selects a product from the list and modifies its special offers |
+| ----------------- |:-------------:|
+|  Precondition     | The application is showing a list of catalogue entries including P. |
+|  Post condition   | The special offers for product P are updated. |
+| Step#  | Description  |
+| 1      | The actor selects product P from the shown list. |
+| 2      | The actor enters the percentage discount for anonymous customers (it may be zero). |
+| 3      | The actor enters the percentage discount for customers (it may be zero). |
+| 4      | The actor selects an expiration date for the discounts. |
+| 5      | The special offers for product P are updated. |
 
 
-### Use case 29, UC29 - Define a special offer to product
-| Actors Involved     | Manager, Accountant |
-| ------------------- |:-------------:|
-|  Precondition       | Product exists in the system. |  
-| | There is not previous offer on the product with same type discounts. |
-|  Post condition     | The price of product has been recalculated on the system. |
-|  Nominal Scenario   | 1.Actor reaches the GUI of product catalogue via browser. |
-|  | 2.Actor selects one or more products. |
-|  								    | 3. Actor fills the percentage discount of the product for anonymous customer and for fidelity card |
-|  Variants           | |
-
-
-### Use case 30, UC30 - Define a special offer to product
-| Actors Involved     | Manager, Accountant |
-| ------------------- |:-------------:|
-|  Precondition       | Product exists in the system. |  
-|											| There is another previous offer on the product with same type discounts. |
-|  Post condition     | The price of product has not been recalculated on the system. |
-|											| An error that “There is previous offer of product on the system” is raised. |
-| Exceptional Scenario| 1.Actor reaches the GUI of product catalogue via browser. |
-|  								    | 2.Actor selects one or more products. |
-|  								    | 3. Actor fills the percentage discount of the product for anonymous customer and for fidelity card |
-|											| 4. An error is raised and the transactions is rolled back. |
-|  Variants           | |
-
-
-### Use case 31, UC31 - Insert a supplier
+### Use case 29, UC29 - Insert a supplier
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
 | Precondition     | - |  
@@ -977,8 +977,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | A new supplier S is created successfully. |
 | Variants         | - |
 
-##### Scenario 31.1
-| Scenario 31.1     | A new supplier is created successfully. |
+##### Scenario 29.1
+| Scenario 29.1     | A new supplier is created successfully. |
 | ----------------- |:-------------:|
 | Precondition      | - |
 | Post condition    | A supplier S is created. |
@@ -987,7 +987,7 @@ UC34 <-- StoreManager
 | 2      | The supplier S is created. |
 
 
-### Use case 32, UC32 - List all suppliers
+### Use case 30, UC30 - List all suppliers
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
 | Precondition     | - |  
@@ -996,7 +996,7 @@ UC34 <-- StoreManager
 | Variants         | - |
 
 
-### Use case 33, UC33 - Update a supplier
+### Use case 31, UC31 - Update a supplier
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
 | Precondition     | Supplier S exists. |  
@@ -1005,7 +1005,7 @@ UC34 <-- StoreManager
 | Variants         | - |
 
 
-### Use case 33, UC33 - Delete a supplier
+### Use case 32, UC32 - Delete a supplier
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
 | Precondition     | Supplier S exists. |  
@@ -1013,8 +1013,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | Supplier S is removed successfully. |
 | Variants         | Supplier S is associated to at least one product. |
 
-##### Scenario 33.1
-| Scenario 33.1     | Supplier S is removed successfully. |
+##### Scenario 32.1
+| Scenario 32.1     | Supplier S is removed successfully. |
 | ----------------- |:-------------:|
 | Precondition      | Supplier S exists. |
 | Post condition    | Supplier S is possibly removed. |
@@ -1023,7 +1023,7 @@ UC34 <-- StoreManager
 | 2      | Supplier S is removed. |
 
 ##### Scenario 32.2
-| Scenario 33.2     | Supplier S is associated to at least one product. |
+| Scenario 32.2     | Supplier S is associated to at least one product. |
 | ----------------- |:-------------:|
 | Precondition      | Supplier S exists. |
 | Post condition    | - |
