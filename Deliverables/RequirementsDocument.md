@@ -995,20 +995,40 @@ UC34 <-- StoreManager
 | Nominal Scenario | A list of all suppliers registered on the system is shown. |
 | Variants         | - |
 
+##### Scenario 30.1
+| Scenario 30.1     | Filter and list the suppliers |
+| ----------------- |:-------------:|
+| Precondition      | - |
+| Post condition    | A list of suppliers is shown. |
+| Step#  | Description  |
+| 1      | The actor possibly enters a text query. |
+| 2      | The application shows a list of suppliers, possibly filtering the names based on the provided query. |
+
 
 ### Use case 31, UC31 - Update a supplier
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
-| Precondition     | Supplier S exists. |  
+| Precondition     | The application is showing a list of suppliers including S. |
 | Post condition   | Supplier S is updated. |
-| Nominal Scenario | The store manager selects a supplier S and updates the properties of supplier S. |
+| Nominal Scenario | Supplier S is updated successfully. |
 | Variants         | - |
+
+##### Scenario 31.1
+| Scenario 31.1     | Supplier S is updated successfully. |
+| ----------------- |:-------------:|
+| Precondition      | The application is showing a list of suppliers including S. |
+| Post condition    | Supplier S is updated. |
+| Nominal Scenario  | Supplier S is updated successfully. |
+| Step#  | Description  |
+| 1      | The store manager selects a supplier S from the list. |
+| 2      | The store manager modifies the properties of supplier S. |
+| 3      | The supplier S is updated. |
 
 
 ### Use case 32, UC32 - Delete a supplier
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
-| Precondition     | Supplier S exists. |  
+| Precondition     | The application is showing a list of suppliers including S. |
 | Post condition   | Supplier S is possibly removed. |
 | Nominal Scenario | Supplier S is removed successfully. |
 | Variants         | Supplier S is associated to at least one product. |
@@ -1016,16 +1036,17 @@ UC34 <-- StoreManager
 ##### Scenario 32.1
 | Scenario 32.1     | Supplier S is removed successfully. |
 | ----------------- |:-------------:|
-| Precondition      | Supplier S exists. |
+| Precondition      | The application is showing a list of suppliers including S. |
 | Post condition    | Supplier S is possibly removed. |
 | Step#  | Description  |
-| 1      | The store manager selects a supplier S. |
+| 1      | The store manager selects a supplier S from the list. |
 | 2      | Supplier S is removed. |
 
 ##### Scenario 32.2
 | Scenario 32.2     | Supplier S is associated to at least one product. |
 | ----------------- |:-------------:|
-| Precondition      | Supplier S exists. |
+| Precondition      | The application is showing a list of suppliers including S. |
+|                   | At least one product is associated with supplier S (P.supplier == S). |
 | Post condition    | - |
 | Step#  | Description  |
 | 1      | The store manager selects a supplier S. |
