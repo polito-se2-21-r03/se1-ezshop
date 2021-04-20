@@ -9,6 +9,8 @@ Version:
 ## Cash register GUI
 The cash register graphical user interface runs on a fullscreen web page. The interface is meant to be used on a touchscreen display.
 
+![Storyboard](images/cash-register/storyboard.jpg)
+
 ### Authentication screen
 The initial screen requires the authentication of a shop worker. The application offers two different login methods: **username+password** or **badge**.
 
