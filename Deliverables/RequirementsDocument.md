@@ -687,7 +687,7 @@ UC34 <-- StoreManager
 |                   | The inventory level for product P is restored (P.units += n) |
 | Step#  | Description  |
 | 1      | The actor A selects a product P to be removed from the transaction |
-| 2      | Product P is removed from the transaction and the inventory level for product P is restored. | 
+| 2      | Product P is removed from the transaction and the inventory level for product P is restored. |
 
 
 ### Use case 14, UC14 - Payment of a transaction
@@ -1130,6 +1130,9 @@ UC34 <-- StoreManager
 
 
 # Glossary
+
+![Alt text](./glossary.svg)
+<img src="./glossary.svg">
 
 \<use UML class diagram to define important terms, or concepts in the domain of the system, and their relationships>
 
