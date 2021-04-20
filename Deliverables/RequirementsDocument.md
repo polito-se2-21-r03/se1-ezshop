@@ -1132,7 +1132,6 @@ UC34 <-- StoreManager
 # Glossary
 
 ![Alt text](./glossary.svg)
-<img src="./glossary.svg">
 
 \<use UML class diagram to define important terms, or concepts in the domain of the system, and their relationships>
 
