@@ -1212,7 +1212,7 @@ email
 phone_number
 name
 surname
-fidelit_card
+fidelity_card
 }
 class Accountant {
 date_of_birth
