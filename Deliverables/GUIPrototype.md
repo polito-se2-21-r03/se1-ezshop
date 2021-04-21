@@ -31,12 +31,14 @@ The application lets the store manager add, edit and remove employees.
 ![Employees - Storyboard](images/employees/storyboard.png)
 
 #### Add an employee
+The store manager adds a new employee by selecting its role (accountant or shop worker) and enters its personal informations.
 ![Employees - Add an employee](images/employees/add.png)
 
 #### Edit an employee
 ![Employees - Edit an employee](images/employees/edit.png)
 
 #### Delete an employee
+In order to delete an employee, a confirmation is required.
 ![Employees - Delete an employee](images/employees/delete.png)
 
 
@@ -91,7 +93,7 @@ If the transaction was paid in cash, the application shows the cash amount given
 ![Sales - List 2](images/sales/sales-2.png)
 
 #### Example of a receipt
-The receipt of EZShop lists the products purchased in the transaction, their price and quantity. A barcode representing the transaction's id is also reported.
+The receipt of EZShop lists the products purchased in the transaction along with their price and quantity. A barcode representing the transaction's id is also reported.
 
 ![Receipt](images/sales/receipt.png)
 
@@ -111,6 +113,7 @@ The receipt of EZShop lists the products purchased in the transaction, their pri
 
 
 ### Catalogue
+The catalogue interface allows to manage products in the inventory from a the point of view of sales. The store manager can define prices and special offers for each product. Special offers can be tied to fidelity cards.
 
 ![Catalogue - Storyboard](images/catalogue/storyboard.png)
 
@@ -128,6 +131,8 @@ The receipt of EZShop lists the products purchased in the transaction, their pri
 
 
 ### Accounting
+The accounting section lists incomes and expenses of the shop. The EZShop application tracks sales, orders and generic expenses (salaries, bill, etc...). Generic expenses can be inserted manually in the system.
+
 ![Storyboard](images/accounting/storyboard.png)
 
 #### Main screen
@@ -143,6 +148,7 @@ The receipt of EZShop lists the products purchased in the transaction, their pri
 ![Edit an expense](images/accounting/edit-expense.png)
 
 #### Incomes
+The application shows the incomes and expenses of the shop with a *by product* or *by category* granularity. The store manager can also select a specific time window or filter the result by a text query.
 
 ##### Products 
 ![Income - Products](images/accounting/income-products.png)
