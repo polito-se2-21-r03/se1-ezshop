@@ -69,6 +69,7 @@ The application lets the store manager add, edit and remove employees.
 ![Inventory - Edit a product (update confirmed)](images/inventory/edit-confirmed.png)
 
 #### Resupply
+A shop worker can manually increase the amount of a product pending resupply.
 
 ![Inventory - Resupply](images/inventory/resupply-confirm.png)
 
@@ -78,13 +79,20 @@ The application lets the store manager add, edit and remove employees.
 
 
 ### Sales
+The sales screen shows the transactions history of the shop.
 
 #### Sales list with details
-![Sales list 1](images/sales/sales-1.png)
+For each transaction, the application shows the items belonging to the transaction and, the payment method and the possibly the POS transaction id. The shop worker can print again the receipt. 
 
-![Sales list 2](images/sales/sales-2.png)
+![Sales - List 1](images/sales/sales-1.png)
+
+If the transaction was paid in cash, the application shows the cash amount given by the customer and the due change.
+
+![Sales - List 2](images/sales/sales-2.png)
 
 #### Example of a receipt
+The receipt of EZShop lists the products purchased in the transaction, their price and quantity. A barcode representing the transaction's id is also reported.
+
 ![Receipt](images/sales/receipt.png)
 
 
