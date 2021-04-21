@@ -125,7 +125,7 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 |  FR2.5.2     | Assign a product to a category |
 |  FR2.5.3     | Delete a category |
 |  FR2.5.4     | List categories |
-|  FR2.5.4     | Show products associated with a category |
+|  FR2.5.5     | Show products associated with a category |
 |  FR2.6       | Bind a product to a supplier |
 |  FR2.7       | Change the resupply amount |
 |  **FR3**     | **Sales management** |
@@ -208,52 +208,61 @@ FR1 ..> UC1.3 :include
 FR1 ..> UC1.4 :include
 FR1 ..> UC1.5 :include
 
-StoreManager -> UC1.1
-StoreManager -> UC1.2
-StoreManager -> UC1.3
-StoreManager -> UC1.4
-StoreManager -> UC1.5
+UC1.1 <- StoreManager
+UC1.2 <- StoreManager
+UC1.3 <- StoreManager
+UC1.4 <- StoreManager
+UC1.5 <- StoreManager
+
 ```
 
 ```plantuml
 "Shop worker" as ShopWorker
 
 (Manage inventory) as FR2
-(Manage categories) as FR2_7
+(Category management) as UC2.5
 
-(Insert a new product) as UC2
-(Update the level) as UC3
-(Remove a product) as UC4
-(Notify reordering needs) as UC5
-(Insert a new category) as UC6
-(Update a category) as UC7
-(List all products) as UC8
-(Delete a category) as UC9
-(Define a discount) as UC10
+(Insert a new product) as UC2.1
+(Update a product) as UC2.2
+(Remove a product) as UC2.3
+(List products) as UC2.4
+(Create/Update a category) as UC2.5.1
+(Assign a product to a category) as UC2.5.2
+(Delete a category) as UC2.5.3
+(List categories) as UC2.5.4
+(Show products associated with a category) as UC2.5.5
+(Bind a product to a supplier) as UC2.6
+(Change the resupply amount) as UC2.7
 
-/' Inventory management (UC2, UC3, UC4, UC5) '/
-FR2 ...> UC2 :include
-FR2 ...> UC3 :include
-FR2 ....> UC4 :include
-FR2 ....> UC5 :include
 
-/' Category management (UC6, UC7, UC8, UC9, UC10) '/
-FR2 ..> FR2_7 :include
-FR2_7 ...> UC6 :include
-FR2_7 ...> UC7 :include
-FR2_7 ..> UC8 :include
-FR2_7 ..> UC9 :include
-FR2_7 ..> UC10 :include
+/' Inventory management (UC2.1, UC2.2, UC2.3, UC2.4, UC2.5, UC2.6, UC2.7) '/
+FR2 ...> UC2.1 :include
+FR2 ...> UC2.2 :include
+FR2 ....> UC2.3 :include
+FR2 ....> UC2.4 :include
+FR2 ....> UC2.5 :include
+FR2 ....> UC2.6 :include
+FR2 ....> UC2.7 :include
 
-UC2 <-- ShopWorker
-UC3 <-- ShopWorker
-UC4 <-- ShopWorker
-UC5 <-- ShopWorker
-UC6 <-- ShopWorker
-UC7 <-- ShopWorker
-UC8 <--> ShopWorker
-UC9 <-- ShopWorker
-UC10 <-- ShopWorker
+/' Category management (UC2.5.1, UC2.5.2, UC2.5.3, UC2.5.4, UC2.5.5) '/
+UC2.5 ....> UC2.5.1 :include
+UC2.5 ....> UC2.5.2 :include
+UC2.5 ....> UC2.5.3 :include
+UC2.5 ....> UC2.5.4 :include
+UC2.5 ....> UC2.5.5 :include
+
+UC2.1 <-- ShopWorker
+UC2.2 <-- ShopWorker
+UC2.3 <-- ShopWorker
+UC2.4 <-- ShopWorker
+UC2.5 <-- ShopWorker
+UC2.5.1 <-- ShopWorker
+UC2.5.2 <-- ShopWorker
+UC2.5.3 <-- ShopWorker
+UC2.5.4 <-- ShopWorker
+UC2.5.5 <-- ShopWorker
+UC2.6 <-- ShopWorker
+UC2.7 <-- ShopWorker
 ```
 
 ```plantuml
