@@ -7,7 +7,7 @@ Date: 21/04/2021
 Version: 1.0
 
 ## Web GUI
-After the login screen, the user is able to reach the different screens of the application, depending on its role (shop worker, store manager and accountant) as specified in the requirements document. The store manager has full access to all the screens.
+After the login screen, the user is able to reach the different screens of the application, depending on its role (shop worker, store manager, accountant and supplier) as specified in the requirements document. The store manager has full access to all the screens.
 
 The storyboard reported below shows the possible interactions for the store manager role.
 
@@ -39,6 +39,7 @@ The store manager adds a new employee by selecting its role (accountant or shop 
 
 #### Delete an employee
 In order to delete an employee, a confirmation is required.
+
 ![Employees - Delete an employee](images/employees/delete.png)
 
 
