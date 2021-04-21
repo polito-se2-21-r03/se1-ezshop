@@ -110,7 +110,12 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 
 | ID           | Description  |
 | ------------ |:-------------|
-|  **FR1**     | **Manage rights. Authorize access to functions to specific actors according to access rights** |
+|  **FR1**     | **Manage rights** |
+|  FR1.1       | Add an employee |
+|  FR1.2       | List all employees |
+|  FR1.3       | Edit an employee |
+|  FR1.4       | Delete an employee |
+|  FR1.5       | Authenticate and authorize an employee |
 |  **FR2**     | **Manage inventory** |
 |  FR2.1       | Insert a new product inside the inventory |
 |  FR2.2       | Update the properties of a product |
@@ -373,13 +378,116 @@ UC33 <-- StoreManager
 UC34 <-- StoreManager
 ```
 
-### Use case 1, UC1 - Manage rights
-| Actors Involved    | Store Manager |
-| ------------------ |:-------------:|
-|  Precondition      | The new employee E does not have an account on the system. |  
-|  Post condition    | The new employee E have an account on the system. |
-|  Nominal Scenario  | The Store Manager hires a new employee E and creates a new account with either 'accountant' or 'shop-worker' rights. |
-|  Variants          | The Store Manager updates the rights of an employee E. |
+### Use case 1, UC1 - Insert an employee
+| Actors Involved  | Store manager |
+| ---------------- |:-------------:|
+| Precondition     | - |  
+| Post condition   | An employee E (shop worker or accountant) is created. |
+| Nominal Scenario | A new employee E is created successfully. |
+| Variants         | An employee with the same ssn code already exists. |
+
+##### Scenario 1.1
+| Scenario 1.1     | A new employee E is created successfully. |
+| ---------------- |:-------------:|
+| Precondition     | - |
+| Post condition   | An employee E (shop worker or accountant) is created. |
+| Step#  | Description  |
+| 1      | The store manager enters the properties of the new employee E and its role (shop worker or accountant). |
+| 2      | Employee E is created. |
+
+##### Scenario 1.2
+| Scenario 1.2     | An employee with the same ssn code already exists. |
+| ---------------- |:-------------:|
+| Precondition     | - |
+| Post condition   | - |
+| Step#  | Description  |
+| 1      | The store manager enters the properties of the new employee E and its role (shop worker or accountant). |
+| 2      | An employee with the same ssn code already exists. An error is raised and the operation is aborted. |
+
+
+### Use case 2, UC2 - List all employees
+| Actors Involved  | Store manager |
+| ---------------- |:-------------:|
+| Precondition     | - |  
+| Post condition   | A list of employees is shown. |
+| Nominal Scenario | Filter and list the employees. |
+| Variants         | - |
+
+##### Scenario 2.1
+| Scenario 2.1     | Filter and list the employees |
+| ----------------- |:-------------:|
+| Precondition      | - |
+| Post condition    | A list of employees is shown. |
+| Step#  | Description  |
+| 1      | The actor possibly enters a text query. |
+| 2      | The application shows a list of employees, possibly filtering the names based on the provided query. |
+
+
+### Use case 3, UC3 - Update an employee
+| Actors Involved  | Store manager |
+| ---------------- |:-------------:|
+| Precondition     | The application is showing a list of employees including E. |
+| Post condition   | Employee E is updated. |
+| Nominal Scenario | Employee E is updated successfully. |
+| Variants         | - |
+
+##### Scenario 3.1
+| Scenario 3.1     | Employee E is updated successfully. |
+| ----------------- |:-------------:|
+| Precondition      | The application is showing a list of employees including E. |
+| Post condition    | Employee E is updated. |
+| Step#  | Description  |
+| 1      | The store manager selects an employee E from the list. |
+| 2      | The store manager modifies the properties of employee E. |
+| 3      | The employee E is updated. |
+
+
+### Use case 4, UC4 - Delete an employee
+| Actors Involved  | Store manager |
+| ---------------- |:-------------:|
+| Precondition     | The application is showing a list of employees including E. |
+| Post condition   | Employee E is removed. |
+| Nominal Scenario | Employee E is removed successfully. |
+| Variants         | - |
+
+##### Scenario 4.1
+| Scenario 4.1     | Employee is removed successfully. |
+| ----------------- |:-------------:|
+| Precondition      | The application is showing a list of employees including E. |
+| Post condition    | Employee E is removed. |
+| Step#  | Description  |
+| 1      | The store manager selects an employee E from the list. |
+| 2      | The store manager is asked to confirm the deletion. |
+| 3      | Employee E is deleted. |
+
+
+### Use case 5, UC5 - Authenticate and authorize an employee
+| Actors Involved  | Any employee (store manager, shop worker, accountant) |
+| ---------------- |:-------------:|
+| Precondition     | A username U and a password P are provided. |  
+| Post condition   | An employee E and its role R (shop worker, accountant, store manager) are possibly returned/displayed. |
+| Nominal Scenario | Authentication succeds. |
+| Variants         | Authentication fails. |
+
+##### Scenario 5.1
+| Scenario 5.1     | Authentication succeds. |
+| ---------------- |:-------------:|
+| Precondition     | A username U and a password P are provided. |  
+| Post condition   | An employee E and its role R (shop worker, accountant, store manager) are returned/displayed. |
+| Step#  | Description  |
+| 1      | The actors enters a username and a password. |
+| 2      | The system checks the username and password pair agains the list of all employees. |
+| 3      | One and only one matching employee is found and returned. |
+
+##### Scenario 5.2
+| Scenario 5.1     | Authentication fails. |
+| ---------------- |:-------------:|
+| Precondition     | A username U and a password P are provided. |  
+| Post condition   | - |
+| Step#  | Description  |
+| 1      | The actors enters a username and a password. |
+| 2      | The system checks the username and password pair agains the list of all employees. |
+| 3      | No matching employee is found and an error is raised. |
 
 
 ### Use case 2, UC2 - Insert a new product inside the inventory
