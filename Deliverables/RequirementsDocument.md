@@ -87,6 +87,7 @@ SumUp <-left-> (EZShop)
 | Shop Worker                  | Web GUI         | Cash Register, Screen, Keyboard, Mouse on PC |
 | Supplier                     | Web GUI         | Screen, Keyboard, Mouse on PC |
 | Anonymous Customer, Customer | Web GUI         | Touchscreen display of the automatic cash register |
+| Customer                     | Fidelity card   | Barcode scanner |
 | Product                      | Barcode         | Barcode scanner |
 | SumUp Terminal               | API provided by the [SumUp SDK](https://developer.sumup.com/docs/terminal-overview/) | [Web bluetooth API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) |
 | Developer                    | -               | Remote access (ssh) to the production server for deployments |
@@ -1201,9 +1202,7 @@ email
 phone_number
 name
 surname
-}
-class FidelityCard {
-ID
+fidelit_card
 }
 class Accountant {
 date_of_birth
@@ -1258,16 +1257,19 @@ name
 date
 type
 amount
+paid
 }
 class Delivery {
 delivery_ID
+date
+state
 }
 class Transaction {
 transaction_ID
 date
+state
 total
 discount
-cash_register_id
 }
 class TransactionItem {
 sale_price
@@ -1279,11 +1281,11 @@ name
 VAT
 }
 class DeliveryItem {
+price
 amount
 }
 
 EZShop -- "*" Customer
-Customer "1" -- "0..1" FidelityCard
 EZShop -- "*" Accountant
 EZShop -- "*" ShopWorker
 StoreManager -up-|> ShopWorker
