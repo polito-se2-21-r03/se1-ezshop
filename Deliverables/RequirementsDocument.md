@@ -490,7 +490,7 @@ UC34 <-- StoreManager
 | 3      | No matching employee is found and an error is raised. |
 
 
-### Use case 2, UC2 - Insert a new product inside the inventory
+### Use case 6, UC6 - Insert a new product inside the inventory
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
 |  Precondition      | Product P does not exist inside the inventory. |  
@@ -500,7 +500,7 @@ UC34 <-- StoreManager
 |  Variants          | - |
 
 
-### Use case 3, UC3 - Update the properties of a product
+### Use case 7, UC7 - Update the properties of a product
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
 |  Precondition      | Product P already exists inside the inventory. |  
@@ -510,7 +510,7 @@ UC34 <-- StoreManager
 |  Variants          | - |
 
 
-### Use case 4, UC4 - Remove a product from the inventory
+### Use case 8, UC8 - Remove a product from the inventory
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
 |  Precondition      | Product P exists inside the inventory |  
@@ -520,7 +520,7 @@ UC34 <-- StoreManager
 |  Variants          | - |
 
 
-### Use case 5, UC5 - Add product to the order list
+### Use case 9, UC9 - Add product to the order list
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Product P is inside the inventory.  |
@@ -530,8 +530,8 @@ UC34 <-- StoreManager
 |                    | Product P is NOT already in the order list of its supplier. |
 |                    | Product P's resupply quantity is NOT defined. |
 
-##### Scenario 5.1
-| Scenario 5.1      | Product is already in the order list of its supplier. |
+##### Scenario 9.1
+| Scenario 9.1      | Product is already in the order list of its supplier. |
 | ----------------- |:-------------:|
 |  Precondition     | Product P is inside the inventory. |
 |                   | A supplier S is associated with P (S = P.supplier). |
@@ -543,8 +543,8 @@ UC34 <-- StoreManager
 | 2      | The shop worker selects to resupply product P. |
 | 3      | The entry for product P in the order list of the supplier S is updated (S.order_list[P] += P.instant_resupply_quantity). |
 
-##### Scenario 5.2
-| Scenario 5.2      | Product is NOT associated with a supplier. |
+##### Scenario 9.2
+| Scenario 9.2      | Product is NOT associated with a supplier. |
 | ----------------- |:-------------:|
 |  Precondition     | Product P is inside the inventory. |
 |                   | A supplier is NOT associated with P (P.supplier is NOT defined). |
@@ -554,8 +554,8 @@ UC34 <-- StoreManager
 | 2      | The shop worker selects to resupply product P. |
 | 3      | Product P is not associated with a supplier; an error is raised. |
 
-##### Scenario 5.3
-| Scenario 5.3      | Product is NOT already in the order list of its supplier. |
+##### Scenario 9.3
+| Scenario 9.3      | Product is NOT already in the order list of its supplier. |
 | ----------------- |:-------------:|
 |  Precondition     | Product P is inside the inventory. |
 |                   | A supplier S is associated with P (S = P.supplier). |
@@ -566,8 +566,8 @@ UC34 <-- StoreManager
 | 2      | The shop worker selects to resupply product P. |
 | 3      | The entry for product P is inserted in the order list of supplier S (S.order_list[P] = P.instant_resupply_quantity). |
 
-##### Scenario 5.4
-| Scenario 5.4      | Product P's resupply quantity is NOT defined. |
+##### Scenario 9.4
+| Scenario 9.4      | Product P's resupply quantity is NOT defined. |
 | ----------------- |:-------------:|
 |  Precondition     | Product P is inside the inventory. |
 |                   | P.instant_resupply_quantity is NOT defined. |
@@ -578,7 +578,7 @@ UC34 <-- StoreManager
 | 3      | The entry for product P is inserted in the order list of supplier S (S.order_list[P] = P.instant_resupply_quantity). |
 
 
-### Use case 6, UC6 - Insert a new category
+### Use case 10, UC10 - Insert a new category
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | - |  
@@ -586,8 +586,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario  | A new category is created successfully. |
 |  Variants          | A category with the same name already exists. |
 
-##### Scenario 6.1
-| Scenario 6.1      | A new category is created successfully. |
+##### Scenario 10.1
+| Scenario 10.1      | A new category is created successfully. |
 | ----------------- |:-------------:|
 |  Precondition     | - |
 |  Post condition   | Category C is created. |
@@ -595,8 +595,8 @@ UC34 <-- StoreManager
 | 1      | The shop worker defines the properties of a new category C. |
 | 2      | C is created. |
 
-##### Scenario 6.2
-| Scenario 6.2      | A category with the same name already exists. |
+##### Scenario 10.2
+| Scenario 10.2      | A category with the same name already exists. |
 | ----------------- |:-------------:|
 |  Precondition     | - |
 |  Post condition   | - |
@@ -605,7 +605,7 @@ UC34 <-- StoreManager
 | 2      | A category with the same name already exists and an error is raised. |
 
 
-### Use case 7, UC7 - Update an existing category
+### Use case 11, UC11 - Update an existing category
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |  
@@ -613,8 +613,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario  | The category is updated successfully. |
 |  Variants          | A category with the same name already exists and an error is raised. |
 
-##### Scenario 7.1
-| Scenario 7.1      | The category is updated successfully. |
+##### Scenario 11.1
+| Scenario 11.1      | The category is updated successfully. |
 | ----------------- |:-------------:|
 |  Precondition     | Category C exists |
 |  Post condition   | C is updated successfully. |
@@ -623,8 +623,8 @@ UC34 <-- StoreManager
 | 2      | The shop worker modifies the properties of C. |
 | 3      | C is updated successfully. |
 
-##### Scenario 7.2
-| Scenario 7.2      | A category with the same name already exists and an error is raised. |
+##### Scenario 11.2
+| Scenario 11.2      | A category with the same name already exists and an error is raised. |
 | ----------------- |:-------------:|
 |  Precondition     | Category C exists |
 |  Post condition   | - |
@@ -634,7 +634,7 @@ UC34 <-- StoreManager
 | 3      | A category with the same name already exists and an error is raised. |
 
 
-### Use case 8, UC8 - List all the products associated with a category
+### Use case 12, UC16 - List all the products associated with a category
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |
@@ -642,8 +642,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario  | List all the products associated with category C. |
 |  Variants          | - |
 
-##### Scenario 8.1
-| Scenario 8.1      | List all the products associated with a category. |
+##### Scenario 12.1
+| Scenario 12.1      | List all the products associated with a category. |
 | ----------------- |:-------------:|
 |  Precondition     | Category C exists. |
 |  Post condition   | A list of products associated with category C is shown. |
@@ -652,7 +652,7 @@ UC34 <-- StoreManager
 | 2      | The system shows all the products associated with category C. |
 
 
-### Use case 9, UC9 - Delete a category
+### Use case 13, UC13 - Delete a category
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |
@@ -660,8 +660,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario  | The shop worker selects a category and removes it. |
 |  Variants          | There are products associated to category C. |
 
-##### Scenario 9.1
-| Scenario 9.1      | The shop worker selects a category and removes it.  |
+##### Scenario 13.1
+| Scenario 13.1      | The shop worker selects a category and removes it.  |
 | ----------------- |:-------------:|
 |  Precondition     | Category C exists. |
 |  Post condition   | Category C is removed. |
@@ -669,8 +669,8 @@ UC34 <-- StoreManager
 | 1      | The shop worker selects a category C. |
 | 2      | Category C is removed. |
 
-##### Scenario 9.2
-| Scenario 9.2      | There are products associated to the category.  |
+##### Scenario 13.2
+| Scenario 13.2      | There are products associated to the category.  |
 | ----------------- |:-------------:|
 |  Precondition     | Category C exists. |
 |  Post condition   | - |
@@ -679,7 +679,7 @@ UC34 <-- StoreManager
 | 2      | There are products associated to category C (C.products.length > 0): the category is not removed and an error is raised. |
 
 
-### Use case 10, UC10 - Bind a product to a supplier
+### Use case 14, UC14 - Bind a product to a supplier
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Product P is inside the inventory. |
@@ -688,8 +688,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario  | A supplier is associated with the product. |
 |  Variants          | - |
 
-##### Scenario 10.1
-| Scenario 10.1      | A supplier is associated with the product. |
+##### Scenario 14.1
+| Scenario 14.1      | A supplier is associated with the product. |
 | ------------------ |:-------------:|
 |  Precondition      | Product P is inside the inventory. |
 |                    | Supplier S exists. |
@@ -700,7 +700,7 @@ UC34 <-- StoreManager
 | 3      | Product P is associated with supplier S (P.supplier = S). |
 
 
-### Use case 11, UC11 - Creation of a new sale transaction
+### Use case 15, UC15 - Creation of a new sale transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer |
 | ------------------- |:-------------:|
 |  Precondition       | The cash register CR is not processing other transactions (CR.state == 'ready' and CR.running_transaction == null). |  
@@ -712,8 +712,8 @@ UC34 <-- StoreManager
 |                     | The anonymous customer AC creates a new sale transaction. |
 |                     | The customer C creates a new sale transaction and shows a fidelity card. |
 
-##### Scenario 11.1
-| Scenario 11.1     | The shop worker S creates a new sale transaction T and the customer shows a fidelity card. |
+##### Scenario 15.1
+| Scenario 15.1     | The shop worker S creates a new sale transaction T and the customer shows a fidelity card. |
 | ----------------- |:-------------:|
 |  Precondition     | The cash register CR is not processing other transactions (CR.state == 'ready' and CR.running_transaction == null). |  
 |  Post condition   | Transaction T is created. |
@@ -726,8 +726,8 @@ UC34 <-- StoreManager
 |  3     | The fidelity card FC is attached to the transaction. |
 |  4     | The cash register mode is set. |
 
-##### Scenario 11.2
-| Scenario 11.2     | The anonymous customer AC creates a new sale transaction. |
+##### Scenario 15.2
+| Scenario 15.2     | The anonymous customer AC creates a new sale transaction. |
 | ----------------- |:-------------:|
 |  Precondition     | The cash register CR is not processing other transactions (CR.state == 'ready' and CR.running_transaction == null). |  
 |  Post condition   | Transaction T is created. |
@@ -741,7 +741,7 @@ UC34 <-- StoreManager
 |  4     | The cash register mode is set. |
 
 
-### Use case 12, UC12 - Attach a product to a transaction
+### Use case 16, UC16 - Attach a product to a transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer, Product |
 | ------------------- |:-------------:|
 |  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or the customer himself. |
@@ -754,8 +754,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario   | Attach a product to the transaction. |
 |  Variants           | - |
 
-##### Scenario 12.1
-| Scenario 12.1     | Attach a product to the transaction. |
+##### Scenario 16.1
+| Scenario 16.1     | Attach a product to the transaction. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
 |                   | Product P exists and its inventory level is at least n (P.units >= n) |  
@@ -770,7 +770,7 @@ UC34 <-- StoreManager
 | 3      | The actor A possibly changes the quantity n of the product P in the transaction. |
 
 
-### Use case 13, UC13 - Remove a product from a transaction
+### Use case 17, UC17 - Remove a product from a transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer, Product |
 | ------------------- |:-------------:|
 |  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
@@ -783,8 +783,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario   | Remove a product P from transaction T. |
 |  Variants           | - |
 
-##### Scenario 13.1
-| Scenario 13.1     | Remove a product from a transaction |
+##### Scenario 17.1
+| Scenario 17.1     | Remove a product from a transaction |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
 |                   | Product P is attached to the transaction with quantity n (P in T.products && T.products[P] == n) |  
@@ -798,7 +798,7 @@ UC34 <-- StoreManager
 | 2      | Product P is removed from the transaction and the inventory level for product P is restored. |
 
 
-### Use case 14, UC14 - Payment of a transaction
+### Use case 18, UC18 - Payment of a transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer, SumUp Terminal |
 | ------------------- |:-------------:|
 |  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
@@ -810,8 +810,8 @@ UC34 <-- StoreManager
 |                     | The customer pays with credit card and the transaction is completed successfully. |
 |                     | The customer pays with credit card but the POS system notifies a payment exception. |
 
-##### Scenario 14.1
-| Scenario 14.1      | The customer pays in cash and the transaction is completed successfully. |
+##### Scenario 18.1
+| Scenario 18.1      | The customer pays in cash and the transaction is completed successfully. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists and is run by a shop worker A. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
@@ -826,8 +826,8 @@ UC34 <-- StoreManager
 |  4     | The checkout is completed successfully and a receipt is printed. |
 |  5     | T is recorded in the transaction register. |
 
-##### Scenario 14.2
-| Scenario 14.2     | The customer pays in cash but he has not enough money. |
+##### Scenario 18.2
+| Scenario 18.2     | The customer pays in cash but he has not enough money. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists and is run by a shop worker A. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
@@ -840,8 +840,8 @@ UC34 <-- StoreManager
 |  1     | The cash register computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
 |  2     | C selects the 'cash' payment method but the customer has not enough cash. A warning is raised and the transaction is NOT aborted. The actor A can either remove products from the transaction or cancel it. |
 
-##### Scenario 14.3
-| Scenario 14.3     | The customer pays with credit card and the transaction is completed successfully. |
+##### Scenario 18.3
+| Scenario 18.3     | The customer pays with credit card and the transaction is completed successfully. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
@@ -856,8 +856,8 @@ UC34 <-- StoreManager
 |  4     | The checkout is completed successfully and a receipt is printed. |
 |  5     | T is recorded in the transaction register. |
 
-##### Scenario 14.4
-| Scenario 14.4     | The customer pays with credit card but the POS system notifies a payment exception. |
+##### Scenario 18.4
+| Scenario 18.4     | The customer pays with credit card but the POS system notifies a payment exception. |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists and is run by an actor A, either a shop worker or a the customer itself. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
@@ -873,7 +873,7 @@ UC34 <-- StoreManager
 |  4     | Depending on the type of the exception raised by the POS system, the actor A can either proceed with the checkout using a different payment method or cancel the transaction. |
 
 
-### Use case 15, UC15 - Cancel a running sale transaction
+### Use case 19, UC19 - Cancel a running sale transaction
 | Actors Involved     | Shop Worker, Anonymous Customer, Customer |
 | ------------------- |:-------------:|
 |  Precondition       | Transaction T exists and is run by an actor A, either a shop worker or a the customer himself. |
@@ -885,8 +885,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario   | The shop worker A cancels the transaction. |
 |  Variants           | The customer A cancels the transaction. |
 
-##### Scenario 15.1
-| Scenario 15.1     | The shop worker cancels the transaction |
+##### Scenario 19.1
+| Scenario 19.1     | The shop worker cancels the transaction |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists and is run by the shop worker A. |
 |                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
@@ -899,8 +899,8 @@ UC34 <-- StoreManager
 | 1      | The actor A asks the application to cancel a transaction. |
 | 2      | The transaction is cancelled. |
 
-##### Scenario 15.2
-| Scenario 15.2     | The customer cancels the transaction |
+##### Scenario 19.2
+| Scenario 19.2     | The customer cancels the transaction |
 | ----------------- |:-------------:|
 |  Precondition     | Transaction T exists and is run by an customer A. |
 |                   | Cash register is ready to modify transaction T (T.cash_register == CR). |
@@ -915,7 +915,7 @@ UC34 <-- StoreManager
 | 3      | The transaction is cancelled. |
 
 
-### Use case 16, UC16 - Show the order list for the supplier
+### Use case 20, UC20 - Show the order list for the supplier
 | Actors Involved  | Supplier |
 | ---------------- |:-------------:|
 | Precondition     | Supplier S exists and is logged in. |  
@@ -923,8 +923,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | The supplier S views its order list. |
 | Variants         | - |
 
-##### Scenario 16.1
-| Scenario 16.1     | The supplier views its order list. |
+##### Scenario 20.1
+| Scenario 20.1     | The supplier views its order list. |
 | ----------------- |:-------------:|
 | Precondition      | Supplier S exists and is logged in. |  
 | Post condition    | The order list of supplier S is shown. |
@@ -933,7 +933,7 @@ UC34 <-- StoreManager
 | 2      | The application shows the order list. |
 
 
-### Use case 17, UC17 - Create a delivery
+### Use case 21, UC21 - Create a delivery
 | Actors Involved  | Supplier |
 | ---------------- |:-------------:|
 | Precondition     | Supplier S exists and is logged in. |
@@ -943,8 +943,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | A new delivery is created. |
 | Variants         | - |
 
-##### Scenario 17.1
-| Scenario 17.1     | A new delivery is created |
+##### Scenario 21.1
+| Scenario 21.1     | A new delivery is created |
 | ----------------- |:-------------:|
 | Precondition      | Supplier S exists and is logged in. |
 |                   | The shop is not fully stocked: at least one product in the order list of the supplier is pending resupply. |
@@ -957,7 +957,7 @@ UC34 <-- StoreManager
 | 3      | A pending delivery for the selected products and quantities is created. |
 
 
-### Use case 18, UC18 - List all deliveries for the supplier
+### Use case 22, UC22 - List all deliveries for the supplier
 | Actors Involved  | Supplier |
 | ---------------- |:-------------:|
 | Precondition     | Supplier S is logged into the system |
@@ -966,7 +966,7 @@ UC34 <-- StoreManager
 | Variants | - |
 
 
-### Use case 19, UC19 - Update a delivery
+### Use case 23, UC23 - Update a delivery
 | Actors Involved  | Supplier |
 | ---------------- |:-------------:|
 | Precondition     | Supplier S exists and is logged in. |
@@ -976,8 +976,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | Update a delivery. |
 | Variants         | - |
 
-##### Scenario 19.1
-| Scenario 19.1     | Update a delivery |
+##### Scenario 23.1
+| Scenario 23.1     | Update a delivery |
 | ----------------- |:-------------:|
 | Precondition      | Supplier S exists and is logged in. |
 |                   | The application is showing a list of deliveries for supplier S. |
@@ -990,7 +990,7 @@ UC34 <-- StoreManager
 | 3      | A pending delivery for the selected products and quantities is created. |
 
 
-### Use case 20, UC20 - Accept a delivery
+### Use case 24, UC24 - Accept a delivery
 | Actors Involved  | Employee |
 | ---------------- |:-------------:|
 | Precondition     | A pending delivery D exists (D.state == 'pending'). |
@@ -999,8 +999,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | The products delivered correspond to the agreed amount. |
 | Variants         | The products delivered do NOT correspond to the agreed amount. |
 
-##### Scenario 20.1
-| Scenario 20.1     | The products delivered correspond to the agreed amount |
+##### Scenario 24.1
+| Scenario 24.1     | The products delivered correspond to the agreed amount |
 | ----------------- |:-------------:|
 | Precondition      | A pending delivery D exists (D.state == 'pending'). |
 | Post condition    | The items from D are added to the shop's inventory. |
@@ -1010,8 +1010,8 @@ UC34 <-- StoreManager
 | 1      | For each product inside the delivery, the inventory level of the product is incremented by the quantity delivered. |
 | 2      | D is marked as completed (D.state = 'completed'). |
 
-##### Scenario 20.2
-| Scenario 20.2     | The products delivered do NOT correspond to the agreed amount |
+##### Scenario 24.2
+| Scenario 24.2     | The products delivered do NOT correspond to the agreed amount |
 | ----------------- |:-------------:|
 | Precondition      | A pending delivery D exists (D.state == 'pending'). |
 |                   | The delivery contains a product P whose delivered amount is less than the agreed quantity. |
@@ -1024,7 +1024,7 @@ UC34 <-- StoreManager
 | 2      | D is marked as completed (D.state = 'completed'). |
 
 
-### Use case 21, UC21 - Add an expense
+### Use case 25, UC25 - Add an expense
 | Actors Involved  | Accountant |
 | ---------------- |:-------------:|
 | Precondition     | - |  
@@ -1032,8 +1032,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | The accountant manually enters an expense E to the accounting register. |
 | Variants         | - |
 
-##### Scenario 21.1
-| Scenario 21.1     | The accountant manually enters an expense to the accounting register. |
+##### Scenario 25.1
+| Scenario 25.1     | The accountant manually enters an expense to the accounting register. |
 | ----------------- |:-------------:|
 |  Precondition     | - |
 |  Post condition   | An expense E is added to the accounting register. |
@@ -1043,7 +1043,7 @@ UC34 <-- StoreManager
 | 3      | An expense E is added to the accounting register. |
 ​
 
-### Use case 22, UC22 - Compute balance
+### Use case 26, UC26 - Compute balance
 | Actors Involved  | Accountant |
 | ---------------- |:-------------:|
 | Precondition     | - |  
@@ -1051,8 +1051,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | The system shows the expenses and earnings for the shop. |
 | Variants         | - |
 
-##### Scenario 22.1
-| Scenario 22.1     | The system shows the expenses and earnings for the shop. |
+##### Scenario 26.1
+| Scenario 26.1     | The system shows the expenses and earnings for the shop. |
 | ----------------- |:-------------:|
 |  Precondition     | - |
 |  Post condition   | A report of the expenses and earning of the shop is produced. |
@@ -1061,7 +1061,7 @@ UC34 <-- StoreManager
 | 2      | The system produces a detailed report of the transaction (expenses and earnings) based on the time window and the types selected.  |
 
 
-### Use case 23, UC23 - Define a new customer
+### Use case 27, UC27 - Define a new customer
 | Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
 |  Precondition       | The Actor can fill the all essential informations about customer |
@@ -1074,7 +1074,7 @@ UC34 <-- StoreManager
 |  Variants           | Some information marked with "*" (important) are missing: raise an error after "Submit" button is clicked |
 
 
-### Use case 24, UC24 - Delete a customer
+### Use case 28, UC28 - Delete a customer
 | Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
 |  Precondition       | Customer exists in the system. |  
@@ -1084,7 +1084,7 @@ UC34 <-- StoreManager
 |  Variants           | If Customer's Fidelity Card has some points left, raise a Warning after pressing the "Delete" button. |
 
 
-### Use case 25, UC25 - Modify the customer
+### Use case 29, UC29 - Modify the customer
 | Actors Involved     | Shop Worker |
 | ------------------- |:-------------:|
 |  Precondition       | Customer exists in the system. |  
@@ -1094,7 +1094,7 @@ UC34 <-- StoreManager
 |  Variants           | The Customer has lost his Fidelity Card, so the Actor gives him a new one with a new ID, restoring Customer's points and deactivates the old one |
 
 
-### Use case 26, UC26 - List the catalogue entries
+### Use case 30, UC30 - List the catalogue entries
 
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
@@ -1103,8 +1103,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario  | Filter and list the catalogue entries. |
 |  Variants          | - |
 
-##### Scenario 26.1
-| Scenario 26.1     | Filter and list the catalogue entries |
+##### Scenario 30.1
+| Scenario 30.1     | Filter and list the catalogue entries |
 | ----------------- |:-------------:|
 | Precondition      | - |
 | Post condition    | A list of catalogue entries is produced. |
@@ -1113,7 +1113,7 @@ UC34 <-- StoreManager
 | 2      | The application shows a list of catalogue entries, possibly filtering the names based on the provided query. |
 
 
-### Use case 27, UC27 - Update a catalogue entry
+### Use case 31, UC31 - Update a catalogue entry
 | Actors Involved    | Store Manager, Accountant |
 | ------------------ |:-------------:|
 |  Precondition      | The application is showing a list of catalogue entries including P. |
@@ -1121,8 +1121,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario  | The actor selects product P from the list and modifies its properties. |
 |  Variants          | - |
 
-##### Scenario 27.1
-| Scenario 27.1     | The actor selects a product from the lists and modifies its properties |
+##### Scenario 31.1
+| Scenario 31.1     | The actor selects a product from the lists and modifies its properties |
 | ----------------- |:-------------:|
 |  Precondition     | The application is showing a list of catalogue entries including P. |
 |  Post condition   | The properties of product P (price, description, ...) are updated. |
@@ -1132,7 +1132,7 @@ UC34 <-- StoreManager
 | 3      | The product P is updated. |
 
 
-### Use case 28, UC28 - Define a special offer for the product
+### Use case 32, UC32 - Define a special offer for the product
 | Actors Involved     | Manager, Accountant |
 | ------------------- |:-------------:|
 |  Precondition       | The application is showing a list of catalogue entries including P. |
@@ -1140,8 +1140,8 @@ UC34 <-- StoreManager
 |  Nominal Scenario   | The actor selects a product from the list and modifies its special offers |
 |  Variants           | - |
 
-##### Scenario 28.1
-| Scenario 28.1     | The actor selects a product from the list and modifies its special offers |
+##### Scenario 32.1
+| Scenario 32.1     | The actor selects a product from the list and modifies its special offers |
 | ----------------- |:-------------:|
 |  Precondition     | The application is showing a list of catalogue entries including P. |
 |  Post condition   | The special offers for product P are updated. |
@@ -1153,7 +1153,7 @@ UC34 <-- StoreManager
 | 5      | The special offers for product P are updated. |
 
 
-### Use case 29, UC29 - Insert a supplier
+### Use case 33, UC33 - Insert a supplier
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
 | Precondition     | - |  
@@ -1161,8 +1161,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | A new supplier S is created successfully. |
 | Variants         | - |
 
-##### Scenario 29.1
-| Scenario 29.1     | A new supplier is created successfully. |
+##### Scenario 33.1
+| Scenario 33.1     | A new supplier is created successfully. |
 | ----------------- |:-------------:|
 | Precondition      | - |
 | Post condition    | A supplier S is created. |
@@ -1171,7 +1171,7 @@ UC34 <-- StoreManager
 | 2      | The supplier S is created. |
 
 
-### Use case 30, UC30 - List all suppliers
+### Use case 34, UC34 - List all suppliers
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
 | Precondition     | - |  
@@ -1179,8 +1179,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | A list of all suppliers registered on the system is shown. |
 | Variants         | - |
 
-##### Scenario 30.1
-| Scenario 30.1     | Filter and list the suppliers |
+##### Scenario 34.1
+| Scenario 34.1     | Filter and list the suppliers |
 | ----------------- |:-------------:|
 | Precondition      | - |
 | Post condition    | A list of suppliers is shown. |
@@ -1189,7 +1189,7 @@ UC34 <-- StoreManager
 | 2      | The application shows a list of suppliers, possibly filtering the names based on the provided query. |
 
 
-### Use case 31, UC31 - Update a supplier
+### Use case 35, UC35 - Update a supplier
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
 | Precondition     | The application is showing a list of suppliers including S. |
@@ -1197,8 +1197,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | Supplier S is updated successfully. |
 | Variants         | - |
 
-##### Scenario 31.1
-| Scenario 31.1     | Supplier S is updated successfully. |
+##### Scenario 35.1
+| Scenario 35.1     | Supplier S is updated successfully. |
 | ----------------- |:-------------:|
 | Precondition      | The application is showing a list of suppliers including S. |
 | Post condition    | Supplier S is updated. |
@@ -1209,7 +1209,7 @@ UC34 <-- StoreManager
 | 3      | The supplier S is updated. |
 
 
-### Use case 32, UC32 - Delete a supplier
+### Use case 36, UC36 - Delete a supplier
 | Actors Involved  | Store manager |
 | ---------------- |:-------------:|
 | Precondition     | The application is showing a list of suppliers including S. |
@@ -1217,8 +1217,8 @@ UC34 <-- StoreManager
 | Nominal Scenario | Supplier S is removed successfully. |
 | Variants         | Supplier S is associated to at least one product. |
 
-##### Scenario 32.1
-| Scenario 32.1     | Supplier S is removed successfully. |
+##### Scenario 36.1
+| Scenario 36.1     | Supplier S is removed successfully. |
 | ----------------- |:-------------:|
 | Precondition      | The application is showing a list of suppliers including S. |
 | Post condition    | Supplier S is possibly removed. |
@@ -1226,8 +1226,8 @@ UC34 <-- StoreManager
 | 1      | The store manager selects a supplier S from the list. |
 | 2      | Supplier S is removed. |
 
-##### Scenario 32.2
-| Scenario 32.2     | Supplier S is associated to at least one product. |
+##### Scenario 36.2
+| Scenario 36.2     | Supplier S is associated to at least one product. |
 | ----------------- |:-------------:|
 | Precondition      | The application is showing a list of suppliers including S. |
 |                   | At least one product is associated with supplier S (P.supplier == S). |
