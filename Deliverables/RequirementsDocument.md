@@ -175,6 +175,7 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 | FR7.1   | yes | yes | no | no | no | yes |
 | FR7.2   | no | no | no | no | no | yes |
 | FR7.3   | yes | yes | no | no | no | no |
+| FR7.4   | yes | yes | no | no | no | no |
 | FR8   | yes | no | no | no | no | no |
 
 
@@ -302,106 +303,116 @@ UC3.6 <--> SumUpTerminal
 UC3.2 <-- Product
 ```
 
-```plantuml
-"Supplier" as Supplier
-"Employee" as Employee
-
-(Manage orders) as FR7
-
-/' Orders management (UC16, UC17, UC18, UC19) '/
-(Check resupply needs) as UC16
-(Post resupply claim) as UC17
-(Edit pending resupply claim) as UC18
-(Approve pending resupply claim) as UC19
-
-FR7 ..> UC16 :include
-FR7 ..> UC17 :include
-FR7 ..> UC18 :include
-FR7 ..> UC19 :include
-
-UC16 <-- Supplier
-UC17 <-- Supplier
-UC18 <-- Supplier
-UC19 <-- Employee
-```
-
-```plantuml
-"Accountant" as Accountant
-
-(Manage accounting) as FR6
-
-/' Manage accounting (UC20) '/
-(View expenses and earnings) as UC20
-
-FR6 ..> UC20 :include
-
-UC20 --> Accountant
-```
 
 ```plantuml
 "Shop Worker" as ShopWorker
 
 (Manage customers) as FR4
 
-/' Customers management (UC21, UC22, UC23) '/
-(Define a new customer) as UC21
-(Delete a customer) as UC22
-(Modify the customer) as UC23
+(Define a new customer, or modify an existing one) as UC4.1
+(Create a fidelity card for the customer) as UC4.2
+(Delete a customer) as UC4.3
+(Search a customer) as UC4.4
 
-FR4 ..> UC21 :include
-FR4 ..> UC22 :include
-FR4 ..> UC23 :include
+/' Customers management (UC4.1, UC4.2, UC4.3, UC4.4,) '/
+FR4 ..> UC4.1 :include
+FR4 ..> UC4.2 :include
+FR4 ..> UC4.3 :include
+FR4 ..> UC4.4 :include
 
-UC21 <-- ShopWorker
-UC22 <-- ShopWorker
-UC23 <-- ShopWorker
+UC4.1 <-- ShopWorker
+UC4.2 <-- ShopWorker
+UC4.3 <-- ShopWorker
+UC4.4 <-- ShopWorker
 ```
 
 ```plantuml
+"Store Manager" as StoreManager
 "Accountant" as Accountant
 
 (Manage catalogue) as FR5
 
-/' Catalogue management (UC24, UC25, UC26, UC27, UC28) '/
-(Manage the catalogue) as UC24
-(Update a product) as UC25
-(Delete a product) as UC26
-(Define a special offer) as UC27
-(Define a special offer) as UC28
+(List the catalogue entries) as UC5.1
+(Update a catalogue entry) as UC5.2
+(Remove a catalogue entry) as UC5.3
+(Define a special offer) as UC5.4
 
-FR5 ..> UC24 :include
-FR5 ..> UC25 :include
-FR5 ..> UC26 :include
-FR5 ..> UC27 :include
-FR5 ..> UC28 :include
+/' Customers management (UC5.1, UC5.2, UC5.3, UC5.4,) '/
+FR5 ..> UC5.1 :include
+FR5 ..> UC5.2 :include
+FR5 ..> UC5.3 :include
+FR5 ..> UC5.4 :include
 
-UC24 <-- Accountant
-UC25 <-- Accountant
-UC26 <-- Accountant
-UC27 <-- Accountant
-UC28 <-- Accountant
+UC5.1 <-- StoreManager
+UC5.2 <-- StoreManager
+UC5.3 <-- StoreManager
+UC5.4 <-- StoreManager
+UC5.4 <-- Accountant
 ```
+
+
+```plantuml
+"Accountant" as Accountant
+
+(Manage accounting) as FR6
+
+(Add an expense) as UC6.1
+(Compute balance) as UC6.2
+
+/' Manage accounting (UC6.1, UC6.2) '/
+FR6 ..> UC6.1 :include
+FR6 ..> UC6.2 :include
+
+UC6.1 <-- Accountant
+UC6.2 <-- Accountant
+```
+
+```plantuml
+"Supplier" as Supplier
+"Shop Worker" as ShopWorker
+
+(Manage orders) as FR7
+
+/' Orders management (UC7.1, UC7.2, UC7.3, UC7.4) '/
+(Show the order list for the supplier) as UC7.1
+(Create a new delivery) as UC7.2
+(List all deliveries for the supplier) as UC7.3
+(Accepts a delivery) as UC7.4
+
+FR7 ..> UC7.1 :include
+FR7 ..> UC7.2 :include
+FR7 ..> UC7.3 :include
+FR7 ..> UC7.4 :include
+
+UC7.1 <-- ShopWorker
+UC7.1 <-- Supplier
+UC7.2 <-- Supplier
+UC7.3 <-- ShopWorker
+UC7.4 <-- ShopWorker
+
+```
+
 
 ```plantuml
 "Store manager" as StoreManager
 
-(Manage suppliers) as FR
+(Manage suppliers) as FR8
 
-/' Supplier management (UC31, UC32, UC33, UC34) '/
-(Insert a supplier) as UC31
-(List all suppliers) as UC32
-(Update a supplier) as UC33
-(Delete a supplier) as UC34
+(Insert a supplier) as UC8.1
+(List all suppliers) as UC8.2
+(Update a supplier) as UC8.3
+(Delete a supplier) as UC8.4
 
-FR ..> UC31 :include
-FR ..> UC32 :include
-FR ..> UC33 :include
-FR ..> UC34 :include
+/' Supplier management (UC8.1, UC8.2, UC8.3, UC8.4) '/
+FR8 ..> UC31 :include
+FR8 ..> UC32 :include
+FR8 ..> UC33 :include
+FR8 ..> UC34 :include
 
-UC31 <-- StoreManager
-UC32 <-- StoreManager
-UC33 <-- StoreManager
-UC34 <-- StoreManager
+UC8.1 <-- StoreManager
+UC8.2 <-- StoreManager
+UC8.3 <-- StoreManager
+UC8.4 <-- StoreManager
 ```
 
 ### Use case 1, UC1 - Insert an employee
