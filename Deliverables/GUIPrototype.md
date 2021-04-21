@@ -1,10 +1,165 @@
 # Graphical User Interface Prototype  
 
-Authors:
+Authors: Can Karacomak (s287864), Alessandro Loconsolo (s244961), Julian Neubert (s288423), Simone Alberto Peirone (s286886)
 
-Date:
+Date: 21/04/2021
 
-Version:
+Version: 1.0
+
+## Web GUI
+After the login screen, the user is able to reach the different screens of the application, depending on its role (shop worker, store manager and accountant) as specified in the requirements document. The store manager has full access to all the screens.
+
+The storyboard reported below shows the possible interactions for the store manager role.
+
+![Main storyboard](images/storyboard.png)
+
+
+### Login screen
+
+![Login screen](images/login/login-screen.png)
+
+
+### Homepage
+The homepage shows the personal informations of the user.
+
+![Homepage - Store manager](images/homepage/manager.png)
+
+
+### Employees
+The application lets the store manager add, edit and remove employees.
+
+![Employees - Storyboard](images/employees/storyboard.png)
+
+#### Add an employee
+![Employees - Add an employee](images/employees/add.png)
+
+#### Edit an employee
+![Employees - Edit an employee](images/employees/edit.png)
+
+#### Delete an employee
+![Employees - Delete an employee](images/employees/delete.png)
+
+
+### Inventory
+
+![Inventory - Storyboard](images/inventory/storyboard.png)
+
+#### Add a product
+
+![Inventory - Add a product](images/inventory/add.png)
+
+##### Confirm insert
+
+![Inventory - Add a product (confirm insert)](images/inventory/add-confirm.png)
+
+##### Insertion confirmed
+
+![Inventory - Add a product (insertion confirmed)](images/inventory/add-confirmed.png)
+
+#### Edit a product
+
+![Inventory - Edit a product](images/inventory/edit.png)
+
+##### Confirm update
+
+![Inventory - Edit a product (confirm update)](images/inventory/edit-confirm.png)
+
+##### Update confirmed
+
+![Inventory - Edit a product (update confirmed)](images/inventory/edit-confirmed.png)
+
+#### Resupply
+
+![Inventory - Resupply](images/inventory/resupply-confirm.png)
+
+##### Resupply confirmed
+
+![Inventory - Resupply confirmed](images/inventory/resupply-confirmed.png)
+
+
+### Sales
+
+#### Sales list with details
+![Sales list 1](images/sales/sales-1.png)
+
+![Sales list 2](images/sales/sales-2.png)
+
+#### Example of a receipt
+![Receipt](images/sales/receipt.png)
+
+
+### Customers
+
+![Customers - Storyboard](images/customers/storyboard.png)
+
+#### Add a new customer
+![Customers - Add a new customer](images/customers/m-add.png)
+
+#### Edit a customer
+![Customers - Edit a customer](images/customers/m-edit.png)
+
+#### Delete a customer
+![Customers - Delete a customer](images/customers/m-delete.png)
+
+
+### Catalogue
+
+![Catalogue - Storyboard](images/catalogue/storyboard.png)
+
+#### Products list with details
+![Catalogue - Product details](images/catalogue/product-details.png)
+
+#### Edit a product
+![Catalogue - Edit a product](images/catalogue/edit-product.png)
+
+##### Confirm update
+![Catalogue - Confirm update](images/catalogue/confirm-changes.png)
+
+##### Update confirmed
+![Catalogue - Update confirmed](images/catalogue/updates-confirmed.png)
+
+
+### Accounting
+![Storyboard](images/accounting/storyboard.png)
+
+#### Main screen
+![Main screen](images/accounting/accounting.png)
+
+#### Expenses
+![Expenses](images/accounting/expenses.png)
+
+##### Add an expense
+![Add an expense](images/accounting/add-expense.png)
+
+##### Edit an expense
+![Edit an expense](images/accounting/edit-expense.png)
+
+#### Incomes
+
+##### Products 
+![Income - Products](images/accounting/income-products.png)
+
+##### Categories
+![Income - Categories](images/accounting/income-categories.png)
+
+
+### Suppliers
+
+#### Create a new delivery
+The application allows the supplier to read the products pending a resupply. For each product in the list, the supplier can specify the amount that is going to be shipped to the shop in the new delivery.
+
+![New delivery](images/suppliers/new-delivery.png)
+
+#### Edit a delivery
+The supplier can list the incomplete deliveries and change the amount of each product.
+
+![Edit a delivery](images/suppliers/edit-delivery.png)
+
+#### Confirm a delivery
+When a delivery is received by the shop, the store manager can confirm its receiption and update the quantities in the inventory.
+
+![Confirm a delivery](images/suppliers/confirm-delivery.png)
+
 
 ## Cash register GUI
 The cash register graphical user interface runs on a fullscreen web page. The interface is meant to be used on a touchscreen display.
