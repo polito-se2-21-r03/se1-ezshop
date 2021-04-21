@@ -1,10 +1,10 @@
 # Requirements Document
 
-Authors:
+Authors: Can Karacomak (s287864), Alessandro Loconsolo (s244961), Julian Neubert (s288423), Simone Alberto Peirone (s286886)
 
-Date:
+Date: 21/04/2021
 
-Version:
+Version: 1.0
 
 # Contents
 
