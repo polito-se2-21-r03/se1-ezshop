@@ -403,10 +403,10 @@ UC7.4 <-- ShopWorker
 (Delete a supplier) as UC8.4
 
 /' Supplier management (UC8.1, UC8.2, UC8.3, UC8.4) '/
-FR8 ..> UC31 :include
-FR8 ..> UC32 :include
-FR8 ..> UC33 :include
-FR8 ..> UC34 :include
+FR8 ..> UC8.1 :include
+FR8 ..> UC8.2 :include
+FR8 ..> UC8.3 :include
+FR8 ..> UC8.4 :include
 
 UC8.1 <-- StoreManager
 UC8.2 <-- StoreManager
