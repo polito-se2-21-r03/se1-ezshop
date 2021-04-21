@@ -465,7 +465,7 @@ UC34 <-- StoreManager
 | Actors Involved  | Any employee (store manager, shop worker, accountant) |
 | ---------------- |:-------------:|
 | Precondition     | A username U and a password P are provided. |  
-| Post condition   | An employee E and its role R (shop worker, accountant, store manager) are possibly returned/displayed. |
+| Post condition   | - |
 | Nominal Scenario | Authentication succeds. |
 | Variants         | Authentication fails. |
 
@@ -473,10 +473,10 @@ UC34 <-- StoreManager
 | Scenario 5.1     | Authentication succeds. |
 | ---------------- |:-------------:|
 | Precondition     | A username U and a password P are provided. |  
-| Post condition   | An employee E and its role R (shop worker, accountant, store manager) are returned/displayed. |
+| Post condition   | Employee E is authenticated and can perform actions according to its role (shop worker, store manager or accountant). |
 | Step#  | Description  |
 | 1      | The actors enters a username and a password. |
-| 2      | The system checks the username and password pair agains the list of all employees. |
+| 2      | The system checks the username and password pair against the list of all employees. |
 | 3      | One and only one matching employee is found and returned. |
 
 ##### Scenario 5.2
@@ -486,7 +486,7 @@ UC34 <-- StoreManager
 | Post condition   | - |
 | Step#  | Description  |
 | 1      | The actors enters a username and a password. |
-| 2      | The system checks the username and password pair agains the list of all employees. |
+| 2      | The system checks the username and password pair against the list of all employees. |
 | 3      | No matching employee is found and an error is raised. |
 
 
