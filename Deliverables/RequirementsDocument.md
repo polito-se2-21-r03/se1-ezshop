@@ -210,11 +210,11 @@ FR1 ..> UC1.3 :include
 FR1 ..> UC1.4 :include
 FR1 ..> UC1.5 :include
 
-UC1.1 <- StoreManager
-UC1.2 <- StoreManager
-UC1.3 <- StoreManager
-UC1.4 <- StoreManager
-UC1.5 <- StoreManager
+UC1.1 <-- StoreManager
+UC1.2 <-- StoreManager
+UC1.3 <-- StoreManager
+UC1.4 <-- StoreManager
+UC1.5 <-- StoreManager
 
 ```
 
@@ -277,7 +277,7 @@ UC2.7 <-- ShopWorker
 (Add or delete products to the transaction) as UC3.2
 (Cancel a running transaction) as UC3.3
 (Add a payment method) as UC3.4
-(Apply discount and special offers, possibly depending on the fidelity card) as UC3.5
+(Apply discount and special offers) as UC3.5
 (Complete checkout and print receipt) as UC3.6
 (Keep transaction informations) as UC3.7
 
@@ -1212,7 +1212,7 @@ email
 phone_number
 name
 surname
-fidelit_card
+fidelity_card
 }
 class Accountant {
 date_of_birth
