@@ -210,11 +210,11 @@ FR1 ..> UC1.3 :include
 FR1 ..> UC1.4 :include
 FR1 ..> UC1.5 :include
 
-UC1.1 <- StoreManager
-UC1.2 <- StoreManager
-UC1.3 <- StoreManager
-UC1.4 <- StoreManager
-UC1.5 <- StoreManager
+UC1.1 <-- StoreManager
+UC1.2 <-- StoreManager
+UC1.3 <-- StoreManager
+UC1.4 <-- StoreManager
+UC1.5 <-- StoreManager
 
 ```
 
