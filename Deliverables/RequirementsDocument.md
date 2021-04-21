@@ -1197,7 +1197,116 @@ UC34 <-- StoreManager
 
 # Glossary
 
-![Alt text](./glossary.svg)
+```plantuml
+class EZShop
+class Customer {
+date_of_birth
+sex
+address
+email
+phone_number
+name
+surname
+}
+class FidelityCard {
+ID
+}
+class Accountant {
+date_of_birth
+sex
+address
+email
+phone_number
+name
+surname
+user_name
+password
+}
+class ShopWorker {
+date_of_birth
+sex
+address
+email
+phone_number
+name
+surname
+user_name
+password
+}
+class StoreManager
+class Catalogue
+class Product {
+product_ID
+name
+perishable
+origin_country
+discount
+discount_expiry
+fidelity_discount
+fidelity_discount_expiry
+purchase_price
+selling_price
+is_automatically_resupplied
+resupply_threshold
+resupply_amount
+current_resupply_amount
+amount_in_storage
+amount_on_shelf
+}
+class Supplier {
+supplier_ID
+company
+user_name
+password
+}
+class Expense {
+name
+date
+type
+amount
+}
+class Delivery {
+delivery_ID
+}
+class Transaction {
+transaction_ID
+date
+total
+discount
+cash_register_id
+}
+class TransactionItem {
+sale_price
+amount
+}
+class ProductCategory {
+category_ID
+name
+VAT
+}
+class DeliveryItem {
+amount
+}
+
+EZShop -- "*" Customer
+Customer "1" -- "0..1" FidelityCard
+EZShop -- "*" Accountant
+EZShop -- "*" ShopWorker
+StoreManager -up-|> ShopWorker
+EZShop -- Catalogue
+Catalogue -- "*" Product
+Product -- Supplier
+Delivery "1" -- "*" DeliveryItem
+DeliveryItem "*" -- "1" Product
+Delivery "*" -- "1" Supplier
+EZShop -- "*" Expense
+EZShop -- "*" Transaction
+Transaction "*" -- "1" Customer
+Transaction "*" -- "1" ShopWorker
+Transaction "1" -- "1..*" TransactionItem
+TransactionItem "*" -- "1" Product
+Product "1..*" -- "*" ProductCategory
+```
 
 # System Design
 
