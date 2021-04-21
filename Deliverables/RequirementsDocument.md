@@ -277,7 +277,7 @@ UC2.7 <-- ShopWorker
 (Add or delete products to the transaction) as UC3.2
 (Cancel a running transaction) as UC3.3
 (Add a payment method) as UC3.4
-(Apply discount and special offers, possibly depending on the fidelity card) as UC3.5
+(Apply discount and special offers) as UC3.5
 (Complete checkout and print receipt) as UC3.6
 (Keep transaction informations) as UC3.7
 
