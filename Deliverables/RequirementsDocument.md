@@ -255,7 +255,6 @@ UC2.1 <-- ShopWorker
 UC2.2 <-- ShopWorker
 UC2.3 <-- ShopWorker
 UC2.4 <-- ShopWorker
-UC2.5 <-- ShopWorker
 UC2.5.1 <-- ShopWorker
 UC2.5.2 <-- ShopWorker
 UC2.5.3 <-- ShopWorker
@@ -270,30 +269,36 @@ UC2.7 <-- ShopWorker
 "SumUp Terminal" as SumUpTerminal
 "Product" as Product
 
-(Manage sales) as FR3
+(Sales management) as FR3
 
-(Creation of a new transaction) as UC11
-(Attach a product to the transaction) as UC12
-(Remove a product from the transaction) as UC13
-(Payment) as UC14
-(Cancel a transaction) as UC15
+(Start a transaction) as UC3.1
+(Add or delete products to the transaction) as UC3.2
+(Cancel a running transaction) as UC3.3
+(Add a payment method) as UC3.4
+(Apply discount and special offers, possibly depending on the fidelity card) as UC3.5
+(Complete checkout and print receipt) as UC3.6
+(Keep transaction informations) as UC3.7
 
-/' Sale transactions management (UC11, UC12, UC13, UC14, UC15) '/
-FR3 ..> UC11 :include
-FR3 ..> UC12 :include
-FR3 ..> UC13 :include
-FR3 ..> UC14 :include
-FR3 ..> UC15 :include
+/' Sale transactions management (UC3.1, UC3.2, UC3.3, UC3.4, UC3.5, UC3.6, UC3.7,) '/
+FR3 ..> UC3.1 :include
+FR3 ..> UC3.2 :include
+FR3 ..> UC3.3 :include
+FR3 ..> UC3.4 :include
+FR3 ..> UC3.5 :include
+FR3 ..> UC3.6 :include
+FR3 ..> UC3.7 :include
 
-UC12 <-- ACCSW
-UC11 <-- ACCSW
-UC13 <-- ACCSW
-UC15 <-- ACCSW
-UC14 <--> ACCSW
+UC3.1 <-- ACCSW
+UC3.2 <-- ACCSW
+UC3.3 <-- ACCSW
+UC3.4 <-- ACCSW
+UC3.5 <-- ACCSW
+UC3.6 <--> ACCSW
+UC3.7 <-- ACCSW
 
-UC14 <--> SumUpTerminal
+UC3.6 <--> SumUpTerminal
 
-UC12 <-- Product
+UC3.2 <-- Product
 ```
 
 ```plantuml
