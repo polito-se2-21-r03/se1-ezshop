@@ -196,11 +196,23 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 ```plantuml
 "Store manager" as StoreManager
 (Manage access rights) as FR1
-(Manage access rights) as UC1
+(Add an employee) as UC1.1
+(List all employees) as UC1.2
+(Edit an employee) as UC1.3
+(Delete an employee) as UC1.4
+(Authenticate and authorize an employee) as UC1.5
 
-FR1 ..> UC1 :include
+FR1 ..> UC1.1 :include
+FR1 ..> UC1.2 :include
+FR1 ..> UC1.3 :include
+FR1 ..> UC1.4 :include
+FR1 ..> UC1.5 :include
 
-StoreManager -> UC1
+StoreManager -> UC1.1
+StoreManager -> UC1.2
+StoreManager -> UC1.3
+StoreManager -> UC1.4
+StoreManager -> UC1.5
 ```
 
 ```plantuml
