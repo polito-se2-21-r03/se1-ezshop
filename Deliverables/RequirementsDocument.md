@@ -116,18 +116,18 @@ Marco is 35 and is a full-time office worker. He is always in a hurry, so he pre
 |  FR1.4       | Delete an employee |
 |  FR1.5       | Authenticate and authorize an employee |
 |  **FR2**     | **Manage inventory** |
-|  FR2.1       | Insert a new product inside the inventory |
-|  FR2.2       | Update the properties of a product |
-|  FR2.3       | Remove a product from the inventory |
-|  FR2.4       | Add product to the order list of a supplier |
+|  FR2.1       | Insert a new product |
+|  FR2.2       | Update a product |
+|  FR2.3       | Remove a product |
+|  FR2.4       | List products |
 |  FR2.5       | Category management |
 |  FR2.5.1     | Create/Update a category |
 |  FR2.5.2     | Assign a product to a category |
 |  FR2.5.3     | Delete a category |
 |  FR2.5.4     | List categories |
 |  FR2.5.4     | Show products associated with a category |
-|  FR2.6       | Search a product |
-|  FR2.7       | Bind a product to a supplier |
+|  FR2.6       | Bind a product to a supplier |
+|  FR2.7       | Change the resupply amount |
 |  **FR3**     | **Sales management** |
 |  FR3.1       | Start a transaction |
 |  FR3.2       | Add or delete products to the transaction |
@@ -489,7 +489,7 @@ UC34 <-- StoreManager
 | 3      | No matching employee is found and an error is raised. |
 
 
-### Use case 6, UC6 - Insert a new product inside the inventory
+### Use case 6, UC6 - Insert a new product
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
 |  Precondition      | Product P does not exist inside the inventory. |  
@@ -499,7 +499,7 @@ UC34 <-- StoreManager
 |  Variants          | - |
 
 
-### Use case 7, UC7 - Update the properties of a product
+### Use case 7, UC7 - Update a product
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
 |  Precondition      | Product P already exists inside the inventory. |  
@@ -509,72 +509,35 @@ UC34 <-- StoreManager
 |  Variants          | - |
 
 
-### Use case 8, UC8 - Remove a product from the inventory
+### Use case 8, UC8 - Remove a product
 | Actors Involved    | Store Manager |
 | ------------------ |:-------------:|
-|  Precondition      | Product P exists inside the inventory |  
-|  Post condition    | Product P is deleted from the inventory. |
+|  Precondition      | Product P exists. |  
+|  Post condition    | Product P is deleted. |
 |                    | The catalogue entry for product P is removed.|
 |  Nominal Scenario  | The Manager deletes a product from the system, and he has to confirm his choice |
 |  Variants          | - |
 
 
-### Use case 9, UC9 - Add product to the order list
+### Use case 9, UC9 - Change the current resupply amount
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
-|  Precondition      | Product P is inside the inventory.  |
-|  Post condition    | The entry for product P in the order list of its supplier is possibly updated. |
-|  Nominal Scenario  | Product P is already in the order list of its supplier. |
+|  Precondition      | Product P exists.  |
+|                    | Supplier S is associated with product P (P.supplier = S).  |
+|  Post condition    | P.current_resupply_amount += P.resupply_quantity |
+|  Nominal Scenario  | Current resupply amount is updated. |
 |  Variants          | Product P is NOT associated with a supplier. |
-|                    | Product P is NOT already in the order list of its supplier. |
-|                    | Product P's resupply quantity is NOT defined. |
 
 ##### Scenario 9.1
-| Scenario 9.1      | Product is already in the order list of its supplier. |
+| Scenario 9.1      | Current resupply amount is updated. |
 | ----------------- |:-------------:|
-|  Precondition     | Product P is inside the inventory. |
-|                   | A supplier S is associated with P (S = P.supplier). |
-|                   | Product P is already in the order list of supplier S (S.order_list[P] is defined). |
-|                   | P.instant_resupply_quantity is defined. |
-|  Post condition   | The entry for product P in the order list of one supplier is possibly updated. |
+|  Precondition     | Product P exists.  |
+|                   | Supplier S is associated with product P (P.supplier = S).  |
+|  Post condition   | P.current_resupply_amount += P.resupply_quantity. |
 | Step#  | Description  |
 | 1      | The shop worker selects a product P from the inventory. |
 | 2      | The shop worker selects to resupply product P. |
-| 3      | The entry for product P in the order list of the supplier S is updated (S.order_list[P] += P.instant_resupply_quantity). |
-
-##### Scenario 9.2
-| Scenario 9.2      | Product is NOT associated with a supplier. |
-| ----------------- |:-------------:|
-|  Precondition     | Product P is inside the inventory. |
-|                   | A supplier is NOT associated with P (P.supplier is NOT defined). |
-|  Post condition   | - |
-| Step#  | Description  |
-| 1      | The shop worker selects a product P from the inventory. |
-| 2      | The shop worker selects to resupply product P. |
-| 3      | Product P is not associated with a supplier; an error is raised. |
-
-##### Scenario 9.3
-| Scenario 9.3      | Product is NOT already in the order list of its supplier. |
-| ----------------- |:-------------:|
-|  Precondition     | Product P is inside the inventory. |
-|                   | A supplier S is associated with P (S = P.supplier). |
-|                   | Product P is already in the order list of supplier S (S.order_list[P] is NOT defined). |
-|  Post condition   | Product P is inserted in the order list of its supplier. |
-| Step#  | Description  |
-| 1      | The shop worker selects a product P from the inventory. |
-| 2      | The shop worker selects to resupply product P. |
-| 3      | The entry for product P is inserted in the order list of supplier S (S.order_list[P] = P.instant_resupply_quantity). |
-
-##### Scenario 9.4
-| Scenario 9.4      | Product P's resupply quantity is NOT defined. |
-| ----------------- |:-------------:|
-|  Precondition     | Product P is inside the inventory. |
-|                   | P.instant_resupply_quantity is NOT defined. |
-|  Post condition   | - |
-| Step#  | Description  |
-| 1      | The shop worker selects a product P from the inventory. |
-| 2      | The shop worker selects to resupply product P. |
-| 3      | The entry for product P is inserted in the order list of supplier S (S.order_list[P] = P.instant_resupply_quantity). |
+| 3      | The current resupply amount for product P is updated (P.current_resupply_amount += P.resupply_quantity). |
 
 
 ### Use case 10, UC10 - Insert a new category
@@ -788,6 +751,7 @@ UC34 <-- StoreManager
 |  Precondition       | Transaction T exists (T.state = 'ready') and is run by an actor A, either a shop worker or a the customer itself. |
 |                     | At least one product is attached to transaction T (T.products.length > 0). |
 |  Post condition     | Transaction T is completed, either successfully or with an exception. |
+|                     | The current resupply amount for products in the transaction is possibly updated. |
 |  Nominal Scenario   | The customer pays in cash and the transaction is completed successfully. |
 |  Variants           | The customer pays in cash but he has not enough money. |
 |                     | The customer pays with credit card and the transaction is completed successfully. |
@@ -799,12 +763,14 @@ UC34 <-- StoreManager
 |  Precondition     | Transaction T exists (T.state = 'ready') and is run by a shop worker A. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
 |  Post condition   | The sale transaction is recorded with 'completed' state (T.state = 'completed'). |
+|                   | The current resupply amount for products in the transaction is possibly updated. |
 | Step#  | Description  |
 |  1     | The application computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
 |  2     | The shop worker A selects the 'cash' payment method and types the cash amount given by the customer. |
 |  3     | The application computes the change. |
 |  4     | The checkout is completed successfully and a receipt is printed. |
-|  5     | T is recorded. |
+|  5     | The state of the transaction is changed to 'completed'. |
+|  6     | For each product P inside the transaction, if P.amount_in_storage + P.amount_on_shelf < P.resupply_threshold the current resupply amount is updated (P.current_resupply_amount += P.resupply_amount). |
 
 ##### Scenario 18.2
 | Scenario 18.2     | The customer pays in cash but he has not enough money. |
@@ -822,12 +788,14 @@ UC34 <-- StoreManager
 |  Precondition     | Transaction T exists (T.state = 'ready') and is run by an actor A, either a shop worker or a the customer itself. |
 |                   | At least one product is attached to transaction T (T.products.length > 0). |  
 |  Post condition   | The sale transaction is recorded in the the transaction register (T.state = 'completed'). |
+|                   | The current resupply amount for products in the transaction is possibly updated. |
 | Step#  | Description  |
 |  1     | The application computes the total by reading the product prices from the catalogue and taking into account the available special offers and the fidelity program benefits. |
 |  2     | The application communicates the total to the credit card POS system. |
 |  3     | The SumUp Terminal notifies a successful payment. |
 |  4     | The checkout is completed successfully and a receipt is printed. |
-|  5     | T is recorded in the transaction register. |
+|  5     | The state of the transaction is changed to 'completed'. |
+|  6     | For each product P inside the transaction, if P.amount_in_storage + P.amount_on_shelf < P.resupply_threshold the current resupply amount is updated (P.current_resupply_amount += P.resupply_amount). |
 
 ##### Scenario 18.4
 | Scenario 18.4     | The customer pays with credit card but the POS system notifies a payment exception. |
@@ -887,7 +855,7 @@ UC34 <-- StoreManager
 | Precondition      | Supplier S exists and is logged in. |  
 | Post condition    | The order list of supplier S is shown. |
 | Step#  | Description  |
-| 1      | The supplier selects to show the products included in its order list, possibly filtering by category. |
+| 1      | The supplier selects to show the products included in its order list (products P for which P.supplier == S), possibly filtering by category. |
 | 2      | The application shows the order list. |
 
 
@@ -895,7 +863,7 @@ UC34 <-- StoreManager
 | Actors Involved  | Supplier |
 | ---------------- |:-------------:|
 | Precondition     | Supplier S exists and is logged in. |
-|                  | The shop is not fully stocked: at least one product in the order list of the supplier is pending resupply (S.order_list[P] > 0). |
+|                  | The shop is not fully stocked: at least one product in the order list of the supplier is pending resupply (P.current_resupply_amount > 0). |
 |                  | The application is showing the order list for supplier S. |
 | Post condition   | A pending delivery D is created (D.state = 'pending'). |
 | Nominal Scenario | A new delivery is created. |
@@ -910,8 +878,8 @@ UC34 <-- StoreManager
 | Post condition    | A pending delivery D is created. |
 | Step#  | Description  |
 | 1      | The supplier S selects one or more products from its order list. |
-| 2      | For each product, the supplier S indicates the quantity n that is going to be delivered to the shop. The quantity n should be less or equal than the quantity specified in the order list (n <= S.order_list[P]) |
-| 3      | For each product in the order list, its order quantity is decremented by n (S.order_list[P] -= n) |
+| 2      | For each product, the supplier S indicates the quantity n that is going to be delivered to the shop. The quantity n should be less or equal than the quantity specified in the order list (n <= P.current_resupply_amount) |
+| 3      | For each product in the order list, its order quantity is decremented by n (P.current_resupply_amount -= n) |
 | 3      | A pending delivery for the selected products and quantities is created. |
 
 
@@ -943,8 +911,8 @@ UC34 <-- StoreManager
 | Post condition    | Delivery D is updated. |
 | Step#  | Description  |
 | 1      | The supplier S selects a pending delivery (D.state == 'pending'). |
-| 2      | For each product in the delivery, the supplier S updates the quantity n that is going to be delivered to the shop. The quantity n should be less or equal than the quantity specified in the order list (n <= S.order_list[P]) |
-| 3      | For each product in the order list, its order quantity is decremented by n (S.order_list[P] -= n) |
+| 2      | For each product in the delivery, the supplier S updates the quantity n that is going to be delivered to the shop. The quantity n should be less or equal than the quantity specified in the order list (n <= P.current_resupply_amount) |
+| 3      | For each product P in the order list, its order quantity is decremented by n (P.current_resupply_amount -= n). |
 | 4      | A pending delivery for the selected products and quantities is created. |
 
 
