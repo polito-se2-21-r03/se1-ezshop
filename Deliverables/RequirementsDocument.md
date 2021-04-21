@@ -327,7 +327,6 @@ UC4.4 <-- ShopWorker
 ```
 
 ```plantuml
-"Store Manager" as StoreManager
 "Accountant" as Accountant
 
 (Manage catalogue) as FR5
@@ -343,11 +342,11 @@ FR5 ..> UC5.2 :include
 FR5 ..> UC5.3 :include
 FR5 ..> UC5.4 :include
 
-UC5.1 <-- StoreManager
-UC5.2 <-- StoreManager
-UC5.3 <-- StoreManager
-UC5.4 <-- StoreManager
+UC5.1 <-- Accountant
+UC5.2 <-- Accountant
+UC5.3 <-- Accountant
 UC5.4 <-- Accountant
+
 ```
 
 
