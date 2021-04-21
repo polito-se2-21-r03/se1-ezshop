@@ -68,7 +68,6 @@ actor Product
 
 Customer -down-|> AnonCustomer
 StoreManager -up-|> ShopWorker
-StoreManager -up-|> Accountant
 
 Accountant -up-> (EZShop)
 ShopWorker -up-> (EZShop)
@@ -634,7 +633,7 @@ UC34 <-- StoreManager
 | 3      | A category with the same name already exists and an error is raised. |
 
 
-### Use case 12, UC16 - List all the products associated with a category
+### Use case 12, UC12 - List all the products associated with a category
 | Actors Involved    | Shop Worker |
 | ------------------ |:-------------:|
 |  Precondition      | Category C exists. |
@@ -987,7 +986,7 @@ UC34 <-- StoreManager
 | 1      | The supplier S selects a pending delivery (D.state == 'pending'). |
 | 2      | For each product in the delivery, the supplier S updates the quantity n that is going to be delivered to the shop. The quantity n should be less or equal than the quantity specified in the order list (n <= S.order_list[P]) |
 | 3      | For each product in the order list, its order quantity is decremented by n (S.order_list[P] -= n) |
-| 3      | A pending delivery for the selected products and quantities is created. |
+| 4      | A pending delivery for the selected products and quantities is created. |
 
 
 ### Use case 24, UC24 - Accept a delivery
@@ -1021,7 +1020,7 @@ UC34 <-- StoreManager
 | Step#  | Description  |
 | 1      | The inventory level of the product is incremented by the quantity delivered. |
 | 2      | In the order list of the supplier associated with D, the entry for product P is incremented by the difference between the agreed amount for the delivery and the actuallly delivered quantity. |
-| 2      | D is marked as completed (D.state = 'completed'). |
+| 3      | D is marked as completed (D.state = 'completed'). |
 
 
 ### Use case 25, UC25 - Add an expense
@@ -1241,34 +1240,20 @@ UC34 <-- StoreManager
 
 ![Alt text](./glossary.svg)
 
-\<use UML class diagram to define important terms, or concepts in the domain of the system, and their relationships>
-
-\<concepts are used consistently all over the document, ex in use cases, requirements etc>
-
 # System Design
-\<describe here system design>
-
-\<must be consistent with Context diagram>
 
 ```plantuml
 class EZShop
 class "Checkout Computer" as c
-class "SumUp Terminal" as s
 class "Barcode Reader" as b
-class Printer
-
-note "printer for receipt part of system design?" as N1
-N1 .. Printer
+class "Receipt printer" as p
 
 EZShop -- "*" c
-c -- s
-c -- b
-c -- Printer
+c o-- b
+c o-- p
 ```
 
 # Deployment Diagram
-
-\<describe here deployment diagram >
 
 Client server model. The application runs on a server or virtual machine, users interact with it through a PC.
 
