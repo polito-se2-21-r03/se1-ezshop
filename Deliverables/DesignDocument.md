@@ -24,16 +24,218 @@ The design must satisfy the Official Requirements document, notably functional a
 <discuss architectural styles used, if any>
 <report package diagram>
 
+```plantuml
+@startuml
 
+package "EZShop" {}
 
+package "GUI" {}
+package "Model" {}
+package "Exceptions" {}
 
+"EZShop" -- "GUI"
+"EZShop" <|-- "Model"
+"EZShop" <|-- "Exceptions"
 
+@enduml
+```
 
 # Low level design
 
 <for each package, report class diagram>
 
+```plantuml
+left to right direction
 
+class "EZShop" {
+    + users
+    + saleTransactions
+    + products
+    + customers
+    + reset()
+    + createUser(String, String, String)
+    + deleteUser(Integer)
+    + getAllUsers()
+    + getUser(Integer)
+    + updateUserRights(Integer, String)
+    + login(String, String)
+    + logout()
+    + createProductType(String, String, double, String)
+    + updateProduct(Integer, String, String, double, String)
+    + deleteProductType(Integer)
+    + getAllProductTypes()
+    + getProductTypeByBarCode(String)
+    + getProductTypesByDescription(String)
+    + updateQuantity(Integer, int)
+    + updatePosition(Integer, String)
+    + issueReorder(String, int, double)
+    + payOrderFor(String, int, double)
+    + payOrder(Integer)
+    + recordOrderArrival(Integer)
+    + getAllOrders()
+    + defineCustomer(String)
+    + modifyCustomer(Integer, String, String)
+    + deleteCustomer(Integer)
+    + getCustomer(Integer)
+    + getAllCustomers()
+    + createCard()
+    + attachCardToCustomer(String, Integer)
+    + modifyPointsOnCard(String, int)
+    + startSaleTransaction()
+    + addProductToSale(Integer, String, int)
+    + deleteProductFromSale(Integer, String, int)
+    + applyDiscountRateToProduct(Integer, String, double)
+    + applyDiscountRateToSale(Integer, double)
+    + computePointsForSale(Integer)
+    + closeSaleTransaction(Integer)
+    + deleteSaleTicket(Integer)
+    + getSaleTicket(Integer)
+    + getTicketByNumber(Integer)
+    + startReturnTransaction(Integer)
+    + returnProduct(Integer, String, int)
+    + endReturnTransaction(Integer, boolean)
+    + deleteReturnTransaction(Integer)
+    + receiveCashPayment(Integer, double)
+    + receiveCreditCardPayment(Integer, String)
+    + returnCashPayment(Integer)
+    + returnCreditCardPayment(Integer, String)
+    + recordBalanceUpdate(double)
+    + getCreditsAndDebits(LocalDate, LocalDate)
+    + computeBalance()
+}
+
+"EZShop" -- "*" "User" : "Map" 
+
+class User {
+    + id
+    + username
+    + passwordHash
+    + role
+    + verifyPassword(String)
+}
+
+class ProductType {
+    + id
+    + barCode
+    + description
+    + sellPrice
+    + quantity
+    + discountRate
+    + notes
+    + position
+}
+
+class Position {
+    + aisleID
+    + rackID
+    + levelID
+    + {static} parsePosition(String)
+}
+
+ProductType - "0..1" Position
+
+class Order {
+    + id
+    + pricePerUnit
+    + quantity
+    + status
+    + computeTotal()
+}
+
+Order "*" - ProductType
+
+
+class LoyaltyCard {
+    + ID
+    + points
+    + updatePoints(int)
+}
+
+class Customer {
+    + id
+    + name
+    + surname
+    + loyaltyCard
+}
+
+LoyaltyCard "0..1" - Customer
+
+
+class SaleTransaction {
+    + ID 
+    + ticket
+    + date
+    + time
+    + cost
+    + paymentType /' cash or cc '/
+    + creditCard
+    + discountRate 
+    + status /' open/close '/
+    + quantities /' Set<Quantity> '/
+
+    + getAllQuantities() /' Set<Quantity> '/
+    + updateQuantity(Quantity)
+
+    + computePoints()
+}
+
+class Ticket {
+    + number
+    + date
+    + time
+}
+
+SaleTransaction - "0..1" Ticket
+
+class Quantity {
+    + product
+    + quantity
+    + discountRate
+}
+
+SaleTransaction -- "*" Quantity
+Quantity "*" -- ProductType
+
+/' (SaleTransaction, ProductType)  .. Quantity '/
+
+SaleTransaction "*" -- "0..1" LoyaltyCard
+
+class ReturnTransaction {
+    + id
+    + status 
+    + returns /' Set<ReturnTransactionItem> '/
+    + getAllReturns() /' Set<ReturnTransactionItem> '/
+    + updateReturn(ReturnTransactionItem)
+}
+
+class ReturnTransactionItem {
+    + product
+    + quantity
+    + returnedValue
+}
+
+ReturnTransaction -- "*" ReturnTransactionItem
+
+ReturnTransaction "0..1" - SaleTransaction
+ReturnTransactionItem "*" - ProductType
+
+class CreditCard {
+    + code
+    + balance
+    + {static} fromCode (code)
+    + checkAvailability (amount)
+    + updateBalance (amount)
+}
+
+/'
+CreditCard cc = CreditCard.fromCode("xxx");
+if (cc != null) {
+    // credit card is valid
+}'/
+
+SaleTransaction - "0..1" CreditCard
+
+```
 
 
 
