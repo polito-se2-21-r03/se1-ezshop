@@ -48,10 +48,6 @@ package "Exceptions" {}
 left to right direction
 
 class "EZShop" {
-    + users
-    + saleTransactions
-    + products
-    + customers
     + reset()
     + createUser(String, String, String)
     + deleteUser(Integer)
@@ -104,7 +100,26 @@ class "EZShop" {
     + computeBalance()
 }
 
-"EZShop" -- "*" "User" : "Map" 
+class JsonInterface {
+    + readUsers()
+    + writeUsers(List<User>)
+    + readProductTypes()
+    + writeProductTypes(List<ProductType>)
+    + readSaleTransactions()
+    + writeSaleTransactions(List<SaleTransaction>)
+    + readReturnTransactions()
+    + writeReturnTransactions(List<ReturnTransaction>)
+    + readAccountBook()
+    + writeAccountBook(AccountBook)
+}
+
+EZShop -- JsonInterface
+
+EZShop -- "*" User : "Map"
+EZShop -- AccountBook
+EZShop -- "*" SaleTransaction
+EZShop -- "*" ReturnTransaction
+EZShop -- "*" ProductType
 
 class User {
     + id
@@ -135,7 +150,6 @@ class Position {
 ProductType - "0..1" Position
 
 class Order {
-    + id
     + pricePerUnit
     + quantity
     + status
@@ -172,20 +186,10 @@ class SaleTransaction {
     + discountRate 
     + status /' open/close '/
     + quantities /' Set<Quantity> '/
-
     + getAllQuantities() /' Set<Quantity> '/
     + updateQuantity(Quantity)
-
     + computePoints()
 }
-
-class Ticket {
-    + number
-    + date
-    + time
-}
-
-SaleTransaction - "0..1" Ticket
 
 class Quantity {
     + product
@@ -202,21 +206,20 @@ SaleTransaction "*" -- "0..1" LoyaltyCard
 
 class ReturnTransaction {
     + id
-    + status 
-    + returns /' Set<ReturnTransactionItem> '/
-    + getAllReturns() /' Set<ReturnTransactionItem> '/
+    + commit 
+    + returns /' HashSet<ReturnTransactionItem> '/
+    + getAllReturns() /' HashSet<ReturnTransactionItem> '/
     + updateReturn(ReturnTransactionItem)
 }
 
 class ReturnTransactionItem {
-    + product
     + quantity
     + returnedValue
 }
 
 ReturnTransaction -- "*" ReturnTransactionItem
 
-ReturnTransaction "0..1" - SaleTransaction
+ReturnTransaction "*" - SaleTransaction
 ReturnTransactionItem "*" - ProductType
 
 class CreditCard {
@@ -234,6 +237,42 @@ if (cc != null) {
 }'/
 
 SaleTransaction - "0..1" CreditCard
+
+
+class AccountBook {
+    + transactions
+    + recordTransaction(double)
+    + computeBalance()
+    + {static} createSale (value)
+    + {static} createReturn (value)
+}
+
+class BalanceOperation {
+    + id
+    + description
+    + amount
+    + date
+
+}
+AccountBook -- "*" BalanceOperation
+
+class Credit 
+class Debit
+
+Credit --|> BalanceOperation
+Debit --|> BalanceOperation
+
+class Order
+class Sale
+class Return
+
+Order --|> Debit
+Sale --|> Credit
+Return --|> Debit
+
+SaleTransaction "0..1" --  Sale
+ReturnTransaction -- Return
+
 
 ```
 
