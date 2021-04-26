@@ -47,7 +47,7 @@ package "Exceptions" {}
 ```plantuml
 left to right direction
 
-class "EZShop" {
+interface "EZShopInterface" {
     + reset()
     + createUser(String, String, String)
     + deleteUser(Integer)
@@ -100,6 +100,12 @@ class "EZShop" {
     + computeBalance()
 }
 
+class EZShop {
+    + currentUser
+}
+
+EZShopInterface <|- EZShop
+
 class JsonInterface {
     + readUsers()
     + writeUsers(List<User>)
@@ -113,7 +119,7 @@ class JsonInterface {
     + writeAccountBook(AccountBook)
 }
 
-EZShop -- JsonInterface
+JsonInterface ---down- EZShop
 
 EZShop -- "*" User : "Map"
 EZShop -- AccountBook
@@ -182,13 +188,12 @@ class SaleTransaction {
     + time
     + cost
     + paymentType /' cash or cc '/
-    + creditCard
     + discountRate
     + status /' open/close '/
-    + quantities /' Set<Quantity> '/
     + getAllQuantities() /' Set<Quantity> '/
     + updateQuantity(Quantity)
     + computePoints()
+    + closeTransaction()
 }
 
 class Quantity {
@@ -222,21 +227,13 @@ ReturnTransaction -- "*" ReturnTransactionItem
 ReturnTransaction "*" - SaleTransaction
 ReturnTransactionItem "*" - ProductType
 
-class CreditCard {
-    + code
-    + balance
-    + {static} fromCode (code)
-    + checkAvailability (amount)
-    + updateBalance (amount)
-}
-
 /'
 CreditCard cc = CreditCard.fromCode("xxx");
 if (cc != null) {
     // credit card is valid
 }'/
 
-SaleTransaction - "0..1" CreditCard
+/' SaleTransaction - "0..1" CreditCard '/
 
 
 class AccountBook {
@@ -250,9 +247,9 @@ class AccountBook {
     + getOrders()
     + checkAvailability(double)
     + computeBalance()
-    + {static} createSale(value)
-    + {static} createReturn(value)
-    + {static} createOrder()
+    + addSale(value)
+    + addReturn(value)
+    + addOrder()
 }
 
 class BalanceOperation {
@@ -280,6 +277,42 @@ Return --|> Debit
 
 SaleTransaction "0..1" --  Sale
 ReturnTransaction -- Return
+
+interface CreditCardCircuit {
+    + init()
+    + validateCode(creditCardCode)
+    + checkAvailability(creditCardCode, amount)
+    + addDebit(creditCardCode, amount)
+    + addCredit(creditCardCode, amount)
+}
+
+EZShop - CreditCardCircuit
+
+class TextualCreditCardCircuit {
+    + readFromFile(String)
+    + writeToFile(String)
+}
+
+class CreditCard {
+    + code
+    + balance
+    + checkAvailability (amount)
+    + updateBalance (amount)
+}
+
+CreditCard "*" --left- TextualCreditCardCircuit
+
+class VisaCreditCardCircuitAdapter {}
+
+TextualCreditCardCircuit --down-|> CreditCardCircuit
+VisaCreditCardCircuitAdapter --down-|> CreditCardCircuit
+
+class VisaCreditCardCircuitService {
+    + authenticate()
+    + ...
+}
+
+VisaCreditCardCircuitAdapter - VisaCreditCardCircuitService : "adaptees"
 
 
 ```
@@ -335,15 +368,15 @@ EZShopGUI --> Administrator: Created New User
 
 ```plantuml
 
-StoreManager -> GUI: Show all orders
-GUI -> EZShop: getAllOrders()
+StoreManager -> EZShopGUI: Show all orders
+EZShopGUI -> EZShop: getAllOrders()
 EZShop -> AccountBook: getOrders()
 AccountBook -> AccountBook: Filter orders among transactions
 AccountBook --> EZShop: Return orders
-EZShop --> GUI: Return orders
-GUI --> StoreManager: Show orders
-StoreManager -> GUI: Select an order O
-GUI -> EZShop: payOrderFor()
+EZShop --> EZShopGUI: Return orders
+EZShopGUI --> StoreManager: Show orders
+StoreManager -> EZShopGUI: Select an order O
+EZShopGUI -> EZShop: payOrderFor()
 EZShop -> Order: computeTotal()
 Order --> EZShop: Total is returned
 EZShop -> AccountBook: checkAvailability()
@@ -351,26 +384,26 @@ AccountBook -> AccountBook: computeBalance()
 AccountBook --> EZShop: Balance is enough
 EZShop -> Order: setStatus()
 Order --> EZShop: Order is in PAYED state
-EZShop --> GUI: Success
-GUI --> StoreManager: Successful message
+EZShop --> EZShopGUI: Success
+EZShopGUI --> StoreManager: Successful message
 
 ```
 
 ## Scenario 4.2: Attach Loyalty card to customer record
 
 ```plantuml
-StoreManager -> GUI: Show all customers
-GUI -> EZShop: getAllCustomers()
-EZShop --> GUI: Return the list of customers
-GUI --> StoreManager: Show the list of customers
-StoreManager -> GUI: Select a customer Cu
-GUI -> EZShop: createNewCard()
-EZShop --> GUI: Return card's id
-GUI -> EZShop: attachCardToCustomer()
+StoreManager -> EZShopGUI: Show all customers
+EZShopGUI -> EZShop: getAllCustomers()
+EZShop --> EZShopGUI: Return the list of customers
+EZShopGUI --> StoreManager: Show the list of customers
+StoreManager -> EZShopGUI: Select a customer Cu
+EZShopGUI -> EZShop: createNewCard()
+EZShop --> EZShopGUI: Return card's id
+EZShopGUI -> EZShop: attachCardToCustomer()
 EZShop -> Customer: setLoyaltyCard()
 Customer --> EZShop: Card is assigned
-EZShop --> GUI: Card is assigned
-GUI --> StoreManager: Successful message
+EZShop --> EZShopGUI: Card is assigned
+EZShopGUI --> StoreManager: Successful message
 
 ```
 
