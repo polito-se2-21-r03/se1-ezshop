@@ -43,10 +43,7 @@ package "Exceptions" {}
 # Low level design
 
 <for each package, report class diagram>
-
 ```plantuml
-left to right direction
-
 interface "EZShopInterface" {
     + reset()
     + createUser(String, String, String)
@@ -99,12 +96,21 @@ interface "EZShopInterface" {
     + getCreditsAndDebits(LocalDate, LocalDate)
     + computeBalance()
 }
+```
+```plantuml
+
+interface EZShopInterface {
+}
+
+note "This the provided EZShopInterface interface" as n
+
+n - EZShopInterface
 
 class EZShop {
     + currentUser
 }
 
-EZShopInterface <|- EZShop
+EZShopInterface <|-- EZShop
 
 class JsonInterface {
     + readUsers()
@@ -119,13 +125,13 @@ class JsonInterface {
     + writeAccountBook(AccountBook)
 }
 
-JsonInterface ---down- EZShop
+JsonInterface ---right- EZShop
 
-EZShop -- "*" User : "Map"
+EZShop -right- "*" User : "Map"
 EZShop -- AccountBook
 EZShop -- "*" SaleTransaction
 EZShop -- "*" ReturnTransaction
-EZShop -- "*" ProductType
+EZShop -down--- "*" ProductType
 
 class User {
     + id
@@ -178,7 +184,9 @@ class Customer {
     + loyaltyCard
 }
 
-LoyaltyCard "0..1" - Customer
+EZShop -down- "*" Customer
+
+LoyaltyCard "0..1" -up- Customer
 
 
 class SaleTransaction {
@@ -203,11 +211,12 @@ class Quantity {
 }
 
 SaleTransaction -- "*" Quantity
-Quantity "*" -- ProductType
 
 /' (SaleTransaction, ProductType)  .. Quantity '/
 
-SaleTransaction "*" -- "0..1" LoyaltyCard
+SaleTransaction "*" -right- "0..1" LoyaltyCard
+
+Quantity "*" -- ProductType
 
 class ReturnTransaction {
     + id
@@ -222,10 +231,10 @@ class ReturnTransactionItem {
     + returnedValue
 }
 
-ReturnTransaction -- "*" ReturnTransactionItem
+ReturnTransaction -down- "*" ReturnTransactionItem
 
 ReturnTransaction "*" - SaleTransaction
-ReturnTransactionItem "*" - ProductType
+ReturnTransactionItem "*" -up- ProductType
 
 /'
 CreditCard cc = CreditCard.fromCode("xxx");
@@ -259,24 +268,24 @@ class BalanceOperation {
     + date
 
 }
-AccountBook -- "*" BalanceOperation
+AccountBook -down- "*" BalanceOperation
 
-class Credit
 class Debit
+class Credit
 
-Credit --|> BalanceOperation
-Debit --|> BalanceOperation
+Debit --up-|> BalanceOperation
+Credit --up-|> BalanceOperation
 
 class Order
 class Sale
 class Return
 
-Order --|> Debit
-Sale --|> Credit
-Return --|> Debit
+SaleTransaction "0..1" ---  Sale
+ReturnTransaction --- Return
 
-SaleTransaction "0..1" --  Sale
-ReturnTransaction -- Return
+Order ---up-|> Debit
+Sale --up-|> Credit
+Return --up-|> Debit
 
 interface CreditCardCircuit {
     + init()
@@ -286,7 +295,7 @@ interface CreditCardCircuit {
     + addCredit(creditCardCode, amount)
 }
 
-EZShop - CreditCardCircuit
+CreditCardCircuit -up-- EZShop
 
 class TextualCreditCardCircuit {
     + readFromFile(String)
@@ -300,20 +309,19 @@ class CreditCard {
     + updateBalance (amount)
 }
 
-CreditCard "*" --left- TextualCreditCardCircuit
+CreditCard "*" -up- TextualCreditCardCircuit
 
 class VisaCreditCardCircuitAdapter {}
 
-TextualCreditCardCircuit --down-|> CreditCardCircuit
-VisaCreditCardCircuitAdapter --down-|> CreditCardCircuit
+TextualCreditCardCircuit -up-|> CreditCardCircuit
+VisaCreditCardCircuitAdapter -up-|> CreditCardCircuit
 
 class VisaCreditCardCircuitService {
     + authenticate()
     + ...
 }
 
-VisaCreditCardCircuitAdapter - VisaCreditCardCircuitService : "adaptees"
-
+VisaCreditCardCircuitService -up- VisaCreditCardCircuitAdapter : "adaptees"
 
 ```
 
@@ -326,19 +334,15 @@ VisaCreditCardCircuitAdapter - VisaCreditCardCircuitService : "adaptees"
 # Verification traceability matrix
 
 \<for each functional requirement from the requirement document, list which classes concur to implement it>
-| Function | Store Manager | Shop Worker | Customer | Anonymous Customer | Accountant | Supplier |
-| ------------- |:-------------|--|--|--|--|--|
-| FR1 | yes | no | no | no | no | no |
-| FR2 | yes | yes | no | no | no | no |
-| FR3 | yes | yes | yes | yes | no | no |
-| FR4 | yes | yes | no | no | no | no |
-| FR5   | yes | no | no | no | yes | no |
-| FR6   | yes | no | no | no | yes | no |
-| FR7.1   | yes | yes | no | no | no | yes |
-| FR7.2   | no | no | no | no | no | yes |
-| FR7.3   | yes | yes | no | no | no | no |
-| FR7.4   | yes | yes | no | no | no | no |
-| FR8   | yes | no | no | no | no | no |
+| | EZShopInterface | JsonInterface | User | ProductType | Quantity | Customer | FidelityCard | CreditCardCircuit | SaleTransaction | ReturnTransaction | Sale | Return |Credit | Debit | AccountBook |
+| :--: |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| FR1 | X | X | X | | | |
+| FR3 | X | X | X | X | | |
+| FR4 | X | X | X | X | | |
+| FR5 | X | X | X | | | X | X |
+| FR6 | X | X | X | X | X | X | X | | X | X | | |
+| FR7 | X | X | X | X | X | X | | X | | | X | X | X | X |
+| FR8 | X | X | X | | | | | | | |  | |X  | X | X |
 
 
 # Verification sequence diagrams
@@ -407,7 +411,61 @@ EZShopGUI --> StoreManager: Successful message
 
 ```
 
-## Scenario 8.1: Return transaction of product type X completed, credit card
+## Scenario 5.1: Login
+
+```plantuml
+"Cashier" -> "Main": 1: enter username
+"Cashier" -> "Main": 2: enter password
+"Main" -> "EZShop": 3: login()
+"Cashier" <-- "Main": 6: show available functionalities
+```
+
+## Scenario 6.4: Sale of product type X with Loyalty Card update
+
+```plantuml
+"Cashier" -> "EZShopGUI": 1: start transaction
+"EZShopGUI" -> "EZShop": 2: startSaleTransaction()
+"EZShop" -> "SaleTransaction": 2: SaleTransaction()
+"EZShop" <-- "SaleTransaction": 2: return SaleTransaction
+"EZShopGUI" <-- "EZShop": 3: return transactionId
+"Cashier" <-- "EZShopGUI": 4: show transaction
+"Cashier" -> "EZShopGUI": 5: scan barcode
+"Cashier" -> "EZShopGUI": 6: enter amount
+"EZShopGUI" -> "EZShop": 7: addProductToSale(transactionId)
+"EZShop" -> "SaleTransaction": 7: addProduct()
+"EZShop" -> "ProductType": 7: updateQuantity()
+"Cashier" <-- "EZShopGUI": 8: show transaction
+"Cashier" -> "EZShopGUI": 9: end transaction
+"EZShopGUI" -> "EZShop": 10: closeSaleTransaction()
+"EZShop" -> "SaleTransaction": 10: closeTransaction()
+"EZShopGUI" -> "EZShop": 10: computePointsForSale(transactionId)
+"EZShopGUI" <-- "EZShop": 2: return points
+"Cashier" <-- "EZShopGUI": 13: ask payment type
+"Cashier" -> "EZShopGUI": 5: scan loyalty card
+"EZShopGUI" -> "EZShop": 10: modifyPointsOnCard(points)
+"EZShop" -> "LoyaltyCard": 10: addPoints(points)
+
+note over Cashier, LoyaltyCard
+handle payment (Use Case 7)
+end note
+
+"Cashier" -> "EZShopGUI": 1: print sale ticket
+"Cashier" <-- "EZShopGUI": 4: print ticket
+```
+
+## Scenario 7.1: Manage payment by valid credit card
+
+```plantuml
+"Cashier" -> "EZShopGUI": 1: read credit card number
+"EZShopGUI" -> "EZShop": 2: receiveCreditCardPayment(transactionId)
+"EZShop" -> "CreditCardCircuit": 2: validateCard()
+"EZShop" -> "CreditCardCircuit": 2: checkBalance()
+"EZShop" -> "CreditCardCircuit": 2: addCredit()
+"EZShopGUI" <-- "EZShop": 2: return payment success
+"Cashier" <-- "EZShopGUI": 1: show payment succeeded
+```
+
+## Scenario 8.2: Return transaction of product type X completed, cash
 
 ```plantuml
 
@@ -422,7 +480,11 @@ EZShopGUI -> EZShop: returnProduct
 EZShop -> ReturnTransaction: updateReturn()
 EZShop -> ProductType: updateQuantity()
 EZShopGUI -> Cashier: show transaction
- -> : 
+
+note over Cashier, ReturnTransaction
+Manage credit card return  (go to UC 10 )
+end note
+
 Cashier -> EZShopGUI: end transaction
 EZShopGUI -> EZShop: endReturnTransaction()
 EZShop -> ReturnTransaction: endTransaction()
