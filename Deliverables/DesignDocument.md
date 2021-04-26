@@ -326,19 +326,15 @@ VisaCreditCardCircuitAdapter - VisaCreditCardCircuitService : "adaptees"
 # Verification traceability matrix
 
 \<for each functional requirement from the requirement document, list which classes concur to implement it>
-| Function | Store Manager | Shop Worker | Customer | Anonymous Customer | Accountant | Supplier |
-| ------------- |:-------------|--|--|--|--|--|
-| FR1 | yes | no | no | no | no | no |
-| FR2 | yes | yes | no | no | no | no |
-| FR3 | yes | yes | yes | yes | no | no |
-| FR4 | yes | yes | no | no | no | no |
-| FR5   | yes | no | no | no | yes | no |
-| FR6   | yes | no | no | no | yes | no |
-| FR7.1   | yes | yes | no | no | no | yes |
-| FR7.2   | no | no | no | no | no | yes |
-| FR7.3   | yes | yes | no | no | no | no |
-| FR7.4   | yes | yes | no | no | no | no |
-| FR8   | yes | no | no | no | no | no |
+| | EZShopInterface | JsonInterface | User | ProductType | Quantity | Customer | FidelityCard | CreditCardCircuit | SaleTransaction | ReturnTransaction | Sale | Return |Credit | Debit | AccountBook |
+| :--: |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| FR1 | X | X | X | | | |
+| FR3 | X | X | X | X | | |
+| FR4 | X | X | X | X | | |
+| FR5 | X | X | X | | | X | X |
+| FR6 | X | X | X | X | X | X | X | | X | X | | |
+| FR7 | X | X | X | X | X | X | | X | | | X | X | X | X |
+| FR8 | X | X | X | | | | | | | |  | |X  | X | X |
 
 
 # Verification sequence diagrams
