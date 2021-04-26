@@ -43,7 +43,60 @@ package "Exceptions" {}
 # Low level design
 
 <for each package, report class diagram>
-
+```plantuml
+interface "EZShopInterface" {
+    + reset()
+    + createUser(String, String, String)
+    + deleteUser(Integer)
+    + getAllUsers()
+    + getUser(Integer)
+    + updateUserRights(Integer, String)
+    + login(String, String)
+    + logout()
+    + createProductType(String, String, double, String)
+    + updateProduct(Integer, String, String, double, String)
+    + deleteProductType(Integer)
+    + getAllProductTypes()
+    + getProductTypeByBarCode(String)
+    + getProductTypesByDescription(String)
+    + updateQuantity(Integer, int)
+    + updatePosition(Integer, String)
+    + issueReorder(String, int, double)
+    + payOrderFor(String, int, double)
+    + payOrder(Integer)
+    + recordOrderArrival(Integer)
+    + getAllOrders()
+    + defineCustomer(String)
+    + modifyCustomer(Integer, String, String)
+    + deleteCustomer(Integer)
+    + getCustomer(Integer)
+    + getAllCustomers()
+    + createCard()
+    + attachCardToCustomer(String, Integer)
+    + modifyPointsOnCard(String, int)
+    + startSaleTransaction()
+    + addProductToSale(Integer, String, int)
+    + deleteProductFromSale(Integer, String, int)
+    + applyDiscountRateToProduct(Integer, String, double)
+    + applyDiscountRateToSale(Integer, double)
+    + computePointsForSale(Integer)
+    + closeSaleTransaction(Integer)
+    + deleteSaleTicket(Integer)
+    + getSaleTicket(Integer)
+    + getTicketByNumber(Integer)
+    + startReturnTransaction(Integer)
+    + returnProduct(Integer, String, int)
+    + endReturnTransaction(Integer, boolean)
+    + deleteReturnTransaction(Integer)
+    + receiveCashPayment(Integer, double)
+    + receiveCreditCardPayment(Integer, String)
+    + returnCashPayment(Integer)
+    + returnCreditCardPayment(Integer, String)
+    + recordBalanceUpdate(double)
+    + getCreditsAndDebits(LocalDate, LocalDate)
+    + computeBalance()
+}
+```
 ```plantuml
 
 interface EZShopInterface {
