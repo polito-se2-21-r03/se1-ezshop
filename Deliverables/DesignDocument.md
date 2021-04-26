@@ -407,9 +407,26 @@ EZShopGUI --> StoreManager: Successful message
 
 ```
 
-## Scenario 8.2: Return transaction of product type X completed, cash
+## Scenario 8.1: Return transaction of product type X completed, credit card
 
 ```plantuml
+
+Cashier -> EZShopGUI: inserts ticket number
+EZShopGUI -> EZShop: startReturnTransaction()
+EZShop -> ReturnTransaction: returnTransaction()
+ReturnTransaction -> EZShop: return returnTransaction
+EZShop -> EZShopGUI: return transactionId
+EZShopGUI -> Cashier : show transaction
+Cashier -> EZShopGUI: scan barcodes
+EZShopGUI -> EZShop: returnProduct
+EZShop -> ReturnTransaction: updateReturn()
+EZShop -> ProductType: updateQuantity()
+EZShopGUI -> Cashier: show transaction
+ -> : 
+Cashier -> EZShopGUI: end transaction
+EZShopGUI -> EZShop: endReturnTransaction()
+EZShop -> ReturnTransaction: endTransaction()
+EZShop -> AccountBook: computeBalance()
 
 
 
