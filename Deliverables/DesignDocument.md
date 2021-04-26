@@ -384,7 +384,7 @@ GUI -> Cashier: ask return amount
 Cashier -> GUI: enter return amount
 GUI -> EZShop: recordBalanceUpdate()
 EZShop -> GUI: Return return_amount
-GUI -> StoreManager: shows success massage
+GUI -> Cashier: shows success massage
 
 
 ```
