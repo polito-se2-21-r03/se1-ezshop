@@ -45,66 +45,19 @@ package "Exceptions" {}
 <for each package, report class diagram>
 
 ```plantuml
-left to right direction
 
-interface "EZShopInterface" {
-    + reset()
-    + createUser(String, String, String)
-    + deleteUser(Integer)
-    + getAllUsers()
-    + getUser(Integer)
-    + updateUserRights(Integer, String)
-    + login(String, String)
-    + logout()
-    + createProductType(String, String, double, String)
-    + updateProduct(Integer, String, String, double, String)
-    + deleteProductType(Integer)
-    + getAllProductTypes()
-    + getProductTypeByBarCode(String)
-    + getProductTypesByDescription(String)
-    + updateQuantity(Integer, int)
-    + updatePosition(Integer, String)
-    + issueReorder(String, int, double)
-    + payOrderFor(String, int, double)
-    + payOrder(Integer)
-    + recordOrderArrival(Integer)
-    + getAllOrders()
-    + defineCustomer(String)
-    + modifyCustomer(Integer, String, String)
-    + deleteCustomer(Integer)
-    + getCustomer(Integer)
-    + getAllCustomers()
-    + createCard()
-    + attachCardToCustomer(String, Integer)
-    + modifyPointsOnCard(String, int)
-    + startSaleTransaction()
-    + addProductToSale(Integer, String, int)
-    + deleteProductFromSale(Integer, String, int)
-    + applyDiscountRateToProduct(Integer, String, double)
-    + applyDiscountRateToSale(Integer, double)
-    + computePointsForSale(Integer)
-    + closeSaleTransaction(Integer)
-    + deleteSaleTicket(Integer)
-    + getSaleTicket(Integer)
-    + getTicketByNumber(Integer)
-    + startReturnTransaction(Integer)
-    + returnProduct(Integer, String, int)
-    + endReturnTransaction(Integer, boolean)
-    + deleteReturnTransaction(Integer)
-    + receiveCashPayment(Integer, double)
-    + receiveCreditCardPayment(Integer, String)
-    + returnCashPayment(Integer)
-    + returnCreditCardPayment(Integer, String)
-    + recordBalanceUpdate(double)
-    + getCreditsAndDebits(LocalDate, LocalDate)
-    + computeBalance()
+interface EZShopInterface {
 }
+
+note "This the provided EZShopInterface interface" as n
+
+n - EZShopInterface
 
 class EZShop {
     + currentUser
 }
 
-EZShopInterface <|- EZShop
+EZShopInterface <|-- EZShop
 
 class JsonInterface {
     + readUsers()
@@ -119,13 +72,13 @@ class JsonInterface {
     + writeAccountBook(AccountBook)
 }
 
-JsonInterface ---down- EZShop
+JsonInterface ---right- EZShop
 
-EZShop -- "*" User : "Map"
+EZShop -right- "*" User : "Map"
 EZShop -- AccountBook
 EZShop -- "*" SaleTransaction
 EZShop -- "*" ReturnTransaction
-EZShop -- "*" ProductType
+EZShop -down--- "*" ProductType
 
 class User {
     + id
@@ -178,7 +131,9 @@ class Customer {
     + loyaltyCard
 }
 
-LoyaltyCard "0..1" - Customer
+EZShop -down- "*" Customer
+
+LoyaltyCard "0..1" -up- Customer
 
 
 class SaleTransaction {
@@ -203,11 +158,12 @@ class Quantity {
 }
 
 SaleTransaction -- "*" Quantity
-Quantity "*" -- ProductType
 
 /' (SaleTransaction, ProductType)  .. Quantity '/
 
-SaleTransaction "*" -- "0..1" LoyaltyCard
+SaleTransaction "*" -right- "0..1" LoyaltyCard
+
+Quantity "*" -- ProductType
 
 class ReturnTransaction {
     + id
@@ -222,10 +178,10 @@ class ReturnTransactionItem {
     + returnedValue
 }
 
-ReturnTransaction -- "*" ReturnTransactionItem
+ReturnTransaction -down- "*" ReturnTransactionItem
 
 ReturnTransaction "*" - SaleTransaction
-ReturnTransactionItem "*" - ProductType
+ReturnTransactionItem "*" -up- ProductType
 
 /'
 CreditCard cc = CreditCard.fromCode("xxx");
@@ -259,24 +215,24 @@ class BalanceOperation {
     + date
 
 }
-AccountBook -- "*" BalanceOperation
+AccountBook -down- "*" BalanceOperation
 
-class Credit
 class Debit
+class Credit
 
-Credit --|> BalanceOperation
-Debit --|> BalanceOperation
+Debit --up-|> BalanceOperation
+Credit --up-|> BalanceOperation
 
 class Order
 class Sale
 class Return
 
-Order --|> Debit
-Sale --|> Credit
-Return --|> Debit
+SaleTransaction "0..1" ---  Sale
+ReturnTransaction --- Return
 
-SaleTransaction "0..1" --  Sale
-ReturnTransaction -- Return
+Order ---up-|> Debit
+Sale --up-|> Credit
+Return --up-|> Debit
 
 interface CreditCardCircuit {
     + init()
@@ -286,7 +242,7 @@ interface CreditCardCircuit {
     + addCredit(creditCardCode, amount)
 }
 
-EZShop - CreditCardCircuit
+CreditCardCircuit -up-- EZShop
 
 class TextualCreditCardCircuit {
     + readFromFile(String)
@@ -300,20 +256,19 @@ class CreditCard {
     + updateBalance (amount)
 }
 
-CreditCard "*" --left- TextualCreditCardCircuit
+CreditCard "*" -up- TextualCreditCardCircuit
 
 class VisaCreditCardCircuitAdapter {}
 
-TextualCreditCardCircuit --down-|> CreditCardCircuit
-VisaCreditCardCircuitAdapter --down-|> CreditCardCircuit
+TextualCreditCardCircuit -up-|> CreditCardCircuit
+VisaCreditCardCircuitAdapter -up-|> CreditCardCircuit
 
 class VisaCreditCardCircuitService {
     + authenticate()
     + ...
 }
 
-VisaCreditCardCircuitAdapter - VisaCreditCardCircuitService : "adaptees"
-
+VisaCreditCardCircuitService -up- VisaCreditCardCircuitAdapter : "adaptees"
 
 ```
 
