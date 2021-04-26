@@ -293,19 +293,43 @@ ReturnTransaction -- Return
 # Verification traceability matrix
 
 \<for each functional requirement from the requirement document, list which classes concur to implement it>
-
-
-
-
-
-
-
-
-
+| Function | Store Manager | Shop Worker | Customer | Anonymous Customer | Accountant | Supplier |
+| ------------- |:-------------|--|--|--|--|--|
+| FR1 | yes | no | no | no | no | no |
+| FR2 | yes | yes | no | no | no | no |
+| FR3 | yes | yes | yes | yes | no | no |
+| FR4 | yes | yes | no | no | no | no |
+| FR5   | yes | no | no | no | yes | no |
+| FR6   | yes | no | no | no | yes | no |
+| FR7.1   | yes | yes | no | no | no | yes |
+| FR7.2   | no | no | no | no | no | yes |
+| FR7.3   | yes | yes | no | no | no | no |
+| FR7.4   | yes | yes | no | no | no | no |
+| FR8   | yes | no | no | no | no | no |
 
 
 # Verification sequence diagrams
 \<select key scenarios from the requirement document. For each of them define a sequence diagram showing that the scenario can be implemented by the classes and methods in the design>
+
+## Scenario 1.1: Create product type X
+```plantuml
+
+StoreManager -> EZShopGUI: Create Product type
+EZShopGUI -> EZShop: CreateProductType()
+EZShop -> ProductType: New ProductType
+ProductType-->EZShop: Save New ProductType
+EZShop -->EZShopGUI: Success
+EZShopGUI --> StoreManager: Created New Product Type
+```
+## Scenario 2.1: Create user and define rights
+```plantuml
+Administrator -> EZShopGUI: Create User
+EZShopGUI -> EZShop: CreateUser()
+EZShop -> User: New User
+User-->EZShop: Save New User
+EZShop -->EZShopGUI: Success
+EZShopGUI --> Administrator: Created New User
+```
 
 ## Scenario 3.2: Order of product type X payed
 
