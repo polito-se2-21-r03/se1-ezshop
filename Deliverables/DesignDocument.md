@@ -481,7 +481,7 @@ EZShop -> ReturnTransaction: updateReturn()
 EZShop -> ProductType: updateQuantity()
 EZShopGUI -> Cashier: show transaction
 
-note over Cashier, ReturnTransaction
+note over Cashier, AccountBook
 Manage credit card return  (go to UC 10 )
 end note
 
@@ -499,12 +499,12 @@ EZShop -> AccountBook: computeBalance()
 ```plantuml
 
 StoreManager -> EZShopGUI: Selects a start date
-StoreManager -> EZShopGUI: Selects a end date
+StoreManager -> EZShopGUI: Selects an end date
 EZShopGUI -> EZShop: getCreditsAndDebits()
 EZShop -> AccountBook: recordTransaction()
 AccountBook -> AccountBook: filter transactions of selected time-span
-AccountBook -> EZShop: Return transactions_list
-EZShop -> EZShopGUI: Return transactions_list
+AccountBook -> EZShop: Return transactionsList
+EZShop -> EZShopGUI: Return transactionsList
 EZShopGUI -> StoreManager: Shows the transactions list
 
 ```
