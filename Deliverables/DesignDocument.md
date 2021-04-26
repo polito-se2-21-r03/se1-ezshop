@@ -1,7 +1,7 @@
-# Design Document 
+# Design Document
 
 
-Authors: 
+Authors:
 
 Date:
 
@@ -176,14 +176,14 @@ LoyaltyCard "0..1" - Customer
 
 
 class SaleTransaction {
-    + ID 
+    + ID
     + ticket
     + date
     + time
     + cost
     + paymentType /' cash or cc '/
     + creditCard
-    + discountRate 
+    + discountRate
     + status /' open/close '/
     + quantities /' Set<Quantity> '/
     + getAllQuantities() /' Set<Quantity> '/
@@ -206,7 +206,7 @@ SaleTransaction "*" -- "0..1" LoyaltyCard
 
 class ReturnTransaction {
     + id
-    + commit 
+    + commit
     + returns /' HashSet<ReturnTransactionItem> '/
     + getAllReturns() /' HashSet<ReturnTransactionItem> '/
     + updateReturn(ReturnTransactionItem)
@@ -264,7 +264,7 @@ class BalanceOperation {
 }
 AccountBook -- "*" BalanceOperation
 
-class Credit 
+class Credit
 class Debit
 
 Credit --|> BalanceOperation
@@ -304,7 +304,7 @@ ReturnTransaction -- Return
 
 
 
-# Verification sequence diagrams 
+# Verification sequence diagrams
 \<select key scenarios from the requirement document. For each of them define a sequence diagram showing that the scenario can be implemented by the classes and methods in the design>
 
 ## Scenario 3.2: Order of product type X payed
@@ -347,5 +347,28 @@ EZShop -> Customer: setLoyaltyCard()
 Customer --> EZShop: Card is assigned
 EZShop --> GUI: Card is assigned
 GUI --> StoreManager: Successful message
+
+```
+
+## Scenario 8.2: Return transaction of product type X completed, cash
+
+```plantuml
+
+
+
+```
+
+## Scenario 9.1: List credits and debits
+
+```plantuml
+
+StoreManager -> GUI: Selects a start date
+StoreManager -> GUI: Selects a end date
+GUI -> EZShop: getCreditsAndDebits()
+EZShop -> AccountBook: recordTransaction()
+AccountBook -> AccountBook: filter transactions as time-span
+AccountBook -> EZShop: Return transactions_list
+EZShop -> GUI: Return transactions_list
+GUI -> StoreManager: Shows the transactions list
 
 ```
