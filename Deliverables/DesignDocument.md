@@ -419,29 +419,30 @@ EZShopGUI --> StoreManager: Successful message
 
 ```plantuml
 
-StoreManager -> GUI: Selects a start date
-StoreManager -> GUI: Selects a end date
-GUI -> EZShop: getCreditsAndDebits()
+StoreManager -> EZShopGUI: Selects a start date
+StoreManager -> EZShopGUI: Selects a end date
+EZShopGUI -> EZShop: getCreditsAndDebits()
 EZShop -> AccountBook: recordTransaction()
 AccountBook -> AccountBook: filter transactions of selected time-span
 AccountBook -> EZShop: Return transactions_list
-EZShop -> GUI: Return transactions_list
-GUI -> StoreManager: Shows the transactions list
+EZShop -> EZShopGUI: Return transactions_list
+EZShopGUI -> StoreManager: Shows the transactions list
 
 ```
 ## Scenario 10.1: Return payment by  credit card
 
 ```plantuml
 
-Cashier -> GUI: enters credit card number
-GUI -> EZShop: returnCreditCardPayment()
-EZShop -> EZShop: *validateCreditCardNumber()*
-EZShop -> GUI: askReturnAmount()
-GUI -> Cashier: ask return amount
-Cashier -> GUI: enter return amount
-GUI -> EZShop: recordBalanceUpdate()
-EZShop -> GUI: Return return_amount
-GUI -> Cashier: shows success massage
-
+Cashier -> EZShopGUI: enters credit card number
+EZShopGUI -> EZShop: returnCreditCardPayment()
+EZShop -> CreditCardCircuit: validateCreditCardNumber()
+CreditCardCircuit -> CreditCardCircuit: validateCode()
+CreditCardCircuit -> EZShop: approves
+EZShop -> EZShopGUI: askReturnAmount()
+EZShopGUI -> Cashier: ask return amount
+Cashier -> EZShopGUI: enter return amount
+EZShopGUI -> EZShop: recordBalanceUpdate()
+EZShop -> EZShopGUI: Return return_amount
+EZShopGUI -> Cashier: shows success massage
 
 ```
