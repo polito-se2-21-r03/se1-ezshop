@@ -30,12 +30,14 @@ The design must satisfy the Official Requirements document, notably functional a
 package "EZShop" {}
 
 package "GUI" {}
-package "Model" {}
-package "Exceptions" {}
+package "data" {}
+package "model" {}
+package "exceptions" {}
 
 "EZShop" -- "GUI"
-"EZShop" <|-- "Model"
-"EZShop" <|-- "Exceptions"
+"EZShop" <|-- "data"
+"EZShop" <|-- "model"
+"EZShop" <|-- "exceptions"
 
 @enduml
 ```
