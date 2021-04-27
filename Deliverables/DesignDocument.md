@@ -411,9 +411,84 @@ EZShopGUI --> StoreManager: Successful message
 
 ```
 
+## Scenario 5.1: Login
+
+```plantuml
+"Cashier" -> "Main": 1: enter username
+"Cashier" -> "Main": 2: enter password
+"Main" -> "EZShop": 3: login()
+"Cashier" <-- "Main": 6: show available functionalities
+```
+
+## Scenario 6.4: Sale of product type X with Loyalty Card update
+
+```plantuml
+"Cashier" -> "EZShopGUI": 1: start transaction
+"EZShopGUI" -> "EZShop": 2: startSaleTransaction()
+"EZShop" -> "SaleTransaction": 2: SaleTransaction()
+"EZShop" <-- "SaleTransaction": 2: return SaleTransaction
+"EZShopGUI" <-- "EZShop": 3: return transactionId
+"Cashier" <-- "EZShopGUI": 4: show transaction
+"Cashier" -> "EZShopGUI": 5: scan barcode
+"Cashier" -> "EZShopGUI": 6: enter amount
+"EZShopGUI" -> "EZShop": 7: addProductToSale(transactionId)
+"EZShop" -> "SaleTransaction": 7: addProduct()
+"EZShop" -> "ProductType": 7: updateQuantity()
+"Cashier" <-- "EZShopGUI": 8: show transaction
+"Cashier" -> "EZShopGUI": 9: end transaction
+"EZShopGUI" -> "EZShop": 10: closeSaleTransaction()
+"EZShop" -> "SaleTransaction": 10: closeTransaction()
+"EZShopGUI" -> "EZShop": 10: computePointsForSale(transactionId)
+"EZShopGUI" <-- "EZShop": 2: return points
+"Cashier" <-- "EZShopGUI": 13: ask payment type
+"Cashier" -> "EZShopGUI": 5: scan loyalty card
+"EZShopGUI" -> "EZShop": 10: modifyPointsOnCard(points)
+"EZShop" -> "LoyaltyCard": 10: addPoints(points)
+
+note over Cashier, LoyaltyCard
+handle payment (Use Case 7)
+end note
+
+"Cashier" -> "EZShopGUI": 1: print sale ticket
+"Cashier" <-- "EZShopGUI": 4: print ticket
+```
+
+## Scenario 7.1: Manage payment by valid credit card
+
+```plantuml
+"Cashier" -> "EZShopGUI": 1: read credit card number
+"EZShopGUI" -> "EZShop": 2: receiveCreditCardPayment(transactionId)
+"EZShop" -> "CreditCardCircuit": 2: validateCard()
+"EZShop" -> "CreditCardCircuit": 2: checkBalance()
+"EZShop" -> "CreditCardCircuit": 2: addCredit()
+"EZShopGUI" <-- "EZShop": 2: return payment success
+"Cashier" <-- "EZShopGUI": 1: show payment succeeded
+```
+
 ## Scenario 8.2: Return transaction of product type X completed, cash
 
 ```plantuml
+
+Cashier -> EZShopGUI: inserts ticket number
+EZShopGUI -> EZShop: startReturnTransaction()
+EZShop -> ReturnTransaction: returnTransaction()
+ReturnTransaction -> EZShop: return returnTransaction
+EZShop -> EZShopGUI: return transactionId
+EZShopGUI -> Cashier : show transaction
+Cashier -> EZShopGUI: scan barcodes
+EZShopGUI -> EZShop: returnProduct
+EZShop -> ReturnTransaction: updateReturn()
+EZShop -> ProductType: updateQuantity()
+EZShopGUI -> Cashier: show transaction
+
+note over Cashier, AccountBook
+Manage credit card return  (go to UC 10 )
+end note
+
+Cashier -> EZShopGUI: end transaction
+EZShopGUI -> EZShop: endReturnTransaction()
+EZShop -> ReturnTransaction: endTransaction()
+EZShop -> AccountBook: computeBalance()
 
 
 
@@ -424,12 +499,12 @@ EZShopGUI --> StoreManager: Successful message
 ```plantuml
 
 StoreManager -> EZShopGUI: Selects a start date
-StoreManager -> EZShopGUI: Selects a end date
+StoreManager -> EZShopGUI: Selects an end date
 EZShopGUI -> EZShop: getCreditsAndDebits()
 EZShop -> AccountBook: recordTransaction()
 AccountBook -> AccountBook: filter transactions of selected time-span
-AccountBook -> EZShop: Return transactions_list
-EZShop -> EZShopGUI: Return transactions_list
+AccountBook -> EZShop: Return transactionsList
+EZShop -> EZShopGUI: Return transactionsList
 EZShopGUI -> StoreManager: Shows the transactions list
 
 ```
