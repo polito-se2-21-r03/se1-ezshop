@@ -250,15 +250,12 @@ class AccountBook {
     + recordTransaction(double)
     + recordTransaction(BalanceOperation)
     + getCredits()
-    + getSales()
+    + getSaleTransactions()
     + getDebits()
-    + getReturns()
+    + getReturnTransactions()
     + getOrders()
     + checkAvailability(double)
     + computeBalance()
-    + addSale(value)
-    + addReturn(value)
-    + addOrder()
 }
 
 class BalanceOperation {
@@ -277,15 +274,11 @@ Debit --up-|> BalanceOperation
 Credit --up-|> BalanceOperation
 
 class Order
-class Sale
-class Return
-
-SaleTransaction "0..1" ---  Sale
-ReturnTransaction --- Return
 
 Order ---up-|> Debit
-Sale --up-|> Credit
-Return --up-|> Debit
+
+SaleTransaction -|> Credit
+ReturnTransaction -|> Debit
 
 interface CreditCardCircuit {
     + init()
@@ -334,15 +327,15 @@ VisaCreditCardCircuitService -up- VisaCreditCardCircuitAdapter : "adaptees"
 # Verification traceability matrix
 
 \<for each functional requirement from the requirement document, list which classes concur to implement it>
-| | EZShopInterface | JsonInterface | User | ProductType | Quantity | Customer | FidelityCard | CreditCardCircuit | SaleTransaction | ReturnTransaction | Sale | Return |Credit | Debit | AccountBook |
-| :--: |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| | EZShopInterface | JsonInterface | User | ProductType | Quantity | Customer | FidelityCard | CreditCardCircuit | SaleTransaction | ReturnTransaction |Credit | Debit | AccountBook |
+| :--: |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 | FR1 | X | X | X | | | |
 | FR3 | X | X | X | X | | |
 | FR4 | X | X | X | X | | |
 | FR5 | X | X | X | | | X | X |
 | FR6 | X | X | X | X | X | X | X | | X | X | | |
-| FR7 | X | X | X | X | X | X | | X | | | X | X | X | X |
-| FR8 | X | X | X | | | | | | | |  | |X  | X | X |
+| FR7 | X | X | X | X | X | X | | X | X | X | X | X |
+| FR8 | X | X | X | | | | | | | |X  | X | X |
 
 
 # Verification sequence diagrams
