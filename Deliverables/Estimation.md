@@ -64,26 +64,38 @@ Version: 1.0
 ### 
 |             | Estimate                        |             
 | ----------- | ------------------------------- |  
-| NC = 150    | Model Classes = 20, View = 100, Controller = 30 |             
+| NC = 130    | Model Classes = 20, View = 85, Controller = 25 |             
 | A =  100    |                            | 
-| S =  15000  | |
-| E = 1500    | Assuming 10 LOC per person hour |   
-| C = 45000   | Assuming 30 euro per person hour | 
-| 10 weeks | Assuming team of 4 people, 8 hours per day, 5 days per week |  
+| S =  13000  | |
+| E = 1300    | Assuming 10 LOC per person hour |   
+| C = 39000   | Assuming 30 euro per person hour | 
+| 8 weeks | Assuming team of 4 people, 8 hours per day, 5 days per week |  
 
 # Estimate by activity decomposition
 ### 
 |         Activity name    | Estimated effort (person hours)   |             
 | ----------- | ------------------------------- | 
-| Process Instantiation | 1 unit hour |
-| Software requirements analysis | 3 unit hours |
-| Software architecture definition | 3 unit hours  |
-| Software detailed design | 5 unit hours |
-| Coding and unit testing | 20 unit hours |
-| Integration of software units | 10 unit hours |
-| Software validation | 5 unit hours |
-| System integration | 2 unit hours  |
-| System validation | 1 unit hour |
+| Requirements analysis | 184 |
+| GUI prototype | 96 |
+| Design | 184 |
+| Coding | 352 |
+| Unit testing | 256 |
+| Integration testing | 184 |
+
+Total: 1240
 
 ###
 Insert here Gantt chart with above activities
+
+```plantuml
+[Requirements] lasts 6 days
+[GUI] lasts 3 days and starts after [Requirements]'s end
+[Design] lasts 6 days
+[Design] starts at [GUI]'s end
+[Coding] lasts 11 days
+[Coding] starts at [Design]'s end
+[Unit tests] lasts 8 days
+[Unit tests] starts after [Coding]'s end
+[Integration] lasts 6 days
+[Integration] starts after [Unit tests]'s end
+```
