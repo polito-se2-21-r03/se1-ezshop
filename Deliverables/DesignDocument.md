@@ -136,22 +136,24 @@ EZShop -- "*" ReturnTransaction
 EZShop -down--- "*" ProductType
 
 class User {
-    + id
+    + ID
     + username
     + passwordHash
     + role
     + verifyPassword(String)
+    + setRole(String)
 }
 
 class ProductType {
-    + id
+    + ID
     + barCode
     + description
     + sellPrice
     + quantity
     + discountRate
     + notes
-    + position
+    + updateQuantity(int)
+    + updatePosition(String)
 }
 
 class Position {
@@ -174,16 +176,14 @@ Order "*" - ProductType
 
 
 class LoyaltyCard {
-    + ID
+    + cardCode
     + points
     + updatePoints(int)
 }
 
 class Customer {
-    + id
+    + ID
     + name
-    + surname
-    + loyaltyCard
 }
 
 EZShop -down- "*" Customer
@@ -192,9 +192,7 @@ LoyaltyCard "0..1" -up- Customer
 
 
 class SaleTransaction {
-    + ID
     + ticket
-    + date
     + time
     + cost
     + paymentType /' cash or cc '/
@@ -221,10 +219,9 @@ SaleTransaction "*" -right- "0..1" LoyaltyCard
 Quantity "*" -- ProductType
 
 class ReturnTransaction {
-    + id
+    + ID
     + commit
     + returns /' HashSet<ReturnTransactionItem> '/
-    + getAllReturns() /' HashSet<ReturnTransactionItem> '/
     + updateReturn(ReturnTransactionItem)
 }
 
@@ -261,7 +258,7 @@ class AccountBook {
 }
 
 class BalanceOperation {
-    + id
+    + ID
     + description
     + amount
     + date
