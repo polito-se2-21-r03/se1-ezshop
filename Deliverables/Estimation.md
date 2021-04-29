@@ -71,31 +71,56 @@ Version: 1.0
 | C = 39000   | Assuming 30 euro per person hour | 
 | 8 weeks | Assuming team of 4 people, 8 hours per day, 5 days per week |  
 
-# Estimate by activity decomposition
-### 
+## Estimate by activity decomposition
+ 
 |         Activity name    | Estimated effort (person hours)   |             
-| ----------- | ------------------------------- | 
-| Requirements analysis | 184 |
-| GUI prototype | 96 |
-| Design | 184 |
-| Coding | 352 |
-| Unit testing | 256 |
-| Integration testing | 184 |
+| ------------------------ | ------------------------------- | 
+| 1. Requirements document               | 160 |
+| 1.1 Stakeholders definition            | 8   |
+| 1.2 Requirements analysis              | 152 |
+| 2. GUI prototype                       | 96  |
+| 2.1 Management application             | 64  |
+| 2.2 Cash register                      | 32  |
+| 3. Design                              | 192 |
+| 4. Coding                              | 352 |
+| 5. Unit testing                        | 256 |
+| 6. Integration testing                 | 192 |
+| 7. Post Mortem                         | 16  |
 
-Total: 1240
+**Total**: 1264 person hours
 
-###
-Insert here Gantt chart with above activities
+### Gantt chart
 
 ```plantuml
-[Requirements] lasts 6 days
-[GUI] lasts 3 days and starts after [Requirements]'s end
-[Design] lasts 6 days
+[Requirements document completed] happens 6 days after start
+[GUI prototype completed] happens 7 days after start
+[Design completed] happens 13 days after start
+[Coding completed] happens 27 days after start
+[Unit testing completed] happens 37 days after start
+[Integration testing completed] happens 38 days after start
+
+/' requirements: 3 days x 4 people + 4 days x 2 people '/
+[Requirements] lasts 7 days and is 100% completed
+
+/' GUI: 4 days x 2 people + 1 day x 4 people '/
+[GUI] lasts 5 days and starts 3 days after start
+
+/' design: 6 days x 4 people '/
+[Design] lasts 6 days and is 0% completed
 [Design] starts at [GUI]'s end
-[Coding] lasts 11 days
+
+/' coding: 8 days x 4 people + 6 days x 2 people '/
+[Coding] lasts 14 days and is 0% completed
 [Coding] starts at [Design]'s end
-[Unit tests] lasts 8 days
-[Unit tests] starts after [Coding]'s end
-[Integration] lasts 6 days
-[Integration] starts after [Unit tests]'s end
+
+/' unit testing: 16 days x 2 people '/
+[Unit testing] lasts 16 days and is 0% completed
+[Unit testing] starts 22 days after start
+
+/' integration testing: 10 days x 2 people + 1 day x 4 people '/
+[Integration testing] lasts 11 days and is 0% completed
+[Integration testing] starts 28 days after start
+
+/' post mortem: .5 days x 4 people '/
+[Post Mortem] lasts 1 day and starts after [Integration testing]'s end and is 0% completed
 ```
