@@ -33,11 +33,13 @@ package "GUI" {}
 package "data" {}
 package "model" {}
 package "exceptions" {}
+package "credit_card_circuit" {}
 
 "EZShop" -- "GUI"
 "EZShop" <|-- "data"
 "EZShop" <|-- "model"
 "EZShop" <|-- "exceptions"
+"EZShop" <|-- "credit_card_circuit"
 
 @enduml
 ```
@@ -101,12 +103,13 @@ interface "EZShopInterface" {
 ```
 ```plantuml
 
+package it.polito.ezshop.data {
 interface EZShopInterface {
 }
 
 note "This the provided EZShopInterface interface" as n
 
-n - EZShopInterface
+n -down- EZShopInterface
 
 class EZShop {
     + currentUser
@@ -131,8 +134,6 @@ JsonInterface ---right- EZShop
 
 EZShop -right- "*" User : "Map"
 EZShop -- AccountBook
-EZShop -- "*" SaleTransaction
-EZShop -- "*" ReturnTransaction
 EZShop -down--- "*" ProductType
 
 class User {
@@ -143,6 +144,14 @@ class User {
     + verifyPassword(String)
     + setRole(String)
 }
+
+enum Role {
+    ADMINISTRATOR
+    CASHIER
+    SHOP_MANAGER
+}
+
+User -up- Role
 
 class ProductType {
     + ID
@@ -172,7 +181,7 @@ class Order {
     + computeTotal()
 }
 
-Order "*" - ProductType
+Order "*" -down- ProductType
 
 
 class LoyaltyCard {
@@ -210,13 +219,13 @@ class Quantity {
     + discountRate
 }
 
-SaleTransaction -- "*" Quantity
+SaleTransaction -right- "*" Quantity
 
 /' (SaleTransaction, ProductType)  .. Quantity '/
 
-SaleTransaction "*" -right- "0..1" LoyaltyCard
+SaleTransaction "*" -up- "0..1" LoyaltyCard
 
-Quantity "*" -- ProductType
+Quantity "*" -up- ProductType
 
 class ReturnTransaction {
     + ID
@@ -232,17 +241,8 @@ class ReturnTransactionItem {
 
 ReturnTransaction -down- "*" ReturnTransactionItem
 
-ReturnTransaction "*" - SaleTransaction
-ReturnTransactionItem "*" -up- ProductType
-
-/'
-CreditCard cc = CreditCard.fromCode("xxx");
-if (cc != null) {
-    // credit card is valid
-}'/
-
-/' SaleTransaction - "0..1" CreditCard '/
-
+ReturnTransaction "*" -up- SaleTransaction
+ReturnTransactionItem "*" -right- ProductType
 
 class AccountBook {
     + transactions
@@ -269,56 +269,62 @@ AccountBook -down- "*" BalanceOperation
 class Debit
 class Credit
 
-Debit --up-|> BalanceOperation
-Credit --up-|> BalanceOperation
+Debit -up-|> BalanceOperation
+Credit -up-|> BalanceOperation
 
 class Order
 
-Order ---up-|> Debit
+Order -up-|> Debit
 
-SaleTransaction -|> Credit
-ReturnTransaction -|> Debit
-
-interface CreditCardCircuit {
-    + init()
-    + validateCode(creditCardCode)
-    + checkAvailability(creditCardCode, amount)
-    + addDebit(creditCardCode, amount)
-    + addCredit(creditCardCode, amount)
+SaleTransaction -up-|> Credit
+ReturnTransaction -up-|> Debit
 }
 
-CreditCardCircuit -up-- EZShop
+package it.polito.ezshop.credit_card_circuit {
+    interface CreditCardCircuit {
+        + init()
+        + validateCode(creditCardCode)
+        + checkAvailability(creditCardCode, amount)
+        + addDebit(creditCardCode, amount)
+        + addCredit(creditCardCode, amount)
+    }
 
-class TextualCreditCardCircuit {
-    + readFromFile(String)
-    + writeToFile(String)
+    CreditCardCircuit <-right- EZShop
+
+    class TextualCreditCardCircuit {
+        + path
+        - readFromFile()
+        - writeToFile()
+    }
+
+    class CreditCard {
+        + code
+        + balance
+        + checkAvailability (amount)
+        + updateBalance (amount)
+    }
+
+    CreditCard "*" -up- TextualCreditCardCircuit
+
+    class VisaCreditCardCircuitAdapter {}
+
+    TextualCreditCardCircuit -up-|> CreditCardCircuit
+    VisaCreditCardCircuitAdapter -up-|> CreditCardCircuit
+
+    class VisaCreditCardCircuitService {
+        + authenticate()
+        + ...
+    }
+
+    VisaCreditCardCircuitService <-up- VisaCreditCardCircuitAdapter : "adaptees"
 }
-
-class CreditCard {
-    + code
-    + balance
-    + checkAvailability (amount)
-    + updateBalance (amount)
-}
-
-CreditCard "*" -up- TextualCreditCardCircuit
-
-class VisaCreditCardCircuitAdapter {}
-
-TextualCreditCardCircuit -up-|> CreditCardCircuit
-VisaCreditCardCircuitAdapter -up-|> CreditCardCircuit
-
-class VisaCreditCardCircuitService {
-    + authenticate()
-    + ...
-}
-
-VisaCreditCardCircuitService -up- VisaCreditCardCircuitAdapter : "adaptees"
 
 ```
 
+## Credit card circuit
+The *it.polito.ezshop.credit_card_circuit* implements the interaction between the EZShop and the credit card circuit using the Adapter pattern. The *CreditCardCircuit* interface defines the methods for charging and crediting a credit card. The interface is implemented by the *TextualCreditCardCircuit* class that simulates the credit card circuit using a textual file as described in the requirements document. 
 
-
+The *VisaCreditCardCircuitService* implements the Visa Merchant Benchmark REST API v1. The *VisaCreditCardCircuitAdapter* class adapts the Visa service according to the EZShop's interface *CreditCardCircuit*.
 
 
 
