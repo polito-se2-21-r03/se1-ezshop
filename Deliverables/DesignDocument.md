@@ -203,35 +203,34 @@ LoyaltyCard "0..1" -up- Customer
 class SaleTransaction {
     + ticket
     + time
-    + cost
+    + total
     + paymentType /' cash or cc '/
     + discountRate
     + status /' open/close '/
-    + getAllQuantities() /' Set<Quantity> '/
-    + updateQuantity(Quantity)
+    + updateSaleTransactionItem(String, int)
+    + getTransactionItems()
+    + addSaleTransactionItem(SaleTransactionItem)
     + computePoints()
     + closeTransaction()
 }
 
-class Quantity {
+class SaleTransactionItem {
     + product
     + quantity
     + discountRate
 }
 
-SaleTransaction -right- "*" Quantity
+SaleTransaction -right- "*" SaleTransactionItem
 
-/' (SaleTransaction, ProductType)  .. Quantity '/
+/' (SaleTransaction, ProductType)  .. SaleTransactionItem  '/
 
 SaleTransaction "*" -up- "0..1" LoyaltyCard
 
-Quantity "*" -up- ProductType
+SaleTransactionItem "*" -up- ProductType
 
 class ReturnTransaction {
-    + ID
-    + commit
-    + returns /' HashSet<ReturnTransactionItem> '/
-    + updateReturn(ReturnTransactionItem)
+    + addProduct(String, int)
+    + getTransactionItems()
 }
 
 class ReturnTransactionItem {
@@ -245,9 +244,8 @@ ReturnTransaction "*" -up- SaleTransaction
 ReturnTransactionItem "*" -right- ProductType
 
 class AccountBook {
-    + transactions
-    + recordTransaction(double)
-    + recordTransaction(BalanceOperation)
+    + addTransaction(BalanceOperation)
+    + removeTransaction(int)
     + getCredits()
     + getSaleTransactions()
     + getDebits()
@@ -322,7 +320,7 @@ package it.polito.ezshop.credit_card_circuit {
 ```
 
 ## Credit card circuit
-The *it.polito.ezshop.credit_card_circuit* implements the interaction between the EZShop and the credit card circuit using the Adapter pattern. The *CreditCardCircuit* interface defines the methods for charging and crediting a credit card. The interface is implemented by the *TextualCreditCardCircuit* class that simulates the credit card circuit using a textual file as described in the requirements document. 
+The *it.polito.ezshop.credit_card_circuit* implements the interaction between the EZShop and the credit card circuit using the Adapter pattern. The *CreditCardCircuit* interface defines the methods for charging and crediting a credit card. The interface is implemented by the *TextualCreditCardCircuit* class that simulates the credit card circuit using a textual file as described in the requirements document.
 
 The *VisaCreditCardCircuitService* implements the Visa Merchant Benchmark REST API v1. The *VisaCreditCardCircuitAdapter* class adapts the Visa service according to the EZShop's interface *CreditCardCircuit*.
 
