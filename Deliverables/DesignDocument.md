@@ -518,9 +518,9 @@ StoreManager -> EZShopGUI: Selects a start date
 StoreManager -> EZShopGUI: Selects an end date
 EZShopGUI -> EZShop: getCreditsAndDebits()
 EZShop -> AccountBook: getTransactions()
-AccountBook -> EZShop: Return transactions list
-EZShop -> EZShopGUI: Return transactions list
-EZShopGUI -> StoreManager: Shows the transactions list
+AccountBook --> EZShop: Return transactions list
+EZShop --> EZShopGUI: Return transactions list
+EZShopGUI --> StoreManager: Shows the transactions list
 
 ```
 ## Scenario 10.1: Return payment by  credit card
@@ -532,11 +532,11 @@ EZShopGUI -> EZShop: returnCreditCardPayment()
 EZShop -> CreditCardCircuit: validateCode()
 CreditCardCircuit --> EZShop: Return success
 EZShop --> EZShopGUI: Return success
-EZShopGUI -> Cashier: Ask return amount
+EZShopGUI --> Cashier: Ask return amount
 Cashier -> EZShopGUI: Enter return amount
 EZShopGUI -> EZShop: recordBalanceUpdate()
 EZShop -> CreditCard: updateBalance()
-EZShop -> EZShopGUI: Return returned amount
-EZShopGUI -> Cashier: Shows success massage
+EZShop --> EZShopGUI: Return returned amount
+EZShopGUI --> Cashier: Shows success massage
 
 ```
