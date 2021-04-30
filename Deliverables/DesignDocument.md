@@ -536,7 +536,7 @@ EZShop --> EZShopGUI: return success
 EZShopGUI -> Cashier: ask return amount
 Cashier -> EZShopGUI: enter return amount
 EZShopGUI -> EZShop: recordBalanceUpdate()
-Ezshop -> CreditCard: updateBalance()
+EZShop -> CreditCard: updateBalance()
 EZShop -> EZShopGUI: Return returned amount
 EZShopGUI -> Cashier: shows success massage
 
