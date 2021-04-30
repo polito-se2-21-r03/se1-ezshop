@@ -203,7 +203,6 @@ LoyaltyCard "0..1" -up- Customer
 class SaleTransaction {
     + ticket
     + time
-    + total
     + paymentType /' cash or cc '/
     + discountRate
     + status /' open/close '/
@@ -217,6 +216,7 @@ class SaleTransaction {
 class SaleTransactionItem {
     + product
     + quantity
+    + unitPrice
     + discountRate
 }
 
@@ -245,6 +245,7 @@ ReturnTransactionItem "*" -right- ProductType
 
 class AccountBook {
     + addTransaction(BalanceOperation)
+    + getTransactions(LocalDate, LocalDate)
     + removeTransaction(int)
     + getCredits()
     + getSaleTransactions()
