@@ -27,7 +27,7 @@ The design must satisfy the Official Requirements document, notably functional a
 ```plantuml
 @startuml
 
-package "EZShop" {}
+package "it.polito.ezshop" {}
 
 package "GUI" {}
 package "data" {}
@@ -35,11 +35,11 @@ package "model" {}
 package "exceptions" {}
 package "credit_card_circuit" {}
 
-"EZShop" -- "GUI"
-"EZShop" <|-- "data"
-"EZShop" <|-- "model"
-"EZShop" <|-- "exceptions"
-"EZShop" <|-- "credit_card_circuit"
+"it.polito.ezshop" --> "GUI"
+"it.polito.ezshop" --> "data"
+"it.polito.ezshop" --> "model"
+"it.polito.ezshop" --> "exceptions"
+"it.polito.ezshop" --> "credit_card_circuit"
 
 @enduml
 ```
@@ -122,17 +122,15 @@ class JsonInterface {
     + writeUsers(List<User>)
     + readProductTypes()
     + writeProductTypes(List<ProductType>)
-    + readSaleTransactions()
-    + writeSaleTransactions(List<SaleTransaction>)
-    + readReturnTransactions()
-    + writeReturnTransactions(List<ReturnTransaction>)
+    + readBalanceOperations()
+    + writeBalanceOperations(List<BalanceOperation>)
     + readAccountBook()
     + writeAccountBook(AccountBook)
 }
 
 JsonInterface ---right- EZShop
 
-EZShop -right- "*" User : "Map"
+EZShop -right- "*" User
 EZShop -- AccountBook
 EZShop -down--- "*" ProductType
 
@@ -177,7 +175,7 @@ ProductType - "0..1" Position
 class Order {
     + pricePerUnit
     + quantity
-    + status
+    + delivered
     + computeTotal()
 }
 
@@ -205,7 +203,7 @@ class SaleTransaction {
     + time
     + paymentType /' cash or cc '/
     + discountRate
-    + status /' open/close '/
+    + addReturnTransaction()
     + updateSaleTransactionItem(String, int)
     + getTransactionItems()
     + addSaleTransactionItem(SaleTransactionItem)
@@ -256,13 +254,21 @@ class AccountBook {
     + computeBalance()
 }
 
+enum OperationStatus {
+    OPEN
+    CLOSED
+    PAYED
+}
+
 class BalanceOperation {
     + ID
     + description
     + amount
     + date
-
+    + status
 }
+
+BalanceOperation -left- OperationStatus
 AccountBook -down- "*" BalanceOperation
 
 class Debit
@@ -331,7 +337,7 @@ The *VisaCreditCardCircuitService* implements the Visa Merchant Benchmark REST A
 # Verification traceability matrix
 
 \<for each functional requirement from the requirement document, list which classes concur to implement it>
-| | EZShopInterface | JsonInterface | User | ProductType | Quantity | Customer | FidelityCard | CreditCardCircuit | SaleTransaction | ReturnTransaction |Credit | Debit | AccountBook |
+| | EZShopInterface | JsonInterface | User | ProductType | SaleTransactionItem | Customer | FidelityCard | CreditCardCircuit | SaleTransaction | ReturnTransaction |Credit | Debit | AccountBook |
 | :--: |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 | FR1 | X | X | X | | | |
 | FR3 | X | X | X | X | | |
