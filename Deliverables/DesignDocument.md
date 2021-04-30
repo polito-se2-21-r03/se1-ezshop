@@ -227,8 +227,10 @@ SaleTransaction "*" -up- "0..1" LoyaltyCard
 SaleTransactionItem "*" -up- ProductType
 
 class ReturnTransaction {
+    + startReturnTransaction(Integer)
     + addProduct(String, int)
     + getTransactionItems()
+    + endReturnTransaction(Integer, boolean)
 }
 
 class ReturnTransactionItem {
@@ -247,6 +249,7 @@ class AccountBook {
     + removeTransaction(int)
     + getCredits()
     + getSaleTransactions()
+    + updateSaleTransaction(Integer)
     + getDebits()
     + getReturnTransactions()
     + getOrders()
@@ -482,23 +485,25 @@ end note
 
 Cashier -> EZShopGUI: inserts transaction ID
 EZShopGUI -> EZShop: startReturnTransaction()
-EZShop -> ReturnTransaction: returnTransaction()
-ReturnTransaction -> EZShop: return returnTransaction
-EZShop -> EZShopGUI: return transactionId
-EZShopGUI -> Cashier : show transaction
+EZShop -> ReturnTransaction: startReturnTransaction()
+ReturnTransaction --> EZShop: return returnTransaction
+EZShop --> EZShopGUI: return transactionId
+EZShopGUI --> Cashier : show transaction
 Cashier -> EZShopGUI: scan barcodes
-EZShopGUI -> EZShop: returnProduct
-EZShop -> ReturnTransaction: updateReturn()
+EZShopGUI -> EZShop: returnProduct()
+EZShop -> ReturnTransaction: addProduct()
 EZShop -> ProductType: updateQuantity()
-EZShopGUI -> Cashier: show transaction
+EZShopGUI --> Cashier: show transaction
 
 note over Cashier, AccountBook
 Manage credit card return  (go to UC 10 )
 end note
 
+EZShopGUI --> Cashier: return successful
 Cashier -> EZShopGUI: end transaction
 EZShopGUI -> EZShop: endReturnTransaction()
-EZShop -> ReturnTransaction: endTransaction()
+EZShop -> ReturnTransaction: endReturnTransaction()
+EZShop -> AccountBook: updateSaleTransaction()
 EZShop -> AccountBook: computeBalance()
 
 
