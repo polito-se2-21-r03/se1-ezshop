@@ -530,14 +530,14 @@ EZShopGUI -> StoreManager: Shows the transactions list
 
 Cashier -> EZShopGUI: enters credit card number
 EZShopGUI -> EZShop: returnCreditCardPayment()
-EZShop -> CreditCardCircuit: validateCreditCardNumber()
-CreditCardCircuit -> CreditCardCircuit: validateCode()
-CreditCardCircuit -> EZShop: approves
-EZShop -> EZShopGUI: askReturnAmount()
+EZShop -> CreditCardCircuit: validateCode()
+CreditCardCircuit --> EZShop: return success
+EZShop --> EZShopGUI: return success
 EZShopGUI -> Cashier: ask return amount
 Cashier -> EZShopGUI: enter return amount
 EZShopGUI -> EZShop: recordBalanceUpdate()
-EZShop -> EZShopGUI: Return return_amount
+Ezshop -> CreditCard: updateBalance()
+EZShop -> EZShopGUI: Return returned amount
 EZShopGUI -> Cashier: shows success massage
 
 ```
