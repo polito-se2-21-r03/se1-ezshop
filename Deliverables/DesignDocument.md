@@ -288,6 +288,10 @@ SaleTransaction -up-|> Credit
 ReturnTransaction -up-|> Debit
 }
 
+note "All the classes in this package, with the exception of EZShop and JsonInterface, should be persisted." as note_persistence
+
+it.polito.ezshop.data -down- note_persistence
+
 package it.polito.ezshop.credit_card_circuit {
     interface CreditCardCircuit {
         + init()
@@ -328,6 +332,9 @@ package it.polito.ezshop.credit_card_circuit {
 }
 
 ```
+
+## Persistence
+All the classes in the *it.polito.ezshop.data* package, with the exception of EZShop and JsonInterface, should be persisted. The *JsonInterface* class offers a possible interface for persisting the application's data using JSON files.
 
 ## Credit card circuit
 The *it.polito.ezshop.credit_card_circuit* implements the interaction between the EZShop and the credit card circuit using the Adapter pattern. The *CreditCardCircuit* interface defines the methods for charging and crediting a credit card. The interface is implemented by the *TextualCreditCardCircuit* class that simulates the credit card circuit using a textual file as described in the requirements document.
