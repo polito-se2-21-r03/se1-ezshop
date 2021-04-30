@@ -133,6 +133,9 @@ JsonInterface ---right- EZShop
 EZShop -right- "*" User
 EZShop -- AccountBook
 EZShop -down--- "*" ProductType
+note right on link
+Map
+end note
 
 class User {
     + ID
@@ -317,6 +320,9 @@ package it.polito.ezshop.credit_card_circuit {
     }
 
     CreditCard "*" -up- TextualCreditCardCircuit
+    note right on link
+    Map
+    end note
 
     class VisaCreditCardCircuitAdapter {}
 
