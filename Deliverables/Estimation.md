@@ -60,16 +60,18 @@ Version: 1.0
 - [Estimate by activity decomposition ]
 # Estimation approach
 <Considering EZShop Project to be independent of the deadlines given by the course, it would last 2 months>
+
 # Estimate by product decomposition
-### 
+The application of EZShop is built around the MVC architectural pattern. A total of 130 classes is estimated. The glossary consists of 13 classes that may increase up to 20 during the design phase. The number of views is more difficult to be estimated. The GUIPrototype file contains more than 50 images. Considering both the shop management application and cash register, there are approximately 20 different screens and several different reusable components (dialog, tables, forms, ...). Therefore, approximately 85 views and 25 controllers are estimated.
+
 |             | Estimate                        |             
-| ----------- | ------------------------------- |  
-| NC = 130    | Model Classes = 20, View = 85, Controller = 25 |             
-| A =  100    |                            | 
-| S =  13000  | |
-| E = 1300    | Assuming 10 LOC per person hour |   
-| C = 39000   | Assuming 30 euro per person hour | 
-| 8 weeks | Assuming team of 4 people, 8 hours per day, 5 days per week |  
+|:-----------:| ------------------------------- |  
+| NC = 130    | Model Classes = 20, Views = 85, Controllers = 25. |             
+| A =  100    | The length of the classes is highly unbalanced: a model class consists of a few tens of LOCs while controllers and views tend to be more extensive. A mean value of 100 LOCs is assumed as a reference. | 
+| S =  13000  | 130 classes * 100 LOCs/class = 13000 LOCs. |
+| E = 1300    | Assuming 10 LOC per person hour, an effort of 1300 person hours is required for the development. |   
+| C = 39000   | Assuming 30 euro per person hour, the total cost of the EZShop software is 39000 €. | 
+| 8 weeks | Assuming team of 4 people, 8 hours per day, 5 days per week, the development should last 8 weeks. | 
 
 ## Estimate by activity decomposition
  
