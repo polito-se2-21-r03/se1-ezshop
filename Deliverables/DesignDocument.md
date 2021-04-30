@@ -483,24 +483,24 @@ end note
 
 ```plantuml
 
-Cashier -> EZShopGUI: inserts transaction ID
+Cashier -> EZShopGUI: Inserts transaction ID
 EZShopGUI -> EZShop: startReturnTransaction()
 EZShop -> ReturnTransaction: startReturnTransaction()
-ReturnTransaction --> EZShop: return returnTransaction
-EZShop --> EZShopGUI: return transactionId
-EZShopGUI --> Cashier : show transaction
-Cashier -> EZShopGUI: scan barcodes
+ReturnTransaction --> EZShop: Return returnTransaction
+EZShop --> EZShopGUI: Return transactionId
+EZShopGUI --> Cashier : Shows transaction
+Cashier -> EZShopGUI: Scans barcodes
 EZShopGUI -> EZShop: returnProduct()
 EZShop -> ReturnTransaction: addProduct()
 EZShop -> ProductType: updateQuantity()
-EZShopGUI --> Cashier: show transaction
+EZShopGUI --> Cashier: Shows transaction
 
 note over Cashier, AccountBook
 Manage credit card return  (go to UC 10 )
 end note
 
-EZShopGUI --> Cashier: return successful
-Cashier -> EZShopGUI: end transaction
+EZShopGUI --> Cashier: Return successful
+Cashier -> EZShopGUI: Ends transaction
 EZShopGUI -> EZShop: endReturnTransaction()
 EZShop -> ReturnTransaction: endReturnTransaction()
 EZShop -> AccountBook: updateSaleTransaction()
@@ -517,10 +517,9 @@ EZShop -> AccountBook: computeBalance()
 StoreManager -> EZShopGUI: Selects a start date
 StoreManager -> EZShopGUI: Selects an end date
 EZShopGUI -> EZShop: getCreditsAndDebits()
-EZShop -> AccountBook: recordTransaction()
-AccountBook -> AccountBook: filter transactions of selected time-span
-AccountBook -> EZShop: Return transactionsList
-EZShop -> EZShopGUI: Return transactionsList
+EZShop -> AccountBook: getTransactions()
+AccountBook -> EZShop: Return transactions list
+EZShop -> EZShopGUI: Return transactions list
 EZShopGUI -> StoreManager: Shows the transactions list
 
 ```
@@ -528,16 +527,16 @@ EZShopGUI -> StoreManager: Shows the transactions list
 
 ```plantuml
 
-Cashier -> EZShopGUI: enters credit card number
+Cashier -> EZShopGUI: Enters credit card number
 EZShopGUI -> EZShop: returnCreditCardPayment()
 EZShop -> CreditCardCircuit: validateCode()
-CreditCardCircuit --> EZShop: return success
-EZShop --> EZShopGUI: return success
-EZShopGUI -> Cashier: ask return amount
-Cashier -> EZShopGUI: enter return amount
+CreditCardCircuit --> EZShop: Return success
+EZShop --> EZShopGUI: Return success
+EZShopGUI -> Cashier: Ask return amount
+Cashier -> EZShopGUI: Enter return amount
 EZShopGUI -> EZShop: recordBalanceUpdate()
 EZShop -> CreditCard: updateBalance()
 EZShop -> EZShopGUI: Return returned amount
-EZShopGUI -> Cashier: shows success massage
+EZShopGUI -> Cashier: Shows success massage
 
 ```
