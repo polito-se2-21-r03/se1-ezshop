@@ -411,43 +411,51 @@ EZShopGUI --> StoreManager: Successful message
 ## Scenario 5.1: Login
 
 ```plantuml
-"Cashier" -> "Main": 1: enter username
-"Cashier" -> "Main": 2: enter password
-"Main" -> "EZShop": 3: login()
-"Cashier" <-- "Main": 6: show available functionalities
+"Cashier" -> "EZShopGUI": enter username
+"Cashier" -> "EZShopGUI": enter password
+"EZShopGUI" -> "EZShop": login()
+"EZShopGUI" <-- "EZShop": return success
+"Cashier" <-- "EZShopGUI": show available functionalities
 ```
 
 ## Scenario 6.4: Sale of product type X with Loyalty Card update
 
 ```plantuml
-"Cashier" -> "EZShopGUI": 1: start transaction
-"EZShopGUI" -> "EZShop": 2: startSaleTransaction()
-"EZShop" -> "SaleTransaction": 2: SaleTransaction()
-"EZShop" <-- "SaleTransaction": 2: return SaleTransaction
-"EZShopGUI" <-- "EZShop": 3: return transactionId
-"Cashier" <-- "EZShopGUI": 4: show transaction
-"Cashier" -> "EZShopGUI": 5: scan barcode
-"Cashier" -> "EZShopGUI": 6: enter amount
-"EZShopGUI" -> "EZShop": 7: addProductToSale(transactionId)
-"EZShop" -> "SaleTransaction": 7: addProduct()
-"EZShop" -> "ProductType": 7: updateQuantity()
-"Cashier" <-- "EZShopGUI": 8: show transaction
-"Cashier" -> "EZShopGUI": 9: end transaction
-"EZShopGUI" -> "EZShop": 10: closeSaleTransaction()
-"EZShop" -> "SaleTransaction": 10: closeTransaction()
-"EZShopGUI" -> "EZShop": 10: computePointsForSale(transactionId)
-"EZShopGUI" <-- "EZShop": 2: return points
-"Cashier" <-- "EZShopGUI": 13: ask payment type
-"Cashier" -> "EZShopGUI": 5: scan loyalty card
-"EZShopGUI" -> "EZShop": 10: modifyPointsOnCard(points)
-"EZShop" -> "LoyaltyCard": 10: addPoints(points)
+"Cashier" -> "EZShopGUI": start transaction
+"EZShopGUI" -> "EZShop": startSaleTransaction()
+"EZShop" -> "SaleTransaction": SaleTransaction()
+"EZShop" <-- "SaleTransaction": return SaleTransaction
+"EZShopGUI" <-- "EZShop": return transactionId
+"Cashier" <-- "EZShopGUI": show transaction
+"Cashier" -> "EZShopGUI": scan barcode
+"Cashier" -> "EZShopGUI": enter amount
+"EZShopGUI" -> "EZShop": addProductToSale(transactionId)
+"EZShop" -> "SaleTransaction": addProduct()
+"EZShop" <-- "SaleTransaction": return success
+"EZShopGUI" <-- "EZShop": return success
+"Cashier" <-- "EZShopGUI": show transaction
+"Cashier" -> "EZShopGUI": end transaction
+"EZShopGUI" -> "EZShop": closeSaleTransaction()
+"EZShop" -> "SaleTransaction": closeTransaction()
+"EZShop" <-- "SaleTransaction": return success
+"EZShopGUI" <-- "EZShop": return success
+"EZShopGUI" -> "EZShop": computePointsForSale(transactionId)
+"EZShop" -> "SaleTransaction": computePoints()
+"EZShop" <-- "SaleTransaction": return points
+"EZShopGUI" <-- "EZShop": return points
+"Cashier" <-- "EZShopGUI": ask payment type
+"Cashier" -> "EZShopGUI": scan loyalty card
+"EZShopGUI" -> "EZShop": modifyPointsOnCard(points)
+"EZShop" -> "LoyaltyCard": addPoints(points)
+"EZShop" <-- "LoyaltyCard": return success
+"EZShopGUI" <-- "EZShop": return success
 
 note over Cashier, LoyaltyCard
 handle payment (Use Case 7)
 end note
 
-"Cashier" -> "EZShopGUI": 1: print sale ticket
-"Cashier" <-- "EZShopGUI": 4: print ticket
+"Cashier" -> "EZShopGUI": print sale ticket
+"Cashier" <-- "EZShopGUI": print ticket
 ```
 
 ## Scenario 7.1: Manage payment by valid credit card
