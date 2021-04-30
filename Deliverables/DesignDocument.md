@@ -462,7 +462,7 @@ end note
 "Cashier" <-- "EZShopGUI": 1: show payment succeeded
 ```
 
-## Scenario 8.2: Return transaction of product type X completed, cash
+## Scenario 8.1: Return transaction of product type X completed, cash
 
 ```plantuml
 
