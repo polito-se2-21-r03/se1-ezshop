@@ -106,7 +106,21 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public User getUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
-        return null;
+        // check the role of the currentUser
+        expectAuthorization(Role.ADMINISTRATOR);
+
+        // check that id is neither null or non-positive
+        if (id == null || id <= 0) {
+            throw new InvalidUserIdException("Invalid user id less or equal to 0");
+        }
+
+        return users.stream()
+                // filter users with the given id
+                .filter(x -> x.getId().equals(id))
+                // find the first matching user
+                .findFirst()
+                // if a matching user is not found, return null
+                .orElse(null);
     }
 
     @Override
