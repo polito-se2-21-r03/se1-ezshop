@@ -5,7 +5,7 @@ public class User implements it.polito.ezshop.data.User {
     private Integer id;
     private String username;
     private String password;
-    private String role;
+    private Role role;
 
     @Override
     public Integer getId() {
@@ -39,18 +39,22 @@ public class User implements it.polito.ezshop.data.User {
 
     @Override
     public String getRole() {
-        return this.role;
+        return this.role.getValue();
     }
 
     @Override
     public void setRole(String role) {
-        this.role = role;
+        this.role = Role.fromString(role);
     }
 
-    public User(Integer id, String username, String password, String role) {
+    public User(Integer id, String username, String password, Role role) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
+    }
+
+    public User(Integer id, String username, String password, String role) {
+        this(id, username, password, Role.fromString(role));
     }
 }

@@ -1,20 +1,26 @@
 package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
-import it.polito.ezshop.model.*;
+import it.polito.ezshop.model.Role;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 public class EZShop implements EZShopInterface {
 
-    private List<User> users = new ArrayList<>();
+    /**
+     * List of all the users registered in EZShop.
+     */
+    private final List<User> users = new ArrayList<>();
 
-    private int generateId (List<Integer> ids) {
+    /**
+     * Current logged in user.
+     */
+    private User currentUser = null;
+
+    private int generateId(List<Integer> ids) {
         UUID u = UUID.randomUUID();
         int id = (int) u.getLeastSignificantBits();
 
@@ -26,6 +32,11 @@ public class EZShop implements EZShopInterface {
         return id;
     }
 
+    private void expectAuthorization(Role role) throws UnauthorizedException {
+        if (currentUser == null || !currentUser.getRole().equals(role.getValue())) {
+            throw new UnauthorizedException("Unauthorized user");
+        }
+    }
 
     @Override
     public void reset() {
@@ -57,7 +68,7 @@ public class EZShop implements EZShopInterface {
             throw new InvalidPasswordException("Password can not be null or empty");
         }
 
-        if (role == null || (!role.equals("Cashier") && !role.equals("ShopManager") && !role.equals("Administrator"))) {
+        if (Role.fromString(role) == null) {
             throw new InvalidRoleException("Invalid role");
         }
 
@@ -67,7 +78,7 @@ public class EZShop implements EZShopInterface {
         Integer id = generateId(ids);
 
         // create a new user
-        User u = new it.polito.ezshop.model.User(id, username, password, role);
+        User u = new it.polito.ezshop.model.User(id, username, password, Role.fromString(role));
         users.add(u);
 
         return u.getId();
@@ -75,12 +86,22 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
-        return false;
+        expectAuthorization(Role.ADMINISTRATOR);
+
+        if (id == null || id <= 0) {
+            throw new InvalidUserIdException("Invalid user id less or equal to 0");
+        }
+
+        // removeIf returns true if any elements were removed
+        return users.removeIf(x -> x.getId().equals(id));
     }
 
     @Override
     public List<User> getAllUsers() throws UnauthorizedException {
-        return null;
+        // check the role of the currentUser
+        expectAuthorization(Role.ADMINISTRATOR);
+        // return an unmodifiable list of users
+        return Collections.unmodifiableList(users);
     }
 
     @Override
