@@ -171,7 +171,12 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean logout() {
-        return false;
+        // check if there's a logged in user
+        boolean loggedIn = (currentUser != null);
+        // logout the current user
+        currentUser = null;
+        // true if the logout is successful, false otherwise
+        return loggedIn;
     }
 
     @Override
