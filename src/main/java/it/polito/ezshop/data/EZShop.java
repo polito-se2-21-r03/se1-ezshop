@@ -20,6 +20,13 @@ public class EZShop implements EZShopInterface {
      */
     private User currentUser = null;
 
+    /**
+     * Generate a new (random) integer id which is not already
+     * present in the provided list.
+     *
+     * @param ids is the current list of IDs to check for collision.
+     * @return a new integer id.
+     */
     private int generateId(List<Integer> ids) {
         UUID u = UUID.randomUUID();
         int id = (int) u.getLeastSignificantBits();
@@ -32,8 +39,15 @@ public class EZShop implements EZShopInterface {
         return id;
     }
 
-    private void expectAuthorization(Role role) throws UnauthorizedException {
-        if (currentUser == null || !currentUser.getRole().equals(role.getValue())) {
+    /**
+     * Check whether the expectedRole of the current user is the expected one.
+     *
+     * @param expectedRole is the expected current user's role.
+     * @throws UnauthorizedException if no user is currently logged in or if its role
+     *                               is not the expected one.
+     */
+    private void expectAuthorization(Role expectedRole) throws UnauthorizedException {
+        if (currentUser == null || !currentUser.getRole().equals(expectedRole.getValue())) {
             throw new UnauthorizedException("Unauthorized user");
         }
     }
@@ -45,29 +59,22 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer createUser(String username, String password, String role) throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
+        // check that the username is neither null or empty
         if (username == null || username.equals("")) {
             throw new InvalidUsernameException("Username can not be null or empty");
         }
 
-        /*
-        // the following code is equivalent to:
-        // users.stream().anyMatch(x -> x.getUsername().equals(username))
-        boolean valid = true;
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                valid = false;
-                break;
-            }
-        }*/
-
+        // check that a user with the same name does not already exists
         if (users.stream().anyMatch(x -> x.getUsername().equals(username))) {
             return -1;
         }
 
+        // check that the password is neither null or empty
         if (password == null || password.equals("")) {
             throw new InvalidPasswordException("Password can not be null or empty");
         }
 
+        // check if the role is valid
         if (Role.fromString(role) == null) {
             throw new InvalidRoleException("Invalid role");
         }
@@ -86,8 +93,10 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
+        // check the role of the current user
         expectAuthorization(Role.ADMINISTRATOR);
 
+        // check that id is neither null or non-positive
         if (id == null || id <= 0) {
             throw new InvalidUserIdException("Invalid user id less or equal to 0");
         }
@@ -98,7 +107,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<User> getAllUsers() throws UnauthorizedException {
-        // check the role of the currentUser
+        // check the role of the current user
         expectAuthorization(Role.ADMINISTRATOR);
         // return an unmodifiable list of users
         return Collections.unmodifiableList(users);
@@ -106,7 +115,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public User getUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
-        // check the role of the currentUser
+        // check the role of the current user
         expectAuthorization(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
@@ -125,7 +134,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {
-        // check the role of the currentUser
+        // check the role of the current user
         expectAuthorization(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
@@ -152,10 +161,12 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public User login(String username, String password) throws InvalidUsernameException, InvalidPasswordException {
+        // check that the username is neither null or empty
         if (username == null || username.equals("")) {
             throw new InvalidUsernameException("Username can not be null or empty");
         }
 
+        // check that the password is neither null or empty
         if (password == null || password.equals("")) {
             throw new InvalidPasswordException("Password can not be null or empty");
         }
