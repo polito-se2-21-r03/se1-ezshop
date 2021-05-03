@@ -1,12 +1,30 @@
 package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
+import it.polito.ezshop.model.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 
 public class EZShop implements EZShopInterface {
+
+    private List<User> users = new ArrayList<>();
+
+    private int generateId (List<Integer> ids) {
+        UUID u = UUID.randomUUID();
+        int id = (int) u.getLeastSignificantBits();
+
+        while (ids.contains(id) || id <= 0) {
+            u = UUID.randomUUID();
+            id = (int) u.getLeastSignificantBits();
+        }
+
+        return id;
+    }
 
 
     @Override
@@ -16,7 +34,43 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer createUser(String username, String password, String role) throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
-        return null;
+        if (username == null || username.equals("")) {
+            throw new InvalidUsernameException("Username can not be null or empty");
+        }
+
+        /*
+        // the following code is equivalent to:
+        // users.stream().anyMatch(x -> x.getUsername().equals(username))
+        boolean valid = true;
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                valid = false;
+                break;
+            }
+        }*/
+
+        if (users.stream().anyMatch(x -> x.getUsername().equals(username))) {
+            return -1;
+        }
+
+        if (password == null || password.equals("")) {
+            throw new InvalidPasswordException("Password can not be null or empty");
+        }
+
+        if (role == null || (!role.equals("Cashier") && !role.equals("ShopManager") && !role.equals("Administrator"))) {
+            throw new InvalidRoleException("Invalid role");
+        }
+
+        // generate a list of all ids
+        List<Integer> ids = users.stream().map(User::getId).collect(Collectors.toList());
+        // generate a new id that is not already in the list
+        Integer id = generateId(ids);
+
+        // create a new user
+        User u = new it.polito.ezshop.model.User(id, username, password, role);
+        users.add(u);
+
+        return u.getId();
     }
 
     @Override
@@ -41,7 +95,21 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public User login(String username, String password) throws InvalidUsernameException, InvalidPasswordException {
-        return null;
+        if (username == null || username.equals("")) {
+            throw new InvalidUsernameException("Username can not be null or empty");
+        }
+
+        if (password == null || password.equals("")) {
+            throw new InvalidPasswordException("Password can not be null or empty");
+        }
+
+        return users.stream()
+                // filters all the users with a matching username and password
+                .filter(x -> x.getUsername().equals(username) && x.getPassword().equals(password))
+                // get a User from the filtered list
+                .findAny()
+                // if one user is found return it, otherwise return null
+                .orElse(null);
     }
 
     @Override
