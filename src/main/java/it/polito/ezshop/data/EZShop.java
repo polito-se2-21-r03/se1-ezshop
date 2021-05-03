@@ -125,7 +125,29 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {
-        return false;
+        // check the role of the currentUser
+        expectAuthorization(Role.ADMINISTRATOR);
+
+        // check that id is neither null or non-positive
+        if (id == null || id <= 0) {
+            throw new InvalidUserIdException("Invalid user id less or equal to 0");
+        }
+
+        // check if the role is valid
+        if (Role.fromString(role) == null) {
+            throw new InvalidRoleException("Invalid role");
+        }
+
+        // find the user
+        Optional<User> user = users.stream()
+                // filter users with the given id
+                .filter(x -> x.getId().equals(id)).findFirst();
+
+        // if the user is present, update its role
+        user.ifPresent(value -> value.setRole(role));
+
+        // if the user is present return true, otherwise return false
+        return user.isPresent();
     }
 
     @Override
