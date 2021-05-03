@@ -21,6 +21,11 @@ public class EZShop implements EZShopInterface {
     private User currentUser = null;
 
     /**
+     * List of all products in EZShop
+     */
+    private final List<ProductType> products = new ArrayList<>();
+
+    /**
      * Generate a new (random) integer id which is not already
      * present in the provided list.
      *
@@ -222,7 +227,37 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updateQuantity(Integer productId, int toBeAdded) throws InvalidProductIdException, UnauthorizedException {
-        return false;
+
+        // check that product ID is valid
+        if (productId <= 0) {
+            throw new InvalidProductIdException();
+        }
+        // check that user has sufficient rights (admin or shop manager)
+        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
+                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())) {
+            throw new UnauthorizedException();
+        }
+
+        ProductType product = products.stream()
+                .filter(p -> p.getId().equals(productId))
+                .findAny()
+                .orElse(null);
+        // check that product exists
+        if (product == null) {
+            return false;
+        }
+        // check that product has a specified position
+        if (product.getLocation() == null || product.getLocation().equals("")) {
+            return false;
+        }
+        // check that resulting quantity is non-negative
+        if (product.getQuantity() + toBeAdded < 0) {
+            return false;
+        }
+
+        product.setQuantity(product.getQuantity() + toBeAdded);
+
+        return true;
     }
 
     @Override
