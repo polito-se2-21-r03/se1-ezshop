@@ -30,15 +30,19 @@ public class EZShop implements EZShopInterface {
     private final List<ProductType> products = new ArrayList<>();
 
     /**
-     * Check whether the expectedRole of the current user is the expected one.
+     * Check whether the role of the current user is the expected one.
      *
-     * @param expectedRole is the expected current user's role.
+     * @param roles is the list of eligible roles.
      * @throws UnauthorizedException if no user is currently logged in or if its role
      *                               is not the expected one.
      */
-    private void expectAuthorization(Role expectedRole) throws UnauthorizedException {
-        if (currentUser == null || !currentUser.getRole().equals(expectedRole.getValue())) {
-            throw new UnauthorizedException("Unauthorized user");
+    private void verifyCurrentUserRole(Role... roles) throws UnauthorizedException {
+        if (currentUser == null) {
+            throw new UnauthorizedException("No user is currently logged in");
+        }
+
+        if (Arrays.stream(roles).map(Role::getValue).noneMatch(r -> r.equals(currentUser.getRole()))) {
+            throw new UnauthorizedException("Invalid current user's role");
         }
     }
 
@@ -84,7 +88,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean deleteUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
         // check the role of the current user
-        expectAuthorization(Role.ADMINISTRATOR);
+        verifyCurrentUserRole(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
         if (id == null || id <= 0) {
@@ -98,7 +102,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public List<User> getAllUsers() throws UnauthorizedException {
         // check the role of the current user
-        expectAuthorization(Role.ADMINISTRATOR);
+        verifyCurrentUserRole(Role.ADMINISTRATOR);
         // return an unmodifiable list of users
         return Collections.unmodifiableList(users);
     }
@@ -106,7 +110,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public User getUser(Integer id) throws InvalidUserIdException, UnauthorizedException {
         // check the role of the current user
-        expectAuthorization(Role.ADMINISTRATOR);
+        verifyCurrentUserRole(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
         if (id == null || id <= 0) {
@@ -125,12 +129,13 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean updateUserRights(Integer id, String role) throws InvalidUserIdException, InvalidRoleException, UnauthorizedException {
         // check the role of the current user
-        expectAuthorization(Role.ADMINISTRATOR);
+        verifyCurrentUserRole(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
         if (id == null || id <= 0) {
             throw new InvalidUserIdException("Invalid user id less or equal to 0");
         }
+
 
         // check if the role is valid
         if (Role.fromString(role) == null) {
@@ -161,13 +166,15 @@ public class EZShop implements EZShopInterface {
             throw new InvalidPasswordException("Password can not be null or empty");
         }
 
-        return users.stream()
+        currentUser = users.stream()
                 // filters all the users with a matching username and password
                 .filter(x -> x.getUsername().equals(username) && x.getPassword().equals(password))
                 // get a User from the filtered list
                 .findAny()
                 // if one user is found return it, otherwise return null
                 .orElse(null);
+
+        return currentUser;
     }
 
     @Override
@@ -183,14 +190,14 @@ public class EZShop implements EZShopInterface {
     @Override
     public Integer createProductType(String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
         // check the role of the current user
-        expectAuthorization(Role.ADMINISTRATOR);
-        expectAuthorization(Role.SHOP_MANAGER);
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
         // create a new product
-        if ( description == null || description.equals("") ){
+        if (description == null || description.equals("")) {
             throw new InvalidProductDescriptionException("Invalid user Description");
         }
 
-        if(validateBarcode(productCode) == false){
+        if (validateBarcode(productCode) == false) {
             throw new InvalidProductCodeException("Invalid Bar Code");
         }
         if (products.stream().anyMatch(x -> x.getBarCode().equals(productCode))) {
@@ -212,15 +219,14 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updateProduct(Integer id, String newDescription, String newCode, double newPrice, String newNote) throws InvalidProductIdException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
+        // check the role of the current user
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
-        expectAuthorization(Role.ADMINISTRATOR);
-        expectAuthorization(Role.SHOP_MANAGER);
-
-        if ( newDescription == null || newDescription.equals("") ){
+        if (newDescription == null || newDescription.equals("")) {
             throw new InvalidProductDescriptionException("Invalid user Description");
         }
 
-        if(validateBarcode(newCode) == false){
+        if (validateBarcode(newCode) == false) {
             throw new InvalidProductCodeException("Invalid Bar Code");
         }
         if (products.stream().anyMatch(x -> x.getBarCode().equals(newCode))) {
@@ -245,9 +251,9 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteProductType(Integer id) throws InvalidProductIdException, UnauthorizedException {
-        // check the role of the current product
-        expectAuthorization(Role.ADMINISTRATOR);
-        expectAuthorization(Role.SHOP_MANAGER);
+        // check the role of the current user
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
         // check that id is neither null or non-positive
         if (id == null || id <= 0) {
             throw new InvalidProductIdException("Invalid product id less or equal to 0");
@@ -259,9 +265,8 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<ProductType> getAllProductTypes() throws UnauthorizedException {
-        expectAuthorization(Role.ADMINISTRATOR);
-        expectAuthorization(Role.SHOP_MANAGER);
-        expectAuthorization(Role.CASHIER);
+        // check the role of the current user
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         // return an unmodifiable list of products
         return Collections.unmodifiableList(products);
@@ -270,8 +275,8 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public ProductType getProductTypeByBarCode(String barCode) throws InvalidProductCodeException, UnauthorizedException {
-        expectAuthorization(Role.ADMINISTRATOR);
-        expectAuthorization(Role.SHOP_MANAGER);
+        // check the role of the current user
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         // check that barcode is neither null or not valid
         if (barCode == null || validateBarcode(barCode) == false) {
@@ -289,8 +294,8 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<ProductType> getProductTypesByDescription(String description) throws UnauthorizedException {
-        expectAuthorization(Role.ADMINISTRATOR);
-        expectAuthorization(Role.SHOP_MANAGER);
+        // check the role of the current user
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         return products.stream()
                 // filter users with the given id
