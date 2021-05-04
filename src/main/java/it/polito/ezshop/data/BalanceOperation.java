@@ -4,9 +4,9 @@ import java.time.LocalDate;
 
 public interface BalanceOperation {
 
-    Integer getBalanceId();
+    int getBalanceId();
 
-    void setBalanceId(Integer balanceId);
+    void setBalanceId(int balanceId);
 
     LocalDate getDate();
 

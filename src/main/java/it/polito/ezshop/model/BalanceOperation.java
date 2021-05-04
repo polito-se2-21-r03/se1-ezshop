@@ -4,17 +4,17 @@ import java.time.LocalDate;
 
 public class BalanceOperation implements it.polito.ezshop.data.BalanceOperation {
 
-    private Integer balanceId;
+    private int balanceId;
     private LocalDate date;
     private double money;
     private String type;
     private OperationStatus status;
 
     @Override
-    public Integer getBalanceId() { return this.balanceId; }
+    public int getBalanceId() { return this.balanceId; }
 
     @Override
-    public void setBalanceId(Integer balanceId) { this.balanceId = balanceId; }
+    public void setBalanceId(int balanceId) { this.balanceId = balanceId; }
 
     @Override
     public LocalDate getDate() { return this.date; }
