@@ -1,5 +1,7 @@
 package it.polito.ezshop.model;
 
+import java.util.Objects;
+
 public class Position {
 
     private int aisleID;
@@ -21,6 +23,19 @@ public class Position {
     @Override
     public String toString() {
         return aisleID + "-" + rackID + "-" + levelID;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Position position = (Position) o;
+        return aisleID == position.aisleID && levelID == position.levelID && rackID.equals(position.rackID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(aisleID, rackID, levelID);
     }
 
     public static Position parsePosition(String position) {

@@ -1,6 +1,7 @@
 package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
+import it.polito.ezshop.model.Position;
 import it.polito.ezshop.model.Role;
 
 import java.time.LocalDate;
@@ -262,7 +263,42 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updatePosition(Integer productId, String newPos) throws InvalidProductIdException, InvalidLocationException, UnauthorizedException {
-        return false;
+
+        // check that product id is valid
+        if (productId <= 0) {
+            throw new InvalidProductIdException("Product ID may not be null or less than or equal to 0");
+        }
+        // check that user has sufficient rights (admin or shop manager)
+        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
+                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())) {
+            throw new UnauthorizedException("Action may only be performed by shop manager or administrator");
+        }
+
+        Position position = Position.parsePosition(newPos);
+
+        // check that position has valid format
+        if (position == null) {
+            throw new InvalidLocationException("Position must be of form <aisleNumber>-<rackAlphabeticIdentifier>-<levelNumber>");
+        }
+
+        Optional<ProductType> productAtPosition = products.stream()
+                .filter(p -> p.getLocation().equals(newPos))
+                .findFirst();
+
+        // check that no product already has given position
+        if (productAtPosition.isPresent()) {
+            return false;
+        }
+
+        Optional<ProductType> productWithID = products.stream()
+                .filter(p -> p.getId().equals(productId))
+                .findFirst();
+
+        // update product position if product with given ID exists
+        productWithID.ifPresent(p -> p.setLocation(newPos));
+
+        // return true iff product exists
+        return productWithID.isPresent();
     }
 
     @Override
