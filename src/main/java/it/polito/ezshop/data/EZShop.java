@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static it.polito.ezshop.model.Utils.generateId;
+
 
 public class EZShop implements EZShopInterface {
 
@@ -25,25 +27,6 @@ public class EZShop implements EZShopInterface {
      * List of all products in EZShop
      */
     private final List<ProductType> products = new ArrayList<>();
-
-    /**
-     * Generate a new (random) integer id which is not already
-     * present in the provided list.
-     *
-     * @param ids is the current list of IDs to check for collision.
-     * @return a new integer id.
-     */
-    private int generateId(List<Integer> ids) {
-        UUID u = UUID.randomUUID();
-        int id = (int) u.getLeastSignificantBits();
-
-        while (ids.contains(id) || id <= 0) {
-            u = UUID.randomUUID();
-            id = (int) u.getLeastSignificantBits();
-        }
-
-        return id;
-    }
 
     /**
      * Check whether the expectedRole of the current user is the expected one.
@@ -254,7 +237,7 @@ public class EZShop implements EZShopInterface {
         if (product.getLocation() == null || product.getLocation().equals("")) {
             return false;
         }
-        
+
         // check that resulting quantity is non-negative
         if (product.getQuantity() + toBeAdded < 0) {
             return false;
