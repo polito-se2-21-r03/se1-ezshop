@@ -10,6 +10,15 @@ public class ProductType implements it.polito.ezshop.data.ProductType {
     private Double pricePerUnit;
     private int id;
 
+    public ProductType(String note, String productDescription, String barCode, Double pricePerUnit, int id) {
+        this.note = note;
+        this.productDescription = productDescription;
+        this.barCode = barCode;
+        this.pricePerUnit = pricePerUnit;
+        this.id = id;
+    }
+
+
     @Override
     public Integer getQuantity() { return this.quantity; }
 

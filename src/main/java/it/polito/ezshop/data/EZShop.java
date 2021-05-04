@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static it.polito.ezshop.model.Utils.generateId;
+import static it.polito.ezshop.model.Utils.validateBarcode;
 
 
 public class EZShop implements EZShopInterface {
@@ -181,32 +182,120 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer createProductType(String description, String productCode, double pricePerUnit, String note) throws InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
-        return null;
+        // check the role of the current user
+        expectAuthorization(Role.ADMINISTRATOR);
+        expectAuthorization(Role.SHOP_MANAGER);
+        // create a new product
+        if ( description == null || description.equals("") ){
+            throw new InvalidProductDescriptionException("Invalid user Description");
+        }
+
+        if(validateBarcode(productCode) == false){
+            throw new InvalidProductCodeException("Invalid Bar Code");
+        }
+        if (products.stream().anyMatch(x -> x.getBarCode().equals(productCode))) {
+            return -1;
+        }
+        if(pricePerUnit <= 0) {
+            throw new InvalidPricePerUnitException("Price per Unit must be greater or equal than zero");
+        }
+        // generate a list of all ids
+        List<Integer> ids = products.stream().map(ProductType::getId).collect(Collectors.toList());
+        // generate a new id that is not already in the list
+        Integer id = generateId(ids);
+
+        //ProductType p = new it.polito.ezshop.model.ProductType(quantity, location, note, productDescription, barCode, pricePerUnit, id);
+        ProductType p = new it.polito.ezshop.model.ProductType(note, description, productCode, pricePerUnit, id);
+        products.add(p);
+        return p.getId();
     }
 
     @Override
     public boolean updateProduct(Integer id, String newDescription, String newCode, double newPrice, String newNote) throws InvalidProductIdException, InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, UnauthorizedException {
-        return false;
+
+        expectAuthorization(Role.ADMINISTRATOR);
+        expectAuthorization(Role.SHOP_MANAGER);
+
+        if ( newDescription == null || newDescription.equals("") ){
+            throw new InvalidProductDescriptionException("Invalid user Description");
+        }
+
+        if(validateBarcode(newCode) == false){
+            throw new InvalidProductCodeException("Invalid Bar Code");
+        }
+        if (products.stream().anyMatch(x -> x.getBarCode().equals(newCode))) {
+            return false;
+        }
+        if(newPrice <= 0) {
+            throw new InvalidPricePerUnitException("Price per Unit must be greater or equal than zero");
+        }
+
+        Optional<ProductType> product = products.stream()
+                // filter products with the given id
+                .filter(x -> x.getId().equals(id)).findFirst();
+        product.ifPresent(value -> {
+            value.setProductDescription(newDescription);
+            value.setBarCode(newCode);
+            value.setPricePerUnit(newPrice);
+            value.setNote(newNote);
+        });
+
+        return product.isPresent();
     }
 
     @Override
     public boolean deleteProductType(Integer id) throws InvalidProductIdException, UnauthorizedException {
-        return false;
+        // check the role of the current product
+        expectAuthorization(Role.ADMINISTRATOR);
+        expectAuthorization(Role.SHOP_MANAGER);
+        // check that id is neither null or non-positive
+        if (id == null || id <= 0) {
+            throw new InvalidProductIdException("Invalid product id less or equal to 0");
+        }
+
+        // removeIf returns true if any elements were removed
+        return products.removeIf(x -> x.getId().equals(id));
     }
 
     @Override
     public List<ProductType> getAllProductTypes() throws UnauthorizedException {
-        return null;
+        expectAuthorization(Role.ADMINISTRATOR);
+        expectAuthorization(Role.SHOP_MANAGER);
+        expectAuthorization(Role.CASHIER);
+
+        // return an unmodifiable list of products
+        return Collections.unmodifiableList(products);
+
     }
 
     @Override
     public ProductType getProductTypeByBarCode(String barCode) throws InvalidProductCodeException, UnauthorizedException {
-        return null;
+        expectAuthorization(Role.ADMINISTRATOR);
+        expectAuthorization(Role.SHOP_MANAGER);
+
+        // check that barcode is neither null or not valid
+        if (barCode == null || validateBarcode(barCode) == false) {
+            throw new InvalidProductCodeException("Invalid Bar Code");
+        }
+
+        return products.stream()
+                // filter users with the given id
+                .filter(x -> x.getBarCode().equals(barCode))
+                // find the first matching user
+                .findFirst()
+                // if a matching user is not found, return null
+                .orElse(null);
     }
 
     @Override
     public List<ProductType> getProductTypesByDescription(String description) throws UnauthorizedException {
-        return null;
+        expectAuthorization(Role.ADMINISTRATOR);
+        expectAuthorization(Role.SHOP_MANAGER);
+
+        return products.stream()
+                // filter users with the given id
+                .filter(x -> x.getProductDescription().contains(description)).collect(Collectors.toList());
+
     }
 
     @Override
