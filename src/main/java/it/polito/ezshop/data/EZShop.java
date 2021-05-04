@@ -231,26 +231,30 @@ public class EZShop implements EZShopInterface {
 
         // check that product ID is valid
         if (productId <= 0) {
-            throw new InvalidProductIdException();
+            throw new InvalidProductIdException("Product ID must be positive integer");
         }
+
         // check that user has sufficient rights (admin or shop manager)
         if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
                 || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Action may only be performed by administrator or shop manager");
         }
 
         ProductType product = products.stream()
                 .filter(p -> p.getId().equals(productId))
                 .findAny()
                 .orElse(null);
+
         // check that product exists
         if (product == null) {
             return false;
         }
+
         // check that product has a specified position
         if (product.getLocation() == null || product.getLocation().equals("")) {
             return false;
         }
+        
         // check that resulting quantity is non-negative
         if (product.getQuantity() + toBeAdded < 0) {
             return false;
@@ -266,7 +270,7 @@ public class EZShop implements EZShopInterface {
 
         // check that product id is valid
         if (productId <= 0) {
-            throw new InvalidProductIdException("Product ID may not be null or less than or equal to 0");
+            throw new InvalidProductIdException("Product ID must be positive integer");
         }
         // check that user has sufficient rights (admin or shop manager)
         if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
