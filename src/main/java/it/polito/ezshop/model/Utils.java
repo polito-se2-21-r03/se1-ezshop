@@ -1,6 +1,7 @@
 package it.polito.ezshop.model;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Utils {
@@ -12,11 +13,11 @@ public class Utils {
      * @param ids is the current list of IDs to check for collision.
      * @return a new integer id.
      */
-    public static int generateId(List<Integer> ids) {
+    public static Integer generateId(List<Integer> ids) {
         UUID u = UUID.randomUUID();
         int id = (int) u.getLeastSignificantBits();
 
-        while (ids.contains(id) || id <= 0) {
+        while (id <= 0 || (ids != null && ids.contains(id))) {
             u = UUID.randomUUID();
             id = (int) u.getLeastSignificantBits();
         }
