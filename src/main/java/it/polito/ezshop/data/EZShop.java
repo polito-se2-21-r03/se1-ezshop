@@ -21,6 +21,11 @@ public class EZShop implements EZShopInterface {
     private final List<User> users = new ArrayList<>();
 
     /**
+     * List of all the customers registered in EZShop.
+     */
+    private final List<Customer> customers = new ArrayList<>();
+
+    /**
      * Current logged in user.
      */
     private User currentUser = null;
@@ -415,12 +420,60 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
-        return null;
+        verifyCurrentUserRole(Role.ADMINISTRATOR);
+        verifyCurrentUserRole(Role.SHOP_MANAGER);
+        verifyCurrentUserRole(Role.CASHIER);
+
+        // generate a list of all ids
+        List<Integer> ids = customers.stream().map(Customer::getId).collect(Collectors.toList());
+        // generate a new id that is not already in the list
+
+        // create a new customer
+        Integer id = generateId(ids);
+        Integer points = null;
+        String customerCard = null;
+
+        if (customerName == null || customerName.equals("")) {
+            throw new InvalidCustomerNameException("Customer name can not be null or empty");
+        }
+        if (id == null || id <= 0) {
+            return -1;
+        }
+
+        Customer c = new it.polito.ezshop.model.Customer(customerName, customerCard, id, points);
+        customers.add(c);
+
+
+        return c.getId();
     }
 
     @Override
     public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
-        return false;
+        // check the role of the current user
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        if (newCustomerName == null || newCustomerName.equals("")) {
+            throw new InvalidCustomerNameException("Invalid Customer Name");
+        }
+
+        if (newCustomerCard == null || newCustomerCard.equals("") || newCustomerCard.length()==10 ) {
+            throw new InvalidCustomerCardException("Invalid Customer Card");
+        }
+        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
+                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
+                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
+            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
+        }
+
+        Optional<Customer> customer = customers.stream()
+                // filter products with the given id
+                .filter(x -> x.getId().equals(id)).findFirst();
+        customers.ifPresent(value -> {
+            value.setCustomerName(newCustomerName);
+            value.setCustomerCard(newCustomerCard);
+        });
+
+        return product.isPresent();
     }
 
     @Override
