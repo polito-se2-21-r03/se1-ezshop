@@ -418,7 +418,7 @@ public class EZShop implements EZShopInterface {
         // create Order object
         int balanceId = accountBook.generateNewId();
         LocalDate date = LocalDate.now();
-        double money = quantity * pricePerUnit;
+        double money = - quantity * pricePerUnit;
         OperationStatus status = OperationStatus.CLOSED;
         it.polito.ezshop.model.Order order = new it.polito.ezshop.model.Order(balanceId, date, money, status, productCode, pricePerUnit, quantity);
 
@@ -431,7 +431,30 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer payOrderFor(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
-        return null;
+
+        // issue the order
+        int orderId = issueOrder(productCode, quantity, pricePerUnit);
+
+        // verify order was issued correctly
+        if (orderId <= 0) {
+            return -1;
+        }
+
+        // try to pay order
+        boolean orderPayedSuccessfully;
+        try {
+            orderPayedSuccessfully = payOrder(orderId);
+        } catch (InvalidOrderIdException e) {
+            return -1;
+        }
+
+        // rollback issuing of order if funds are insufficient for paying
+        if (!orderPayedSuccessfully) {
+            accountBook.removeTransaction(orderId);
+        }
+
+        // return order ID on success
+        return orderId;
     }
 
     @Override
@@ -455,6 +478,12 @@ public class EZShop implements EZShopInterface {
         it.polito.ezshop.model.Order order = (it.polito.ezshop.model.Order) transactionWithId;
         OperationStatus previousStatus = OperationStatus.valueOf(order.getStatus());
         if (!(previousStatus == OperationStatus.CLOSED || previousStatus == OperationStatus.PAID)) {
+            return false;
+        }
+
+        // ensure sufficient funds in the account book
+        // TODO: is this necessary?
+        if (!accountBook.checkAvailability(order.getMoney())) {
             return false;
         }
 
