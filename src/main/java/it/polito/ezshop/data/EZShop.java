@@ -317,12 +317,10 @@ public class EZShop implements EZShopInterface {
             throw new InvalidProductIdException("Product ID must be positive integer");
         }
 
-        // check that user has sufficient rights (admin or shop manager)
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by administrator or shop manager");
-        }
+        // verify current user has sufficient rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
+        // get product or null if it does not exist
         ProductType product = products.stream()
                 .filter(p -> p.getId().equals(productId))
                 .findAny()
@@ -343,6 +341,7 @@ public class EZShop implements EZShopInterface {
             return false;
         }
 
+        // update product quantity
         product.setQuantity(product.getQuantity() + toBeAdded);
 
         return true;
@@ -355,31 +354,28 @@ public class EZShop implements EZShopInterface {
         if (productId <= 0) {
             throw new InvalidProductIdException("Product ID must be positive integer");
         }
-        // check that user has sufficient rights (admin or shop manager)
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager or administrator");
-        }
 
-        Position position = Position.parsePosition(newPos);
+        // verify current user has sufficient rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         // check that position has valid format
+        Position position = Position.parsePosition(newPos);
         if (position == null) {
             throw new InvalidLocationException("Position must be of form <aisleNumber>-<rackAlphabeticIdentifier>-<levelNumber>");
         }
 
+        // check that no product already has given position
         Optional<ProductType> productAtPosition = products.stream()
                 .filter(p -> p.getLocation().equals(newPos))
                 .findFirst();
-
-        // check that no product already has given position
         if (productAtPosition.isPresent()) {
             return false;
         }
 
+        // get product to be updated
         Optional<ProductType> productWithID = products.stream()
                 .filter(p -> p.getId().equals(productId))
-                .findFirst();
+                .findAny();
 
         // update product position if product with given ID exists
         productWithID.ifPresent(p -> p.setLocation(newPos));
