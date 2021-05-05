@@ -602,8 +602,11 @@ public class EZShop implements EZShopInterface {
         if (newCustomerName == null || newCustomerName.equals("")) {
             throw new InvalidCustomerNameException("Invalid Customer Name");
         }
+        if (id == null || id.equals("")) {
+            throw new InvalidCustomerIdException("Invalid Customer id");
+        }
 
-        if (newCustomerCard == null || newCustomerCard.equals("") || newCustomerCard.length()==10 ) {
+        if (newCustomerCard == null || newCustomerCard.length()!=10) {
             throw new InvalidCustomerCardException("Invalid Customer Card");
         }
         if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
@@ -612,15 +615,28 @@ public class EZShop implements EZShopInterface {
             throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
         }
 
-        Optional<Customer> customer = customers.stream()
-                // filter products with the given id
-                .filter(x -> x.getId().equals(id)).findFirst();
-        customers.ifPresent(value -> {
-            value.setCustomerName(newCustomerName);
-            value.setCustomerCard(newCustomerCard);
-        });
+        // generate a list of all ids
+        List<Integer> ids = customers.stream().map(Customer::getId).collect(Collectors.toList());
 
-        return product.isPresent();
+        // find the customer
+        Optional<Customer> customer = customers.stream()
+                // filter users with the given id
+                .filter(x -> x.getId().equals(id)).findFirst();
+
+        // if the customer is present, update its card and name
+        customer.ifPresent(value -> value.setCustomerName(newCustomerName));
+
+        if(newCustomerCard.equals(""))
+            customer.ifPresent(value -> value.setCustomerCard(null));
+        else if(newCustomerCard.equals(null))
+            ;
+        else
+            customer.ifPresent(value -> value.setCustomerCard(newCustomerCard));
+
+
+        // if the customer is present return true, otherwise return false
+        return customer.isPresent();
+
     }
 
     @Override
