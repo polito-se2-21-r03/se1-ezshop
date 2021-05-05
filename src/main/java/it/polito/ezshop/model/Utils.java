@@ -31,7 +31,12 @@ public class Utils {
      * @param barcode the barcode whose conformity to the above mentioned standard is to be verified
      * @return whether the given barcode is valid or not
      */
-    public static boolean validateBarcode(String barcode) {
+    public static boolean isValidBarcode(String barcode) {
+
+        // verify that barcode is not null
+        if (barcode == null) {
+            return false;
+        }
 
         // check that barcode has correct length
         if (barcode.length() != 12 && barcode.length() != 13 && barcode.length() != 14) {

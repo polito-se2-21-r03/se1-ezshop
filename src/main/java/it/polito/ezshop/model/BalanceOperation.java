@@ -37,4 +37,16 @@ public class BalanceOperation implements it.polito.ezshop.data.BalanceOperation 
     public String getStatus() { return status.getValue(); }
 
     public void setStatus(String status) { this.status = OperationStatus.valueOf(status); }
+
+    public BalanceOperation() {
+
+    }
+
+    public BalanceOperation(int balanceId, LocalDate date, double money, String type, OperationStatus status) {
+        this.balanceId = balanceId;
+        this.date = date;
+        this.money = money;
+        this.type = type;
+        this.status = status;
+    }
 }

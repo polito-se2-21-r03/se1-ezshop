@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static it.polito.ezshop.model.Utils.generateId;
+
 public class AccountBook {
 
     private List<BalanceOperation> balanceOperations;
@@ -187,5 +189,17 @@ public class AccountBook {
                 .reduce(Double::sum)
                 .orElse(0.0);
         return this.balance;
+    }
+
+    /**
+     * Generate a new unique ID that is not used by any balance operation in the account book
+     *
+     * @return unique ID
+     */
+    public int generateNewId() {
+        List<Integer> currentIds = this.balanceOperations.stream()
+                .map(BalanceOperation::getBalanceId)
+                .collect(Collectors.toList());
+        return generateId(currentIds);
     }
 }

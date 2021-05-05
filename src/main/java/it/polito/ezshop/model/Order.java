@@ -1,5 +1,7 @@
 package it.polito.ezshop.model;
 
+import java.time.LocalDate;
+
 public class Order extends BalanceOperation {
 
     private String productCode;
@@ -21,4 +23,11 @@ public class Order extends BalanceOperation {
     public Integer getOrderId() { return this.getBalanceId(); }
 
     public void setOrderId(Integer orderId) { this.setBalanceId(orderId); }
+
+    public Order(int balanceId, LocalDate date, double money, OperationStatus status, String productCode, double pricePerUnit, int quantity) {
+        super(balanceId, date, money, "order", status);
+        this.productCode = productCode;
+        this.pricePerUnit = pricePerUnit;
+        this.quantity = quantity;
+    }
 }

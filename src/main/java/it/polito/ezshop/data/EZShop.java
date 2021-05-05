@@ -2,6 +2,7 @@ package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.AccountBook;
+import it.polito.ezshop.model.OperationStatus;
 import it.polito.ezshop.model.Position;
 import it.polito.ezshop.model.Role;
 
@@ -10,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static it.polito.ezshop.model.Utils.generateId;
-import static it.polito.ezshop.model.Utils.validateBarcode;
+import static it.polito.ezshop.model.Utils.isValidBarcode;
 
 
 public class EZShop implements EZShopInterface {
@@ -203,7 +204,7 @@ public class EZShop implements EZShopInterface {
             throw new InvalidProductDescriptionException("Invalid user Description");
         }
 
-        if (validateBarcode(productCode) == false) {
+        if (!isValidBarcode(productCode)) {
             throw new InvalidProductCodeException("Invalid Bar Code");
         }
         if (products.stream().anyMatch(x -> x.getBarCode().equals(productCode))) {
@@ -215,7 +216,7 @@ public class EZShop implements EZShopInterface {
         // generate a list of all ids
         List<Integer> ids = products.stream().map(ProductType::getId).collect(Collectors.toList());
         // generate a new id that is not already in the list
-        Integer id = generateId(ids);
+        int id = generateId(ids);
 
         //ProductType p = new it.polito.ezshop.model.ProductType(quantity, location, note, productDescription, barCode, pricePerUnit, id);
         ProductType p = new it.polito.ezshop.model.ProductType(note, description, productCode, pricePerUnit, id);
@@ -232,7 +233,7 @@ public class EZShop implements EZShopInterface {
             throw new InvalidProductDescriptionException("Invalid user Description");
         }
 
-        if (validateBarcode(newCode) == false) {
+        if (!isValidBarcode(newCode)) {
             throw new InvalidProductCodeException("Invalid Bar Code");
         }
         if (products.stream().anyMatch(x -> x.getBarCode().equals(newCode))) {
@@ -285,7 +286,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         // check that barcode is neither null or not valid
-        if (barCode == null || validateBarcode(barCode) == false) {
+        if (!isValidBarcode(barCode)) {
             throw new InvalidProductCodeException("Invalid Bar Code");
         }
 
@@ -386,7 +387,46 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer issueOrder(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
-        return null;
+
+        // check that barcode is valid
+        if (!isValidBarcode(productCode)) {
+            throw new InvalidProductCodeException("Product code must follow specification");
+        }
+
+        // check that quantity is positive value
+        if (quantity <= 0) {
+            throw new InvalidQuantityException("Quantity must be positive integer");
+        }
+
+        // check that price is positive value
+        if (pricePerUnit <= 0) {
+            throw new InvalidPricePerUnitException("Price must be positive double");
+        }
+
+        // verify access rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
+        // verify product exists
+        ProductType product = products.stream()
+                .filter(p -> p.getBarCode().equals(productCode))
+                .findAny()
+                .orElse(null);
+        if (product == null) {
+            return -1;
+        }
+
+        // create Order object
+        int balanceId = accountBook.generateNewId();
+        LocalDate date = LocalDate.now();
+        double money = quantity * pricePerUnit;
+        OperationStatus status = OperationStatus.CLOSED;
+        it.polito.ezshop.model.Order order = new it.polito.ezshop.model.Order(balanceId, date, money, status, productCode, pricePerUnit, quantity);
+
+        // add order to account book
+        this.accountBook.addTransaction(order);
+
+        // return order ID on success
+        return balanceId;
     }
 
     @Override
