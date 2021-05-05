@@ -1,10 +1,7 @@
 package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
-import it.polito.ezshop.model.AccountBook;
-import it.polito.ezshop.model.OperationStatus;
-import it.polito.ezshop.model.Position;
-import it.polito.ezshop.model.Role;
+import it.polito.ezshop.model.*;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -547,7 +544,20 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<Order> getAllOrders() throws UnauthorizedException {
-        return null;
+
+        // verify access rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
+        // return list of all orders
+        return accountBook.getOrders().stream()
+                .filter(order -> {
+                    OperationStatus orderstatus = OperationStatus.valueOf(order.getStatus());
+                    return orderstatus == OperationStatus.CLOSED
+                            || orderstatus == OperationStatus.PAID
+                            || orderstatus == OperationStatus.COMPLETED;
+                })
+                .map(order -> new OrderInterface((it.polito.ezshop.model.Order) order))
+                .collect(Collectors.toList());
     }
 
     @Override

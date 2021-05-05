@@ -15,7 +15,7 @@ public class OrderInterface implements it.polito.ezshop.data.Order {
     private String type;
     private OperationStatus status;
 
-    OrderInterface(Order order) {
+    public OrderInterface(Order order) {
         this.productCode = order.getProductCode();
         this.pricePerUnit = order.getPricePerUnit();
         this.quantity = order.getQuantity();
