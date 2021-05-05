@@ -22,6 +22,7 @@ public class AccountBook {
      *
      * @param transactionId transaction ID of the requested balance operation
      * @return balance operation with given ID
+     *         null if it doesn't exist
      */
     public BalanceOperation getTransaction(int transactionId) {
         return this.balanceOperations.stream()

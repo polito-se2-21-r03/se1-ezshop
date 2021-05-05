@@ -436,7 +436,33 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException {
-        return false;
+
+        // verify orderId is valid ID
+        if (orderId <= 0) {
+            throw new InvalidOrderIdException("Order ID must be positive integer");
+        }
+
+        // verify access rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
+        // verify that order exists
+        it.polito.ezshop.model.BalanceOperation transactionWithId = accountBook.getTransaction(orderId);
+        if (transactionWithId == null || !it.polito.ezshop.model.Order.class.isAssignableFrom(transactionWithId.getClass())) {
+            return false;
+        }
+
+        // verify that Order was either issued or already paid for
+        it.polito.ezshop.model.Order order = (it.polito.ezshop.model.Order) transactionWithId;
+        OperationStatus previousStatus = OperationStatus.valueOf(order.getStatus());
+        if (!(previousStatus == OperationStatus.CLOSED || previousStatus == OperationStatus.PAID)) {
+            return false;
+        }
+
+        // set order status to paid and update account book
+        accountBook.setTransactionStatus(orderId, OperationStatus.PAID);
+
+        // return success of operation
+        return true;
     }
 
     @Override
