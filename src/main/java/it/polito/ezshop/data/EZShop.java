@@ -433,7 +433,7 @@ public class EZShop implements EZShopInterface {
     public Integer payOrderFor(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
 
         // issue the order
-        int orderId = issueOrder(productCode, quantity, pricePerUnit);
+        int orderId = this.issueOrder(productCode, quantity, pricePerUnit);
 
         // verify order was issued correctly
         if (orderId <= 0) {
@@ -443,7 +443,7 @@ public class EZShop implements EZShopInterface {
         // try to pay order
         boolean orderPayedSuccessfully;
         try {
-            orderPayedSuccessfully = payOrder(orderId);
+            orderPayedSuccessfully = this.payOrder(orderId);
         } catch (InvalidOrderIdException e) {
             return -1;
         }
@@ -496,7 +496,53 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean recordOrderArrival(Integer orderId) throws InvalidOrderIdException, UnauthorizedException, InvalidLocationException {
-        return false;
+
+        // check that orderId is valid ID
+        if (orderId <= 0) {
+            throw new InvalidOrderIdException("Order ID must be positive integer");
+        }
+
+        // verify access rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
+        // verify that order exists
+        it.polito.ezshop.model.BalanceOperation transactionWithId = accountBook.getTransaction(orderId);
+        if (transactionWithId == null || !it.polito.ezshop.model.Order.class.isAssignableFrom(transactionWithId.getClass())) {
+            return false;
+        }
+
+        // verify that Order was either paid for or has already been completed
+        it.polito.ezshop.model.Order order = (it.polito.ezshop.model.Order) transactionWithId;
+        OperationStatus previousStatus = OperationStatus.valueOf(order.getStatus());
+        if (!(previousStatus == OperationStatus.PAID || previousStatus == OperationStatus.COMPLETED)) {
+            return false;
+        }
+
+        // find the product that is being reordered
+        ProductType orderedProduct = products.stream()
+                .filter(p -> p.getBarCode().equals(order.getProductCode()))
+                .findAny()
+                .orElse(null);
+
+        // verify ordered product exists
+        if (orderedProduct == null) {
+            throw new InvalidLocationException("The product specified in this order does not exist");
+        }
+
+        // verify product has valid location
+        Position productLocation = Position.parsePosition(orderedProduct.getLocation());
+        if (productLocation == null) {
+            throw new InvalidLocationException("The product does not have a location assigned to it");
+        }
+
+        // update product quantity
+        orderedProduct.setQuantity(orderedProduct.getQuantity() + order.getQuantity());
+
+        // mark order as completed
+        accountBook.setTransactionStatus(orderId, OperationStatus.COMPLETED);
+
+        // return success of operation
+        return true;
     }
 
     @Override
