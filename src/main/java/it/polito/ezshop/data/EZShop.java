@@ -1,6 +1,7 @@
 package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
+import it.polito.ezshop.model.AccountBook;
 import it.polito.ezshop.model.Position;
 import it.polito.ezshop.model.Role;
 
@@ -28,6 +29,11 @@ public class EZShop implements EZShopInterface {
      * List of all products in EZShop
      */
     private final List<ProductType> products = new ArrayList<>();
+
+    /**
+     * The account book holding all balance transactions (orders, sale transactions, ect.)
+     */
+    private final AccountBook accountBook = new AccountBook();
 
     /**
      * Check whether the role of the current user is the expected one.

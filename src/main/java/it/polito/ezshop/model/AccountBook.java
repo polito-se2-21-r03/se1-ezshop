@@ -1,63 +1,191 @@
 package it.polito.ezshop.model;
 
+import it.polito.ezshop.data.SaleTransaction;
+
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class AccountBook {
 
-    List<BalanceOperation> balanceOperations = new ArrayList<>();
+    private List<BalanceOperation> balanceOperations;
+    private Double balance;
 
+    private static boolean statusRequiresBalanceUpdate(OperationStatus status) {
+        return status == OperationStatus.PAID || status == OperationStatus.COMPLETED;
+    }
+
+    /**
+     * Returns the balance operation with the given ID
+     *
+     * @param transactionId transaction ID of the requested balance operation
+     * @return balance operation with given ID
+     */
+    public BalanceOperation getTransaction(int transactionId) {
+        return this.balanceOperations.stream()
+                .filter(b -> b.getBalanceId() == transactionId)
+                .findAny()
+                .orElse(null);
+    }
+
+    /**
+     * Returns all balance operations with a given time frame.
+     *
+     * @param startDate returned balance operations where made after this date
+     * @param endDate returned balance operations where made before this date
+     * @return list of balance operations within timeframe
+     */
     public List<BalanceOperation> getTransactions(LocalDate startDate, LocalDate endDate) {
         return this.balanceOperations.stream()
                 .filter(b -> b.getDate().isAfter(startDate) && b.getDate().isAfter(endDate))
                 .collect(Collectors.toList());
     }
 
-    public List<BalanceOperation> getCreditTransactions(LocalDate startDate, LocalDate endDate) {
-        // TODO
-        return null;
+    /**
+     * Returns all balance operations
+     *
+     * @return list of balance operations
+     */
+    public List<BalanceOperation> getTransactions() {
+        return this.balanceOperations;
     }
 
-    public List<BalanceOperation> getDebitTransactions(LocalDate startDate, LocalDate endDate) {
-        // TODO
-        return null;
+    /**
+     * Returns all credit transactions
+     *
+     * @return list of credit transactions
+     */
+    public List<BalanceOperation> getCreditTransactions() {
+        return this.balanceOperations.stream()
+                .filter(b -> Credit.class.isAssignableFrom(b.getClass()))
+                .collect(Collectors.toList());
     }
 
-    public List<BalanceOperation> getSaleTransactions(LocalDate startDate, LocalDate endDate) {
-        // TODO
-        return null;
+    /**
+     * Returns all debit transactions
+     *
+     * @return list of debit transactions
+     */
+    public List<BalanceOperation> getDebitTransactions() {
+        return this.balanceOperations.stream()
+                .filter(b -> Debit.class.isAssignableFrom(b.getClass()))
+                .collect(Collectors.toList());
     }
 
-    public List<BalanceOperation> getReturnTransactions(LocalDate startDate, LocalDate endDate) {
-        // TODO
-        return null;
+    /**
+     * Returns all sale transactions
+     *
+     * @return list of sale transactions
+     */
+    public List<BalanceOperation> getSaleTransactions() {
+        return this.balanceOperations.stream()
+                .filter(b -> SaleTransaction.class.isAssignableFrom(b.getClass()))
+                .collect(Collectors.toList());
     }
 
-    public List<BalanceOperation> getOrders(LocalDate startDate, LocalDate endDate) {
-        // TODO
-        return null;
+    /**
+     * Returns all return transactions
+     *
+     * @return list of return transactions
+     */
+    public List<BalanceOperation> getReturnTransactions() {
+        return this.balanceOperations.stream()
+                .filter(b -> ReturnTransaction.class.isAssignableFrom(b.getClass()))
+                .collect(Collectors.toList());
     }
 
-    public boolean addTransaction(BalanceOperation balanceOperation) {
-        // TODO
-        return false;
+    /**
+     * Returns all orders
+     *
+     * @return list of orders
+     */
+    public List<BalanceOperation> getOrders() {
+        return this.balanceOperations.stream()
+                .filter(b -> Order.class.isAssignableFrom(b.getClass()))
+                .collect(Collectors.toList());
     }
 
-    public boolean removeTransaction(Integer balanceId) {
-        // TODO
-        return false;
+    /**
+     * Adds a balance operation to the transaction list.
+     * Changes the account book's balance if the operation status requires so.
+     */
+    public void addTransaction(BalanceOperation balanceOperation) {
+        if (statusRequiresBalanceUpdate(OperationStatus.valueOf(balanceOperation.getStatus()))) {
+            this.balance += balanceOperation.getMoney();
+        }
+        this.balanceOperations.add(balanceOperation);
     }
 
-    // TODO modify transactions
+    /**
+     * Removes the balance operation with the given ID from the transaction list.
+     * Changes the account book's balance if the operation status requires so.
+     *
+     * @param balanceId ID of the balance operation to be deleted
+     */
+    public void removeTransaction(int balanceId) {
 
+        BalanceOperation balanceOperation = this.getTransaction(balanceId);
+
+        if (statusRequiresBalanceUpdate(OperationStatus.valueOf(balanceOperation.getStatus()))) {
+            this.balance -= balanceOperation.getMoney();
+        }
+
+        this.balanceOperations.remove(balanceOperation);
+    }
+
+    /**
+     * Updates the status of the balance operation with the given ID
+     *
+     * @param balanceId ID of the balance operation
+     * @param newStatus new status for the balance operation
+     */
+    public void setTransactionStatus(int balanceId, OperationStatus newStatus) {
+        BalanceOperation balanceOperation = this.getTransaction(balanceId);
+        OperationStatus previousStatus = OperationStatus.valueOf(balanceOperation.getStatus());
+
+        // balance operation previously did not count towards account book balance but now does
+        if (!statusRequiresBalanceUpdate(previousStatus) && statusRequiresBalanceUpdate(newStatus)) {
+            this.balance += balanceOperation.getMoney();
+        }
+
+        // balance operation previously did count towards account book balance but does not anymore
+        if (statusRequiresBalanceUpdate(previousStatus) && !statusRequiresBalanceUpdate(newStatus)) {
+            this.balance += balanceOperation.getMoney();
+        }
+
+        this.balanceOperations.remove(balanceOperation);
+    }
+
+    /**
+     * Check if the requested amount of funds is available in the account book's balance
+     *
+     * @param requestedAmount amount of money required
+     * @return true iff the current balance allows for the requested amount to be spent
+     */
     public boolean checkAvailability(double requestedAmount) {
-        // TODO
-        return false;
+        return this.balance >= requestedAmount;
     }
 
+    /**
+     * Returns the current balance available in the account book
+     *
+     * @return available balance
+     */
+    public double getBalance() {
+        return this.balance;
+    }
+
+    /**
+     * Recomputes the balance from the history of transactions
+     *
+     * @return available balance
+     */
     public double computeBalance() {
-        // TODO
-        return 0;
+        this.balance = this.balanceOperations.stream()
+                .filter(b -> statusRequiresBalanceUpdate(OperationStatus.valueOf(b.getStatus())))
+                .map(BalanceOperation::getMoney)
+                .reduce(Double::sum)
+                .orElse(0.0);
+        return this.balance;
     }
 }
