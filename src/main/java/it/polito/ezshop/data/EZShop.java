@@ -224,7 +224,10 @@ public class EZShop implements EZShopInterface {
         // generate a new id that is not already in the list
         int id = generateId(ids);
 
-        //ProductType p = new it.polito.ezshop.model.ProductType(quantity, location, note, productDescription, barCode, pricePerUnit, id);
+        // if null an empty string should be saved as note
+        if (note == null) {
+            note = "";
+        }
         ProductType p = new it.polito.ezshop.model.ProductType(note, description, productCode, pricePerUnit, id);
         products.add(p);
         return p.getId();
