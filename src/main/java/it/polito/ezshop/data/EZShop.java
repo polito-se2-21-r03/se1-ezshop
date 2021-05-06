@@ -731,9 +731,14 @@ public class EZShop implements EZShopInterface {
             throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
         }
 
-        String cardNumber = null;
+        Random rnd = new Random();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            char c = (char) ('A' + ((char)rnd.nextInt('Z' - 'A')));
+            sb.append(c);
+        }
 
-        return cardNumber;
+        return sb.toString();
     }
 
     @Override
