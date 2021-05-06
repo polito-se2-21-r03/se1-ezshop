@@ -10,7 +10,7 @@ import static it.polito.ezshop.model.Utils.generateId;
 
 public class AccountBook {
 
-    private List<BalanceOperation> balanceOperations;
+    private final List<BalanceOperation> balanceOperations = new ArrayList<>();
     private Double balance;
 
     private static boolean statusRequiresBalanceUpdate(OperationStatus status) {
