@@ -609,9 +609,6 @@ public class EZShop implements EZShopInterface {
         if (newCustomerName == null || newCustomerName.equals("")) {
             throw new InvalidCustomerNameException("Invalid Customer Name");
         }
-        if (id == null || id.equals("")) {
-            throw new InvalidCustomerIdException("Invalid Customer id");
-        }
 
         if (newCustomerCard == null || newCustomerCard.length()!=10) {
             throw new InvalidCustomerCardException("Invalid Customer Card");
@@ -642,7 +639,7 @@ public class EZShop implements EZShopInterface {
 
 
         // if the customer is present return true, otherwise return false
-        return customer.isPresent();
+        return customer.get().getCustomerCard().equals(newCustomerCard);
 
     }
 
