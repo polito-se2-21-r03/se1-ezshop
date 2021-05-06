@@ -648,32 +648,168 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
-        return false;
+        //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        //InvalidCustomerIdException if the id is null, less than or equal to 0
+        if (id == null || id.equals("") || id <= 0) {
+            throw new InvalidCustomerIdException("Invalid Customer id");
+        }
+
+        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
+        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
+                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
+                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
+            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
+        }
+        //delete the customer
+        deleteCustomer(id);
+
+        // find the customer
+        Optional<Customer> customer = customers.stream()
+                // filter users with the given id
+                .filter(x -> x.getId().equals(id)).findFirst();
+
+        if(customer == null )
+            return true;
+        else
+            return false;
+
     }
 
     @Override
     public Customer getCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
-        return null;
+        //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        //InvalidCustomerIdException if the id is null, less than or equal to 0
+        if (id == null || id.equals("") || id <= 0) {
+            throw new InvalidCustomerIdException("Invalid Customer id");
+        }
+
+        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
+        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
+                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
+                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
+            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
+        }
+
+
+        // find the customer
+        Optional<Customer> customer = customers.stream()
+                // filter users with the given id
+                .filter(x -> x.getId().equals(id)).findFirst();
+
+
+        return customer.get();
     }
 
     @Override
     public List<Customer> getAllCustomers() throws UnauthorizedException {
-        return null;
+        //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
+        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
+                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
+                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
+            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
+        }
+
+        // generate a list of all customers
+        List<Customer> customerList= customers.stream().collect(Collectors.toList());
+
+        return customerList;
     }
 
     @Override
     public String createCard() throws UnauthorizedException {
-        return null;
+        //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
+        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
+                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
+                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
+            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
+        }
+
+        String cardNumber = null;
+
+        return cardNumber;
     }
 
     @Override
     public boolean attachCardToCustomer(String customerCard, Integer customerId) throws InvalidCustomerIdException, InvalidCustomerCardException, UnauthorizedException {
-        return false;
+        //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        //InvalidCustomerIdException if the id is null, less than or equal to 0.
+        if (customerId == null || customerId.equals("")) {
+            throw new InvalidCustomerIdException("Invalid Customer id");
+        }
+
+        //InvalidCustomerCardException if the card is null, empty or in an invalid format
+        if (customerCard == null || customerCard.length()!=10 || customerCard.equals(" ")) {
+            throw new InvalidCustomerCardException("Invalid Customer Card");
+        }
+
+        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
+        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
+                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
+                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
+            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
+        }
+
+        // find the customer
+        Optional<Customer> customer = customers.stream()
+                // filter users with the given id
+                .filter(x -> x.getId().equals(customerId)).findFirst();
+
+        customer.get().setCustomerCard(customerCard);
+
+        if(customer.get().getCustomerCard().equals(customerCard))
+            return true;
+        else
+            return false;
     }
 
     @Override
     public boolean modifyPointsOnCard(String customerCard, int pointsToBeAdded) throws InvalidCustomerCardException, UnauthorizedException {
-        return false;
+        //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        //InvalidCustomerCardException if the card is null, empty or in an invalid format
+        if (customerCard == null || customerCard.length()!=10 || customerCard.equals("")) {
+            throw new InvalidCustomerCardException("Invalid Customer Card");
+        }
+
+        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
+        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
+                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
+                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
+            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
+        }
+
+        // find the customer
+        Optional<Customer> customer = customers.stream()
+                // filter users with the given id
+                .filter(x -> x.getId().equals(customerCard)).findFirst();
+        //false   if there is no card with given code
+        if(customer.equals(null))
+            return false;
+
+        Integer validPoints = customer.get().getPoints();
+
+        if(validPoints.compareTo(pointsToBeAdded) < 0 && pointsToBeAdded < 0 )
+            return false;
+        else
+            validPoints += pointsToBeAdded;
+
+        customer.get().setPoints(validPoints);
+
+        return true;
+
     }
 
     @Override
