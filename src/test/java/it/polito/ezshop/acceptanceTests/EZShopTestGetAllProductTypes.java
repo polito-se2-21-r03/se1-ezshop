@@ -1,10 +1,7 @@
 package it.polito.ezshop.acceptanceTests;
 
-import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.ProductType;
 import it.polito.ezshop.exceptions.*;
-import it.polito.ezshop.model.Role;
-import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -17,30 +14,11 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Tests on the EZShop.getAllProductTypes() method.
  */
-public class EZShopTestGetAllProductTypes {
+public class EZShopTestGetAllProductTypes extends EZShopTestBase {
 
-    private static final User cashier = new User(1, "cashier", "cashier", Role.CASHIER);
-    private static final User shopManager = new User(2, "shopManager", "shopManager", Role.SHOP_MANAGER);
-    private static final User admin = new User(3, "administrator", "administrator", Role.ADMINISTRATOR);
-    private static final EZShop shop = new EZShop();
-
-    /**
-     * Add new users to the shop.
-     */
-    @BeforeClass
-    public static void init() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
-        // create users
-        shop.createUser(cashier.getUsername(), cashier.getPassword(), cashier.getRole());
-        shop.createUser(shopManager.getUsername(), shopManager.getPassword(), shopManager.getRole());
-        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole());
-    }
-
-    /**
-     * Log out the current user (if any) before each test.
-     */
     @Before
-    public void logout() {
-        shop.logout();
+    public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
+        super.initializeUsers();
     }
 
     /**
@@ -56,7 +34,7 @@ public class EZShopTestGetAllProductTypes {
      */
     @Test()
     public void testCashier() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException {
-        shop.login(cashier.getUsername(), cashier.getPassword());
+        loginAs(cashier);
 
         shop.getAllProductTypes();
     }
@@ -66,7 +44,7 @@ public class EZShopTestGetAllProductTypes {
      */
     @Test()
     public void testShopManager() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException {
-        shop.login(shopManager.getUsername(), shopManager.getPassword());
+        loginAs(shopManager);
 
         shop.getAllProductTypes();
     }
@@ -76,7 +54,7 @@ public class EZShopTestGetAllProductTypes {
      */
     @Test()
     public void testAdministrator() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException {
-        shop.login(admin.getUsername(), admin.getPassword());
+        loginAs(admin);
 
         shop.getAllProductTypes();
     }
@@ -89,13 +67,15 @@ public class EZShopTestGetAllProductTypes {
     @Test()
     public void testValid() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
             InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(admin.getUsername(), admin.getPassword());
+        loginAs(admin);
 
         List<ProductType> products = shop.getAllProductTypes();
         assertNotNull(products);
         assertEquals(0, products.size());
 
-        shop.createProductType("desc", "12345678901231", 10.0, "note");
+        ProductType model = generateValidProductType();
+        shop.createProductType(model.getProductDescription(), model.getBarCode(),
+                model.getPricePerUnit(), model.getNote());
 
         products = shop.getAllProductTypes();
         assertNotNull(products);
