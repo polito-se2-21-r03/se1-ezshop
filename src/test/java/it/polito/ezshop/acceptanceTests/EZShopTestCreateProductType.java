@@ -135,7 +135,7 @@ public class EZShopTestCreateProductType {
     }
 
     /**
-     * If a cashier is currently logged in, the method should throw any exceptions.
+     * If a cashier is currently logged in, the method should throw UnauthorizedException.
      */
     @Test(expected = UnauthorizedException.class)
     public void testCashier() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
