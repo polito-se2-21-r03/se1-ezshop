@@ -7,6 +7,9 @@ import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+
+import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
 
 /**
@@ -33,44 +36,12 @@ public class EZShopTestDefineCustomer {
     }
 
     /**
-     * If the currently logged in user is a cashier, she has sufficient rights to call the method
+     * Tests that access rights are handled correctly by defineCustomer.
      */
     @Test
-    public void testCashierIsAuthorized() throws InvalidCustomerNameException, UnauthorizedException, InvalidPasswordException, InvalidUsernameException {
-
-        shop.login(cashier.getUsername(), cashier.getPassword());
-
-        shop.defineCustomer("Pietro");
-    }
-
-    /**
-     * If the currently logged in user is a shop manager, she has sufficient rights to call the method
-     */
-    @Test
-    public void testShopManagerIsAuthorized() throws InvalidCustomerNameException, UnauthorizedException, InvalidPasswordException, InvalidUsernameException {
-
-        shop.login(shopManager.getUsername(), shopManager.getPassword());
-
-        shop.defineCustomer("Pietro");
-    }
-
-    /**
-     * If the currently logged in user is an admin, she has sufficient rights to call the method
-     */
-    @Test
-    public void testAdminIsAuthorized() throws InvalidCustomerNameException, UnauthorizedException, InvalidPasswordException, InvalidUsernameException {
-
-        shop.login(admin.getUsername(), admin.getPassword());
-
-        shop.defineCustomer("Pietro");
-    }
-
-    /**
-     * If no user is currently logged in an UnauthorizedException is thrown
-     */
-    @Test(expected = UnauthorizedException.class)
-    public void testNoLoggedInUserCausesUnauthorizedException() throws InvalidCustomerNameException, UnauthorizedException {
-        shop.defineCustomer("Pietro");
+    public void testAuthorization() throws Throwable {
+        Method defineCustomer = EZShop.class.getMethod("defineCustomer", String.class);
+        assertTrue(testAccessRights(defineCustomer, new Object[] {"Pietro"}, new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR}));
     }
 
     /**

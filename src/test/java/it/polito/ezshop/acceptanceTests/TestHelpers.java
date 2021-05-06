@@ -22,6 +22,11 @@ public class TestHelpers {
      */
     public static boolean testAccessRights(Method apiMethod, Object[] parameters, Role[] allowedRoles) throws Throwable {
 
+        // return false if the method can be invoked without any logged in user
+        if (!testNoLoggedInUserIsDenied(apiMethod, parameters)) {
+            return false;
+        }
+
         // create an EZShop instance
         EZShop shop = new EZShop();
         String username = "user";
@@ -56,15 +61,56 @@ public class TestHelpers {
 
                 // if the invoked method throws an UnauthorizedException, but should be authorized, return false
                 if (e.getCause() instanceof UnauthorizedException) {
+
+                    // return false if UnauthorizedException is caught but user should have access rights
                     if (userIsAuthorized) {
                         return false;
                     }
                 } else {
+
                     // throw all other errors
                     throw e.getCause();
                 }
             }
         }
+
+        // return true if no authentication bugs could be found
         return true;
+    }
+
+    /**
+     * Checks whether an UnauthorizedException is thrown in case no User is currently logged in
+     *
+     * @return return true if an UnauthorizedException is thrown in case no User is currently logged in, false if no exception is thrown
+     * @throws Throwable all other Exceptions are thrown
+     */
+    private static boolean testNoLoggedInUserIsDenied(Method apiMethod, Object[] parameters) throws Throwable {
+
+        // create new EZShop instance
+        EZShop shop = new EZShop();
+        shop.reset();
+
+        // insert a dummy user
+        shop.createUser("username", "password", Role.ADMINISTRATOR.getValue());
+
+        // try to call API method and only catch UnauthorizedException
+        try {
+            apiMethod.invoke(shop, parameters);
+        } catch (InvocationTargetException e) {
+
+            // catch only UnauthorizedException, throw all other
+            if (e.getCause() instanceof UnauthorizedException) {
+
+                // return true if method can not be invoked without logged in user
+                return true;
+            } else {
+
+                // throw all other exceptions
+                throw e.getCause();
+            }
+        }
+
+        // return false if no exception was thrown
+        return false;
     }
 }
