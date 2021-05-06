@@ -203,4 +203,12 @@ public class AccountBook {
                 .collect(Collectors.toList());
         return generateId(currentIds);
     }
+
+    /**
+     * Reset the account book to its initial state (no transactions, zero balance)
+     */
+    public void reset() {
+        this.balanceOperations.clear();
+        this.balance = 0.0;
+    }
 }

@@ -57,7 +57,11 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public void reset() {
-
+        this.users.clear();
+        this.currentUser = null;
+        this.customers.clear();
+        this.products.clear();
+        this.accountBook.reset();
     }
 
     @Override
