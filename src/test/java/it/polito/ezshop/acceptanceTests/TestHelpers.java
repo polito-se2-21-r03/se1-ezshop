@@ -8,25 +8,27 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import static org.junit.Assert.fail;
+
 public class TestHelpers {
 
     /**
-     * This method tests whether the access rights for a given EZShop API function are managed correctly
+     * This method tests whether the access rights for a given EZShop API function are managed correctly.
+     * If an authentication bug is found, Assert.fail() is called.
      *
-     * @param apiMethod method of the EZShop API
-     * @param parameters parameters that should be passed to the API method
+     * @param apiMethod    method of the EZShop API
+     * @param parameters   parameters that should be passed to the API method
      * @param allowedRoles array of all roles that are allowed to call the API method
      *
-     * @return true if access rights are managed correctly, false otherwise
      * @throws Throwable throws any Exception that is not an UnauthorizedException
      */
     // TODO: this method resets its EZShop instance for each role test and thus only works if the method checks user
     //  access rights before any other action is take due to potentially invalid parameters
-    public static boolean testAccessRights(Method apiMethod, Object[] parameters, Role[] allowedRoles) throws Throwable {
+    public static void testAccessRights(Method apiMethod, Object[] parameters, Role[] allowedRoles) throws Throwable {
 
-        // return false if the method can be invoked without any logged in user
+        // fail if the method can be invoked without any logged in user
         if (!testNoLoggedInUserIsDenied(apiMethod, parameters)) {
-            return false;
+            fail("If no user is logged in, calling the method should NOT be allowed");
         }
 
         // create an EZShop instance
@@ -54,19 +56,19 @@ public class TestHelpers {
             try {
                 apiMethod.invoke(shop, parameters);
 
-                // if no UnauthorizedException was thrown, but user should not have rights, return false
+                // if no UnauthorizedException was thrown, but user should not have rights, fail
                 if (!userIsAuthorized) {
-                    return false;
+                    fail(String.format("Role %s should NOT be allowed to call the method", role.getValue()));
                 }
 
             } catch (InvocationTargetException e) {
 
-                // if the invoked method throws an UnauthorizedException, but should be authorized, return false
+                // if the invoked method throws an UnauthorizedException, but should be authorized, fail
                 if (e.getCause() instanceof UnauthorizedException) {
 
-                    // return false if UnauthorizedException is caught but user should have access rights
+                    // fail if UnauthorizedException is caught but user should have access rights
                     if (userIsAuthorized) {
-                        return false;
+                        fail(String.format("Role %s should be allowed to call the method", role.getValue()));
                     }
                 } else {
 
@@ -76,8 +78,7 @@ public class TestHelpers {
             }
         }
 
-        // return true if no authentication bugs could be found
-        return true;
+        // no authentication bugs could be found
     }
 
     /**

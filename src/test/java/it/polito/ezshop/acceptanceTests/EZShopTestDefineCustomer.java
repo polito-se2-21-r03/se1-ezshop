@@ -36,8 +36,8 @@ public class EZShopTestDefineCustomer {
     @Test
     public void testAuthorization() throws Throwable {
         Method defineCustomer = EZShop.class.getMethod("defineCustomer", String.class);
-        assertTrue(testAccessRights(defineCustomer, new Object[] {"Pietro"},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER}));
+        testAccessRights(defineCustomer, new Object[] {"Pietro"},
+                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
     /**
