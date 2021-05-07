@@ -54,7 +54,7 @@ public class EZShopTestGetProductTypesByDescription {
     }
 
     /**
-     * Tests that access rights are handled correctly by getProductTypeByBarCode.
+     * Tests that access rights are handled correctly by getProductTypesByDescription.
      */
     @Test
     public void testAuthorization() throws Throwable {
@@ -66,7 +66,7 @@ public class EZShopTestGetProductTypesByDescription {
     }
 
     /**
-     * If the code is null|empty|NaN|invalid, the method should throw InvalidProductIdException
+     * Null should be considered as the empty string
      */
     @Test()
     public void testNullOrEmptyDescription() throws UnauthorizedException {
@@ -84,7 +84,7 @@ public class EZShopTestGetProductTypesByDescription {
     }
 
     /**
-     * If the code is null|empty|NaN|invalid, the method should throw InvalidProductIdException
+     * Test valid values for description
      */
     @Test()
     public void testValidDescriptions() throws UnauthorizedException {
