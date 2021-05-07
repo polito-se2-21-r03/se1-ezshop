@@ -116,4 +116,56 @@ public class TestHelpers {
         // return false if no exception was thrown
         return false;
     }
+
+    /**
+     * This method mimics the behaviour of assertThrows available in jUnit 4.13+.
+     * This method calls the .run() method of the runnable parameter and catches its exception.
+     * If the exception raised matches the provided class, nothing is done.
+     * Otherwise, fail is called and an error message is reported.
+     * <p>
+     * If the runnable does not raise an exception, fail is called and an error
+     * message is reported.
+     *
+     * @param expectedException class of the expected exception
+     * @param runnable          runnable that should throw the exception
+     * @param <T>               type of the expected exception
+     */
+    public static <T extends Exception> void assertThrows(Class<T> expectedException, ThrowingRunnable runnable) {
+        if (expectedException == null) {
+            fail("Got a null expectedException.");
+        }
+
+        if (runnable == null) {
+            fail("Got a null runnable.");
+        }
+
+        boolean exceptionThrown = false;
+
+        try {
+            runnable.run();
+        } catch (Exception ex) {
+            exceptionThrown = true;
+
+            // check if the caught exception is the expected one
+            if (!ex.getClass().equals(expectedException)) {
+                // if not, fail with an error message
+                String message = String.format(
+                        "Expected exception %s. Got %s.",
+                        expectedException.getSimpleName(),
+                        ex.getClass().getSimpleName()
+                );
+                fail(message);
+            }
+        }
+
+        if (!exceptionThrown) {
+            // an exception was expected
+            String message = String.format("Expected exception %s. Got none.", expectedException.getSimpleName());
+            fail(message);
+        }
+    }
+
+    public interface ThrowingRunnable {
+        void run() throws Exception;
+    }
 }
