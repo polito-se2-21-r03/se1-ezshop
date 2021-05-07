@@ -10,6 +10,7 @@ import org.junit.runners.Suite;
         EZShopTestUpdateProduct.class,
         EZShopTestGetAllProductTypes.class,
         EZShopTestDeleteProductType.class,
+        EZShopTestGetProductTypeByBarCode.class,
         EZShopTestDefineCustomer.class
 })
 public class TestEZShop {
