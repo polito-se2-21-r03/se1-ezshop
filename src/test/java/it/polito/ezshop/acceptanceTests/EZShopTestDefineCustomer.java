@@ -17,22 +17,17 @@ import static org.junit.Assert.*;
  */
 public class EZShopTestDefineCustomer {
 
-    private static final User cashier = new User(1, "cashier", "cashier", Role.CASHIER);
-    private static final User shopManager = new User(2, "shopManager", "shopManager", Role.SHOP_MANAGER);
-    private static final User admin = new User(3, "administrator", "administrator", Role.ADMINISTRATOR);
     private static final EZShop shop = new EZShop();
+    private static final User user = new User(0, "Andrea", "123", Role.CASHIER);
 
     /**
      * Creates a clean shop instance for each test
      */
     @Before
     public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
-        shop.reset();
 
-        // create users
-        shop.createUser(cashier.getUsername(), cashier.getPassword(), cashier.getRole());
-        shop.createUser(shopManager.getUsername(), shopManager.getPassword(), shopManager.getRole());
-        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole());
+        shop.reset();
+        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
     }
 
     /**
@@ -41,7 +36,8 @@ public class EZShopTestDefineCustomer {
     @Test
     public void testAuthorization() throws Throwable {
         Method defineCustomer = EZShop.class.getMethod("defineCustomer", String.class);
-        assertTrue(testAccessRights(defineCustomer, new Object[] {"Pietro"}, new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR}));
+        assertTrue(testAccessRights(defineCustomer, new Object[] {"Pietro"},
+                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER}));
     }
 
     /**
@@ -51,8 +47,7 @@ public class EZShopTestDefineCustomer {
     public void testInvalidCustomerNameExceptionIfNameEmpty() throws InvalidCustomerNameException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException {
 
-        shop.login(cashier.getUsername(), cashier.getPassword());
-
+        shop.login(user.getUsername(), user.getPassword());
         shop.defineCustomer("");
     }
 
@@ -63,8 +58,7 @@ public class EZShopTestDefineCustomer {
     public void testInvalidCustomerNameExceptionIfNameNull() throws InvalidCustomerNameException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException {
 
-        shop.login(cashier.getUsername(), cashier.getPassword());
-
+        shop.login(user.getUsername(), user.getPassword());
         shop.defineCustomer(null);
     }
 
@@ -75,9 +69,10 @@ public class EZShopTestDefineCustomer {
     public void testOnlyUniqueCustomerNamesAllowed() throws InvalidCustomerNameException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException {
 
-        shop.login(cashier.getUsername(), cashier.getPassword());
-
+        shop.login(user.getUsername(), user.getPassword());
         assertTrue(shop.defineCustomer("Pietro") > 0);
+
+        // return error value on duplicate customer name
         assertTrue(shop.defineCustomer("Pietro") == -1);
     }
 
@@ -88,8 +83,7 @@ public class EZShopTestDefineCustomer {
     public void testDefineSingleCustomerSuccessfully() throws InvalidCustomerNameException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException {
 
-        shop.login(cashier.getUsername(), cashier.getPassword());
-
+        shop.login(user.getUsername(), user.getPassword());
         assertTrue(shop.defineCustomer("Pietro") > 0);
     }
 
@@ -100,7 +94,7 @@ public class EZShopTestDefineCustomer {
     public void testDefineManyCustomersSuccessfully() throws InvalidCustomerNameException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException {
 
-        shop.login(cashier.getUsername(), cashier.getPassword());
+        shop.login(user.getUsername(), user.getPassword());
 
         assertTrue(shop.defineCustomer("Pietro") > 0);
         assertTrue(shop.defineCustomer("Andrea") > 0);

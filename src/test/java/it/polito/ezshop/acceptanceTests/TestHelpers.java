@@ -20,6 +20,8 @@ public class TestHelpers {
      * @return true if access rights are managed correctly, false otherwise
      * @throws Throwable throws any Exception that is not an UnauthorizedException
      */
+    // TODO: this method resets its EZShop instance for each role test and thus only works if the method checks user
+    //  access rights before any other action is take due to potentially invalid parameters
     public static boolean testAccessRights(Method apiMethod, Object[] parameters, Role[] allowedRoles) throws Throwable {
 
         // return false if the method can be invoked without any logged in user
