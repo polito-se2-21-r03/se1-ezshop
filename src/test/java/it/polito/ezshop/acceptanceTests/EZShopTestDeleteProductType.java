@@ -1,112 +1,94 @@
 package it.polito.ezshop.acceptanceTests;
 
+import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.data.ProductType;
 import it.polito.ezshop.exceptions.*;
+import it.polito.ezshop.model.Role;
+import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
+import static it.polito.ezshop.acceptanceTests.TestHelpers.assertThrows;
+import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
 
 /**
  * Tests on the EZShop.deleteProductType() method.
  */
-public class EZShopTestDeleteProductType extends EZShopTestBase {
+public class EZShopTestDeleteProductType {
 
-    // barcode of the product to be removed
-    private static final String barcode = "12345678901231";
+    private static final String PRODUCT_CODE_1 = "12345678901231";
+    private static final String PRODUCT_CODE_2 = "1234567890128";
 
-    // id of the product to be removed
-    private Integer productToRemove;
+    private static final EZShop shop = new EZShop();
+    private static final User admin = new User(0, "Admin", "123", Role.ADMINISTRATOR);
 
+    private ProductType p1, p2;
 
-    /**
-     * Reset the shop before each test.
-     */
     @Before
     public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException,
             InvalidPricePerUnitException, InvalidProductDescriptionException, InvalidProductCodeException,
             UnauthorizedException {
-        super.initializeUsers();
+        // reset the state of EZShop
+        shop.reset();
+        // create a new user
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole());
+        // and log in with that user
+        shop.login(admin.getUsername(), admin.getPassword());
 
-        // add a product to the inventory
-        String description = "desc";
-        double price = 10.0;
-        String note = "note";
-
-        loginAs(admin);
-        productToRemove = shop.createProductType(description, barcode, price, note);
-        shop.logout();
+        // insert a few products
+        shop.createProductType("desc", PRODUCT_CODE_1, 10.0, "note");
+        p1 = shop.getProductTypeByBarCode(PRODUCT_CODE_1);
+        shop.createProductType("desc", PRODUCT_CODE_2, 10.0, "note");
+        p2 = shop.getProductTypeByBarCode(PRODUCT_CODE_2);
     }
 
     /**
-     * If the id is null, the method should throw InvalidProductIdException.
+     * Tests that access rights are handled correctly by deleteProductType.
      */
-    @Test(expected = InvalidProductIdException.class)
-    public void testNullId() throws UnauthorizedException, InvalidProductIdException, InvalidPasswordException,
-            InvalidUsernameException {
-        loginAs(admin);
+    @Test
+    public void testAuthorization() throws Throwable {
+        Method targetMethod = EZShop.class.getMethod("deleteProductType", Integer.class);
+        Object[] params = {p1.getId()};
+        Role[] allowedRoles = new Role[]{Role.ADMINISTRATOR, Role.SHOP_MANAGER};
 
-        shop.deleteProductType(null);
+        testAccessRights(targetMethod, params, allowedRoles);
     }
 
     /**
-     * If the id is negative, the method should throw InvalidProductIdException.
-     */
-    @Test(expected = InvalidProductIdException.class)
-    public void testNegativeId() throws UnauthorizedException, InvalidProductIdException, InvalidPasswordException,
-            InvalidUsernameException {
-        loginAs(admin);
-
-        shop.deleteProductType(-5);
-    }
-
-    /**
-     * If the id is zero, the method should throw InvalidProductIdException.
-     */
-    @Test(expected = InvalidProductIdException.class)
-    public void testZeroId() throws UnauthorizedException, InvalidProductIdException, InvalidPasswordException,
-            InvalidUsernameException {
-        loginAs(admin);
-
-        shop.deleteProductType(0);
-    }
-
-    /**
-     * If a cashier is currently logged in, the method should throw UnauthorizedException.
-     */
-    @Test(expected = UnauthorizedException.class)
-    public void testCashier() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductIdException {
-        loginAs(cashier);
-
-        shop.deleteProductType(productToRemove);
-    }
-
-    /**
-     * If a shop manager is currently logged in, the method should NOT throw UnauthorizedException.
+     * If the id is null|negative|zero, the method should throw InvalidProductIdException
      */
     @Test()
-    public void testShopManager() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductIdException {
-        loginAs(shopManager);
-
-        shop.deleteProductType(productToRemove);
+    public void testInvalidId() {
+        // boundary values for the id parameter
+        Arrays.asList(null, -1, 0).forEach((value) -> {
+            // for each boundary value check that the correct exception is thrown
+            assertThrows(InvalidProductIdException.class, () -> {
+                // try to update a product with the boundary value
+                shop.deleteProductType(value);
+            });
+        });
     }
 
     /**
      * Nominal case (authorized user, valid id)
      */
     @Test()
-    public void testValid() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
+    public void testValid() throws UnauthorizedException,
             InvalidProductIdException, InvalidProductCodeException {
-        loginAs(admin);
+        assertTrue(shop.deleteProductType(p1.getId()));
+        // verify if the product was actually removed
+        assertNull(shop.getProductTypeByBarCode(PRODUCT_CODE_1));
 
-        boolean result = shop.deleteProductType(productToRemove + 1);
-        assertFalse(result);
+        assertTrue(shop.deleteProductType(p2.getId()));
+        // verify if the product was actually removed
+        assertNull(shop.getProductTypeByBarCode(PRODUCT_CODE_2));
 
-        result = shop.deleteProductType(productToRemove);
-        assertTrue(result);
-
-        assertNull(shop.getProductTypeByBarCode(barcode));
+        // the product was previously removed -> the method should return false
+        assertFalse(shop.deleteProductType(p1.getId()));
     }
 
 }

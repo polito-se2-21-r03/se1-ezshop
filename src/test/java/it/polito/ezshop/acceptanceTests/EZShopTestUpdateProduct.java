@@ -71,7 +71,7 @@ public class EZShopTestUpdateProduct {
     }
 
     /**
-     * If the description is null|empty, the method should throw InvalidProductIdException
+     * If the description is null|empty, the method should throw InvalidProductDescriptionException
      */
     @Test()
     public void testInvalidDescription() {
@@ -86,7 +86,7 @@ public class EZShopTestUpdateProduct {
     }
 
     /**
-     * If the code is null|empty|NaN|invalid, the method should throw InvalidProductIdException
+     * If the code is null|empty|NaN|invalid, the method should throw InvalidProductCodeException
      */
     @Test()
     public void testInvalidProductCode() {
@@ -101,7 +101,7 @@ public class EZShopTestUpdateProduct {
     }
 
     /**
-     * If the price is negative|zero, the method should throw InvalidProductIdException
+     * If the price is negative|zero, the method should throw InvalidPricePerUnitException
      */
     @Test()
     public void testInvalidPrice() {
