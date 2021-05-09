@@ -578,9 +578,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
-        verifyCurrentUserRole(Role.ADMINISTRATOR);
-        verifyCurrentUserRole(Role.SHOP_MANAGER);
-        verifyCurrentUserRole(Role.CASHIER);
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         // generate a list of all ids
         List<Integer> ids = customers.stream().map(Customer::getId).collect(Collectors.toList());
@@ -652,8 +650,8 @@ public class EZShop implements EZShopInterface {
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        //InvalidCustomerIdException if the id is null, less than or equal to 0
-        if (id == null || id.equals("") || id <= 0) {
+        //InvalidCustomerIdException if the ***id is null***, less than or equal to 0
+        if (id == null || id <= 0) {
             throw new InvalidCustomerIdException("Invalid Customer id");
         }
 
@@ -671,10 +669,10 @@ public class EZShop implements EZShopInterface {
                 // filter users with the given id
                 .filter(x -> x.getId().equals(id)).findFirst();
 
-        if(customer == null )
-            return true;
-        else
-            return false;
+
+        //if there is still customer it should return false otherwise true
+            return customer.isPresent();
+
 
     }
 
@@ -684,7 +682,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         //InvalidCustomerIdException if the id is null, less than or equal to 0
-        if (id == null || id.equals("") || id <= 0) {
+        if (id == null || id <= 0) {
             throw new InvalidCustomerIdException("Invalid Customer id");
         }
 
@@ -718,9 +716,10 @@ public class EZShop implements EZShopInterface {
         }
 
         // generate a list of all customers
-        List<Customer> customerList= customers.stream().collect(Collectors.toList());
+        //List<Customer> customerList= customers.stream().collect(Collectors.toList());
+        List<Customer> customerList1 = new ArrayList<>(customers);
 
-        return customerList;
+        return customerList1;
     }
 
     @Override
@@ -735,9 +734,14 @@ public class EZShop implements EZShopInterface {
             throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
         }
 
-        String cardNumber = null;
+        Random rnd = new Random();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            char c = (char) ('A' + ((char)rnd.nextInt('Z' - 'A')));
+            sb.append(c);
+        }
 
-        return cardNumber;
+        return sb.toString();
     }
 
     @Override
@@ -746,12 +750,12 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         //InvalidCustomerIdException if the id is null, less than or equal to 0.
-        if (customerId == null || customerId.equals("")) {
+        if (customerId == null || customerId.compareTo(0) > 0) {
             throw new InvalidCustomerIdException("Invalid Customer id");
         }
 
         //InvalidCustomerCardException if the card is null, empty or in an invalid format
-        if (customerCard == null || customerCard.length()!=10 || customerCard.equals(" ")) {
+        if (customerCard == null || customerCard.length()!=10) {
             throw new InvalidCustomerCardException("Invalid Customer Card");
         }
 
@@ -767,12 +771,9 @@ public class EZShop implements EZShopInterface {
                 // filter users with the given id
                 .filter(x -> x.getId().equals(customerId)).findFirst();
 
-        customer.get().setCustomerCard(customerCard);
+        customer.ifPresent(customer1 -> customer1.setCustomerCard(customerCard));
 
-        if(customer.get().getCustomerCard().equals(customerCard))
-            return true;
-        else
-            return false;
+        return customer.get().getCustomerCard().equals(customerCard);
     }
 
     @Override
@@ -781,7 +782,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         //InvalidCustomerCardException if the card is null, empty or in an invalid format
-        if (customerCard == null || customerCard.length()!=10 || customerCard.equals("")) {
+        if (customerCard == null || customerCard.length()!=10) {
             throw new InvalidCustomerCardException("Invalid Customer Card");
         }
 
@@ -795,9 +796,9 @@ public class EZShop implements EZShopInterface {
         // find the customer
         Optional<Customer> customer = customers.stream()
                 // filter users with the given id
-                .filter(x -> x.getId().equals(customerCard)).findFirst();
+                .filter(x -> x.getCustomerCard().equals(customerCard)).findFirst();
         //false   if there is no card with given code
-        if(customer.equals(null))
+        if(customer.get().getCustomerCard().equals(null))
             return false;
 
         Integer validPoints = customer.get().getPoints();

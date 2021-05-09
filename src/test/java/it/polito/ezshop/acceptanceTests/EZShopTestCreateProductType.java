@@ -8,6 +8,11 @@ import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+
+import static it.polito.ezshop.acceptanceTests.TestHelpers.assertThrows;
+import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
 
 /**
@@ -15,224 +20,130 @@ import static org.junit.Assert.*;
  */
 public class EZShopTestCreateProductType {
 
-    private static final User cashier = new User(1, "cashier", "cashier", Role.CASHIER);
-    private static final User shopManager = new User(2, "shopManager", "shopManager", Role.SHOP_MANAGER);
-    private static final User admin = new User(3, "administrator", "administrator", Role.ADMINISTRATOR);
+    private static final String PRODUCT_CODE = "12345678901231";
+    private static final String PRODUCT_DESCRIPTION = "description";
+    private static final double PRODUCT_PRICE = 1.0;
+    private static final String PRODUCT_NOTE = "note";
+
     private static final EZShop shop = new EZShop();
+    private static final User admin = new User(0, "Admin", "123", Role.ADMINISTRATOR);
 
-
-    /**
-     * Log out the current user (if any) before each test.
-     */
     @Before
     public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
+        // reset the state of EZShop
         shop.reset();
-
-        // create users
-        shop.createUser(cashier.getUsername(), cashier.getPassword(), cashier.getRole());
-        shop.createUser(shopManager.getUsername(), shopManager.getPassword(), shopManager.getRole());
+        // create a new user
         shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole());
-    }
-
-    /**
-     * If a the description of the product is null, the method should throw an exception
-     */
-    @Test(expected = InvalidProductDescriptionException.class)
-    public void testNullDescription() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
+        // and log in with that user
         shop.login(admin.getUsername(), admin.getPassword());
-
-        shop.createProductType(null, "code", 10.0, "note");
     }
 
     /**
-     * If a the description of the product is empty, the method should throw an exception
+     * Tests that access rights are handled correctly by deleteProductType.
      */
-    @Test(expected = InvalidProductDescriptionException.class)
-    public void testEmptyDescription() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(admin.getUsername(), admin.getPassword());
+    @Test
+    public void testAuthorization() throws Throwable {
+        Method targetMethod = EZShop.class.getMethod("createProductType", String.class, String.class,
+                double.class, String.class);
+        Object[] params = {PRODUCT_DESCRIPTION, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE};
+        Role[] allowedRoles = new Role[]{Role.ADMINISTRATOR, Role.SHOP_MANAGER};
 
-        shop.createProductType("", "code", 10.0, "note");
+        testAccessRights(targetMethod, params, allowedRoles);
     }
 
     /**
-     * If a the barcode of the product is empty, the method should throw an exception
-     */
-    @Test(expected = InvalidProductCodeException.class)
-    public void testNullBarcode() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(admin.getUsername(), admin.getPassword());
-
-        shop.createProductType("desc", null, 10.0, "note");
-    }
-
-    /**
-     * If a the barcode of the product is empty, the method should throw an exception
-     */
-    @Test(expected = InvalidProductCodeException.class)
-    public void testEmptyBarcode() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(admin.getUsername(), admin.getPassword());
-
-        shop.createProductType("desc", "", 10.0, "note");
-    }
-
-    /**
-     * If a the barcode of the product is invalid, the method should throw an exception
-     */
-    @Test(expected = InvalidProductCodeException.class)
-    public void testInvalidBarcode1() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(admin.getUsername(), admin.getPassword());
-
-        // the check digit of the barcode is not correct
-        shop.createProductType("desc", "12345678901235", 10.0, "note");
-    }
-
-    /**
-     * If a the barcode of the product is invalid, the method should throw an exception
-     */
-    @Test(expected = InvalidProductCodeException.class)
-    public void testInvalidBarcode2() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(admin.getUsername(), admin.getPassword());
-
-        // the barcode is not a number
-        shop.createProductType("desc", "1234567890123A", 10.0, "note");
-    }
-
-    /**
-     * If a the price of the product is negative, the method should throw an exception
-     */
-    @Test(expected = InvalidPricePerUnitException.class)
-    public void testNegativePrice() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(admin.getUsername(), admin.getPassword());
-
-        shop.createProductType("desc", "12345678901231", -10.0, "note");
-    }
-
-    /**
-     * If a the price of the product is zero, the method should throw an exception
-     */
-    @Test(expected = InvalidPricePerUnitException.class)
-    public void testZeroPrice() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(admin.getUsername(), admin.getPassword());
-
-        // the barcode is not a number
-        shop.createProductType("desc", "12345678901231", 0.0, "note");
-    }
-
-    /**
-     * If no user is currently logged in, the method should throw UnauthorizedException.
-     */
-    @Test(expected = UnauthorizedException.class)
-    public void testUnauthorizedUser() throws UnauthorizedException, InvalidProductDescriptionException,
-            InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.createProductType("desc", "12345678901231", 10.0, "note");
-    }
-
-    /**
-     * If a cashier is currently logged in, the method should throw UnauthorizedException.
-     */
-    @Test(expected = UnauthorizedException.class)
-    public void testCashier() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(cashier.getUsername(), cashier.getPassword());
-
-        shop.createProductType("desc", "12345678901231", 10.0, "note");
-    }
-
-    /**
-     * If a shop manager is currently logged in, the method should NOT throw UnauthorizedException.
+     * If the description is null|empty, the method should throw InvalidProductDescriptionException
      */
     @Test()
-    public void testShopManager() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(shopManager.getUsername(), shopManager.getPassword());
-
-        shop.createProductType("desc", "12345678901231", 10.0, "note");
+    public void testInvalidDescription() {
+        // boundary values for the description parameter
+        Arrays.asList(null, "").forEach((value) -> {
+            // for each boundary value check that the correct exception is thrown
+            assertThrows(InvalidProductDescriptionException.class, () -> {
+                // try to update a product with the boundary value
+                shop.createProductType(value, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE);
+            });
+        });
     }
 
     /**
-     * If an admin is currently logged in, the method should NOT throw UnauthorizedException.
+     * If the code is null|empty|NaN|invalid, the method should throw InvalidProductCodeException
      */
     @Test()
-    public void testAdmin() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(admin.getUsername(), admin.getPassword());
+    public void testInvalidProductCode() {
+        // boundary values for the barcode parameter
+        Arrays.asList(null, "", "123456789B123A", "12345678901232").forEach((value) -> {
+            // for each boundary value check that the correct exception is thrown
+            assertThrows(InvalidProductCodeException.class, () -> {
+                // try to update a product with the boundary value
+                shop.createProductType(PRODUCT_DESCRIPTION, value, PRODUCT_PRICE, PRODUCT_NOTE);
+            });
+        });
+    }
 
-        shop.createProductType("desc", "12345678901231", 10.0, "note");
+    /**
+     * If the price is negative|zero, the method should throw InvalidPricePerUnitException
+     */
+    @Test()
+    public void testInvalidPrice() {
+        // boundary values for the price parameter
+        Arrays.asList(-10.0, 0.0).forEach((value) -> {
+            // for each boundary value check that the correct exception is thrown
+            assertThrows(InvalidPricePerUnitException.class, () -> {
+                // try to update a product with the boundary value
+                shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, value, PRODUCT_NOTE);
+            });
+        });
     }
 
     /**
      * Nominal case (authorized user, valid parameters)
      */
     @Test()
-    public void testValid() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
+    public void testValid() throws UnauthorizedException,
             InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(shopManager.getUsername(), shopManager.getPassword());
-
-        String description = "desc";
-        String barcode = "12345678901231";
-        double price = 10.0;
-        String note = "note";
-
-        Integer id = shop.createProductType(description, barcode, price, note);
+        Integer id = shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE);
         assertNotNull(id);
         assertTrue(id > 0);
 
-        ProductType p = shop.getProductTypeByBarCode(barcode);
+        ProductType p = shop.getProductTypeByBarCode(PRODUCT_CODE);
         assertNotNull(p);
-        assertEquals(description, p.getProductDescription());
-        assertEquals(barcode, p.getBarCode());
-        assertEquals(price, p.getPricePerUnit(), 0.001);
-        assertEquals(note, p.getNote());
+        assertEquals(PRODUCT_DESCRIPTION, p.getProductDescription());
+        assertEquals(PRODUCT_CODE, p.getBarCode());
+        assertEquals(PRODUCT_PRICE, p.getPricePerUnit(), 0.001);
+        assertEquals(PRODUCT_NOTE, p.getNote());
     }
 
     /**
      * If a product with the same barcode already exists, the method should return -1
      */
     @Test()
-    public void testDuplicatedBarcode() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(shopManager.getUsername(), shopManager.getPassword());
-
-        String description = "desc";
-        String barcode = "12345678901231";
-        double price = 10.0;
-        String note = "note";
-
-        Integer id = shop.createProductType(description, barcode, price, note);
+    public void testDuplicatedBarcode() throws UnauthorizedException, InvalidProductDescriptionException,
+            InvalidProductCodeException, InvalidPricePerUnitException {
+        Integer id = shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE);
         assertNotNull(id);
         assertTrue(id > 0);
 
-        id = shop.createProductType(description, barcode, price, note);
+        id = shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE);
         assertNotNull(id);
-        assertEquals(-1, (int) id);
+        assertEquals(new Integer(-1), id);
     }
 
     /**
      * If the note is null, an empty string should be saved.
      */
     @Test()
-    public void testNullNote() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException,
-            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
-        shop.login(shopManager.getUsername(), shopManager.getPassword());
-
-        String description = "desc";
-        String barcode = "12345678901231";
-        double price = 10.0;
-        String note = null;
-
-        Integer id = shop.createProductType(description, barcode, price, note);
+    public void testNullNote() throws UnauthorizedException, InvalidProductDescriptionException,
+            InvalidProductCodeException, InvalidPricePerUnitException {
+        Integer id = shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, PRODUCT_PRICE, null);
         assertNotNull(id);
         assertTrue(id > 0);
 
-        ProductType p = shop.getProductTypeByBarCode(barcode);
+        ProductType p = shop.getProductTypeByBarCode(PRODUCT_CODE);
         assertNotNull(p);
+        assertEquals(PRODUCT_DESCRIPTION, p.getProductDescription());
+        assertEquals(PRODUCT_CODE, p.getBarCode());
+        assertEquals(PRODUCT_PRICE, p.getPricePerUnit(), 0.001);
         assertEquals("", p.getNote());
     }
 
