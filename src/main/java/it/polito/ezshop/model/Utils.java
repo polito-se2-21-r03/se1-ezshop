@@ -26,6 +26,25 @@ public class Utils {
     }
 
     /**
+     * Generate a new (random) integer id which is not already
+     * present in the provided list.
+     *
+     * @param ids is the current list of IDs to check for collision.
+     * @return a new integer id.
+     */
+    public static Integer generateTransactionId(List<Integer> ids) {
+        UUID u = UUID.randomUUID();
+        int id = (int) u.getLeastSignificantBits();
+
+        while (id < 0 || (ids != null && ids.contains(id))) {
+            u = UUID.randomUUID();
+            id = (int) u.getLeastSignificantBits();
+        }
+
+        return id;
+    }
+
+    /**
      * Check if given barcode is valid according to GTIN-12, GTIN-13 or GTIN-14.
      * Implementation follows the algorithm described at: https://www.gs1.org/services/how-calculate-check-digit-manually
      *

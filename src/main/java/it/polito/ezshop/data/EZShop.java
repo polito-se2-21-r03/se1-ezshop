@@ -7,8 +7,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static it.polito.ezshop.model.Utils.generateId;
-import static it.polito.ezshop.model.Utils.isValidBarcode;
+import static it.polito.ezshop.model.Utils.*;
 
 
 public class EZShop implements EZShopInterface {
@@ -32,6 +31,11 @@ public class EZShop implements EZShopInterface {
      * List of all products in EZShop
      */
     private final List<ProductType> products = new ArrayList<>();
+
+    /**
+     * List of all transactions in EZShop
+     */
+    private final List<SaleTransaction> transactions = new ArrayList<>();
 
     /**
      * The account book holding all balance transactions (orders, sale transactions, ect.)
@@ -811,11 +815,47 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer startSaleTransaction() throws UnauthorizedException {
-        return null;
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        // generate a list of all transaction ids
+        List<Integer> ids = transactions.stream().map(SaleTransaction::getTicketNumber).collect(Collectors.toList());
+        // generate a new id that is not already in the list
+        Integer id = generateTransactionId(ids);
+        return id;
     }
 
     @Override
     public boolean addProductToSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        if (transactionId == null || transactionId <= 0){
+            throw new InvalidTransactionIdException("Invalid transaction ID");
+        }
+
+
+        //Note: id like to add function GetProductType instead of repeating lines of code but im not sure if it's the right way
+
+        if (!isValidBarcode(productCode)) {
+            throw new InvalidProductCodeException("Invalid Bar Code");
+        }
+
+        ProductType p = products.stream()
+                // filter users with the given id
+                .filter(x -> x.getBarCode().equals(productCode))
+                // find the first matching user
+                .findFirst()
+                // if a matching user is not found, return null
+                .orElse(null);
+        if (p == null){
+            return false;
+        }
+        if(p.getQuantity() < 0){
+            throw new InvalidQuantityException("Product quantity must be greater or equal than 0");
+        }
+        if (p.getQuantity() < amount){
+            return false;
+        }
+
         return false;
     }
 
