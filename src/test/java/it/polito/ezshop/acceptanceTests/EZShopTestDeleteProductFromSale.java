@@ -57,19 +57,19 @@ public class EZShopTestDeleteProductFromSale {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // add product with code PRODUCT_CODE_1 to the shop
-        shop.createProductType("desc", PRODUCT_CODE_1, 10.0, "note");
-        ProductType p1 = shop.getProductTypeByBarCode(PRODUCT_CODE_1);
-        shop.updateQuantity(p1.getId(), PRODUCT_INVENTORY_QUANTITY_1);
+        int id1 = shop.createProductType("desc", PRODUCT_CODE_1, 10.0, "note");
+        shop.updatePosition(id1, "1-1-1");
+        shop.updateQuantity(id1, PRODUCT_INVENTORY_QUANTITY_1);
 
         // add product with code PRODUCT_CODE_2 to the shop
-        shop.createProductType("desc", PRODUCT_CODE_2, 20.0, "note");
-        ProductType p2 = shop.getProductTypeByBarCode(PRODUCT_CODE_2);
-        shop.updateQuantity(p2.getId(), PRODUCT_INVENTORY_QUANTITY_2);
+        int id2 = shop.createProductType("desc", PRODUCT_CODE_2, 20.0, "note");
+        shop.updatePosition(id2, "1-1-2");
+        shop.updateQuantity(id2, PRODUCT_INVENTORY_QUANTITY_2);
 
         // add product with code PRODUCT_CODE_3 to the shop
-        shop.createProductType("desc", PRODUCT_CODE_3, 20.0, "note");
-        ProductType p3 = shop.getProductTypeByBarCode(PRODUCT_CODE_3);
-        shop.updateQuantity(p3.getId(), PRODUCT_INVENTORY_QUANTITY_3);
+        int id3 = shop.createProductType("desc", PRODUCT_CODE_3, 20.0, "note");
+        shop.updatePosition(id3, "1-1-3");
+        shop.updateQuantity(id3, PRODUCT_INVENTORY_QUANTITY_3);
 
         // create a new transaction
         transactionId = shop.startSaleTransaction();
@@ -85,7 +85,7 @@ public class EZShopTestDeleteProductFromSale {
     @Test
     public void testAuthorization() throws Throwable {
         Method targetMethod = EZShop.class.getMethod("deleteProductFromSale", Integer.class, String.class, int.class);
-        Object[] params = {};
+        Object[] params = {transactionId, PRODUCT_CODE_2, PRODUCT_TRANSACTION_AMOUNT_2};
         Role[] allowedRoles = new Role[]{Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER};
 
         testAccessRights(targetMethod, params, allowedRoles);

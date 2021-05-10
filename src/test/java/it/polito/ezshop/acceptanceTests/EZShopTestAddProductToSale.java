@@ -3,6 +3,7 @@ package it.polito.ezshop.acceptanceTests;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.ProductType;
 import it.polito.ezshop.data.SaleTransaction;
+import it.polito.ezshop.data.TicketEntry;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
@@ -46,14 +47,14 @@ public class EZShopTestAddProductToSale {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // add product with code PRODUCT_CODE_1 to the shop
-        shop.createProductType("desc", PRODUCT_CODE_1, 10.0, "note");
-        ProductType p1 = shop.getProductTypeByBarCode(PRODUCT_CODE_1);
-        shop.updateQuantity(p1.getId(), PRODUCT_QUANTITY_1);
+        int id1 = shop.createProductType("desc", PRODUCT_CODE_1, 10.0, "note");
+        shop.updatePosition(id1, "1-1-1");
+        shop.updateQuantity(id1, PRODUCT_QUANTITY_1);
 
         // add product with code PRODUCT_CODE_2 to the shop
-        shop.createProductType("desc", PRODUCT_CODE_2, 20.0, "note");
-        ProductType p2 = shop.getProductTypeByBarCode(PRODUCT_CODE_2);
-        shop.updateQuantity(p2.getId(), PRODUCT_QUANTITY_2);
+        int id2 = shop.createProductType("desc", PRODUCT_CODE_2, 20.0, "note");
+        shop.updatePosition(id2, "1-1-2");
+        shop.updateQuantity(id2, PRODUCT_QUANTITY_2);
 
         transactionId = shop.startSaleTransaction();
     }
@@ -64,7 +65,7 @@ public class EZShopTestAddProductToSale {
     @Test
     public void testAuthorization() throws Throwable {
         Method targetMethod = EZShop.class.getMethod("addProductToSale", Integer.class, String.class, int.class);
-        Object[] params = {};
+        Object[] params = {transactionId, PRODUCT_CODE_1, 1};
         Role[] allowedRoles = new Role[]{Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER};
 
         testAccessRights(targetMethod, params, allowedRoles);
@@ -162,32 +163,37 @@ public class EZShopTestAddProductToSale {
         ProductType p1 = shop.getProductTypeByBarCode(PRODUCT_CODE_1);
         assertEquals((Integer) (PRODUCT_QUANTITY_1 - amount), p1.getQuantity());
 
-        // 1.2 verify that the amount of PRODUCT_CODE_1 in the sale transaction is correctly updated
-        SaleTransaction transaction = shop.getSaleTransaction(transactionId);
-        assertTrue(transaction.getEntries()
-                .stream().anyMatch(x -> x.getBarCode().equals(PRODUCT_CODE_1) && x.getAmount() == amount));
-
         // 2. add a new amount of PRODUCT_CODE_1
         assertTrue(shop.addProductToSale(transactionId, PRODUCT_CODE_1, PRODUCT_QUANTITY_1 - amount));
         // 2.1 verify that the quantity in the inventory is correctly updated
         p1 = shop.getProductTypeByBarCode(PRODUCT_CODE_1);
-        assertEquals(new Integer(0), p1.getQuantity());
-
-        // 2.2 verify that the amount of PRODUCT_CODE_1 in the sale transaction is correctly updated
-        transaction = shop.getSaleTransaction(transactionId);
-        assertTrue(transaction.getEntries()
-                .stream().anyMatch(x -> x.getBarCode().equals(PRODUCT_CODE_1) && x.getAmount() == PRODUCT_QUANTITY_1));
+        assertEquals((Integer) 0, p1.getQuantity());
 
         // 3. add PRODUCT_QUANTITY_2 of PRODUCT_CODE_2
         assertFalse(shop.addProductToSale(transactionId, PRODUCT_CODE_2, PRODUCT_QUANTITY_2));
         // 3.1 verify that the quantity of PRODUCT_CODE_2 in the inventory is correctly updated
         p1 = shop.getProductTypeByBarCode(PRODUCT_CODE_2);
-        assertEquals(new Integer(0), p1.getQuantity());
+        assertEquals((Integer) 0, p1.getQuantity());
 
-        // 3.2 verify that the amount of PRODUCT_CODE_2 in the sale transaction is correctly updated
-        transaction = shop.getSaleTransaction(transactionId);
-        assertTrue(transaction.getEntries()
-                .stream().anyMatch(x -> x.getBarCode().equals(PRODUCT_CODE_2) && x.getAmount() == PRODUCT_QUANTITY_2));
+        // 3. verify the final status of the transaction
+        shop.endSaleTransaction(transactionId);
+        SaleTransaction saleTransaction = shop.getSaleTransaction(transactionId);
+
+        // 3.1 check amount of product 1 in the transaction
+        Integer amountP1 = saleTransaction.getEntries().stream()
+                .filter(x -> x.getBarCode().equals(PRODUCT_CODE_1))
+                .findAny()
+                .map(TicketEntry::getAmount)
+                .orElse(-1);
+        assertEquals(PRODUCT_QUANTITY_1, amountP1);
+
+        // 3.2 check amount of product 2 in the transaction
+        Integer amountP2 = saleTransaction.getEntries().stream()
+                .filter(x -> x.getBarCode().equals(PRODUCT_CODE_2))
+                .findAny()
+                .map(TicketEntry::getAmount)
+                .orElse(0);
+        assertEquals(PRODUCT_QUANTITY_2, amountP2);
     }
 
 }
