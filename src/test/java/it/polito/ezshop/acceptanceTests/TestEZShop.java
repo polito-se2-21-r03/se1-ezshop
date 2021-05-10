@@ -18,6 +18,7 @@ import org.junit.runners.Suite;
         EZShopTestDeleteProductFromSale.class,
         EZShopTestApplyDiscountRateToProduct.class,
         EZShopTestApplyDiscountRateToSale.class,
+        EZShopTestEndSaleTransaction.class
 })
 public class TestEZShop {
 
