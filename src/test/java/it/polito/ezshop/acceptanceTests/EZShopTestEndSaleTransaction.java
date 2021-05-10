@@ -69,7 +69,7 @@ public class EZShopTestEndSaleTransaction {
      */
     @Test()
     public void testInvalidId() {
-        testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs, shop::computePointsForSale);
+        testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs, shop::endSaleTransaction);
     }
 
     /**
