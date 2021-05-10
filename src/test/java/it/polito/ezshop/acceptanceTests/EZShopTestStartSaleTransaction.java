@@ -1,12 +1,8 @@
 package it.polito.ezshop.acceptanceTests;
 
 import it.polito.ezshop.data.EZShop;
-import it.polito.ezshop.exceptions.InvalidPasswordException;
-import it.polito.ezshop.exceptions.InvalidRoleException;
-import it.polito.ezshop.exceptions.InvalidUsernameException;
 import it.polito.ezshop.exceptions.UnauthorizedException;
 import it.polito.ezshop.model.Role;
-import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,35 +14,26 @@ import static org.junit.Assert.*;
 /**
  * Tests on the EZShop.startSaleTransaction() method.
  */
-public class EZShopTestStartSaleTransaction {
-
-    private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Admin", "123", Role.ADMINISTRATOR);
+public class EZShopTestStartSaleTransaction extends EZShopTestBase {
 
     @Before
-    public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
-        // reset the state of EZShop
-        shop.reset();
-        // create a new user
-        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole());
-        // and log in with that user
-        shop.login(admin.getUsername(), admin.getPassword());
+    public void beforeEach() throws Exception {
+        super.reset();
     }
 
     /**
-     * Tests that access rights are handled correctly by updateProduct.
+     * Tests that access rights are handled correctly by startSaleTransaction.
      */
     @Test
     public void testAuthorization() throws Throwable {
         Method targetMethod = EZShop.class.getMethod("startSaleTransaction");
         Object[] params = {};
-        Role[] allowedRoles = new Role[]{Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER};
 
-        testAccessRights(targetMethod, params, allowedRoles);
+        testAccessRights(targetMethod, params, Role.values());
     }
 
     /**
-     * Create one or more sale transaction(s) successfully
+     * Start one or more sale transaction(s) successfully
      */
     @Test
     public void testStartSaleTransactionSuccessfully() throws UnauthorizedException {

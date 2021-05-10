@@ -1,7 +1,6 @@
 package it.polito.ezshop.acceptanceTests;
 
 import it.polito.ezshop.data.EZShop;
-import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.exceptions.UnauthorizedException;
 import it.polito.ezshop.model.Role;
 

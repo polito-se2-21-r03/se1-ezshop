@@ -1,11 +1,8 @@
 package it.polito.ezshop.acceptanceTests;
 
 import it.polito.ezshop.data.EZShop;
-import it.polito.ezshop.exceptions.InvalidPaymentException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
-import it.polito.ezshop.exceptions.UnauthorizedException;
 import it.polito.ezshop.model.Role;
-import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,40 +13,22 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Tests on the EZShop.endSaleTransaction() method.
+ * Tests on the EZShop.endSaleTransaction(Integer) method.
  */
-public class EZShopTestEndSaleTransaction {
-
-    // product
-    private static final String PRODUCT_CODE = "12345678901231";
-    private static final Double PRODUCT_PRICE = 15.0;
-    private static final Integer PRODUCT_QUANTITY = 10;
-    private static final String PRODUCT_DESCRIPTION = "description";
-    private static final String PRODUCT_NOTE = "note";
-    private static final String PRODUCT_POSITION = "1-1-1";
-
-    private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Admin", "123", Role.ADMINISTRATOR);
+public class EZShopTestEndSaleTransaction extends EZShopTestBase {
 
     private Integer tid;
 
     @Before
     public void beforeEach() throws Exception {
-        // reset the state of EZShop
-        shop.reset();
-        // create a new user
-        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole());
-        // and log in with that user
-        shop.login(admin.getUsername(), admin.getPassword());
+        super.reset();
 
-        // add a product to the shop
-        int id1 = shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE);
-        shop.updatePosition(id1, PRODUCT_POSITION);
-        shop.updateQuantity(id1, PRODUCT_QUANTITY);
+        // add a product1 to the shop
+        addProducts(product1);
 
-        // create a new transaction
+        // create a new transaction and add product1 to it
         tid = shop.startSaleTransaction();
-        shop.addProductToSale(tid, PRODUCT_CODE, 1);
+        shop.addProductToSale(tid, product1.getBarCode(), 1);
     }
 
     /**
@@ -59,9 +38,8 @@ public class EZShopTestEndSaleTransaction {
     public void testAuthorization() throws Throwable {
         Method targetMethod = EZShop.class.getMethod("endSaleTransaction", Integer.class);
         Object[] params = {tid};
-        Role[] allowedRoles = new Role[]{Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER};
 
-        testAccessRights(targetMethod, params, allowedRoles);
+        testAccessRights(targetMethod, params, Role.values());
     }
 
     /**
@@ -81,7 +59,7 @@ public class EZShopTestEndSaleTransaction {
     }
 
     /**
-     * Apply a discount rate successfully
+     * End a sale transaction successfully
      */
     @Test
     public void testEndSaleTransactionSuccessfully() throws Exception {
@@ -91,7 +69,7 @@ public class EZShopTestEndSaleTransaction {
         assertFalse(shop.endSaleTransaction(tid));
 
         // pay the transaction and call the method again
-        shop.receiveCashPayment(tid, 50.0);
+        shop.receiveCashPayment(tid, product1.getPricePerUnit());
         assertFalse(shop.endSaleTransaction(tid));
     }
 
