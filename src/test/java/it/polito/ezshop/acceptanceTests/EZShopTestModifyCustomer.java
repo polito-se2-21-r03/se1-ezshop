@@ -269,8 +269,12 @@ public class EZShopTestModifyCustomer {
 
         // attach card to different customer
         assertTrue(shop.modifyCustomer(customer2.getId(), customer2.getCustomerName(), card1));
-        
+
         // verify that points on card still remains the same
         assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer2.getId()).getPoints());
+
+        // verify that first customer has no card or points
+        assertNull(shop.getCustomer(customer1.getId()).getCustomerCard());
+        assertEquals(new Integer(0), shop.getCustomer(customer1.getId()).getPoints());
     }
 }

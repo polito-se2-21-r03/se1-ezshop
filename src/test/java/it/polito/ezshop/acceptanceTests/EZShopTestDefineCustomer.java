@@ -74,6 +74,7 @@ public class EZShopTestDefineCustomer {
     public void testOnlyUniqueCustomerNamesAllowed() throws InvalidCustomerNameException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException {
 
+        // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
         // define first customer with unique name successfully
@@ -120,6 +121,7 @@ public class EZShopTestDefineCustomer {
     public void testDefineManyCustomersSuccessfully() throws InvalidCustomerNameException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException, InvalidCustomerIdException {
 
+        // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
         // define names and IDs
