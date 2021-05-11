@@ -51,8 +51,7 @@ public class EZShopTestDefineCustomer {
      * If an empty customerName is provided an InvalidCustomerNameException should be thrown
      */
     @Test
-    public void testInvalidCustomerNameExceptionIfNameEmpty() throws InvalidCustomerNameException, UnauthorizedException,
-            InvalidPasswordException, InvalidUsernameException {
+    public void testInvalidCustomerNameExceptionIfNameEmpty() throws InvalidPasswordException, InvalidUsernameException {
 
         shop.login(user.getUsername(), user.getPassword());
         assertThrows(InvalidCustomerNameException.class, () -> shop.defineCustomer(""));
@@ -62,8 +61,7 @@ public class EZShopTestDefineCustomer {
      * If null is passed as an argument for customerName an InvalidCustomerNameException should be thrown
      */
     @Test
-    public void testInvalidCustomerNameExceptionIfNameNull() throws InvalidCustomerNameException, UnauthorizedException,
-            InvalidPasswordException, InvalidUsernameException {
+    public void testInvalidCustomerNameExceptionIfNameNull() throws InvalidPasswordException, InvalidUsernameException {
 
         shop.login(user.getUsername(), user.getPassword());
         assertThrows(InvalidCustomerNameException.class, () -> shop.defineCustomer(null));
@@ -83,6 +81,9 @@ public class EZShopTestDefineCustomer {
 
         // return error value on definition of customer with duplicate customer name
         assertEquals(new Integer(-1), shop.defineCustomer("Pietro"));
+
+        // verify that customer was indeed not created
+        assertEquals(0, shop.getAllCustomers().size());
     }
 
     /**
