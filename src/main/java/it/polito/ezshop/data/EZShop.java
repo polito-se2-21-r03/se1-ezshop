@@ -816,12 +816,10 @@ public class EZShop implements EZShopInterface {
 
         int SaleTransactionID = accountBook.generateNewId();
         it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(SaleTransactionID, new ArrayList<>(), new ArrayList<>(),0 , 0);
-        st.setStatus(OperationStatus.OPEN.getValue());
+        st.setStatus(OperationStatus.OPEN.name());
 
         // add SaleTransaction to account book
-
         this.accountBook.addTransaction(st);
-
 
         return SaleTransactionID;
     }
@@ -847,7 +845,7 @@ public class EZShop implements EZShopInterface {
         if (t == null) {
             return false;
         }
-        if (!t.getStatus().equals(OperationStatus.OPEN.getValue())){
+        if (!t.getStatus().equals(OperationStatus.OPEN.name())){
             return false;
         }
 
@@ -891,7 +889,7 @@ public class EZShop implements EZShopInterface {
         if (t == null) {
             return false;
         }
-        if (!t.getStatus().equals(OperationStatus.OPEN.getValue())){
+        if (!t.getStatus().equals(OperationStatus.OPEN.name())){
             return false;
         }
 
@@ -946,7 +944,7 @@ public class EZShop implements EZShopInterface {
         if (t == null) {
             return false;
         }
-        if (!t.getStatus().equals(OperationStatus.OPEN.getValue())){
+        if (!t.getStatus().equals(OperationStatus.OPEN.name())){
             return false;
         }
 
@@ -983,7 +981,7 @@ public class EZShop implements EZShopInterface {
         if (t == null) {
             return false;
         }
-        if (!t.getStatus().equals(OperationStatus.OPEN.getValue())){
+        if (!t.getStatus().equals(OperationStatus.OPEN.name())){
             return false;
         }
 
@@ -1016,10 +1014,10 @@ public class EZShop implements EZShopInterface {
         if (t == null){
             return false;
         }
-        if (t.getStatus().equals(OperationStatus.CLOSED.getValue())){
+        if (t.getStatus().equals(OperationStatus.CLOSED.name())){
             return false;
         }
-        t.setStatus(OperationStatus.CLOSED.getValue());
+        t.setStatus(OperationStatus.CLOSED.name());
         return true;
     }
 
@@ -1033,7 +1031,7 @@ public class EZShop implements EZShopInterface {
         if (t == null){
             return false;
         }
-        if (t.getStatus().equals(OperationStatus.PAID.getValue())){
+        if (t.getStatus().equals(OperationStatus.PAID.name())){
             return false;
         }
 
@@ -1051,7 +1049,7 @@ public class EZShop implements EZShopInterface {
         if (t == null){
             return null;
         }
-        if(!t.getStatus().equals(OperationStatus.CLOSED.getValue())){
+        if(!t.getStatus().equals(OperationStatus.CLOSED.name())){
             return null;
         }
 
@@ -1067,11 +1065,11 @@ public class EZShop implements EZShopInterface {
             throw new InvalidTransactionIdException("Invalid Transaction ID");
         }
         it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(saleNumber);
-        if( !t.getStatus().equals(OperationStatus.CLOSED.getValue()) || t == null){
+        if( !t.getStatus().equals(OperationStatus.CLOSED.name()) || t == null){
             return -1;
         }
         ReturnTransaction rt = new ReturnTransaction(RetrunTransactionID,new ArrayList<>(), t,0);
-        rt.setStatus(OperationStatus.OPEN.getValue());
+        rt.setStatus(OperationStatus.OPEN.name());
         t.getReturnTransactions().add(rt);
 
 
@@ -1100,7 +1098,7 @@ public class EZShop implements EZShopInterface {
         if(rt == null){
             return false;
         }
-        if(!rt.getStatus().equals(OperationStatus.OPEN.getValue())){
+        if(!rt.getStatus().equals(OperationStatus.OPEN.name())){
             return false;
         }
         it.polito.ezshop.model.SaleTransaction t = rt.getSaleTransaction();
