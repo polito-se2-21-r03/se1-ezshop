@@ -40,8 +40,8 @@ public class EZShopTestGetAllCustomers {
      */
     @Test
     public void testAuthorization() throws Throwable {
-        Method defineCustomer = EZShop.class.getMethod("getCustomer", Integer.class);
-        testAccessRights(defineCustomer, new Object[] {1},
+        Method defineCustomer = EZShop.class.getMethod("getAllCustomers");
+        testAccessRights(defineCustomer, new Object[] {},
                 new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
