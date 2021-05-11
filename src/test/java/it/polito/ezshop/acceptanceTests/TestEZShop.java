@@ -22,7 +22,8 @@ import org.junit.runners.Suite;
         EZShopTestDeleteSaleTransaction.class,
         EZShopTestGetSaleTransaction.class,
         EZShopTestStartReturnTransaction.class,
-        EZShopTestReturnProduct.class
+        EZShopTestReturnProduct.class,
+        EZShopTestEndReturnTransaction.class
 })
 public class TestEZShop {
 
