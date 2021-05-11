@@ -7,9 +7,7 @@ import it.polito.ezshop.model.User;
 
 public class EZShopTestBase {
 
-    protected static final ProductType product1;
-    protected static final ProductType product2;
-    protected static final ProductType product3;
+    protected static final ProductType product1,  product2, product3, product4;
     protected static final User admin;
     protected static final EZShop shop = new EZShop();
 
@@ -34,6 +32,13 @@ public class EZShopTestBase {
     private static final String PRODUCT_NOTE_3 = "note product 3";
     private static final String PRODUCT_POSITION_3 = "1-1-3";
 
+    private static final String PRODUCT_CODE_4 = "5634567890122";
+    private static final Double PRODUCT_PRICE_4 = 3.50;
+    private static final Integer PRODUCT_QUANTITY_4 = 20;
+    private static final String PRODUCT_DESCRIPTION_4 = "description product 4";
+    private static final String PRODUCT_NOTE_4 = "note product 4";
+    private static final String PRODUCT_POSITION_4 = "1-1-4";
+
     private static final String ADMIN_USERNAME = "admin";
     private static final String ADMIN_PASSWORD = "123";
 
@@ -52,6 +57,11 @@ public class EZShopTestBase {
         product3 = new it.polito.ezshop.model.ProductType(PRODUCT_NOTE_3, PRODUCT_DESCRIPTION_3, PRODUCT_CODE_3, PRODUCT_PRICE_3, -1);
         product3.setLocation(PRODUCT_POSITION_3);
         product3.setQuantity(PRODUCT_QUANTITY_3);
+
+        // initialization of product 4
+        product4 = new it.polito.ezshop.model.ProductType(PRODUCT_NOTE_4, PRODUCT_DESCRIPTION_4, PRODUCT_CODE_4, PRODUCT_PRICE_4, -1);
+        product4.setLocation(PRODUCT_POSITION_4);
+        product4.setQuantity(PRODUCT_QUANTITY_4);
 
         // initialization of the admin user
         admin = new User(0, ADMIN_USERNAME, ADMIN_PASSWORD, Role.ADMINISTRATOR);

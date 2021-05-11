@@ -20,7 +20,9 @@ import org.junit.runners.Suite;
         EZShopTestApplyDiscountRateToSale.class,
         EZShopTestEndSaleTransaction.class,
         EZShopTestDeleteSaleTransaction.class,
-        EZShopTestGetSaleTransaction.class
+        EZShopTestGetSaleTransaction.class,
+        EZShopTestStartReturnTransaction.class,
+        EZShopTestReturnProduct.class
 })
 public class TestEZShop {
 
