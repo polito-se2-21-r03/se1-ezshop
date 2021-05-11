@@ -1,5 +1,6 @@
 package it.polito.ezshop.acceptanceTests;
 
+import it.polito.ezshop.data.Customer;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.Role;
@@ -8,7 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
+import static it.polito.ezshop.acceptanceTests.TestHelpers.assertThrows;
 import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
 
@@ -26,7 +30,10 @@ public class EZShopTestDefineCustomer {
     @Before
     public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
 
+        // reset shop to blanc state
         shop.reset();
+
+        // setup authorized user
         shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
     }
 
@@ -43,23 +50,23 @@ public class EZShopTestDefineCustomer {
     /**
      * If an empty customerName is provided an InvalidCustomerNameException should be thrown
      */
-    @Test(expected = InvalidCustomerNameException.class)
+    @Test
     public void testInvalidCustomerNameExceptionIfNameEmpty() throws InvalidCustomerNameException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException {
 
         shop.login(user.getUsername(), user.getPassword());
-        shop.defineCustomer("");
+        assertThrows(InvalidCustomerNameException.class, () -> shop.defineCustomer(""));
     }
 
     /**
      * If null is passed as an argument for customerName an InvalidCustomerNameException should be thrown
      */
-    @Test(expected = InvalidCustomerNameException.class)
+    @Test
     public void testInvalidCustomerNameExceptionIfNameNull() throws InvalidCustomerNameException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException {
 
         shop.login(user.getUsername(), user.getPassword());
-        shop.defineCustomer(null);
+        assertThrows(InvalidCustomerNameException.class, () -> shop.defineCustomer(null));
     }
 
     /**
@@ -70,10 +77,12 @@ public class EZShopTestDefineCustomer {
             InvalidPasswordException, InvalidUsernameException {
 
         shop.login(user.getUsername(), user.getPassword());
+
+        // define first customer with unique name successfully
         assertTrue(shop.defineCustomer("Pietro") > 0);
 
-        // return error value on duplicate customer name
-        assertTrue(shop.defineCustomer("Pietro") == -1);
+        // return error value on definition of customer with duplicate customer name
+        assertEquals(new Integer(-1), shop.defineCustomer("Pietro"));
     }
 
     /**
@@ -83,8 +92,24 @@ public class EZShopTestDefineCustomer {
     public void testDefineSingleCustomerSuccessfully() throws InvalidCustomerNameException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException {
 
+        // login and create customer
         shop.login(user.getUsername(), user.getPassword());
-        assertTrue(shop.defineCustomer("Pietro") > 0);
+        String customerName = "Pietro";
+        Integer customerId = shop.defineCustomer(customerName);
+
+        // definition of customer was successful
+        assertTrue(customerId > 0);
+
+        // only one customer was defined
+        List<Customer> customerList = shop.getAllCustomers();
+        assertEquals(1, customerList.size());
+
+        // created customer has expected ID and name and no attached card or points
+        Customer customer = customerList.get(0);
+        assertEquals(customerId, customer.getId());
+        assertEquals(customerName, customer.getCustomerName());
+        assertNull(customer.getCustomerCard());
+        assertEquals(new Integer(0), customer.getPoints());
     }
 
     /**
@@ -92,13 +117,29 @@ public class EZShopTestDefineCustomer {
      */
     @Test
     public void testDefineManyCustomersSuccessfully() throws InvalidCustomerNameException, UnauthorizedException,
-            InvalidPasswordException, InvalidUsernameException {
+            InvalidPasswordException, InvalidUsernameException, InvalidCustomerIdException {
 
         shop.login(user.getUsername(), user.getPassword());
 
-        assertTrue(shop.defineCustomer("Pietro") > 0);
-        assertTrue(shop.defineCustomer("Andrea") > 0);
-        assertTrue(shop.defineCustomer("Sarah") > 0);
-        assertTrue(shop.defineCustomer("Maria") > 0);
+        // define names and IDs
+        String[] customerNames = new String[] {"Pietro", "Andrea", "Sarah", "Maria"};
+        int[] customerIDs = new int[customerNames.length];
+
+        // insert customers
+        for (int i=0; i<customerNames.length; i++) {
+            customerIDs[i] = shop.defineCustomer(customerNames[i]);
+        }
+
+        // all customers have been created successfully and have unique positive IDs and no other customers have been created
+        assertEquals(customerNames.length, Arrays.stream(customerIDs).filter(id -> id != 0).distinct().count());
+
+        // all customers have been created with the expected ID, name and no card or points
+        for (int i=0; i<customerNames.length; i++) {
+            Customer customer = shop.getCustomer(customerIDs[i]);
+            assertEquals(new Integer(customerIDs[i]), customer.getId());
+            assertEquals(customerNames[i], customer.getCustomerName());
+            assertNull(customer.getCustomerCard());
+            assertEquals(new Integer(0), customer.getPoints());
+        }
     }
 }
