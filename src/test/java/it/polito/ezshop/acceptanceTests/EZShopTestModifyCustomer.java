@@ -9,9 +9,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.stream.Collectors;
 
 import static it.polito.ezshop.acceptanceTests.TestHelpers.assertThrows;
 import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
+import static it.polito.ezshop.model.Utils.generateId;
 import static org.junit.Assert.*;
 
 public class EZShopTestModifyCustomer {
@@ -57,7 +59,7 @@ public class EZShopTestModifyCustomer {
     @Test
     public void testAuthorization() throws Throwable {
         Method modifyCustomer = EZShop.class.getMethod("modifyCustomer", Integer.class, String.class, String.class);
-        testAccessRights(modifyCustomer, new Object[] {"Pietro"},
+        testAccessRights(modifyCustomer, new Object[] {1, "Pietro", null},
                 new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
@@ -110,6 +112,26 @@ public class EZShopTestModifyCustomer {
                 () -> shop.modifyCustomer(customer1.getId(), "Diogo", "123456789a"));
         assertThrows(InvalidCustomerCardException.class,
                 () -> shop.modifyCustomer(customer1.getId(), "Diogo", "123456789A"));
+    }
+
+    /**
+     * Tests that false is returned if the customer with the given ID does not exist
+     */
+    @Test
+    public void testFalseCustomerNotExists() throws InvalidPasswordException, InvalidUsernameException,
+            UnauthorizedException, InvalidCustomerCardException, InvalidCustomerIdException, InvalidCustomerNameException {
+
+        // login with sufficient rights
+        shop.login(user.getUsername(), user.getPassword());
+
+        // generate an ID which isn't taken by any customer
+        int nonExistentId = generateId(
+                shop.getAllCustomers().stream()
+                        .map(it.polito.ezshop.data.Customer::getId)
+                        .collect(Collectors.toList()));
+
+        // changing name to null throws exception
+        assertFalse(shop.modifyCustomer(nonExistentId, "Diogo", "1234567890"));
     }
 
     /**
@@ -235,20 +257,39 @@ public class EZShopTestModifyCustomer {
 
         // attach different cards to different customers
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
-        assertTrue(shop.modifyCustomer(customer2.getId(), customer2.getCustomerName(), card2));
 
-        // try to attach modify the second customer to have the same card as the first customer
+        // try to modify the second customer to have the same card as the first customer
         assertFalse(shop.modifyCustomer(customer2.getId(), customer2.getCustomerName(), card1));
 
         // verify that the first customer's card is still attached to first customer
         assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
 
-        // verify that the second customer still hase the second card attached
-        assertEquals(card2, shop.getCustomer(customer2.getId()).getCustomerCard());
+        // verify that the second customer has no attached card
+        assertNull(shop.getCustomer(customer2.getId()).getCustomerCard());
     }
 
     /**
-     * Test whether changing the customer a card is attached to doesn't change the card's points
+     * Test that each customer can only have one attached card
+     */
+    @Test
+    public void testOneCardPerCustomer() throws InvalidPasswordException, InvalidUsernameException,
+            InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
+
+        // login with sufficient rights
+        shop.login(user.getUsername(), user.getPassword());
+
+        // attach different cards to different customers
+        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
+
+        // try to modify the second customer to have the same card as the first customer
+        assertFalse(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card2));
+
+        // verify that the first customer's card is still attached to first customer
+        assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
+    }
+
+    /**
+     * Test that changing the customer a card is attached to doesn't change the card's points
      */
     @Test
     public void testCardPointsArePersistent() throws InvalidPasswordException, InvalidUsernameException,
