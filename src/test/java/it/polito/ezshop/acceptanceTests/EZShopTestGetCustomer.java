@@ -16,7 +16,7 @@ import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
 import static it.polito.ezshop.model.Utils.generateId;
 import static org.junit.Assert.*;
 
-public class EZShopTestDeleteCustomer {
+public class EZShopTestGetCustomer {
 
     private static final EZShop shop = new EZShop();
     private static final User user = new User(0, "Andrea", "123", Role.CASHIER);
@@ -54,7 +54,7 @@ public class EZShopTestDeleteCustomer {
      */
     @Test
     public void testAuthorization() throws Throwable {
-        Method defineCustomer = EZShop.class.getMethod("deleteCustomer", Integer.class);
+        Method defineCustomer = EZShop.class.getMethod("getCustomer", Integer.class);
         testAccessRights(defineCustomer, new Object[] {1},
                 new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
@@ -69,7 +69,7 @@ public class EZShopTestDeleteCustomer {
         shop.login(user.getUsername(), user.getPassword());
 
         // throw an InvalidCustomerIdException when ID is null
-        assertThrows(InvalidCustomerIdException.class, () -> shop.deleteCustomer(null));
+        assertThrows(InvalidCustomerIdException.class, () -> shop.getCustomer(null));
     }
 
     /**
@@ -82,7 +82,7 @@ public class EZShopTestDeleteCustomer {
         shop.login(user.getUsername(), user.getPassword());
 
         // throw an InvalidCustomerIdException when ID is negative
-        assertThrows(InvalidCustomerIdException.class, () -> shop.deleteCustomer(-1));
+        assertThrows(InvalidCustomerIdException.class, () -> shop.getCustomer(-1));
     }
 
     /**
@@ -95,14 +95,14 @@ public class EZShopTestDeleteCustomer {
         shop.login(user.getUsername(), user.getPassword());
 
         // throw an InvalidCustomerIdException when ID is 0
-        assertThrows(InvalidCustomerIdException.class, () -> shop.deleteCustomer(0));
+        assertThrows(InvalidCustomerIdException.class, () -> shop.getCustomer(0));
     }
 
     /**
-     * Tests that false is returned if no customer with that ID exists
+     * Tests that null is returned if no customer with the given ID exists
      */
     @Test
-    public void testFalseIfCustomerNotExists() throws InvalidPasswordException, InvalidUsernameException,
+    public void testNullIfCustomerNotExists() throws InvalidPasswordException, InvalidUsernameException,
             UnauthorizedException, InvalidCustomerIdException {
 
         // login with sufficient rights
@@ -115,41 +115,33 @@ public class EZShopTestDeleteCustomer {
                         .collect(Collectors.toList()));
 
         // return false when customer does not exist
-        assertFalse(shop.deleteCustomer(nonExistentId));
-
-        // verify other customers still exist
-        assertEquals(2, shop.getAllCustomers().size());
+        assertNull(shop.getCustomer(nonExistentId));
     }
 
     /**
-     * Tests deleting a customer successfully
+     * Tests that customer is returned correctly
      */
     @Test
-    public void testDeleteCustomerSuccessfully() throws InvalidPasswordException, InvalidUsernameException,
-            UnauthorizedException, InvalidCustomerIdException {
+    public void testCustomerReturnedSuccessfully() throws InvalidPasswordException, InvalidUsernameException,
+            UnauthorizedException, InvalidCustomerIdException, InvalidCustomerNameException, InvalidCustomerCardException {
 
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // delete customer successfully
-        assertTrue(shop.deleteCustomer(customer1.getId()));
+        // get customer
+        it.polito.ezshop.data.Customer customer = shop.getCustomer(customer1.getId());
 
-        // verify customer does not exist anymore
-        assertEquals(1, shop.getAllCustomers().size());
-        assertNull(shop.getCustomer(customer1.getId()));
-
-        // verify other customer still exist
-        assertEquals(customer2.getId(), shop.getCustomer(customer2.getId()).getId());
-        assertEquals(customer2.getCustomerName(), shop.getCustomer(customer2.getId()).getCustomerName());
+        // verify that customer data is correct
+        assertEquals(customer1.getId(), customer.getId());
+        assertEquals(customer1.getCustomerName(), customer.getCustomerName());
     }
 
     /**
-     * Tests that a card still exists after the customer it was attached to has been deleted and the amount of points on
-     * the card remains unchanged
+     * Tests that attached card and points are returned correctly with customer
      */
     @Test
-    public void testCardNotDeletedWithCustomer() throws InvalidPasswordException, InvalidUsernameException,
-            InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
+    public void testCardReturnedSuccessfully() throws InvalidPasswordException, InvalidUsernameException,
+            UnauthorizedException, InvalidCustomerIdException, InvalidCustomerNameException, InvalidCustomerCardException {
 
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
@@ -159,13 +151,11 @@ public class EZShopTestDeleteCustomer {
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card));
         assertTrue(shop.modifyPointsOnCard(card, pointsOnCard));
 
-        // delete customer successfully
-        assertTrue(shop.deleteCustomer(customer1.getId()));
+        // get customer
+        it.polito.ezshop.data.Customer customer = shop.getCustomer(customer1.getId());
 
-        // attach card to different customer
-        assertTrue(shop.modifyCustomer(customer2.getId(), customer2.getCustomerName(), card));
-
-        // verify points on card hasn't changed
-        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer2.getId()).getPoints());
+        // verify that card data is correct
+        assertEquals(card, customer.getCustomerCard());
+        assertEquals(new Integer(pointsOnCard), customer.getPoints());
     }
 }
