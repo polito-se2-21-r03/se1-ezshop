@@ -34,7 +34,7 @@ public class BalanceOperation implements it.polito.ezshop.data.BalanceOperation 
     @Override
     public void setType(String type) { this.type = type; }
 
-    public String getStatus() { return status.getValue(); }
+    public String getStatus() { return status.name(); }
 
     public void setStatus(String status) { this.status = OperationStatus.valueOf(status); }
 

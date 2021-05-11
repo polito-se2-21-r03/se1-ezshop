@@ -7,10 +7,19 @@ import it.polito.ezshop.model.Role;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.fail;
 
 public class TestHelpers {
+
+    public static final double DOUBLE_COMPARISON_THRESHOLD = 0.001;
+
+    public static final List<Integer> invalidProductIDs = Arrays.asList(null, -1, 0);
+    public static final List<String> invalidProductCodes = Arrays.asList(null, "", "123456789B123A", "12345678901232");
+    public static final List<Integer> invalidProductAmounts = Arrays.asList(-10, -1);
+    public static final List<Integer> invalidTransactionIDs = Arrays.asList(null, -1, 0);
+    public static final List<Double> invalidDiscountRates = Arrays.asList(-1.0, -0.1, 1.0, 1.1);
 
     /**
      * This method tests whether the access rights for a given EZShop API function are managed correctly.
@@ -165,7 +174,19 @@ public class TestHelpers {
         }
     }
 
+    public static <T extends Exception, V> void testInvalidValues(Class<T> exceptionCls, List<V> values,
+                                                                  ThrowingFunction<V> function) {
+        values.forEach((value) -> {
+            // for each boundary value check that the correct exception is thrown
+            assertThrows(exceptionCls, () -> function.apply(value));
+        });
+    }
+
     public interface ThrowingRunnable {
         void run() throws Exception;
+    }
+
+    public interface ThrowingFunction<T> {
+        void apply(T t) throws Exception;
     }
 }

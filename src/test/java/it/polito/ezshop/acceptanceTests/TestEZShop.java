@@ -12,7 +12,18 @@ import org.junit.runners.Suite;
         EZShopTestDeleteProductType.class,
         EZShopTestGetProductTypeByBarCode.class,
         EZShopTestGetProductTypesByDescription.class,
-        EZShopTestDefineCustomer.class
+        EZShopTestDefineCustomer.class,
+        EZShopTestStartSaleTransaction.class,
+        EZShopTestAddProductToSale.class,
+        EZShopTestDeleteProductFromSale.class,
+        EZShopTestApplyDiscountRateToProduct.class,
+        EZShopTestApplyDiscountRateToSale.class,
+        EZShopTestEndSaleTransaction.class,
+        EZShopTestDeleteSaleTransaction.class,
+        EZShopTestGetSaleTransaction.class,
+        EZShopTestStartReturnTransaction.class,
+        EZShopTestReturnProduct.class,
+        EZShopTestEndReturnTransaction.class
 })
 public class TestEZShop {
 
