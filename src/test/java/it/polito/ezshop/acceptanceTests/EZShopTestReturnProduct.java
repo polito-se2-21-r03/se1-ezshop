@@ -11,8 +11,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 
 import static it.polito.ezshop.acceptanceTests.TestHelpers.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Tests on the EZShop.returnProduct(Integer, String, int) method.
@@ -97,6 +96,9 @@ public class EZShopTestReturnProduct extends EZShopTestBase {
      */
     @Test
     public void testReturnProductSuccessfully() throws Exception {
+        int initialQty1 = shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity();
+        int initialQty2 = shop.getProductTypeByBarCode(product2.getBarCode()).getQuantity();
+
         // test non existing product
         assertFalse(shop.returnProduct(rid, product4.getBarCode(), 1));
 
@@ -109,6 +111,10 @@ public class EZShopTestReturnProduct extends EZShopTestBase {
         // test correct values
         assertTrue(shop.returnProduct(rid, product1.getBarCode(), PRODUCT_TRANSACTION_AMOUNT_1));
         assertTrue(shop.returnProduct(rid, product2.getBarCode(), 1));
+
+        // verify that the quantities on the shelves for the returned products are not updated
+        assertEquals(initialQty1, (int) shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity());
+        assertEquals(initialQty2, (int) shop.getProductTypeByBarCode(product2.getBarCode()).getQuantity());
     }
 
 }

@@ -7,7 +7,7 @@ import it.polito.ezshop.model.User;
 
 public class EZShopTestBase {
 
-    protected static final ProductType product1,  product2, product3, product4;
+    protected static final ProductType product1, product2, product3, product4;
     protected static final User admin;
     protected static final EZShop shop = new EZShop();
 
@@ -102,6 +102,20 @@ public class EZShopTestBase {
         shop.updateQuantity(id, p.getQuantity());
 
         return id;
+    }
+
+    /**
+     * Compute the value of a product as
+     * (1 - transactionDiscountRate) * (1 - productDiscountRate) * quantity * pricePerUnit
+     *
+     * @param pricePerUnit            unitary price of the product
+     * @param quantity                quantity of the product
+     * @param productDiscountRate     product's discount rate
+     * @param transactionDiscountRate sale transaction's discount rate
+     * @return the computed value
+     */
+    protected double computeValue(double pricePerUnit, int quantity, double productDiscountRate, double transactionDiscountRate) {
+        return (1 - transactionDiscountRate) * (1 - productDiscountRate) * quantity * pricePerUnit;
     }
 
 }
