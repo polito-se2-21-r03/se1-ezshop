@@ -5,13 +5,14 @@ import it.polito.ezshop.data.TicketEntry;
 import java.util.List;
 
 
-public class SaleTransaction implements it.polito.ezshop.data.SaleTransaction {
+public class SaleTransaction extends BalanceOperation implements it.polito.ezshop.data.SaleTransaction {
     private Integer TicketNumber;
     private List<TicketEntry> entries;
+    private List<ReturnTransaction> returnTransactions;
     private double discoutRate;
     private double price;
 
-    public SaleTransaction(Integer ticketNumber, List<TicketEntry> entries, double discoutRate, double price) {
+    public SaleTransaction(Integer ticketNumber, List<TicketEntry> entries, List <ReturnTransaction> returnTransactions, double discoutRate, double price) {
         this.TicketNumber = ticketNumber;
         this.entries = entries;
         this.discoutRate = discoutRate;
@@ -57,4 +58,12 @@ public class SaleTransaction implements it.polito.ezshop.data.SaleTransaction {
     public void setPrice(double price) {
         this.price = price;
     }
+
+    public List<ReturnTransaction> getReturnTransactions(){
+        return this.returnTransactions;
+    }
+    public void setReturnTransactions(List<ReturnTransaction> returnTransactions) {
+        this.returnTransactions= returnTransactions;
+    }
+
 }
