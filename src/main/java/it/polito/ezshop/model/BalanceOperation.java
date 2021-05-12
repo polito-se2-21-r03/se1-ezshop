@@ -1,52 +1,125 @@
 package it.polito.ezshop.model;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
-public class BalanceOperation implements it.polito.ezshop.data.BalanceOperation {
+public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceOperation {
 
-    private int balanceId;
-    private LocalDate date;
-    private double money;
-    private String type;
-    private OperationStatus status;
+    /**
+     * Constant value that identifies CREDIT balance operations
+     */
+    public static final String TYPE_CREDIT = "credit";
 
-    @Override
-    public int getBalanceId() { return this.balanceId; }
+    /**
+     * Constant value that identifies SALE balance operations
+     */
+    public static final String TYPE_SALE = "sale";
 
-    @Override
-    public void setBalanceId(int balanceId) { this.balanceId = balanceId; }
+    /**
+     * Constant value that identifies DEBIT balance operations
+     */
+    public static final String TYPE_DEBIT = "debit";
 
-    @Override
-    public LocalDate getDate() { return this.date; }
+    /**
+     * Constant value that identifies RETURN balance operations
+     */
+    public static final String TYPE_RETURN = "return";
 
-    @Override
-    public void setDate(LocalDate date) { this.date = date; }
+    /**
+     * Constant value that identifies ORDER balance operations
+     */
+    public static final String TYPE_ORDER = "order";
 
-    @Override
-    public double getMoney() { return this.money; }
+    protected int balanceId;
+    protected LocalDate date;
+    protected double balanceValue;
 
-    @Override
-    public void setMoney(double money) { this.money = money; }
+    /**
+     * One of TYPE_CREDIT, TYPE_SALE, TYPE_DEBIT, TYPE_RETURN, TYPE_ORDER
+     */
+    protected String type;
 
-    @Override
-    public String getType() { return this.type; }
 
-    @Override
-    public void setType(String type) { this.type = type; }
+    protected OperationStatus status;
 
-    public String getStatus() { return status.name(); }
-
-    public void setStatus(String status) { this.status = OperationStatus.valueOf(status); }
-
-    public BalanceOperation() {
+    protected BalanceOperation() {
 
     }
 
-    public BalanceOperation(int balanceId, LocalDate date, double money, String type, OperationStatus status) {
+    protected BalanceOperation(int balanceId, LocalDate date, double balanceValue, String type, OperationStatus status) {
+        Objects.requireNonNull(date, "date must not be null");
+        Objects.requireNonNull(type, "type must not be null");
+        Objects.requireNonNull(status, "status must not be null");
+
         this.balanceId = balanceId;
         this.date = date;
-        this.money = money;
+        this.balanceValue = balanceValue;
         this.type = type;
         this.status = status;
+    }
+
+    @Override
+    public int getBalanceId() {
+        return this.balanceId;
+    }
+
+    @Override
+    public void setBalanceId(int balanceId) {
+        this.balanceId = balanceId;
+    }
+
+    @Override
+    public LocalDate getDate() {
+        return this.date;
+    }
+
+    @Override
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    @Override
+    public double getMoney() {
+        return this.balanceValue;
+    }
+
+    @Override
+    public void setMoney(double balanceValue) {
+        this.balanceValue = balanceValue;
+    }
+
+    @Override
+    public String getType() {
+        return this.type;
+    }
+
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getStatus() {
+        return status.name();
+    }
+
+    public void setStatus(String status) {
+        this.status = OperationStatus.valueOf(status);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BalanceOperation that = (BalanceOperation) o;
+        return balanceId == that.balanceId &&
+                Double.compare(that.balanceValue, balanceValue) == 0 &&
+                date.equals(that.date) &&
+                type.equals(that.type) &&
+                status == that.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(balanceId);
     }
 }

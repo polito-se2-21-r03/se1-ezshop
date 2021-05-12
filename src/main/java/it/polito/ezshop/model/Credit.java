@@ -3,26 +3,12 @@ package it.polito.ezshop.model;
 import java.time.LocalDate;
 
 public class Credit extends BalanceOperation {
-    private String nameAndSurname;
-    private String cardNumber;
-    private Integer validBalance;
 
-    public String getNameAndSurname() {
-        return nameAndSurname;
+    public Credit(int balanceId, LocalDate date, double money, OperationStatus status) {
+        super(balanceId, date, money, TYPE_CREDIT, status);
     }
 
-    public String getCardNumber() {
-        return cardNumber;
+    protected Credit(int balanceId, LocalDate date, double money, String type, OperationStatus status) {
+        super(balanceId, date, money, type, status);
     }
-
-    public Integer getValidBalance() {
-        return validBalance;
-    }
-
-    public Credit(String nameAndSurname, String cardNumber, Integer validBalance) {
-        this.nameAndSurname = nameAndSurname;
-        this.cardNumber = cardNumber;
-        this.validBalance = validBalance;
-    }
-
 }

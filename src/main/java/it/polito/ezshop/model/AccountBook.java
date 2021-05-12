@@ -212,4 +212,18 @@ public class AccountBook {
         this.balanceOperations.clear();
         this.balance = 0.0;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AccountBook that = (AccountBook) o;
+        return balanceOperations.equals(that.balanceOperations) &&
+                balance.equals(that.balance);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(balanceOperations, balance);
+    }
 }

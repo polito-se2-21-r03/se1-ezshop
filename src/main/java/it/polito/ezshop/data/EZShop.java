@@ -2,12 +2,8 @@ package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.*;
-import sun.util.resources.LocaleData;
 
-import java.sql.Time;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.chrono.ChronoLocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -391,7 +387,7 @@ public class EZShop implements EZShopInterface {
 
         // check that no product already has given position
         Optional<ProductType> productAtPosition = products.stream()
-                .filter(p -> p.getLocation().equals(newPos))
+                .filter(p -> newPos.equals(p.getLocation()))
                 .findFirst();
         if (productAtPosition.isPresent()) {
             return false;
@@ -822,7 +818,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         int SaleTransactionID = accountBook.generateNewId();
-        it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(SaleTransactionID, new ArrayList<>(), new ArrayList<>(),0 , 0);
+        it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(SaleTransactionID, LocalDate.now(), new ArrayList<>(), new ArrayList<>(),0 , 0);
         st.setStatus(OperationStatus.OPEN.name());
 
         // add SaleTransaction to account book
@@ -1075,7 +1071,7 @@ public class EZShop implements EZShopInterface {
         if( !t.getStatus().equals(OperationStatus.CLOSED.name()) || t == null){
             return -1;
         }
-        ReturnTransaction rt = new ReturnTransaction(RetrunTransactionID,new ArrayList<>(), t,0);
+        ReturnTransaction rt = new ReturnTransaction(RetrunTransactionID, LocalDate.now(), new ArrayList<>(), t,0);
         rt.setStatus(OperationStatus.OPEN.name());
         t.getReturnTransactions().add(rt);
 
@@ -1279,12 +1275,7 @@ public class EZShop implements EZShopInterface {
                 || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())) {
             throw new UnauthorizedException("Action may only be performed by shop manager or administrator");
         }
-        String type;
-        //estimate the status (CREDIT or DEBIT)
-        if(toBeAdded >= 0)
-            type = "CREDIT";
-        else
-            type = "DEBIT";
+
         //date
         LocalDate date = LocalDate.now();
         // create Order object
@@ -1292,7 +1283,12 @@ public class EZShop implements EZShopInterface {
         //status
         OperationStatus newStatus = OperationStatus.PAID;
 
-        BalanceOperation newRecord = new it.polito.ezshop.model.BalanceOperation(balanceId,date,toBeAdded,type,newStatus);
+        BalanceOperation newRecord;
+        if (toBeAdded >= 0) {
+            newRecord = new Credit(balanceId, date, toBeAdded, newStatus);
+        } else {
+            newRecord = new Debit(balanceId, date, toBeAdded, newStatus);
+        }
 
         balanceRecords.add(newRecord);
 
