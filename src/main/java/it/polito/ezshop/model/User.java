@@ -1,5 +1,7 @@
 package it.polito.ezshop.model;
 
+import java.util.Objects;
+
 public class User implements it.polito.ezshop.data.User {
 
     private Integer id;
@@ -56,5 +58,21 @@ public class User implements it.polito.ezshop.data.User {
 
     public User(Integer id, String username, String password, String role) {
         this(id, username, password, Role.fromString(role));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(username, user.username) &&
+                Objects.equals(password, user.password) &&
+                role == user.role;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, role);
     }
 }

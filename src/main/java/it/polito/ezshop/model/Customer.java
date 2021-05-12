@@ -1,5 +1,7 @@
 package it.polito.ezshop.model;
 
+import java.util.Objects;
+
 public class Customer implements it.polito.ezshop.data.Customer {
     private String customerName;
     private String customerCard;
@@ -51,5 +53,21 @@ public class Customer implements it.polito.ezshop.data.Customer {
     @Override
     public void setPoints(Integer points) {
         this.points = points;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Customer customer = (Customer) o;
+        return Objects.equals(customerName, customer.customerName) &&
+                Objects.equals(customerCard, customer.customerCard) &&
+                Objects.equals(id, customer.id) &&
+                Objects.equals(points, customer.points);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
