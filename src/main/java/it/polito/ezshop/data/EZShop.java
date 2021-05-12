@@ -1166,7 +1166,7 @@ public class EZShop implements EZShopInterface {
             throw new InvalidPaymentException("Invalid cash amount.");
 
         //get the transaction and sale price information
-        Optional<SaleTransaction> transaction = Optional.ofNullable(transactions.stream().filter(x -> x.getTicketNumber().equals(ticketNumber)).findFirst().orElse(null));
+        Optional<SaleTransaction> transaction = Optional.ofNullable((SaleTransaction) accountBook.getTransaction(ticketNumber));
         double salePrice = transaction.get().getPrice();
 
         //calculate the return amount ***there need to chech for "if the sale does not exists and if there is some problemi with the db"***
@@ -1198,7 +1198,7 @@ public class EZShop implements EZShopInterface {
             throw new InvalidCreditCardException("Invalid credit card.");
 
         //get the transaction and sale price information
-        Optional<SaleTransaction> transaction = Optional.ofNullable(transactions.stream().filter(x -> x.getTicketNumber().equals(ticketNumber)).findFirst().orElse(null));
+        Optional<SaleTransaction> transaction = Optional.ofNullable((SaleTransaction) accountBook.getTransaction(ticketNumber));
         double salePrice = transaction.get().getPrice();
 
         /* The credit card should be registered in the system.
