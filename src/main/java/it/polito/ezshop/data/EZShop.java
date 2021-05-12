@@ -1091,7 +1091,59 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean endReturnTransaction(Integer returnId, boolean commit) throws InvalidTransactionIdException, UnauthorizedException {
-        return false;
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        if(returnId == null || returnId <= 0) {
+            throw new InvalidTransactionIdException("Invalid Return ID");
+        }
+        ReturnTransaction rt = (ReturnTransaction) accountBook.getTransaction(returnId);
+        if(rt == null){
+            return false;
+        }
+        if(!rt.getStatus().equals(OperationStatus.OPEN.name())){
+            return false;
+        }
+        it.polito.ezshop.model.SaleTransaction t = rt.getSaleTransaction();
+        if(t == null){
+            return false;
+        }
+        if(commit == true){
+            List <ReturnTransactionItem> ritems = rt.getEntries();
+            List <TicketEntry> titems = t.getEntries();
+            //didn't know how to use .stream in this case lol
+
+            for(int i = 0; i < ritems.size(); i++) {
+                ReturnTransactionItem ritem = ritems.get(i);
+                TicketEntry titem = titems.stream()
+                        // filter products with the given BarCode
+                        .filter(x -> x.getBarCode().equals(ritem.getBarCode()))
+                        // find the first matching product
+                        .findFirst()
+                        // if a matching product is not found, return null
+                        .orElse(null);
+                ProductType p = products.stream()
+                        // filter products with the given BarCode
+                        .filter(x -> x.getBarCode().equals(ritem.getBarCode()))
+                        // find the first matching product
+                        .findFirst()
+                        // if a matching product is not found, return null
+                        .orElse(null);
+                if (p == null || titem == null) {
+                    return false;
+                }
+                //change quantity of Product p by adding the returned amount
+                p.setQuantity(p.getQuantity() + ritem.getAmount());
+                //change quantity of Product p inside the transaction by reducing the returned amount
+                titem.setAmount(titem.getAmount() - ritem.getAmount());
+                //??? do we need to change the final price or it does automatically after removing the items ???
+            }
+            rt.setStatus(OperationStatus.CLOSED.name());
+        }
+        else{
+            //anything else to do if commit == false?
+            rt.setStatus(OperationStatus.CLOSED.name());
+        }
+        return true;
     }
 
     @Override
