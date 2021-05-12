@@ -9,10 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static it.polito.ezshop.acceptanceTests.TestHelpers.assertThrows;
-import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
+import static it.polito.ezshop.acceptanceTests.TestHelpers.*;
 import static it.polito.ezshop.model.Utils.generateId;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 public class EZShopTestAttachCardToCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.CASHIER);
+    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
     private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
     private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
     private static String card1;
@@ -65,7 +65,8 @@ public class EZShopTestAttachCardToCustomer {
     }
 
     /**
-     * If the new customer card is provided in an invalid format an InvalidCustomerCardException is thrown
+     * Tests that an InvalidCustomerCardException is thrown if the card is in an invalid format. Cards should be a
+     * 10-digit string
      */
     @Test
     public void testInvalidCustomerCardException() throws InvalidPasswordException, InvalidUsernameException {
@@ -73,65 +74,30 @@ public class EZShopTestAttachCardToCustomer {
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // card number less than 10 digits
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.attachCardToCustomer("123456789", customer1.getId()));
-
-        // card number more than 10 digits
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.attachCardToCustomer("12345678901", customer1.getId()));
-
-        // card number non-numeric characters
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.attachCardToCustomer("123456789a", customer1.getId()));
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.attachCardToCustomer("123456789A", customer1.getId()));
+        // verify correct exception is thrown for string null, empty, to short, too long or contains alphabetic characters
+        testInvalidValues(InvalidCustomerCardException.class, invalidCustomerCards,
+                (card) -> shop.attachCardToCustomer(card, customer1.getId()));
     }
 
     /**
-     * Tests that a null ID throws an InvalidCustomerIdException
+     * Tests that  an InvalidCustomerIdException is thrown when ID is null, 0 or negative
      */
     @Test
-    public void testInvalidCustomerIdExceptionNull() throws InvalidPasswordException, InvalidUsernameException {
+    public void testInvalidCustomerIdException() throws InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // throw an InvalidCustomerIdException when ID is null
-        assertThrows(InvalidCustomerIdException.class, () -> shop.attachCardToCustomer(card1, null));
-    }
-
-    /**
-     * Tests that a negative ID throws an InvalidCustomerIdException
-     */
-    @Test
-    public void testInvalidCustomerIdExceptionNegative() throws InvalidPasswordException, InvalidUsernameException {
-
-        // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
-
-        // throw an InvalidCustomerIdException when ID is negative
-        assertThrows(InvalidCustomerIdException.class, () -> shop.attachCardToCustomer(card1, -1));
-    }
-
-    /**
-     * Tests that ID 0 throws an InvalidCustomerIdException
-     */
-    @Test
-    public void testInvalidCustomerIdExceptionZero() throws InvalidPasswordException, InvalidUsernameException {
-
-        // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
-
-        // throw an InvalidCustomerIdException when ID is 0
-        assertThrows(InvalidCustomerIdException.class, () -> shop.attachCardToCustomer(card1, 0));
+        // verify correct exception is thrown
+        testInvalidValues(InvalidCustomerIdException.class, invalidCustomerIDs,
+                (id) -> shop.attachCardToCustomer(card1, id));
     }
 
     /**
      * Tests that false is returned if the customer with the given ID does not exist
      */
     @Test
-    public void testFalseCustomerNotExists() throws InvalidPasswordException, InvalidUsernameException,
+    public void testFalseIfCustomerNotExists() throws InvalidPasswordException, InvalidUsernameException,
             UnauthorizedException, InvalidCustomerCardException, InvalidCustomerIdException, InvalidCustomerNameException {
 
         // login with sufficient rights
@@ -224,5 +190,26 @@ public class EZShopTestAttachCardToCustomer {
 
         // verify that the first customer's card is still attached to first customer
         assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
+    }
+
+    /**
+     * Test that card still has same amount of points after being attached to a customer
+     */
+    @Test
+    public void testCardPointsArePersistent() throws InvalidPasswordException, InvalidUsernameException,
+            InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
+
+        // login with sufficient rights
+        shop.login(user.getUsername(), user.getPassword());
+
+        // add points to card
+        int pointsOnCard = 100;
+        assertTrue(shop.modifyPointsOnCard(card1, pointsOnCard));
+
+        // attach card to customer
+        assertTrue(shop.attachCardToCustomer(card1, customer1.getId()));
+
+        // verify that points on card still remains the same
+        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer2.getId()).getPoints());
     }
 }

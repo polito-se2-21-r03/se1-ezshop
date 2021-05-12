@@ -9,17 +9,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static it.polito.ezshop.acceptanceTests.TestHelpers.assertThrows;
-import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
+import static it.polito.ezshop.acceptanceTests.TestHelpers.*;
+import static it.polito.ezshop.acceptanceTests.TestHelpers.invalidCustomerNames;
 import static it.polito.ezshop.model.Utils.generateId;
 import static org.junit.Assert.*;
 
 public class EZShopTestModifyCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.CASHIER);
+    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
     private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
     private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
     private static String card1;
@@ -64,34 +65,23 @@ public class EZShopTestModifyCustomer {
     }
 
     /**
-     * If an empty customerName is provided an InvalidCustomerNameException should be thrown
+     * Tests that an InvalidCustomerNameException is thrown if the customer name is null or empty
      */
     @Test
-    public void testInvalidCustomerNameExceptionIfNameEmpty() throws InvalidPasswordException, InvalidUsernameException {
+    public void testInvalidCustomerNameException() throws InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // changing name to empty name throws exception
-        assertThrows(InvalidCustomerNameException.class, () -> shop.modifyCustomer(customer1.getId(), "", card1));
+        // verify correct exception is thrown
+        testInvalidValues(InvalidCustomerNameException.class, invalidCustomerNames,
+                (name) -> shop.modifyCustomer(customer1.getId(), name, card1));
     }
 
     /**
-     * If null is passed as an argument for customerName an InvalidCustomerNameException should be thrown
-     */
-    @Test
-    public void testInvalidCustomerNameExceptionIfNameNull() throws InvalidPasswordException, InvalidUsernameException {
-
-        // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
-
-        // changing name to null throws exception
-        assertThrows(InvalidCustomerNameException.class,
-                () -> shop.modifyCustomer(customer1.getId(), null, card1));
-    }
-
-    /**
-     * If the new customer card is provided in an invalid format an InvalidCustomerCardException is thrown
+     * Tests that an InvalidCustomerCardException is thrown if the card is in an invalid format, but does not have a
+     * special meaning value. Cards should be a 10 digit string, null or the empty string have special meaning and
+     * should not throw an exception.
      */
     @Test
     public void testInvalidCustomerCardException() throws InvalidPasswordException, InvalidUsernameException {
@@ -99,26 +89,17 @@ public class EZShopTestModifyCustomer {
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // card number less than 10 digits
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.modifyCustomer(customer1.getId(), "Diogo", "123456789"));
-
-        // card number more than 10 digits
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.modifyCustomer(customer1.getId(), "Diogo", "12345678901"));
-
-        // card number non-numeric characters
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.modifyCustomer(customer1.getId(), "Diogo", "123456789a"));
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.modifyCustomer(customer1.getId(), "Diogo", "123456789A"));
+        // verify correct exception is thrown for string to short, too long or contains alphabetic characters
+        testInvalidValues(InvalidCustomerCardException.class,
+                Arrays.asList("123456789", "12345678901", "123456789a", "123456789A"),
+                (card) -> shop.modifyCustomer(customer1.getId(), "Diogo", card));
     }
 
     /**
      * Tests that false is returned if the customer with the given ID does not exist
      */
     @Test
-    public void testFalseCustomerNotExists() throws InvalidPasswordException, InvalidUsernameException,
+    public void testFalseIfCustomerNotExists() throws InvalidPasswordException, InvalidUsernameException,
             UnauthorizedException, InvalidCustomerCardException, InvalidCustomerIdException, InvalidCustomerNameException {
 
         // login with sufficient rights
@@ -130,7 +111,7 @@ public class EZShopTestModifyCustomer {
                         .map(it.polito.ezshop.data.Customer::getId)
                         .collect(Collectors.toList()));
 
-        // changing name to null throws exception
+        // accessing a non-existing id returns false
         assertFalse(shop.modifyCustomer(nonExistentId, "Diogo", "1234567890"));
     }
 
@@ -238,7 +219,7 @@ public class EZShopTestModifyCustomer {
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // change customer name
+        // try to change to already taken name
         assertFalse(shop.modifyCustomer(customer1.getId(), customer2.getCustomerName(), card1));
 
         // verify that customer name was not changed
@@ -255,10 +236,10 @@ public class EZShopTestModifyCustomer {
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // attach different cards to different customers
+        // attach a card to a customer
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
 
-        // try to modify the second customer to have the same card as the first customer
+        // try to modify a second customer to have the same card as the first customer
         assertFalse(shop.modifyCustomer(customer2.getId(), customer2.getCustomerName(), card1));
 
         // verify that the first customer's card is still attached to first customer
@@ -278,10 +259,10 @@ public class EZShopTestModifyCustomer {
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // attach different cards to different customers
+        // attach a card to a customer
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
 
-        // try to modify the second customer to have the same card as the first customer
+        // try attach a second card to the customer
         assertFalse(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card2));
 
         // verify that the first customer's card is still attached to first customer
@@ -314,8 +295,7 @@ public class EZShopTestModifyCustomer {
         // verify that points on card still remains the same
         assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer2.getId()).getPoints());
 
-        // verify that first customer has no card or points
-        assertNull(shop.getCustomer(customer1.getId()).getCustomerCard());
+        // verify that first customer no longer has points
         assertEquals(new Integer(0), shop.getCustomer(customer1.getId()).getPoints());
     }
 }

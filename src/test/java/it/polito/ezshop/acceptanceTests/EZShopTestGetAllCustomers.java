@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class EZShopTestGetAllCustomers {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.CASHIER);
+    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
     private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
     private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
 
@@ -118,7 +118,7 @@ public class EZShopTestGetAllCustomers {
                 .findAny()
                 .orElse(null);
 
-        // verify that both customers were returned
+        // verify that both customers were returned successfully
         assertNotNull(returnedCustomer1);
         assertNotNull(returnedCustomer2);
 

@@ -10,8 +10,8 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
-import static it.polito.ezshop.acceptanceTests.TestHelpers.assertThrows;
-import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
+import static it.polito.ezshop.acceptanceTests.TestHelpers.*;
+import static it.polito.ezshop.acceptanceTests.TestHelpers.invalidCustomerCards;
 import static org.junit.Assert.*;
 
 public class EZShopTestModifyPointsOnCard {
@@ -57,7 +57,8 @@ public class EZShopTestModifyPointsOnCard {
     }
 
     /**
-     * If the new customer card is empty, null or provided in an invalid format an InvalidCustomerCardException is thrown
+     * Tests that an InvalidCustomerCardException is thrown if the card is in an invalid format. Cards should be a
+     * 10-digit string
      */
     @Test
     public void testInvalidCustomerCardException() throws InvalidPasswordException, InvalidUsernameException {
@@ -65,34 +66,16 @@ public class EZShopTestModifyPointsOnCard {
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // card is null
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.modifyPointsOnCard(null, 10));
-
-        // card is empty
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.modifyPointsOnCard("", 10));
-
-        // card number less than 10 digits
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.modifyPointsOnCard("123456789", 10));
-
-        // card number more than 10 digits
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.modifyPointsOnCard("12345678901", 10));
-
-        // card number contains non-numeric characters
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.modifyPointsOnCard("123456789a", 10));
-        assertThrows(InvalidCustomerCardException.class,
-                () -> shop.modifyPointsOnCard("123456789A", 10));
+        // verify correct exception is thrown for string null, empty, to short, too long or contains alphabetic characters
+        testInvalidValues(InvalidCustomerCardException.class, invalidCustomerCards,
+                (card) -> shop.modifyPointsOnCard(card, 0));
     }
 
     /**
      * Test that false is returned if the provided card number is valid but no card with that number exists
      */
     @Test
-    public void testFalseCardDoesNotExist() throws InvalidCustomerCardException, UnauthorizedException,
+    public void testFalseIfCardDoesNotExist() throws InvalidCustomerCardException, UnauthorizedException,
             InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights

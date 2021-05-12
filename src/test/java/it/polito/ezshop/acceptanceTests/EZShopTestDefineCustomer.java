@@ -12,8 +12,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import static it.polito.ezshop.acceptanceTests.TestHelpers.assertThrows;
-import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
+import static it.polito.ezshop.acceptanceTests.TestHelpers.*;
 import static org.junit.Assert.*;
 
 /**
@@ -22,7 +21,7 @@ import static org.junit.Assert.*;
 public class EZShopTestDefineCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.CASHIER);
+    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
 
     /**
      * Creates a clean shop instance for each test
@@ -48,43 +47,16 @@ public class EZShopTestDefineCustomer {
     }
 
     /**
-     * If an empty customerName is provided an InvalidCustomerNameException should be thrown
+     * Test that an InvalidCustomerNameException is thrown when customer name is null or empty
      */
     @Test
-    public void testInvalidCustomerNameExceptionIfNameEmpty() throws InvalidPasswordException, InvalidUsernameException {
-
-        shop.login(user.getUsername(), user.getPassword());
-        assertThrows(InvalidCustomerNameException.class, () -> shop.defineCustomer(""));
-    }
-
-    /**
-     * If null is passed as an argument for customerName an InvalidCustomerNameException should be thrown
-     */
-    @Test
-    public void testInvalidCustomerNameExceptionIfNameNull() throws InvalidPasswordException, InvalidUsernameException {
-
-        shop.login(user.getUsername(), user.getPassword());
-        assertThrows(InvalidCustomerNameException.class, () -> shop.defineCustomer(null));
-    }
-
-    /**
-     * If a customer name is provided, that is not unique within the system an error value should be returned
-     */
-    @Test
-    public void testOnlyUniqueCustomerNamesAllowed() throws InvalidCustomerNameException, UnauthorizedException,
-            InvalidPasswordException, InvalidUsernameException {
+    public void testInvalidCustomerNameException() throws InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // define first customer with unique name successfully
-        assertTrue(shop.defineCustomer("Pietro") > 0);
-
-        // return error value on definition of customer with duplicate customer name
-        assertEquals(new Integer(-1), shop.defineCustomer("Pietro"));
-
-        // verify that customer was indeed not created
-        assertEquals(0, shop.getAllCustomers().size());
+        // verify correct exception is thrown
+        testInvalidValues(InvalidCustomerNameException.class, invalidCustomerNames, shop::defineCustomer);
     }
 
     /**
@@ -112,6 +84,26 @@ public class EZShopTestDefineCustomer {
         assertEquals(customerName, customer.getCustomerName());
         assertNull(customer.getCustomerCard());
         assertEquals(new Integer(0), customer.getPoints());
+    }
+
+    /**
+     * If a customer name is provided, that is not unique within the system an error value should be returned
+     */
+    @Test
+    public void testOnlyUniqueCustomerNamesAllowed() throws InvalidCustomerNameException, UnauthorizedException,
+            InvalidPasswordException, InvalidUsernameException {
+
+        // login with sufficient rights
+        shop.login(user.getUsername(), user.getPassword());
+
+        // define first customer with unique name successfully
+        assertTrue(shop.defineCustomer("Pietro") > 0);
+
+        // return error value on definition of customer with duplicate customer name
+        assertEquals(new Integer(-1), shop.defineCustomer("Pietro"));
+
+        // verify that only one customer was created
+        assertEquals(1, shop.getAllCustomers().size());
     }
 
     /**

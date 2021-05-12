@@ -11,17 +11,16 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 
-import static it.polito.ezshop.acceptanceTests.TestHelpers.assertThrows;
-import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
+import static it.polito.ezshop.acceptanceTests.TestHelpers.*;
+import static it.polito.ezshop.acceptanceTests.TestHelpers.invalidCustomerIDs;
 import static it.polito.ezshop.model.Utils.generateId;
 import static org.junit.Assert.*;
 
 public class EZShopTestGetCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.CASHIER);
-    private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
-    private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
+    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final Customer customer = new Customer("Pietro", "1234567890", 0, 0);
     private static String card;
 
     /**
@@ -41,8 +40,7 @@ public class EZShopTestGetCustomer {
         shop.login(user.getUsername(), user.getPassword());
 
         // add two customers and a card to the shop
-        customer1.setId(shop.defineCustomer(customer1.getCustomerName()));
-        customer2.setId(shop.defineCustomer(customer2.getCustomerName()));
+        customer.setId(shop.defineCustomer(customer.getCustomerName()));
         card = shop.createCard();
 
         // logout after setup
@@ -60,42 +58,16 @@ public class EZShopTestGetCustomer {
     }
 
     /**
-     * Tests that a null ID throws an InvalidCustomerIdException
+     * Tests that  an InvalidCustomerIdException is thrown when ID is null, 0 or negative
      */
     @Test
-    public void testInvalidCustomerIdExceptionNull() throws InvalidPasswordException, InvalidUsernameException {
+    public void testInvalidCustomerIdException() throws InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // throw an InvalidCustomerIdException when ID is null
-        assertThrows(InvalidCustomerIdException.class, () -> shop.getCustomer(null));
-    }
-
-    /**
-     * Tests that a negative ID throws an InvalidCustomerIdException
-     */
-    @Test
-    public void testInvalidCustomerIdExceptionNegative() throws InvalidPasswordException, InvalidUsernameException {
-
-        // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
-
-        // throw an InvalidCustomerIdException when ID is negative
-        assertThrows(InvalidCustomerIdException.class, () -> shop.getCustomer(-1));
-    }
-
-    /**
-     * Tests that ID 0 throws an InvalidCustomerIdException
-     */
-    @Test
-    public void testInvalidCustomerIdExceptionZero() throws InvalidPasswordException, InvalidUsernameException {
-
-        // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
-
-        // throw an InvalidCustomerIdException when ID is 0
-        assertThrows(InvalidCustomerIdException.class, () -> shop.getCustomer(0));
+        // verify correct exception is thrown
+        testInvalidValues(InvalidCustomerIdException.class, invalidCustomerIDs, shop::getCustomer);
     }
 
     /**
@@ -129,11 +101,11 @@ public class EZShopTestGetCustomer {
         shop.login(user.getUsername(), user.getPassword());
 
         // get customer
-        it.polito.ezshop.data.Customer customer = shop.getCustomer(customer1.getId());
+        it.polito.ezshop.data.Customer customer = shop.getCustomer(EZShopTestGetCustomer.customer.getId());
 
         // verify that customer data is correct
-        assertEquals(customer1.getId(), customer.getId());
-        assertEquals(customer1.getCustomerName(), customer.getCustomerName());
+        assertEquals(EZShopTestGetCustomer.customer.getId(), customer.getId());
+        assertEquals(EZShopTestGetCustomer.customer.getCustomerName(), customer.getCustomerName());
     }
 
     /**
@@ -148,11 +120,11 @@ public class EZShopTestGetCustomer {
 
         // attach card to customer and add some points
         int pointsOnCard = 100;
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card));
+        assertTrue(shop.attachCardToCustomer(card, customer.getId()));
         assertTrue(shop.modifyPointsOnCard(card, pointsOnCard));
 
         // get customer
-        it.polito.ezshop.data.Customer customer = shop.getCustomer(customer1.getId());
+        it.polito.ezshop.data.Customer customer = shop.getCustomer(EZShopTestGetCustomer.customer.getId());
 
         // verify that card data is correct
         assertEquals(card, customer.getCustomerCard());

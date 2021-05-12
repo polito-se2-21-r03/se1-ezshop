@@ -13,10 +13,10 @@ import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class testCreateCard {
+public class EZShopTestCreateCard {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.CASHIER);
+    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
 
     /**
      * Creates a clean shop instance for each test
@@ -72,11 +72,15 @@ public class testCreateCard {
         shop.login(user.getUsername(), user.getPassword());
 
         // create user
-        int customer = shop.defineCustomer("Alessio");
+        int customerId = shop.defineCustomer("Alessio");
 
         // generate card
         String card = shop.createCard();
 
-        assertTrue(shop.attachCardToCustomer(card, customer));
+        // attach card to customer
+        assertTrue(shop.attachCardToCustomer(card, customerId));
+
+        // verify card was attached correctly
+        assertEquals(card, shop.getCustomer(customerId).getCustomerCard());
     }
 }
