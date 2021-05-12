@@ -618,7 +618,9 @@ public class EZShop implements EZShopInterface {
         if (newCustomerName == null || newCustomerName.equals("")) {
             throw new InvalidCustomerNameException("Invalid Customer Name");
         }
-
+        if (id == null || id.compareTo(0) >0){
+            throw new InvalidCustomerIdException("Invalid customer ID");
+        }
         if (newCustomerCard == null || newCustomerCard.length()!=10) {
             throw new InvalidCustomerCardException("Invalid Customer Card");
         }
@@ -632,23 +634,21 @@ public class EZShop implements EZShopInterface {
         List<Integer> ids = customers.stream().map(Customer::getId).collect(Collectors.toList());
 
         // find the customer
-        Optional<Customer> customer = customers.stream()
-                // filter users with the given id
-                .filter(x -> x.getId().equals(id)).findFirst();
+        Customer customer = customers.get(id);
 
         // if the customer is present, update its card and name
-        customer.ifPresent(value -> value.setCustomerName(newCustomerName));
+        customer.setCustomerName(newCustomerName);
 
-        if(newCustomerCard.equals(""))
-            customer.ifPresent(value -> value.setCustomerCard(null));
+        if(newCustomerCard == " ")
+            customer.setCustomerCard(null);
         else if(newCustomerCard.equals(null))
             ;
         else
-            customer.ifPresent(value -> value.setCustomerCard(newCustomerCard));
+            customer.setCustomerCard(newCustomerCard);
 
 
         // if the customer is present return true, otherwise return false
-        return customer.get().getCustomerCard().equals(newCustomerCard);
+        return customer.getCustomerCard().equals(newCustomerCard);
 
     }
 
@@ -662,12 +662,6 @@ public class EZShop implements EZShopInterface {
             throw new InvalidCustomerIdException("Invalid Customer id");
         }
 
-        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
-        }
 
         //removeIf returns true if any elements were removed
         return customers.removeIf(x -> x.getId().equals(id));
@@ -685,21 +679,7 @@ public class EZShop implements EZShopInterface {
             throw new InvalidCustomerIdException("Invalid Customer id");
         }
 
-        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
-        }
-
-
-        // find the customer
-        Optional<Customer> customer = customers.stream()
-                // filter users with the given id
-                .filter(x -> x.getId().equals(id)).findFirst();
-
-
-        return customer.get();
+        return customers.get(id);
     }
 
     @Override
@@ -707,31 +687,13 @@ public class EZShop implements EZShopInterface {
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
-        }
-
-        // generate a list of all customers
-        //List<Customer> customerList= customers.stream().collect(Collectors.toList());
-        List<Customer> customerList1 = new ArrayList<>(customers);
-
-        return customerList1;
+        return customers;
     }
 
     @Override
     public String createCard() throws UnauthorizedException {
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
-
-        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
-        }
 
         Random rnd = new Random();
         StringBuilder sb = new StringBuilder();
@@ -766,13 +728,9 @@ public class EZShop implements EZShopInterface {
         }
 
         // find the customer
-        Optional<Customer> customer = customers.stream()
-                // filter users with the given id
-                .filter(x -> x.getId().equals(customerId)).findFirst();
+        customers.get(customerId).setCustomerCard(customerCard);
 
-        customer.ifPresent(customer1 -> customer1.setCustomerCard(customerCard));
-
-        return customer.get().getCustomerCard().equals(customerCard);
+        return customers.get(customerId).getCustomerCard().equals(customerCard);
     }
 
     @Override
@@ -797,7 +755,7 @@ public class EZShop implements EZShopInterface {
                 // filter users with the given id
                 .filter(x -> x.getCustomerCard().equals(customerCard)).findFirst();
         //false   if there is no card with given code
-        if(customer.get().getCustomerCard().equals(null))
+        if(customer.get().getCustomerCard().equals(customerCard))
             return false;
 
         Integer validPoints = customer.get().getPoints();
@@ -1161,9 +1119,8 @@ public class EZShop implements EZShopInterface {
         if(cash <= 0)
             throw new InvalidPaymentException("Invalid cash amount.");
 
-        //get the transaction and sale price information
-        Optional<SaleTransaction> transaction = Optional.ofNullable((SaleTransaction) accountBook.getTransaction(ticketNumber));
-        double salePrice = transaction.get().getPrice();
+        //get sale price information
+        double salePrice = accountBook.getTransaction(ticketNumber).getMoney();
 
         //calculate the return amount ***there need to chech for "if the sale does not exists and if there is some problemi with the db"***
         if((cash-salePrice) >= 0)
@@ -1193,9 +1150,8 @@ public class EZShop implements EZShopInterface {
         if(creditCard.isEmpty() || !isValidCreditCardNumber(creditCard) )
             throw new InvalidCreditCardException("Invalid credit card.");
 
-        //get the transaction and sale price information
-        Optional<SaleTransaction> transaction = Optional.ofNullable((SaleTransaction) accountBook.getTransaction(ticketNumber));
-        double salePrice = transaction.get().getPrice();
+        //get the sale price information
+        double salePrice = accountBook.getTransaction(ticketNumber).getMoney();
 
         /* The credit card should be registered in the system.
         *  */
@@ -1323,7 +1279,7 @@ public class EZShop implements EZShopInterface {
         }
         else
             balanceList = balanceRecords.stream().filter(x -> x.getDate().isAfter(from)).collect(Collectors.toList());
-            balanceList.stream().filter(x -> x.getDate().isBefore(to)).collect(Collectors.toList());
+            balanceList = balanceList.stream().filter(x -> x.getDate().isBefore(to)).collect(Collectors.toList());
 
         return balanceList;
     }
