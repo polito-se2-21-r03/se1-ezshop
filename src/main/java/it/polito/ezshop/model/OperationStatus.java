@@ -9,8 +9,21 @@ package it.polito.ezshop.model;
  * COMPLETED: Balance operation is completed, all changes are recorded in system.
  */
 public enum OperationStatus {
+<<<<<<< HEAD
     OPEN,
     CLOSED,
     PAID,
     COMPLETED
+=======
+    OPEN("open"),
+    CLOSED("closed"),
+    PAID("paid"),
+    COMPLETED("completed");
+
+    private final String value;
+
+    public OperationStatus(String value) { this.value = value; }
+
+    public String getValue() { return value; }
+>>>>>>> 9647bda (fr7-8 methods have been added)
 }

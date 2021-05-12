@@ -3,6 +3,7 @@ package it.polito.ezshop.model;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.Arrays;
 
 public class Utils {
 
@@ -77,4 +78,52 @@ public class Utils {
         // return true iff checksum requirement is fulfilled
         return (checksum + checksumDigit) % 10 == 0;
     }
+
+    /**
+     * Check if given credit number is valid according to luhn algorithm.
+     * Implementation follows the algorithm described at: https://java2blog.com/luhn-algorithm-java/
+     *
+     * @param cardNumber the barcode whose conformity to the above mentioned standard is to be verified
+     * @return whether the given creditcard number is valid or not
+     */
+    public static boolean isValidCreditCardNumber(String cardNumber)
+    {
+        // int array for processing the cardNumber
+        int[] cardIntArray=new int[cardNumber.length()];
+
+        for(int i=0;i<cardNumber.length();i++)
+        {
+            char c= cardNumber.charAt(i);
+            cardIntArray[i]=  Integer.parseInt(""+c);
+        }
+
+        for(int i=cardIntArray.length-2;i>=0;i=i-2)
+        {
+            int num = cardIntArray[i];
+            num = num * 2;  // step 1
+            if(num>9)
+            {
+                num = num%10 + num/10;  // step 2
+            }
+            cardIntArray[i]=num;
+        }
+
+        int sum = sumDigits(cardIntArray);  // step 3
+
+        System.out.println(sum);
+
+        if(sum%10==0)  // step 4
+        {
+            return true;
+        }
+
+        return false;
+
+    }
+    public static int sumDigits(int[] arr)
+    {
+        return Arrays.stream(arr).sum();
+    }
+
 }
+
