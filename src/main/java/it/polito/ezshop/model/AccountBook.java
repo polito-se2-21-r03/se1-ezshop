@@ -137,7 +137,8 @@ public class AccountBook {
     }
 
     /**
-     * Updates the status of the balance operation with the given ID
+     * Updates the status of the balance operation with the given ID.
+     * The account book's balance is updated automatically if the new status requires so.
      *
      * @param balanceId ID of the balance operation
      * @param newStatus new status for the balance operation
