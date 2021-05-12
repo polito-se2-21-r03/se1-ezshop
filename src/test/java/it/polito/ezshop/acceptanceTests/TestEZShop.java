@@ -31,6 +31,7 @@ import org.junit.runners.Suite;
         EZShopTestDeleteProductFromSale.class,
         EZShopTestApplyDiscountRateToProduct.class,
         EZShopTestApplyDiscountRateToSale.class,
+        EZShopTestComputePointsForSale.class,
         EZShopTestEndSaleTransaction.class,
         EZShopTestDeleteSaleTransaction.class,
         EZShopTestGetSaleTransaction.class,

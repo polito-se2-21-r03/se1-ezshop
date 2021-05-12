@@ -7,12 +7,14 @@ import java.util.Objects;
 public class TicketEntry implements it.polito.ezshop.data.TicketEntry {
 
     private final ProductType productType;
-    private int Amount;
+    private int amount;
     private double discountRate;
+    private double pricePerUnit;
 
-    public TicketEntry(ProductType productType, int amount, double discount) {
+    public TicketEntry(ProductType productType, int amount, double pricePerUnit, double discount) {
         this.productType = productType;
-        this.Amount = amount;
+        this.amount = amount;
+        this.pricePerUnit = pricePerUnit;
         this.discountRate = discount;
     }
 
@@ -39,22 +41,22 @@ public class TicketEntry implements it.polito.ezshop.data.TicketEntry {
 
     @Override
     public int getAmount() {
-        return this.Amount;
+        return this.amount;
     }
 
     @Override
     public void setAmount(int amount) {
-        this.Amount = amount;
+        this.amount = amount;
     }
 
     @Override
     public double getPricePerUnit() {
-        return this.productType.getPricePerUnit();
+        return this.pricePerUnit;
     }
 
     @Override
     public void setPricePerUnit(double pricePerUnit) {
-        this.productType.setPricePerUnit(pricePerUnit);
+        this.pricePerUnit = pricePerUnit;
     }
 
     @Override
@@ -72,13 +74,14 @@ public class TicketEntry implements it.polito.ezshop.data.TicketEntry {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TicketEntry that = (TicketEntry) o;
-        return Amount == that.Amount &&
+        return amount == that.amount &&
+                Double.compare(that.pricePerUnit, pricePerUnit) == 0 &&
                 Double.compare(that.discountRate, discountRate) == 0 &&
                 Objects.equals(productType, that.productType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(productType, Amount, discountRate);
+        return Objects.hash(productType, amount, discountRate);
     }
 }

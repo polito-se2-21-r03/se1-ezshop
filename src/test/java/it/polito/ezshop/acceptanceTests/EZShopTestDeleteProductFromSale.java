@@ -125,7 +125,7 @@ public class EZShopTestDeleteProductFromSale extends EZShopTestBase {
         // 1. partially remove product 1 from the transaction
         // compute the amount of product 1 to be removed from the transaction
         int amountProduct1ToBeRemoved = PRODUCT_TRANSACTION_AMOUNT_1 / 2;
-        assertTrue(shop.addProductToSale(transactionId, product1.getBarCode(), amountProduct1ToBeRemoved));
+        assertTrue(shop.deleteProductFromSale(transactionId, product1.getBarCode(), amountProduct1ToBeRemoved));
 
         // 1.1 verify that the quantity of PRODUCT_CODE_1 in the inventory is correctly updated
         int inventoryLevelForProduct1After = shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity();

@@ -125,10 +125,10 @@ public class EZShopTestAddProductToSale extends EZShopTestBase {
         assertEquals((Integer) 0, p1.getQuantity());
 
         // 3. add product2
-        assertFalse(shop.addProductToSale(tid, product2.getBarCode(), product2.getQuantity()));
+        assertTrue(shop.addProductToSale(tid, product2.getBarCode(), product2.getQuantity()));
         // 3.1 verify that the quantity of product2 in the inventory is correctly updated
-        p1 = shop.getProductTypeByBarCode(product2.getBarCode());
-        assertEquals((Integer) 0, p1.getQuantity());
+        ProductType p2 = shop.getProductTypeByBarCode(product2.getBarCode());
+        assertEquals((Integer) 0, p2.getQuantity());
 
         // 3. verify the final status of the transaction
         shop.endSaleTransaction(tid);

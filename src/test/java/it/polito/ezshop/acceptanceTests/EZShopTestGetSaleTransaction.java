@@ -67,7 +67,7 @@ public class EZShopTestGetSaleTransaction extends EZShopTestBase {
 
         // delete the transaction and check that it is not returned anymore
         shop.deleteSaleTransaction(tid);
-        assertNotNull(shop.getSaleTransaction(tid));
+        assertNull(shop.getSaleTransaction(tid));
     }
 
 }

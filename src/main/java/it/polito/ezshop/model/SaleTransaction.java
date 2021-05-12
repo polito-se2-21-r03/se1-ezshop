@@ -13,8 +13,8 @@ public class SaleTransaction extends Credit implements it.polito.ezshop.data.Sal
 
     private final List<TicketEntry> entries = new ArrayList<>();
     private final List<ReturnTransaction> returnTransactions = new ArrayList<>();
+    private final double price;
     private double discountRate;
-    private double price;
 
     public SaleTransaction(int balanceId, LocalDate date, List<TicketEntry> entries,
                            List<ReturnTransaction> returnTransactions, double discountRate, double price) {
@@ -66,12 +66,16 @@ public class SaleTransaction extends Credit implements it.polito.ezshop.data.Sal
 
     @Override
     public double getPrice() {
-        return this.price;
+        return (1 - this.discountRate) * this.entries.stream().mapToDouble(entry -> {
+            // compute the subtotal for the entry
+            return entry.getAmount() * entry.getPricePerUnit() * (1 - entry.getDiscountRate());
+        }).sum();
     }
 
     @Override
     public void setPrice(double price) {
-        this.price = price;
+        // TODO: setting the price of a sale transaction may generate a lot of inconsistencies
+        // this.price = price;
     }
 
     public List<ReturnTransaction> getReturnTransactions() {
@@ -87,6 +91,13 @@ public class SaleTransaction extends Credit implements it.polito.ezshop.data.Sal
 
     public void addReturnTransactions(ReturnTransaction... returnTransactions) {
         this.returnTransactions.addAll(Arrays.asList(returnTransactions));
+    }
+
+    public int computePoints() {
+        return ((int) ((1 - this.discountRate) * this.entries.stream().mapToDouble(entry -> {
+            // compute the subtotal for the entry
+            return entry.getAmount() * entry.getPricePerUnit() * (1 - entry.getDiscountRate());
+        }).sum())) / 10;
     }
 
     @Override
