@@ -54,40 +54,40 @@ public class EZShopTestComputeBalance {
         int productId = shop.createProductType("description", productCode, 1, "note");
         shop.updatePosition(productId, "1-1-1");
 
-        // record a CREDIT transaction
+        // record a CREDIT transaction (balance = 1000)
         shop.recordBalanceUpdate(1000);
 
-        // record a DEBIT transaction
+        // record a DEBIT transaction (balance = 995)
         shop.recordBalanceUpdate(-5);
 
-        // record ORDER transaction
+        // record ORDER transaction (balance = 675)
         int orderId = shop.payOrderFor(productCode, 320, 1);
         shop.recordOrderArrival(orderId);
 
-        // record SALE transaction
+        // record SALE transaction (balance = 695)
         int saleId = shop.startSaleTransaction();
         shop.addProductToSale(saleId, productCode, 20);
         shop.endSaleTransaction(saleId);
         shop.receiveCashPayment(saleId, 20);
 
-        // record RETURN transaction
+        // record RETURN transaction (balance = 685)
         int returnId = shop.startReturnTransaction(saleId);
         shop.returnProduct(returnId, productCode, 10);
         shop.endReturnTransaction(returnId, true);
         shop.returnCashPayment(returnId);
 
-        // add ORDER that is in PAID state
+        // add ORDER that is in PAID state (balance = 605)
         shop.payOrderFor(productCode, 80, 1);
 
-        // add SALE transaction that is in CLOSED state
+        // add SALE transaction that is in CLOSED state (balance = 605)
         int saleId2 = shop.startSaleTransaction();
         shop.addProductToSale(saleId2, productCode, 160);
         shop.endSaleTransaction(saleId2);
 
-        // add RETURN transaction that is in OPEN state
+        // add RETURN transaction that is in OPEN state (balance = 605)
         shop.startReturnTransaction(saleId);
 
         // verify that balance is correct
-        assertEquals(565, shop.computeBalance());
+        assertEquals(605, shop.computeBalance(), 0.001);
     }
 }
