@@ -66,7 +66,6 @@ public class EZShopTestRecordBalanceUpdate {
         // verify that operation is recorded as CREDIT
         List<BalanceOperation> accountBook = shop.getCreditsAndDebits(null, null);
         assertEquals(1, accountBook.size());
-        assertTrue(accountBook.get(0) instanceof Credit);
         assertEquals("TYPE_CREDIT", accountBook.get(0).getType());
     }
 
@@ -127,11 +126,8 @@ public class EZShopTestRecordBalanceUpdate {
         List<BalanceOperation> accountBook = shop.getCreditsAndDebits(null, null);
         accountBook.sort(Comparator.comparing(BalanceOperation::getDate));
         assertEquals(3, accountBook.size());
-        assertTrue(accountBook.get(0) instanceof Credit);
         assertEquals("TYPE_CREDIT", accountBook.get(0).getType());
-        assertTrue(accountBook.get(1) instanceof Debit);
         assertEquals("TYPE_DEBIT", accountBook.get(1).getType());
-        assertTrue(accountBook.get(2) instanceof Debit);
         assertEquals("TYPE_DEBIT", accountBook.get(2).getType());
     }
 }
