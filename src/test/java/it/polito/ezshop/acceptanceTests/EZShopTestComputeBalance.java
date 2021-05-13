@@ -35,8 +35,8 @@ public class EZShopTestComputeBalance {
      */
     @Test
     public void testAuthorization() throws Throwable {
-        Method defineCustomer = EZShop.class.getMethod("getCreditsAndDebits", LocalDate.class, LocalDate.class);
-        testAccessRights(defineCustomer, new Object[] {null, null},
+        Method defineCustomer = EZShop.class.getMethod("computeBalance");
+        testAccessRights(defineCustomer, new Object[] {},
                 new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR});
     }
 

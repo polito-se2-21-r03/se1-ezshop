@@ -76,8 +76,8 @@ public class EZShopTestReceiveCashPayment {
      */
     @Test
     public void testAuthorization() throws Throwable {
-        Method defineCustomer = EZShop.class.getMethod("getCreditsAndDebits", LocalDate.class, LocalDate.class);
-        testAccessRights(defineCustomer, new Object[] {null, null},
+        Method defineCustomer = EZShop.class.getMethod("receiveCashPayment", Integer.class, double.class);
+        testAccessRights(defineCustomer, new Object[] {saleId, toBePaid},
                 new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
@@ -136,7 +136,7 @@ public class EZShopTestReceiveCashPayment {
         // login with sufficient rights
         shop.login(user.getUsername(), user.getPassword());
 
-        // issues an order
+        // issue an order
         int orderId = shop.issueOrder(productCode, 10, 1);
 
         // trying to pay for an order with receiveCashPayment fails

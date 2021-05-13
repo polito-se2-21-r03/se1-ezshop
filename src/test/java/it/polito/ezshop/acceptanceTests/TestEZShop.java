@@ -39,6 +39,8 @@ import org.junit.runners.Suite;
         EZShopTestReturnProduct.class,
         EZShopTestEndReturnTransaction.class,
         // FR 7
+        EZShopTestReceiveCashPayment.class,
+        EZShopTestReturnCashPayment.class,
         // FR 8
         EZShopTestRecordBalanceUpdate.class,
         EZShopTestGetCreditsAndDebits.class,

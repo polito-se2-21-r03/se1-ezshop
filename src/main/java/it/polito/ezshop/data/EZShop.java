@@ -502,7 +502,7 @@ public class EZShop implements EZShopInterface {
 
         // verify that order exists
         it.polito.ezshop.model.BalanceOperation transactionWithId = accountBook.getTransaction(orderId);
-        if (transactionWithId == null || !it.polito.ezshop.model.Order.class.isAssignableFrom(transactionWithId.getClass())) {
+        if (!(transactionWithId instanceof it.polito.ezshop.model.Order)) {
             return false;
         }
 
