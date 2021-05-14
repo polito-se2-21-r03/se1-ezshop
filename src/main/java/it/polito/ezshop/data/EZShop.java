@@ -444,7 +444,7 @@ public class EZShop implements EZShopInterface {
         LocalDate date = LocalDate.now();
         double money = - quantity * pricePerUnit;
         OperationStatus status = OperationStatus.CLOSED;
-        it.polito.ezshop.model.Order order = new it.polito.ezshop.model.Order(balanceId, date, money, status, productCode, pricePerUnit, quantity);
+        it.polito.ezshop.model.Order order = new it.polito.ezshop.model.Order(balanceId, date, status, productCode, pricePerUnit, quantity);
 
         // add order to account book
         this.accountBook.addTransaction(order);
@@ -506,7 +506,6 @@ public class EZShop implements EZShopInterface {
         }
 
         // ensure sufficient funds in the account book
-        // TODO: is this necessary?
         if (!accountBook.checkAvailability(order.getMoney())) {
             return false;
         }

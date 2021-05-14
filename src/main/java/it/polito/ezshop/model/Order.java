@@ -9,9 +9,9 @@ public class Order extends BalanceOperation {
     private double pricePerUnit;
     private int quantity;
 
-    public Order(int balanceId, LocalDate date, double money, OperationStatus status, String productCode,
+    public Order(int balanceId, LocalDate date, OperationStatus status, String productCode,
                  double pricePerUnit, int quantity) {
-        super(balanceId, date, money, TYPE_ORDER, status);
+        super(balanceId, date, pricePerUnit * quantity, TYPE_ORDER, status);
 
         Objects.requireNonNull(productCode, "productCode must not be null");
 
