@@ -442,9 +442,7 @@ public class EZShop implements EZShopInterface {
         // create Order object
         int balanceId = accountBook.generateNewId();
         LocalDate date = LocalDate.now();
-        double money = - quantity * pricePerUnit;
-        OperationStatus status = OperationStatus.CLOSED;
-        it.polito.ezshop.model.Order order = new it.polito.ezshop.model.Order(balanceId, date, status, productCode, pricePerUnit, quantity);
+        it.polito.ezshop.model.Order order = new it.polito.ezshop.model.Order(balanceId, date, productCode, pricePerUnit, quantity);
 
         // add order to account book
         this.accountBook.addTransaction(order);
@@ -582,7 +580,7 @@ public class EZShop implements EZShopInterface {
                             || orderstatus == OperationStatus.PAID
                             || orderstatus == OperationStatus.COMPLETED;
                 })
-                .map(order -> new OrderInterface((it.polito.ezshop.model.Order) order))
+                .map(OrderInterface::new)
                 .collect(Collectors.toList());
     }
 
@@ -1173,7 +1171,11 @@ public class EZShop implements EZShopInterface {
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
         //get the transaction and sale price information
-        it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getReturnTransactions().stream().filter(x -> x.getBalanceId() == returnId).findFirst().orElse(null);
+        ReturnTransaction returnTransaction = accountBook.getReturnTransactions().stream()
+                .filter(x -> x.getBalanceId() == returnId)
+                .findFirst()
+                .orElse(null);
+
         assert returnTransaction != null;
         double returnAmount = returnTransaction.getMoney();
 
@@ -1202,7 +1204,11 @@ public class EZShop implements EZShopInterface {
             throw new InvalidCreditCardException("Invalid credit card number.");
 
         //find the returntransaction and the return amount
-        it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getReturnTransactions().stream().filter(x -> x.getBalanceId() == returnId).findFirst().orElse(null);
+        ReturnTransaction returnTransaction = accountBook.getReturnTransactions().stream()
+                .filter(x -> x.getBalanceId() == returnId)
+                .findFirst()
+                .orElse(null);
+
         assert returnTransaction != null;
         double returnAmount = returnTransaction.getMoney();
 

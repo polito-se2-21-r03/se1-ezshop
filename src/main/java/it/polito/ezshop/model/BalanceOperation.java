@@ -8,12 +8,6 @@ public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceO
     protected LocalDate date;
     protected double balanceValue;
 
-    /**
-     * One of TYPE_CREDIT, TYPE_SALE, TYPE_DEBIT, TYPE_RETURN, TYPE_ORDER
-     */
-    protected String type;
-
-
     protected OperationStatus status;
 
     protected BalanceOperation() {}
@@ -84,7 +78,6 @@ public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceO
         return balanceId == that.balanceId &&
                 Double.compare(that.balanceValue, balanceValue) == 0 &&
                 date.equals(that.date) &&
-                type.equals(that.type) &&
                 status == that.status;
     }
 

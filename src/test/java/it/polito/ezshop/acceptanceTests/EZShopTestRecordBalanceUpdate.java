@@ -5,6 +5,8 @@ import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.InvalidPasswordException;
 import it.polito.ezshop.exceptions.InvalidRoleException;
 import it.polito.ezshop.exceptions.InvalidUsernameException;
+import it.polito.ezshop.model.Credit;
+import it.polito.ezshop.model.Debit;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
@@ -64,7 +66,7 @@ public class EZShopTestRecordBalanceUpdate {
         // verify that operation is recorded as CREDIT
         List<BalanceOperation> accountBook = shop.getCreditsAndDebits(null, null);
         assertEquals(1, accountBook.size());
-        assertEquals("TYPE_CREDIT", accountBook.get(0).getType());
+        assertTrue(accountBook.get(0) instanceof Credit);
     }
 
     /**
@@ -124,8 +126,8 @@ public class EZShopTestRecordBalanceUpdate {
         List<BalanceOperation> accountBook = shop.getCreditsAndDebits(null, null);
         accountBook.sort(Comparator.comparing(BalanceOperation::getDate));
         assertEquals(3, accountBook.size());
-        assertEquals("TYPE_CREDIT", accountBook.get(0).getType());
-        assertEquals("TYPE_DEBIT", accountBook.get(1).getType());
-        assertEquals("TYPE_DEBIT", accountBook.get(2).getType());
+        assertTrue(accountBook.get(0) instanceof Credit);
+        assertTrue(accountBook.get(1) instanceof Debit);
+        assertTrue(accountBook.get(2) instanceof Debit);
     }
 }

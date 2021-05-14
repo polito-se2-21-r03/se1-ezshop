@@ -2,8 +2,7 @@ package it.polito.ezshop.acceptanceTests;
 
 import it.polito.ezshop.data.BalanceOperation;
 import it.polito.ezshop.data.EZShop;
-import it.polito.ezshop.model.Role;
-import it.polito.ezshop.model.User;
+import it.polito.ezshop.model.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static it.polito.ezshop.acceptanceTests.TestHelpers.testAccessRights;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class EZShopTestGetCreditsAndDebits {
@@ -114,12 +114,12 @@ public class EZShopTestGetCreditsAndDebits {
         assertEquals(6, balanceOperations.size());
 
         // verify the correct balance operations were returned
-        assertEquals("TYPE_CREDIT", balanceOperations.get(0).getType());
-        assertEquals("TYPE_DEBIT", balanceOperations.get(1).getType());
-        assertEquals("TYPE_ORDER", balanceOperations.get(2).getType());
-        assertEquals("TYPE_SALE", balanceOperations.get(3).getType());
-        assertEquals("TYPE_RETURN", balanceOperations.get(4).getType());
-        assertEquals("TYPE_ORDER", balanceOperations.get(5).getType());
+        assertTrue(balanceOperations.get(0) instanceof Credit);
+        assertTrue(balanceOperations.get(1) instanceof Debit);
+        assertTrue(balanceOperations.get(2) instanceof Order);
+        assertTrue(balanceOperations.get(3) instanceof SaleTransaction);
+        assertTrue(balanceOperations.get(4) instanceof ReturnTransaction);
+        assertTrue(balanceOperations.get(5) instanceof Order);
     }
 
     /**
@@ -139,11 +139,11 @@ public class EZShopTestGetCreditsAndDebits {
         assertEquals(6, balanceOperations.size());
 
         // verify the correct balance operations were returned
-        assertEquals("TYPE_DEBIT", balanceOperations.get(0).getType());
-        assertEquals("TYPE_ORDER", balanceOperations.get(1).getType());
-        assertEquals("TYPE_SALE", balanceOperations.get(2).getType());
-        assertEquals("TYPE_RETURN", balanceOperations.get(3).getType());
-        assertEquals("TYPE_ORDER", balanceOperations.get(4).getType());
+        assertTrue(balanceOperations.get(0) instanceof Debit);
+        assertTrue(balanceOperations.get(1) instanceof Order);
+        assertTrue(balanceOperations.get(2) instanceof SaleTransaction);
+        assertTrue(balanceOperations.get(3) instanceof ReturnTransaction);
+        assertTrue(balanceOperations.get(4) instanceof Order);
     }
 
     /**
@@ -163,10 +163,10 @@ public class EZShopTestGetCreditsAndDebits {
         assertEquals(6, balanceOperations.size());
 
         // verify the correct balance operations were returned
-        assertEquals("TYPE_CREDIT", balanceOperations.get(0).getType());
-        assertEquals("TYPE_DEBIT", balanceOperations.get(1).getType());
-        assertEquals("TYPE_ORDER", balanceOperations.get(2).getType());
-        assertEquals("TYPE_SALE", balanceOperations.get(3).getType());
+        assertTrue(balanceOperations.get(0) instanceof Credit);
+        assertTrue(balanceOperations.get(1) instanceof Debit);
+        assertTrue(balanceOperations.get(2) instanceof Order);
+        assertTrue(balanceOperations.get(3) instanceof SaleTransaction);
     }
 
     /**
@@ -186,9 +186,9 @@ public class EZShopTestGetCreditsAndDebits {
         assertEquals(6, balanceOperations.size());
 
         // verify the correct balance operations were returned
-        assertEquals("TYPE_DEBIT", balanceOperations.get(0).getType());
-        assertEquals("TYPE_ORDER", balanceOperations.get(1).getType());
-        assertEquals("TYPE_SALE", balanceOperations.get(2).getType());
+        assertTrue(balanceOperations.get(0) instanceof Debit);
+        assertTrue(balanceOperations.get(1) instanceof Order);
+        assertTrue(balanceOperations.get(2) instanceof SaleTransaction);
     }
 
     /**
@@ -209,8 +209,8 @@ public class EZShopTestGetCreditsAndDebits {
         assertEquals(6, balanceOperations.size());
 
         // verify the correct balance operations were returned
-        assertEquals("TYPE_DEBIT", balanceOperations.get(0).getType());
-        assertEquals("TYPE_ORDER", balanceOperations.get(1).getType());
-        assertEquals("TYPE_SALE", balanceOperations.get(2).getType());
+        assertTrue(balanceOperations.get(0) instanceof Debit);
+        assertTrue(balanceOperations.get(1) instanceof Order);
+        assertTrue(balanceOperations.get(2) instanceof SaleTransaction);
     }
 }

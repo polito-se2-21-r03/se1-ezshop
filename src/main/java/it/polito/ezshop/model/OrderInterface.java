@@ -12,7 +12,7 @@ public class OrderInterface implements it.polito.ezshop.data.Order {
     private Integer balanceId;
     private LocalDate date;
     private double money;
-    private String type;
+    private String type = "Order";
     private OperationStatus status;
 
     public OrderInterface(Order order) {
@@ -22,7 +22,6 @@ public class OrderInterface implements it.polito.ezshop.data.Order {
         this.balanceId = order.getBalanceId();
         this.date = order.getDate();
         this.money = order.getMoney();
-        this.type = order.getType();
         this.status = OperationStatus.valueOf(order.getStatus());
     }
 
