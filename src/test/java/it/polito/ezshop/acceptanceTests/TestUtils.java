@@ -74,7 +74,6 @@ public class TestUtils {
     public void testBarcodeTooShort() {
         assertFalse(Utils.isValidBarcode(""));
         // 11 characters long string
-        assertFalse(Utils.isValidBarcode("00000000000"));
         assertFalse(Utils.isValidBarcode("99999999999"));
     }
 
@@ -137,6 +136,16 @@ public class TestUtils {
 
         // GTIN14: the last digit should be 1
         assertTrue(Utils.isValidBarcode("12345678901231"));
+    }
+
+    /**
+     * White box test
+     * Check barcodes with non alphanumeric characters.
+     */
+    @Test
+    public void testNonAlphanumericBarcode () {
+        assertFalse(Utils.isValidBarcode("$2345678901231"));
+        assertFalse(Utils.isValidBarcode("1234567890123$"));
     }
 
     //</editor-fold>

@@ -26,53 +26,46 @@ Version:
     to start tests
     >
 
- ### **Class *class_name* - method *name***
+ ### **Class *Utils* - method *isValidBarcode***
 
-
-
-**Criteria for method *name*:**
+**Criteria for method *isValidBarcode*:**
 	
+ - Validity of the barcode parameter
+ - Length of the barcode parameter
+ - Format of the barcode parameter
+ - Check digit
 
- - 
- - 
+**Predicates for method *isValidBarcode*:**
 
-
-
-
-
-**Predicates for method *name*:**
-
-| Criteria | Predicate |
-| -------- | --------- |
-|          |           |
-|          |           |
-|          |           |
-|          |           |
-
-
-
-
+| Criteria                           | Predicate      |
+| ---------------------------------- | -------------- |
+| Validity of the barcode parameter  | Valid          |
+|                                    | null           |
+| Length of the barcode parameter    | [0, 11]        |
+|                                    | [12, 14]       |
+|                                    | [15, MAX_INT)  |
+| Format of the barcode parameter    | Numeric        |
+|                                    | Non-numeric    |
+| Check digit                        | Correct        |
+|                                    | Incorrect      |
 
 **Boundaries**:
 
-| Criteria | Boundary values |
-| -------- | --------------- |
-|          |                 |
-|          |                 |
-
-
+| Criteria                                 | Boundary values    |
+| ---------------------------------------- | ------------------ |
+| Length of the barcode parameter          | 0, 11, 12, 14, 15  |
 
 **Combination of predicates**:
 
 
-| Criteria 1 | Criteria 2 | ... | Valid / Invalid | Description of the test case | JUnit test case |
-|-------|-------|-------|-------|-------|-------|
-|||||||
-|||||||
-|||||||
-|||||||
-|||||||
-
+| Validity of the barcode parameter | Length of the barcode parameter | Format of the barcode parameter | Check digit | Valid / Invalid | Description of the test case                                                                | JUnit test case                               |
+|-----------------------------------|---------------------------------|---------------------------------|-------------|-----------------|---------------------------------------------------------------------------------------------|-----------------------------------------------|
+| null                              | *                               | *                               | *           | Invalid         | isValidBarcode(null) -> false                                                               | TestUtilsIsValidBarcode.testNullBarcode       |
+| Valid                             | [0, 11]                         | *                               | *           | Invalid         | isValidBarcode("") -> false <br> isValidBarcode("00000000000") -> false                     | TestUtilsIsValidBarcode.testBarcodeTooShort   |
+| "                                 | [15, MAX_INT]                   | *                               | *           | Invalid         | isValidBarcode("000000000000000") -> false <br> isValidBarcode("999999999999999") -> false  | TestUtilsIsValidBarcode.testBarcodeTooLong    |
+| "                                 | [12, 14]                        | Non-numeric                     | *           | Invalid         | isValidBarcode("A00000000000") -> false <br> isValidBarcode("00000000000A") -> false        | TestUtilsIsValidBarcode.testNonNumericBarcode |
+| "                                 | "                               | Numeric                         | Incorrect   | Valid           | isValidBarcode("123456789011") -> false <br> isValidBarcode("123456789013") -> false        | TestUtilsIsValidBarcode.testWrongCheckDigit   |
+| "                                 | "                               | Numeric                         | Correct     | Valid           | isValidBarcode("123456789012") -> true <br> isValidBarcode("1234567890128") -> true         | TestUtilsIsValidBarcode.testValidBarcodes     |
 
 
 
@@ -85,9 +78,9 @@ Version:
     <For traceability write the class and method name that contains the test case>
 
 
-| Unit name | JUnit test case |
-|--|--|
-|||
+| Unit name            | JUnit test case |
+|----------------------|-----------------|
+| Utils.isValidBarcode | TestUtils.testNonAlphanumericBarcode |
 |||
 ||||
 
