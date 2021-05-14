@@ -1,7 +1,6 @@
 package it.polito.ezshop.utils;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.Arrays;
 
@@ -66,7 +65,6 @@ public class Utils {
                 checksum += digit;
             }
         }
-
 
         int checksumDigit = Character.getNumericValue(barcode.charAt(barcode.length() - 1));
 

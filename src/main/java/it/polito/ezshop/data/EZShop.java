@@ -1241,7 +1241,7 @@ public class EZShop implements EZShopInterface {
         accountBook.addTransaction(newRecord);
 
         //collect all the balance records to calculate
-        List<Double> moneyList = accountBook.getTransactions().stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
+        List<Double> moneyList = accountBook.getAllTransactions().stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
 
         //sum all of the moneys
         double total = 0;
@@ -1258,7 +1258,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         // collect all transactions
-        List<BalanceOperation> listOfCreditsAndDebits = accountBook.getTransactions().stream().filter(x -> x.getDate().isAfter(from) && x.getDate().isBefore(to)).collect(Collectors.toList());
+        List<BalanceOperation> listOfCreditsAndDebits = accountBook.getAllTransactions().stream().filter(x -> x.getDate().isAfter(from) && x.getDate().isBefore(to)).collect(Collectors.toList());
         return listOfCreditsAndDebits;
 
     }
@@ -1269,7 +1269,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         //collect all the balance records to calculate
-        List<Double> moneyList = accountBook.getTransactions().stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
+        List<Double> moneyList = accountBook.getAllTransactions().stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
 
         //sum all of the moneys
         double total = 0;

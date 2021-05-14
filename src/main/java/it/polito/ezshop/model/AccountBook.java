@@ -1,8 +1,5 @@
 package it.polito.ezshop.model;
 
-import it.polito.ezshop.data.SaleTransaction;
-
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,24 +29,11 @@ public class AccountBook {
     }
 
     /**
-     * Returns all balance operations with a given time frame.
-     *
-     * @param startDate returned balance operations where made after this date
-     * @param endDate returned balance operations where made before this date
-     * @return list of balance operations within timeframe
-     */
-    public List<BalanceOperation> getTransactions(LocalDate startDate, LocalDate endDate) {
-        return this.balanceOperations.stream()
-                .filter(b -> b.getDate().isAfter(startDate) && b.getDate().isAfter(endDate))
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Returns all balance operations
      *
      * @return list of balance operations
      */
-    public List<BalanceOperation> getTransactions() {
+    public List<BalanceOperation> getAllTransactions() {
         return this.balanceOperations;
     }
 
@@ -58,9 +42,10 @@ public class AccountBook {
      *
      * @return list of credit transactions
      */
-    public List<BalanceOperation> getCreditTransactions() {
+    public List<Credit> getCreditTransactions() {
         return this.balanceOperations.stream()
-                .filter(b -> Credit.class.isAssignableFrom(b.getClass()))
+                .filter(b -> b instanceof Credit)
+                .map(b -> (Credit) b)
                 .collect(Collectors.toList());
     }
 
@@ -69,9 +54,10 @@ public class AccountBook {
      *
      * @return list of debit transactions
      */
-    public List<BalanceOperation> getDebitTransactions() {
+    public List<Debit> getDebitTransactions() {
         return this.balanceOperations.stream()
-                .filter(b -> Debit.class.isAssignableFrom(b.getClass()))
+                .filter(b -> b instanceof Debit)
+                .map(b -> (Debit) b)
                 .collect(Collectors.toList());
     }
 
@@ -80,9 +66,10 @@ public class AccountBook {
      *
      * @return list of sale transactions
      */
-    public List<BalanceOperation> getSaleTransactions() {
+    public List<SaleTransaction> getSaleTransactions() {
         return this.balanceOperations.stream()
-                .filter(b -> SaleTransaction.class.isAssignableFrom(b.getClass()))
+                .filter(b -> b instanceof SaleTransaction)
+                .map(b -> (SaleTransaction) b)
                 .collect(Collectors.toList());
     }
 
@@ -91,9 +78,10 @@ public class AccountBook {
      *
      * @return list of return transactions
      */
-    public List<BalanceOperation> getReturnTransactions() {
+    public List<ReturnTransaction> getReturnTransactions() {
         return this.balanceOperations.stream()
-                .filter(b -> ReturnTransaction.class.isAssignableFrom(b.getClass()))
+                .filter(b -> b instanceof ReturnTransaction)
+                .map(b -> (ReturnTransaction) b)
                 .collect(Collectors.toList());
     }
 
@@ -102,9 +90,10 @@ public class AccountBook {
      *
      * @return list of orders
      */
-    public List<BalanceOperation> getOrders() {
+    public List<Order> getOrders() {
         return this.balanceOperations.stream()
-                .filter(b -> Order.class.isAssignableFrom(b.getClass()))
+                .filter(b -> b instanceof Order)
+                .map(b -> (Order) b)
                 .collect(Collectors.toList());
     }
 

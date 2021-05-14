@@ -1,7 +1,5 @@
 package it.polito.ezshop.acceptanceTests;
 
-
-import it.polito.ezshop.data.EZShop;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
