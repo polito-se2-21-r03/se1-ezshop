@@ -68,6 +68,49 @@ Version:
 | "                                 | "                               | Numeric                         | Correct     | Valid           | isValidBarcode("123456789012") -> true <br> isValidBarcode("1234567890128") -> true         | TestUtilsIsValidBarcode.testValidBarcodes     |
 
 
+### **Class *Utils* - method *isValidCreditCard***
+
+**Criteria for method *isValidCreditCard*:**
+
+- Validity of the credit card parameter
+- Length of the credit card parameter
+- Format of the credit card parameter
+- Checksum
+
+**Predicates for method *isValidCreditCard*:**
+
+| Criteria                           | Predicate      |
+| ---------------------------------- | -------------- |
+| Validity of the credit card parameter | Valid          |
+|                                    | null           |
+| Length of the credit card parameter| [0, 15]        |
+|                                    | [16]       |
+|                                    | [17, MAX_INT)  |
+| Format of the credit card parameter| Numeric        |
+|                                    | Non-numeric    |
+| Checksum                           | Correct        |
+|                                    | Incorrect      |
+
+**Boundaries**:
+
+| Criteria                                 | Boundary values    |
+| ---------------------------------------- | ------------------ |
+| Length of the credit card parameter      | 0, 15, 16  |
+
+**Combination of predicates**:
+
+
+| Validity of the credit card parameter | Length of the credit card parameter | Format of the credit card parameter | Checksum | Valid / Invalid | Description of the test case                                                                | JUnit test case                               |
+|---------------------------------------|-------------------------------------|-------------------------------------|----------|-----------------|---------------------------------------------------------------------------------------------|-----------------------------------------------|
+| null                                  | *                                   | *                                   | *        | Invalid         | isValidCreditCard(null) -> false                                                               | TestIsValidCreditCardNumber.testCardNumberNullReturnsFalse       |
+| Valid                                 | [0]                                 | *                                   | *        | Invalid         | isValidCreditCard("") -> false <br> isValidCreditCard("13589549939144") -> false               | TestIsValidCreditCardNumber.testCardNumberEmptyStringReturnsFalse   |
+| Valid                                 | [1, 15]                             | *                                   | *        | Invalid         | isValidCreditCard("") -> false <br> isValidCreditCard("13589549939144") -> false               | TestIsValidCreditCardNumber.testCardNumberTooShortReturnsFalse   |
+| "                                     | [17, MAX_INT]                       | *                                   | *        | Invalid         | isValidCreditCard("135895499391443525") -> false                                               | TestIsValidCreditCardNumber.testCardNumberTooLongReturnsFalse    |
+| "                                     | [16]                                | Non-numeric                         | *        | Invalid         | isValidCreditCard("135895499391449a") -> false                                                 | TestIsValidCreditCardNumber.testCardNumberContainsNonNumericCharReturnsFalse |
+| "                                     | "                                   | Numeric                             | Incorrect| Valid           | isValidCreditCard("1358954993914492") -> false                                                 | TestIsValidCreditCardNumber.testCardNumberWrongChecksumReturnsFalse   |
+| "                                     | "                                   | Numeric                             | Correct  | Valid           | isValidCreditCard("1358954993914491") -> true                                                  | TestIsValidCreditCardNumber.testValidCardNumberReturnsTrue     |
+
+
 
 # White Box Unit Tests
 
