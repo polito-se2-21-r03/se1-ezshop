@@ -13,7 +13,7 @@ public class ReturnTransaction extends Debit {
 
     public ReturnTransaction(int balanceId, LocalDate date, List<ReturnTransactionItem> entries,
                              SaleTransaction saleTransaction, double price) {
-        super(balanceId, date, 0.0, TYPE_RETURN, OperationStatus.OPEN);
+        super(balanceId, date, 0.0, OperationStatus.OPEN);
 
         Objects.requireNonNull(saleTransaction, "saleTransaction must not be null");
 

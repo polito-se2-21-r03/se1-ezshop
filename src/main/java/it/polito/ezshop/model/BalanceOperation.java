@@ -4,32 +4,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceOperation {
-
-    /**
-     * Constant value that identifies CREDIT balance operations
-     */
-    public static final String TYPE_CREDIT = "credit";
-
-    /**
-     * Constant value that identifies SALE balance operations
-     */
-    public static final String TYPE_SALE = "sale";
-
-    /**
-     * Constant value that identifies DEBIT balance operations
-     */
-    public static final String TYPE_DEBIT = "debit";
-
-    /**
-     * Constant value that identifies RETURN balance operations
-     */
-    public static final String TYPE_RETURN = "return";
-
-    /**
-     * Constant value that identifies ORDER balance operations
-     */
-    public static final String TYPE_ORDER = "order";
-
     protected int balanceId;
     protected LocalDate date;
     protected double balanceValue;
@@ -42,19 +16,15 @@ public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceO
 
     protected OperationStatus status;
 
-    protected BalanceOperation() {
+    protected BalanceOperation() {}
 
-    }
-
-    protected BalanceOperation(int balanceId, LocalDate date, double balanceValue, String type, OperationStatus status) {
+    protected BalanceOperation(int balanceId, LocalDate date, double balanceValue, OperationStatus status) {
         Objects.requireNonNull(date, "date must not be null");
-        Objects.requireNonNull(type, "type must not be null");
         Objects.requireNonNull(status, "status must not be null");
 
         this.balanceId = balanceId;
         this.date = date;
         this.balanceValue = balanceValue;
-        this.type = type;
         this.status = status;
     }
 
@@ -89,14 +59,14 @@ public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceO
     }
 
     @Override
+    @Deprecated
     public String getType() {
-        return this.type;
+        return this.getClass().toString();
     }
 
     @Override
-    public void setType(String type) {
-        this.type = type;
-    }
+    @Deprecated
+    public void setType(String type) { }
 
     public String getStatus() {
         return status.name();

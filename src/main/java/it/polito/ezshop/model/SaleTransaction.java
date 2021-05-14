@@ -18,7 +18,7 @@ public class SaleTransaction extends Credit implements it.polito.ezshop.data.Sal
 
     public SaleTransaction(int balanceId, LocalDate date, List<TicketEntry> entries,
                            List<ReturnTransaction> returnTransactions, double discountRate, double price) {
-        super(balanceId, date, 0.0, TYPE_SALE, OperationStatus.OPEN);
+        super(balanceId, date, 0.0, OperationStatus.OPEN);
 
         if (entries != null) {
             this.entries.addAll(entries);
