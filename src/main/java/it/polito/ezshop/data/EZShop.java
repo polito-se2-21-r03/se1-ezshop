@@ -38,14 +38,6 @@ public class EZShop implements EZShopInterface {
      */
     private final AccountBook accountBook = new AccountBook();
 
-    /**
-     * List of all return transactions in EZShop
-     */
-    private final List<ReturnTransaction> returnTransactions = new ArrayList<>();
-    /**
-     * List of all return balance records in EZShop
-     */
-    private final List<BalanceOperation> balanceRecords = new ArrayList<>();
 
 
 
@@ -636,11 +628,6 @@ public class EZShop implements EZShopInterface {
         if (newCustomerCard == null || newCustomerCard.length()!=10) {
             throw new InvalidCustomerCardException("Invalid Customer Card");
         }
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
-        }
 
         // generate a list of all ids
         List<Integer> ids = customers.stream().map(Customer::getId).collect(Collectors.toList());
@@ -732,13 +719,6 @@ public class EZShop implements EZShopInterface {
             throw new InvalidCustomerCardException("Invalid Customer Card");
         }
 
-        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
-        }
-
         // find the customer
         customers.get(customerId).setCustomerCard(customerCard);
 
@@ -753,13 +733,6 @@ public class EZShop implements EZShopInterface {
         //InvalidCustomerCardException if the card is null, empty or in an invalid format
         if (customerCard == null || customerCard.length()!=10) {
             throw new InvalidCustomerCardException("Invalid Customer Card");
-        }
-
-        //UnauthorizedException if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
         }
 
         // find the customer
@@ -1155,13 +1128,6 @@ public class EZShop implements EZShopInterface {
         if(ticketNumber == null || ticketNumber.compareTo(0) <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
-        //if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
-        }
-
         //if the cash is less than or equal to 0
         if(cash <= 0)
             throw new InvalidPaymentException("Invalid cash amount.");
@@ -1186,13 +1152,6 @@ public class EZShop implements EZShopInterface {
         if(ticketNumber == null || ticketNumber.compareTo(0) <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
-        //if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
-        }
-
         //if the credit card number is empty, null or if luhn algorithm does not validate the credit card
         if(creditCard.isEmpty() || !isValidCreditCardNumber(creditCard) )
             throw new InvalidCreditCardException("Invalid credit card.");
@@ -1214,15 +1173,8 @@ public class EZShop implements EZShopInterface {
         if(returnId == null || returnId.compareTo(0) <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
-        //if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
-        }
-
         //get the transaction and sale price information
-        ReturnTransaction returnTransaction = returnTransactions.stream().filter(x -> x.getBalanceId() == returnId).findFirst().orElse(null);
+        it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getReturnTransactions().stream().filter(x -> x.getBalanceId() == returnId).findFirst().orElse(null);
         assert returnTransaction != null;
         double returnAmount = returnTransaction.getMoney();
 
@@ -1230,7 +1182,8 @@ public class EZShop implements EZShopInterface {
         if(returnTransaction.getStatus().equals("open"))
             return -1;
         //if it does not exist,
-
+        else if(returnTransaction.getStatus().isEmpty())
+            return -1;
         //the money returned to the customer
         else
             return returnAmount;
@@ -1245,23 +1198,20 @@ public class EZShop implements EZShopInterface {
         if(returnId == null || returnId.compareTo(0) <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
-        //if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())
-                || Role.CASHIER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager, administrator or cashier");
-        }
         //if the credit card number is empty, null or if luhn algorithm does not validate the credit card
         if (creditCard.isEmpty() || !isValidCreditCardNumber(creditCard))
             throw new InvalidCreditCardException("Invalid credit card number.");
 
         //find the returntransaction and the return amount
-        ReturnTransaction returnTransaction = returnTransactions.stream().filter(x -> x.getBalanceId() == returnId).findFirst().orElse(null);
+        it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getReturnTransactions().stream().filter(x -> x.getBalanceId() == returnId).findFirst().orElse(null);
         assert returnTransaction != null;
         double returnAmount = returnTransaction.getMoney();
 
         //if the return transaction is not ended,
         if(returnTransaction.getStatus().equals("OPEN"))
+            return -1;
+            //if it does not exist,
+        else if(returnTransaction.getStatus().isEmpty())
             return -1;
         //*** I should registered card control ***
             //the money returned to the customer
@@ -1273,11 +1223,7 @@ public class EZShop implements EZShopInterface {
     public boolean recordBalanceUpdate(double toBeAdded) throws UnauthorizedException {
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
-        //if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager or administrator");
-        }
+
 
         //date
         LocalDate date = LocalDate.now();
@@ -1286,17 +1232,16 @@ public class EZShop implements EZShopInterface {
         //status
         OperationStatus newStatus = OperationStatus.PAID;
 
-        BalanceOperation newRecord;
+        it.polito.ezshop.model.BalanceOperation newRecord;
         if (toBeAdded >= 0) {
             newRecord = new Credit(balanceId, date, toBeAdded, newStatus);
         } else {
             newRecord = new Debit(balanceId, date, toBeAdded, newStatus);
         }
-
-        balanceRecords.add(newRecord);
+        accountBook.addTransaction(newRecord);
 
         //collect all the balance records to calculate
-        List<Double> moneyList = balanceRecords.stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
+        List<Double> moneyList = accountBook.getTransactions().stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
 
         //sum all of the moneys
         double total = 0;
@@ -1311,24 +1256,11 @@ public class EZShop implements EZShopInterface {
     public List<BalanceOperation> getCreditsAndDebits(LocalDate from, LocalDate to) throws UnauthorizedException {
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
-        //if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager or administrator");
-        }
-        // collect all transactions
-        List<BalanceOperation> balanceList;
-        if(from == null || to == null) {
-            if (from == null)
-                balanceList = balanceRecords.stream().filter(x -> x.getDate().isAfter(from)).collect(Collectors.toList());
-            else
-                balanceList = balanceRecords.stream().filter(x -> x.getDate().isBefore(to)).collect(Collectors.toList());
-        }
-        else
-            balanceList = balanceRecords.stream().filter(x -> x.getDate().isAfter(from)).collect(Collectors.toList());
-            balanceList = balanceList.stream().filter(x -> x.getDate().isBefore(to)).collect(Collectors.toList());
 
-        return balanceList;
+        // collect all transactions
+        List<BalanceOperation> listOfCreditsAndDebits = accountBook.getTransactions().stream().filter(x -> x.getDate().isAfter(from) && x.getDate().isBefore(to)).collect(Collectors.toList());
+        return listOfCreditsAndDebits;
+
     }
 
     @Override
@@ -1336,13 +1268,8 @@ public class EZShop implements EZShopInterface {
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
-        //if there is no logged user or if it has not the rights to perform the operation
-        if (Role.ADMINISTRATOR.getValue().equals(currentUser.getRole())
-                || Role.SHOP_MANAGER.getValue().equals(currentUser.getRole())) {
-            throw new UnauthorizedException("Action may only be performed by shop manager or administrator");
-        }
         //collect all the balance records to calculate
-        List<Double> moneyList = balanceRecords.stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
+        List<Double> moneyList = accountBook.getTransactions().stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
 
         //sum all of the moneys
         double total = 0;
