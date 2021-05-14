@@ -1,4 +1,4 @@
-package it.polito.ezshop.model;
+package it.polito.ezshop.utils;
 
 import java.util.List;
 import java.util.Objects;

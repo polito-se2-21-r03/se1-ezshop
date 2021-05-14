@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static it.polito.ezshop.model.Utils.generateId;
+import static it.polito.ezshop.utils.Utils.generateId;
 
 public class AccountBook {
 

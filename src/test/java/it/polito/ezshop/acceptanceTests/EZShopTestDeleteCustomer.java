@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 
 import static it.polito.ezshop.acceptanceTests.TestHelpers.*;
-import static it.polito.ezshop.model.Utils.generateId;
+import static it.polito.ezshop.utils.Utils.generateId;
 import static org.junit.Assert.*;
 
 public class EZShopTestDeleteCustomer {

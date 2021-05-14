@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static it.polito.ezshop.model.Utils.*;
+import static it.polito.ezshop.utils.Utils.*;
 
 
 public class EZShop implements EZShopInterface {

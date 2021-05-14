@@ -1,6 +1,6 @@
 package it.polito.ezshop.acceptanceTests;
 
-import it.polito.ezshop.model.Utils;
+import it.polito.ezshop.utils.Utils;
 import org.junit.Test;
 
 import java.util.ArrayList;
