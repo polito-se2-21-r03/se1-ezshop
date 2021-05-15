@@ -4,34 +4,40 @@ import it.polito.ezshop.data.ProductType;
 
 import java.util.Objects;
 
-public class ReturnTransactionItem{
+public class ReturnTransactionItem {
 
     private final ProductType productType;
-    private int Amount;
+    private double pricePerUnit;
+    private int amount;
 
-    public ReturnTransactionItem(ProductType productType, int amount) {
+    public ReturnTransactionItem(ProductType productType, int amount, double pricePerUnit) {
         this.productType = productType;
-        this.Amount = amount;
+        this.amount = amount;
+        this.pricePerUnit = pricePerUnit;
     }
 
     public String getBarCode() {
         return this.productType.getBarCode();
     }
 
-    public String getProductDescription() {
-        return this.productType.getProductDescription();
-    }
-
     public int getAmount() {
-        return this.Amount;
+        return this.amount;
     }
 
     public void setAmount(int amount) {
-        this.Amount = amount;
+        this.amount = amount;
     }
 
     public double getPricePerUnit() {
-        return this.productType.getPricePerUnit();
+        return this.pricePerUnit;
+    }
+
+    public void setPricePerUnit(double pricePerUnit) {
+        this.pricePerUnit = pricePerUnit;
+    }
+
+    public double computeValue() {
+        return this.amount * this.pricePerUnit;
     }
 
     @Override
@@ -39,12 +45,12 @@ public class ReturnTransactionItem{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ReturnTransactionItem that = (ReturnTransactionItem) o;
-        return Amount == that.Amount &&
+        return amount == that.amount &&
                 Objects.equals(productType, that.productType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(productType, Amount);
+        return Objects.hash(productType, amount);
     }
 }

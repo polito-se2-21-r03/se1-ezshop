@@ -39,8 +39,6 @@ public class EZShop implements EZShopInterface {
     private final AccountBook accountBook = new AccountBook();
 
 
-
-
     /**
      * Check whether the role of the current user is the expected one.
      *
@@ -758,8 +756,8 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         int SaleTransactionID = accountBook.generateNewId();
-        it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(SaleTransactionID, LocalDate.now(), new ArrayList<>(), new ArrayList<>(),0 , 0);
-        st.setStatus(OperationStatus.OPEN.name());
+        it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(SaleTransactionID,
+                LocalDate.now(), new ArrayList<>(), new ArrayList<>(),0 );
 
         // add SaleTransaction to account book
         this.accountBook.addTransaction(st);
@@ -938,14 +936,15 @@ public class EZShop implements EZShopInterface {
         if (transactionId == null || transactionId <= 0){
             throw new InvalidTransactionIdException("Invalid transaction ID");
         }
-        it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (t == null){
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
+        if (sale == null){
             return false;
         }
-        if (t.getStatus().equals(OperationStatus.CLOSED.name())){
+        if (sale.getStatus().equals(OperationStatus.CLOSED.name())){
             return false;
         }
-        t.setStatus(OperationStatus.CLOSED.name());
+        sale.setMoney(sale.getPrice());
+        accountBook.setTransactionStatus(transactionId, OperationStatus.CLOSED);
         return true;
     }
 
@@ -986,25 +985,22 @@ public class EZShop implements EZShopInterface {
     public Integer startReturnTransaction(Integer saleNumber) throws InvalidTransactionIdException, UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        Integer RetrunTransactionID = accountBook.generateNewId();
-        if( RetrunTransactionID == null || RetrunTransactionID <= 0){
+        int returnId = accountBook.generateNewId();
+        if (returnId <= 0) {
             throw new InvalidTransactionIdException("Invalid Transaction ID");
         }
-        it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(saleNumber);
-        if( !t.getStatus().equals(OperationStatus.CLOSED.name()) || t == null){
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(saleNumber);
+        if (sale == null || !sale.getStatus().equals(OperationStatus.CLOSED.name())) {
             return -1;
         }
-        ReturnTransaction rt = new ReturnTransaction(RetrunTransactionID, LocalDate.now(), new ArrayList<>(), t,0);
-        rt.setStatus(OperationStatus.OPEN.name());
-        t.getReturnTransactions().add(rt);
 
+        ReturnTransaction rt = new ReturnTransaction(returnId, saleNumber, LocalDate.now());
+        sale.addReturnTransaction(rt);
 
         // add ReturnTransaction to account book
-
         this.accountBook.addTransaction(rt);
 
-
-        return RetrunTransactionID;
+        return returnId;
     }
 
     @Override
@@ -1027,7 +1023,7 @@ public class EZShop implements EZShopInterface {
         if(!rt.getStatus().equals(OperationStatus.OPEN.name())){
             return false;
         }
-        it.polito.ezshop.model.SaleTransaction t = rt.getSaleTransaction();
+        SaleTransaction t = (SaleTransaction) accountBook.getTransaction(rt.getSaleTransactionId());
         if(t == null){
             return false;
         }
@@ -1049,8 +1045,8 @@ public class EZShop implements EZShopInterface {
         if(amount > entry.get().getAmount()){
             return false;
         }
-        ReturnTransactionItem returnitem = new ReturnTransactionItem(p, amount);
-        rt.getEntries().add(returnitem);
+        ReturnTransactionItem returnitem = new ReturnTransactionItem(p, amount, p.getPricePerUnit());
+        rt.getTransactionItems().add(returnitem);
         return true;
     }
 
@@ -1068,12 +1064,12 @@ public class EZShop implements EZShopInterface {
         if(!rt.getStatus().equals(OperationStatus.OPEN.name())){
             return false;
         }
-        it.polito.ezshop.model.SaleTransaction t = rt.getSaleTransaction();
+        SaleTransaction t = (SaleTransaction) accountBook.getTransaction(rt.getSaleTransactionId());
         if(t == null){
             return false;
         }
         if(commit == true){
-            List <ReturnTransactionItem> ritems = rt.getEntries();
+            List <ReturnTransactionItem> ritems = rt.getTransactionItems();
             List <TicketEntry> titems = t.getEntries();
             //didn't know how to use .stream in this case lol
 
@@ -1102,11 +1098,11 @@ public class EZShop implements EZShopInterface {
                 titem.setAmount(titem.getAmount() - ritem.getAmount());
                 //??? do we need to change the final price or it does automatically after removing the items ???
             }
-            rt.setStatus(OperationStatus.CLOSED.name());
+            accountBook.setTransactionStatus(returnId, OperationStatus.CLOSED);
         }
         else{
             //anything else to do if commit == false?
-            rt.setStatus(OperationStatus.CLOSED.name());
+            accountBook.setTransactionStatus(returnId, OperationStatus.CLOSED);
         }
         return true;
     }

@@ -4,7 +4,6 @@ import it.polito.ezshop.data.TicketEntry;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,11 +12,14 @@ public class SaleTransaction extends Credit implements it.polito.ezshop.data.Sal
 
     private final List<TicketEntry> entries = new ArrayList<>();
     private final List<ReturnTransaction> returnTransactions = new ArrayList<>();
-    private final double price;
     private double discountRate;
 
+    public SaleTransaction(int balanceId, LocalDate date, List<TicketEntry> entries, double discountRate) {
+        this(balanceId, date, entries, null, discountRate);
+    }
+
     public SaleTransaction(int balanceId, LocalDate date, List<TicketEntry> entries,
-                           List<ReturnTransaction> returnTransactions, double discountRate, double price) {
+                           List<ReturnTransaction> returnTransactions, double discountRate) {
         super(balanceId, date, 0.0, OperationStatus.OPEN);
 
         if (entries != null) {
@@ -28,7 +30,6 @@ public class SaleTransaction extends Credit implements it.polito.ezshop.data.Sal
         }
 
         this.discountRate = discountRate;
-        this.price = price;
     }
 
     @Override
@@ -78,26 +79,20 @@ public class SaleTransaction extends Credit implements it.polito.ezshop.data.Sal
         // this.price = price;
     }
 
-    public List<ReturnTransaction> getReturnTransactions() {
-        return this.returnTransactions;
-    }
-
-    public void setReturnTransactions(List<ReturnTransaction> returnTransactions) {
-        this.returnTransactions.clear();
-        if (returnTransactions != null) {
-            this.returnTransactions.addAll(returnTransactions);
+    @Override
+    public double getMoney() {
+        if (status != OperationStatus.PAID && status != OperationStatus.COMPLETED) {
+            setMoney(getPrice());
         }
+        return super.getMoney();
     }
 
-    public void addReturnTransactions(ReturnTransaction... returnTransactions) {
-        this.returnTransactions.addAll(Arrays.asList(returnTransactions));
+    public void addReturnTransaction(ReturnTransaction returnTransaction) {
+        this.returnTransactions.add(returnTransaction);
     }
 
     public int computePoints() {
-        return ((int) ((1 - this.discountRate) * this.entries.stream().mapToDouble(entry -> {
-            // compute the subtotal for the entry
-            return entry.getAmount() * entry.getPricePerUnit() * (1 - entry.getDiscountRate());
-        }).sum())) / 10;
+        return ((int) this.getPrice()) / 10;
     }
 
     @Override
@@ -107,13 +102,12 @@ public class SaleTransaction extends Credit implements it.polito.ezshop.data.Sal
         if (!super.equals(o)) return false;
         SaleTransaction that = (SaleTransaction) o;
         return Double.compare(that.discountRate, discountRate) == 0 &&
-                Double.compare(that.price, price) == 0 &&
                 entries.equals(that.entries) &&
                 returnTransactions.equals(that.returnTransactions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), entries, returnTransactions, discountRate, price);
+        return Objects.hash(super.hashCode(), entries, returnTransactions, discountRate);
     }
 }

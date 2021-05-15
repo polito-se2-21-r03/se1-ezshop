@@ -66,7 +66,7 @@ public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceO
         return status.name();
     }
 
-    public void setStatus(String status) {
+    void setStatus(String status) {
         this.status = OperationStatus.valueOf(status);
     }
 

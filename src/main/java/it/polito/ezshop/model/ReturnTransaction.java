@@ -8,44 +8,40 @@ import java.util.Objects;
 public class ReturnTransaction extends Debit {
 
     private final List<ReturnTransactionItem> entries = new ArrayList<>();
-    private final SaleTransaction saleTransaction;
-    private double price;
+    private final int saleTransactionId;
 
-    public ReturnTransaction(int balanceId, LocalDate date, List<ReturnTransactionItem> entries,
-                             SaleTransaction saleTransaction, double price) {
+    public ReturnTransaction(int balanceId, int saleTransactionId, LocalDate date) {
+        this(balanceId, saleTransactionId, date, null);
+    }
+
+    public ReturnTransaction(int balanceId, int saleTransactionId, LocalDate date, List<ReturnTransactionItem> entries) {
         super(balanceId, date, 0.0, OperationStatus.OPEN);
 
-        Objects.requireNonNull(saleTransaction, "saleTransaction must not be null");
+        this.saleTransactionId = saleTransactionId;
 
         if (entries != null) {
             this.entries.addAll(entries);
         }
-
-        this.saleTransaction = saleTransaction;
-        this.price = price;
     }
 
-    public List<ReturnTransactionItem> getEntries() {
+    public int getSaleTransactionId() {
+        return saleTransactionId;
+    }
+
+    public List<ReturnTransactionItem> getTransactionItems() {
         return this.entries;
     }
 
-    public void setEntries(List<ReturnTransactionItem> entries) {
-        this.entries.clear();
-        if (entries != null) {
-            this.entries.addAll(entries);
-        }
-    }
-
     public double getPrice() {
-        return this.price;
+        return this.entries.stream().mapToDouble(ReturnTransactionItem::computeValue).sum();
     }
 
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public SaleTransaction getSaleTransaction() {
-        return this.saleTransaction;
+    @Override
+    public double getMoney() {
+        if (status != OperationStatus.PAID && status != OperationStatus.COMPLETED) {
+            setMoney(getPrice());
+        }
+        return super.getMoney();
     }
 
     @Override
@@ -54,13 +50,11 @@ public class ReturnTransaction extends Debit {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         ReturnTransaction that = (ReturnTransaction) o;
-        return Double.compare(that.price, price) == 0 &&
-                entries.equals(that.entries) &&
-                saleTransaction.equals(that.saleTransaction);
+        return entries.equals(that.entries);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), entries, saleTransaction, price);
+        return Objects.hash(super.hashCode(), entries);
     }
 }

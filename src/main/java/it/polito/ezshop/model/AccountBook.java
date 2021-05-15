@@ -146,7 +146,7 @@ public class AccountBook {
             this.balance += balanceOperation.getMoney();
         }
 
-        this.balanceOperations.remove(balanceOperation);
+        balanceOperation.setStatus(newStatus.name());
     }
 
     /**

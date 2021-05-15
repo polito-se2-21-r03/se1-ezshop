@@ -3,7 +3,7 @@ package it.polito.ezshop.model;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class Order extends BalanceOperation {
+public class Order extends Debit {
 
     private String productCode;
     private double pricePerUnit;
