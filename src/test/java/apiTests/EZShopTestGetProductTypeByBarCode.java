@@ -11,7 +11,6 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import static unitTests.TestHelpers.assertThrows;
 import static unitTests.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
 
