@@ -116,6 +116,26 @@ public class EZShopTestModifyCustomer {
     }
 
     /**
+     * Tests that false is returned if the card does not exist
+     */
+    @Test
+    public void testFalseIfCardNotExists() throws InvalidPasswordException, InvalidUsernameException,
+            UnauthorizedException, InvalidCustomerCardException, InvalidCustomerIdException, InvalidCustomerNameException {
+
+        // login with sufficient rights
+        shop.login(user.getUsername(), user.getPassword());
+
+        // generate a valid card which doesn't exist in the shop
+        String nonExistentCard = "123456789";
+        char lastDigit = '0';
+        while (card1.equals(nonExistentCard + lastDigit) || card2.equals(nonExistentCard + lastDigit)) {lastDigit++;}
+        nonExistentCard += lastDigit;
+
+        // assigning a non-existing card returns false
+        assertFalse(shop.modifyCustomer(customer1.getId(), "Diogo", nonExistentCard));
+    }
+
+    /**
      * Test whether an existing card can be attached to a customer successfully
      */
     @Test

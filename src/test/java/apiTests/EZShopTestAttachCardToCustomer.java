@@ -59,7 +59,7 @@ public class EZShopTestAttachCardToCustomer {
     @Test
     public void testAuthorization() throws Throwable {
         Method modifyCustomer = EZShop.class.getMethod("attachCardToCustomer", String.class, Integer.class);
-        testAccessRights(modifyCustomer, new Object[] {"1234567890", 1},
+        testAccessRights(modifyCustomer, new Object[] {card1, 1},
                 new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
@@ -108,8 +108,28 @@ public class EZShopTestAttachCardToCustomer {
                         .map(it.polito.ezshop.data.Customer::getId)
                         .collect(Collectors.toList()));
 
-        // changing name to null throws exception
+        // attaching to non-existing customer returns false
         assertFalse(shop.attachCardToCustomer(card1, nonExistentId));
+    }
+
+    /**
+     * Tests that false is returned if the card does not exist
+     */
+    @Test
+    public void testFalseIfCardNotExists() throws InvalidPasswordException, InvalidUsernameException,
+            UnauthorizedException, InvalidCustomerCardException, InvalidCustomerIdException, InvalidCustomerNameException {
+
+        // login with sufficient rights
+        shop.login(user.getUsername(), user.getPassword());
+
+        // generate a valid card which doesn't exist in the shop
+        String nonExistentCard = "123456789";
+        char lastDigit = '0';
+        while (card1.equals(nonExistentCard + lastDigit) || card2.equals(nonExistentCard + lastDigit)) {lastDigit++;}
+        nonExistentCard += lastDigit;
+
+        // attaching a non-existing card returns false
+        assertFalse(shop.attachCardToCustomer(nonExistentCard, customer1.getId()));
     }
 
     /**
