@@ -8,7 +8,7 @@ import static it.polito.ezshop.utils.Utils.generateId;
 public class AccountBook {
 
     private final List<BalanceOperation> balanceOperations = new ArrayList<>();
-    private Double balance;
+    private Double balance = 0.0;
 
     private static boolean statusRequiresBalanceUpdate(OperationStatus status) {
         return status == OperationStatus.PAID || status == OperationStatus.COMPLETED;
