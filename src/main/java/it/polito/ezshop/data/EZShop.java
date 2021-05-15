@@ -56,6 +56,27 @@ public class EZShop implements EZShopInterface {
         }
     }
 
+    /**
+     * Returns the customer with the given ID. If no customer with that ID exists null is returned. Throws an
+     * InvalidCustomerIdException if the given ID is not valid
+     *
+     * @param id ID of the requested customer
+     * @return the customer with the given id if he exists
+     *         null, if no customer with id exists
+     * @throws InvalidCustomerIdException if the provided ID is not valid
+     */
+    private Customer getCustomerById(Integer id) throws InvalidCustomerIdException {
+
+        if (id <= 0) {
+            throw new InvalidCustomerIdException("The customer id must be a positive integer");
+        }
+
+        return customers.stream()
+                .filter(c -> id.equals(c.getId()))
+                .findAny()
+                .orElse(null);
+    }
+
     @Override
     public void reset() {
         this.users.clear();
@@ -611,26 +632,26 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean modifyCustomer(Integer id, String newCustomerName, String newCustomerCard) throws InvalidCustomerNameException, InvalidCustomerCardException, InvalidCustomerIdException, UnauthorizedException {
+
         // check the role of the current user
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         if (newCustomerName == null || newCustomerName.equals("")) {
             throw new InvalidCustomerNameException("Invalid Customer Name");
         }
-        if (id == null || id.compareTo(0) >0){
-            throw new InvalidCustomerIdException("Invalid customer ID");
-        }
         if (newCustomerCard == null || newCustomerCard.length()!=10) {
             throw new InvalidCustomerCardException("Invalid Customer Card");
         }
 
-        // generate a list of all ids
-        List<Integer> ids = customers.stream().map(Customer::getId).collect(Collectors.toList());
+        // get the customer
+        Customer customer = getCustomerById(id);
 
-        // find the customer
-        Customer customer = customers.get(id);
+        // return false if customer does not exist
+        if (customer == null) {
+            return false;
+        }
 
-        // if the customer is present, update its card and name
+        // if the customer is present, update his card and name
         customer.setCustomerName(newCustomerName);
 
         if(newCustomerCard == " ")
@@ -665,15 +686,12 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Customer getCustomer(Integer id) throws InvalidCustomerIdException, UnauthorizedException {
+
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        //InvalidCustomerIdException if the id is null, less than or equal to 0
-        if (id == null || id <= 0) {
-            throw new InvalidCustomerIdException("Invalid Customer id");
-        }
-
-        return customers.get(id);
+        // return customer if found, null otherwise, throw exception if necessary
+        return getCustomerById(id);
     }
 
     @Override
@@ -701,23 +719,22 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean attachCardToCustomer(String customerCard, Integer customerId) throws InvalidCustomerIdException, InvalidCustomerCardException, UnauthorizedException {
+
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
-
-        //InvalidCustomerIdException if the id is null, less than or equal to 0.
-        if (customerId == null || customerId.compareTo(0) > 0) {
-            throw new InvalidCustomerIdException("Invalid Customer id");
-        }
 
         //InvalidCustomerCardException if the card is null, empty or in an invalid format
         if (customerCard == null || customerCard.length()!=10) {
             throw new InvalidCustomerCardException("Invalid Customer Card");
         }
 
-        // find the customer
-        customers.get(customerId).setCustomerCard(customerCard);
+        // get the customer
+        Customer customer = getCustomerById(customerId);
 
-        return customers.get(customerId).getCustomerCard().equals(customerCard);
+        // set customer's card to new card
+        customer.setCustomerCard(customerCard);
+
+        return true;
     }
 
     @Override
