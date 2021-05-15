@@ -1,7 +1,5 @@
 package it.polito.ezshop.model;
 
-import it.polito.ezshop.data.ProductType;
-
 import java.util.Objects;
 
 public class ReturnTransactionItem {
@@ -45,12 +43,13 @@ public class ReturnTransactionItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ReturnTransactionItem that = (ReturnTransactionItem) o;
-        return amount == that.amount &&
-                Objects.equals(productType, that.productType);
+        return Double.compare(that.pricePerUnit, pricePerUnit) == 0
+                && amount == that.amount
+                && Objects.equals(productType, that.productType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(productType, amount);
+        return Objects.hash(productType, pricePerUnit, amount);
     }
 }

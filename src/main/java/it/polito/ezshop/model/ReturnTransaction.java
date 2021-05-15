@@ -2,6 +2,7 @@ package it.polito.ezshop.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,6 +22,7 @@ public class ReturnTransaction extends Debit {
 
         if (entries != null) {
             this.entries.addAll(entries);
+            recomputeBalanceValue();
         }
     }
 
@@ -29,19 +31,27 @@ public class ReturnTransaction extends Debit {
     }
 
     public List<ReturnTransactionItem> getTransactionItems() {
-        return this.entries;
+        return Collections.unmodifiableList(this.entries);
     }
 
-    public double getPrice() {
+    public void addReturnTransactionItem(ProductType product, int amount, double pricePerUnit) {
+        if (status == OperationStatus.OPEN) {
+            entries.add(new ReturnTransactionItem(product, amount, pricePerUnit));
+            recomputeBalanceValue();
+        }
+    }
+
+    public double computeTotal() {
         return this.entries.stream().mapToDouble(ReturnTransactionItem::computeValue).sum();
     }
 
     @Override
     public double getMoney() {
-        if (status != OperationStatus.PAID && status != OperationStatus.COMPLETED) {
-            setMoney(getPrice());
-        }
         return super.getMoney();
+    }
+
+    private void recomputeBalanceValue() {
+        setMoney(computeTotal());
     }
 
     @Override
@@ -50,11 +60,11 @@ public class ReturnTransaction extends Debit {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         ReturnTransaction that = (ReturnTransaction) o;
-        return entries.equals(that.entries);
+        return saleTransactionId == that.saleTransactionId && entries.equals(that.entries);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), entries);
+        return Objects.hash(super.hashCode(), saleTransactionId);
     }
 }

@@ -121,9 +121,8 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
         double expectedNewTotal = initialSaleTransactionValue - expectedReturnValue;
         assertEquals(expectedNewTotal, st.getPrice(), DOUBLE_COMPARISON_THRESHOLD);
 
-        // verify that the balance was updated correctly
-        double expectedNewBalance = initialBalance - expectedReturnValue;
-        assertEquals(expectedNewBalance, shop.computeBalance(), DOUBLE_COMPARISON_THRESHOLD);
+        // verify that the balance was NOT updated
+        assertEquals(initialBalance, shop.computeBalance(), DOUBLE_COMPARISON_THRESHOLD);
 
         // try to commit/rollback again -> the method should return false
         assertFalse(shop.endReturnTransaction(rid1, true));
@@ -154,9 +153,8 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
         double expectedNewTotal = initialSaleTransactionValue - expectedReturnValue;
         assertEquals(expectedNewTotal, st.getPrice(), DOUBLE_COMPARISON_THRESHOLD);
 
-        // verify that the balance was updated correctly
-        double expectedNewBalance = initialBalance - expectedReturnValue;
-        assertEquals(expectedNewBalance, shop.computeBalance(), DOUBLE_COMPARISON_THRESHOLD);
+        // verify that the balance was NOT updated
+        assertEquals(initialBalance, shop.computeBalance(), DOUBLE_COMPARISON_THRESHOLD);
 
         // try to commit/rollback again -> the method should return false
         assertFalse(shop.endReturnTransaction(rid2, true));

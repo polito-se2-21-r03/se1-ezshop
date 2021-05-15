@@ -1,18 +1,21 @@
 package it.polito.ezshop.model;
 
-import it.polito.ezshop.data.TicketEntry;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-
-public class SaleTransaction extends Credit implements it.polito.ezshop.data.SaleTransaction {
+public class SaleTransaction extends Credit {
 
     private final List<TicketEntry> entries = new ArrayList<>();
     private final List<ReturnTransaction> returnTransactions = new ArrayList<>();
+
+    /**
+     * Discount rate of the whole sale transaction
+     */
     private double discountRate;
+
+    public SaleTransaction(int balanceId, LocalDate date) {
+        this(balanceId, date, null, null, 0.0);
+    }
 
     public SaleTransaction(int balanceId, LocalDate date, List<TicketEntry> entries, double discountRate) {
         this(balanceId, date, entries, null, discountRate);
@@ -22,51 +25,104 @@ public class SaleTransaction extends Credit implements it.polito.ezshop.data.Sal
                            List<ReturnTransaction> returnTransactions, double discountRate) {
         super(balanceId, date, 0.0, OperationStatus.OPEN);
 
-        if (entries != null) {
-            this.entries.addAll(entries);
-        }
         if (returnTransactions != null) {
             this.returnTransactions.addAll(returnTransactions);
         }
 
         this.discountRate = discountRate;
-    }
 
-    @Override
-    public Integer getTicketNumber() {
-        return this.getBalanceId();
-    }
-
-    @Override
-    public void setTicketNumber(Integer ticketNumber) {
-        this.setBalanceId(ticketNumber);
-    }
-
-    @Override
-    public List<TicketEntry> getEntries() {
-        return this.entries;
-    }
-
-    @Override
-    public void setEntries(List<TicketEntry> entries) {
-        this.entries.clear();
         if (entries != null) {
             this.entries.addAll(entries);
+            recomputeBalanceValue();
         }
     }
 
-    @Override
+    /**
+     * Add a product to the transaction. The transaction must be in the OPEN state.
+     * The balance value of the transaction is updated.
+     *
+     * @param product      to add
+     * @param amount       of the product to add
+     * @param pricePerUnit of the product
+     * @param discountRate of the product
+     */
+    public void addSaleTransactionItem(ProductType product, int amount, double pricePerUnit, double discountRate) {
+        if (status == OperationStatus.OPEN) {
+            TicketEntry entry = this.entries.stream()
+                    .filter(x -> x.getProductType().getBarCode().equals(product.getBarCode()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (entry != null) {
+                entry.setAmount(entry.getAmount() + amount);
+            } else {
+                entries.add(new TicketEntry(product, amount, pricePerUnit, discountRate));
+            }
+
+            recomputeBalanceValue();
+        }
+    }
+
+    /**
+     * Remove a product from the transaction.
+     *
+     * @param product to remove
+     * @param amount  of the product to remove
+     * @return true if the product is removed, false otherwise
+     */
+    public boolean removeSaleTransactionItem(ProductType product, int amount) {
+        TicketEntry entry = entries.stream()
+                .filter(x -> x.getProductType().getBarCode().equals(product.getBarCode()))
+                .findFirst()
+                .orElse(null);
+
+        if (entry == null || entry.getAmount() < amount) {
+            return false;
+        }
+
+        if (entry.getAmount() > amount) {
+            entry.setAmount(entry.getAmount() - amount);
+        } else {
+            entries.remove(entry);
+        }
+
+        if (status == OperationStatus.OPEN) {
+            recomputeBalanceValue();
+        }
+        return true;
+    }
+
+    public boolean applyDiscountToProduct(String productCode, double discountRate) {
+        if (status == OperationStatus.OPEN) {
+            Optional<TicketEntry> entry = entries.stream()
+                    .filter(x -> x.getProductType().getBarCode().equals(productCode))
+                    .findFirst();
+            entry.ifPresent((value) -> value.setDiscountRate(discountRate));
+
+            recomputeBalanceValue();
+            return entry.isPresent();
+        }
+        return false;
+    }
+
+    public List<TicketEntry> getTransactionItems() {
+        return Collections.unmodifiableList(this.entries);
+    }
+
     public double getDiscountRate() {
         return this.discountRate;
     }
 
-    @Override
     public void setDiscountRate(double discountRate) {
         this.discountRate = discountRate;
     }
 
-    @Override
-    public double getPrice() {
+    /**
+     * Compute the total of the transaction.
+     *
+     * @return the total of the transaction
+     */
+    public double computeTotal() {
         return (1 - this.discountRate) * this.entries.stream().mapToDouble(entry -> {
             // compute the subtotal for the entry
             return entry.getAmount() * entry.getPricePerUnit() * (1 - entry.getDiscountRate());
@@ -74,25 +130,27 @@ public class SaleTransaction extends Credit implements it.polito.ezshop.data.Sal
     }
 
     @Override
-    public void setPrice(double price) {
-        // TODO: setting the price of a sale transaction may generate a lot of inconsistencies
-        // this.price = price;
+    public double getMoney() {
+        return super.getMoney();
     }
 
-    @Override
-    public double getMoney() {
-        if (status != OperationStatus.PAID && status != OperationStatus.COMPLETED) {
-            setMoney(getPrice());
-        }
-        return super.getMoney();
+    private void recomputeBalanceValue() {
+        setMoney(computeTotal());
+    }
+
+    public int computePoints() {
+        return ((int) this.computeTotal()) / 10;
     }
 
     public void addReturnTransaction(ReturnTransaction returnTransaction) {
         this.returnTransactions.add(returnTransaction);
     }
 
-    public int computePoints() {
-        return ((int) this.getPrice()) / 10;
+    /**
+     * Return all the return transactions related to this sale transaction
+     */
+    public List<ReturnTransaction> getReturnTransactions() {
+        return Collections.unmodifiableList(this.returnTransactions);
     }
 
     @Override

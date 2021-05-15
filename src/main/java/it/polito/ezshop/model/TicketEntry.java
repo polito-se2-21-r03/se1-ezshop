@@ -1,10 +1,8 @@
 package it.polito.ezshop.model;
 
-import it.polito.ezshop.data.ProductType;
-
 import java.util.Objects;
 
-public class TicketEntry implements it.polito.ezshop.data.TicketEntry {
+public class TicketEntry {
 
     private final ProductType productType;
     private int amount;
@@ -18,55 +16,32 @@ public class TicketEntry implements it.polito.ezshop.data.TicketEntry {
         this.discountRate = discount;
     }
 
-
-    @Override
-    public String getBarCode() {
-        return this.productType.getBarCode();
+    public ProductType getProductType() {
+        return productType;
     }
 
-    @Override
-    public void setBarCode(String barCode) {
-        this.productType.setBarCode(barCode);
-    }
-
-    @Override
-    public String getProductDescription() {
-        return this.productType.getProductDescription();
-    }
-
-    @Override
-    public void setProductDescription(String productDescription) {
-        this.productType.setProductDescription(productDescription);
-    }
-
-    @Override
     public int getAmount() {
-        return this.amount;
+        return amount;
     }
 
-    @Override
     public void setAmount(int amount) {
         this.amount = amount;
     }
 
-    @Override
-    public double getPricePerUnit() {
-        return this.pricePerUnit;
-    }
-
-    @Override
-    public void setPricePerUnit(double pricePerUnit) {
-        this.pricePerUnit = pricePerUnit;
-    }
-
-    @Override
     public double getDiscountRate() {
-        return this.discountRate;
+        return discountRate;
     }
 
-    @Override
     public void setDiscountRate(double discountRate) {
         this.discountRate = discountRate;
+    }
+
+    public double getPricePerUnit() {
+        return pricePerUnit;
+    }
+
+    public void setPricePerUnit(double pricePerUnit) {
+        this.pricePerUnit = pricePerUnit;
     }
 
     @Override

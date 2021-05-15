@@ -2,6 +2,9 @@ package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.*;
+import it.polito.ezshop.model.adapters.OrderAdapter;
+import it.polito.ezshop.model.adapters.ProductTypeAdapter;
+import it.polito.ezshop.model.adapters.SaleTransactionAdapter;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -30,7 +33,7 @@ public class EZShop implements EZShopInterface {
     /**
      * List of all products in EZShop
      */
-    private final List<ProductType> products = new ArrayList<>();
+    private final List<it.polito.ezshop.model.ProductType> products = new ArrayList<>();
 
 
     /**
@@ -245,7 +248,7 @@ public class EZShop implements EZShopInterface {
         }
 
         // generate a list of all ids
-        List<Integer> ids = products.stream().map(ProductType::getId).collect(Collectors.toList());
+        List<Integer> ids = products.stream().map(it.polito.ezshop.model.ProductType::getId).collect(Collectors.toList());
         // generate a new id that is not already in the list
         int id = generateId(ids);
 
@@ -253,7 +256,8 @@ public class EZShop implements EZShopInterface {
         if (note == null) {
             note = "";
         }
-        ProductType p = new it.polito.ezshop.model.ProductType(note, description, productCode, pricePerUnit, id);
+        it.polito.ezshop.model.ProductType p = new it.polito.ezshop.model.ProductType(note,
+            description, productCode, pricePerUnit, id);
         products.add(p);
 
         return p.getId();
@@ -285,7 +289,7 @@ public class EZShop implements EZShopInterface {
             return false;
         }
 
-        Optional<ProductType> product = products.stream()
+        Optional<it.polito.ezshop.model.ProductType> product = products.stream()
                 // filter products with the given id
                 .filter(x -> x.getId().equals(id)).findFirst();
         product.ifPresent(value -> {
@@ -318,8 +322,9 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         // return an unmodifiable list of products
-        return Collections.unmodifiableList(products);
-
+        return Collections.unmodifiableList(products.stream()
+                .map(ProductTypeAdapter::new)
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -337,6 +342,8 @@ public class EZShop implements EZShopInterface {
                 .filter(x -> x.getBarCode().equals(barCode))
                 // find the first matching user
                 .findFirst()
+                // map to the interface type
+                .map(ProductTypeAdapter::new)
                 // if a matching user is not found, return null
                 .orElse(null);
     }
@@ -351,7 +358,9 @@ public class EZShop implements EZShopInterface {
 
         return products.stream()
                 // filter users with the given id
-                .filter(x -> x.getProductDescription().contains(query)).collect(Collectors.toList());
+                .filter(x -> x.getProductDescription().contains(query))
+                .map(ProductTypeAdapter::new)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -365,7 +374,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         // get product or null if it does not exist
-        ProductType product = products.stream()
+        it.polito.ezshop.model.ProductType product = products.stream()
                 .filter(p -> p.getId().equals(productId))
                 .findAny()
                 .orElse(null);
@@ -386,14 +395,13 @@ public class EZShop implements EZShopInterface {
         }
 
         // update product quantity
-        product.setQuantity(product.getQuantity() + toBeAdded);
+        product.updateQuantity(toBeAdded);
 
         return true;
     }
 
     @Override
     public boolean updatePosition(Integer productId, String newPos) throws InvalidProductIdException, InvalidLocationException, UnauthorizedException {
-
         // check that product id is valid
         if (productId <= 0) {
             throw new InvalidProductIdException("Product ID must be positive integer");
@@ -409,7 +417,7 @@ public class EZShop implements EZShopInterface {
         }
 
         // check that no product already has given position
-        Optional<ProductType> productAtPosition = products.stream()
+        Optional<it.polito.ezshop.model.ProductType> productAtPosition = products.stream()
                 .filter(p -> newPos.equals(p.getLocation()))
                 .findFirst();
         if (productAtPosition.isPresent()) {
@@ -417,7 +425,7 @@ public class EZShop implements EZShopInterface {
         }
 
         // get product to be updated
-        Optional<ProductType> productWithID = products.stream()
+        Optional<it.polito.ezshop.model.ProductType> productWithID = products.stream()
                 .filter(p -> p.getId().equals(productId))
                 .findAny();
 
@@ -430,7 +438,6 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer issueOrder(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
-
         // check that barcode is valid
         if (!isValidBarcode(productCode)) {
             throw new InvalidProductCodeException("Product code must follow specification");
@@ -450,7 +457,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         // verify product exists
-        ProductType product = products.stream()
+        it.polito.ezshop.model.ProductType product = products.stream()
                 .filter(p -> p.getBarCode().equals(productCode))
                 .findAny()
                 .orElse(null);
@@ -472,7 +479,6 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer payOrderFor(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
-
         // issue the order
         int orderId = this.issueOrder(productCode, quantity, pricePerUnit);
 
@@ -500,7 +506,6 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException {
-
         // verify orderId is valid ID
         if (orderId <= 0) {
             throw new InvalidOrderIdException("Order ID must be positive integer");
@@ -536,7 +541,6 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean recordOrderArrival(Integer orderId) throws InvalidOrderIdException, UnauthorizedException, InvalidLocationException {
-
         // check that orderId is valid ID
         if (orderId <= 0) {
             throw new InvalidOrderIdException("Order ID must be positive integer");
@@ -559,7 +563,7 @@ public class EZShop implements EZShopInterface {
         }
 
         // find the product that is being reordered
-        ProductType orderedProduct = products.stream()
+        it.polito.ezshop.model.ProductType orderedProduct = products.stream()
                 .filter(p -> p.getBarCode().equals(order.getProductCode()))
                 .findAny()
                 .orElse(null);
@@ -587,7 +591,6 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public List<Order> getAllOrders() throws UnauthorizedException {
-
         // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
@@ -599,7 +602,7 @@ public class EZShop implements EZShopInterface {
                             || orderstatus == OperationStatus.PAID
                             || orderstatus == OperationStatus.COMPLETED;
                 })
-                .map(OrderInterface::new)
+                .map(OrderAdapter::new)
                 .collect(Collectors.toList());
     }
 
@@ -772,14 +775,13 @@ public class EZShop implements EZShopInterface {
     public Integer startSaleTransaction() throws UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        int SaleTransactionID = accountBook.generateNewId();
-        it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(SaleTransactionID,
-                LocalDate.now(), new ArrayList<>(), new ArrayList<>(),0 );
+        int id = accountBook.generateNewId();
+        it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(id, LocalDate.now());
 
         // add SaleTransaction to account book
         this.accountBook.addTransaction(st);
 
-        return SaleTransactionID;
+        return id;
     }
 
     @Override
@@ -798,12 +800,12 @@ public class EZShop implements EZShopInterface {
             throw new InvalidQuantityException("Product quantity must be greater than 0");
         }
 
-        it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (t == null || !t.getStatus().equals(OperationStatus.OPEN.name())) {
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
+        if (sale == null || !sale.getStatus().equals(OperationStatus.OPEN.name())) {
             return false;
         }
 
-        ProductType p = products.stream()
+        it.polito.ezshop.model.ProductType p = products.stream()
                 // filter users with the given BarCode
                 .filter(x -> x.getBarCode().equals(productCode) && x.getQuantity() >= amount)
                 // find the first matching product
@@ -813,18 +815,9 @@ public class EZShop implements EZShopInterface {
         }
 
         // update the quantity on the shelves
-        p.setQuantity(p.getQuantity() - amount);
+        p.updateQuantity(-amount);
 
-        // check if a TicketEntry for the product already exists
-        TicketEntry ticketEntry = t.getEntries().stream()
-                .filter(x -> x.getBarCode().equals(p.getBarCode())).findFirst().orElse(null);
-
-        if (ticketEntry != null) {
-            ticketEntry.setAmount(ticketEntry.getAmount() + amount);
-        } else {
-            t.getEntries().add(new it.polito.ezshop.model.TicketEntry(p, amount, p.getPricePerUnit(), 0));
-        }
-
+        sale.addSaleTransactionItem(p, amount, p.getPricePerUnit(), 0);
         return true;
     }
 
@@ -844,41 +837,30 @@ public class EZShop implements EZShopInterface {
             throw new InvalidQuantityException("Product quantity must be greater than 0");
         }
 
-        it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (t == null || !t.getStatus().equals(OperationStatus.OPEN.name())) {
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
+        if (sale == null || !sale.getStatus().equals(OperationStatus.OPEN.name())) {
             return false;
         }
 
-        ProductType p = products.stream()
+        it.polito.ezshop.model.ProductType product = products.stream()
                 // filter users with the given BarCode
                 .filter(x -> x.getBarCode().equals(productCode))
                 // find the first matching product
                 .findFirst()
                 // if a matching product is not found, return null
                 .orElse(null);
-        if (p == null) {
+        if (product == null) {
             return false;
         }
 
-        TicketEntry entry = t.getEntries().stream()
-                .filter(x -> x.getBarCode().equals(productCode)).findFirst().orElse(null);
-        if (entry == null) {
-            return false;
-        }
-        if (entry.getAmount() < amount) {
-            return false;
+        if (sale.removeSaleTransactionItem(product, amount)) {
+            // update the quantity on the shelves
+            product.updateQuantity(amount);
+
+            return true;
         }
 
-        if (entry.getAmount() > amount) {
-            entry.setAmount(entry.getAmount() - amount);
-        } else {
-            t.getEntries().remove(entry);
-        }
-
-        // update the quantity on the shelves
-        p.setQuantity(p.getQuantity() + amount);
-
-        return true;
+        return false;
     }
 
     @Override
@@ -897,15 +879,12 @@ public class EZShop implements EZShopInterface {
             throw new InvalidDiscountRateException("Discount Rate must be between 0 and 1");
         }
 
-        it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (t == null || !t.getStatus().equals(OperationStatus.OPEN.name())) {
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
+        if (sale == null || !sale.getStatus().equals(OperationStatus.OPEN.name())) {
             return false;
         }
 
-        Optional<TicketEntry> entry = t.getEntries().stream().filter(x -> x.getBarCode().equals(productCode)).findFirst();
-        entry.ifPresent((value) -> value.setDiscountRate(discountRate));
-
-        return entry.isPresent();
+        return sale.applyDiscountToProduct(productCode, discountRate);
     }
 
     @Override
@@ -960,7 +939,7 @@ public class EZShop implements EZShopInterface {
         if (sale.getStatus().equals(OperationStatus.CLOSED.name())){
             return false;
         }
-        sale.setMoney(sale.getPrice());
+        sale.setMoney(sale.computeTotal());
         accountBook.setTransactionStatus(transactionId, OperationStatus.CLOSED);
         return true;
     }
@@ -987,15 +966,15 @@ public class EZShop implements EZShopInterface {
         if (transactionId == null || transactionId <= 0){
             throw new InvalidTransactionIdException("Invalid transaction ID");
         }
-        it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (t == null){
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
+        if (sale == null){
             return null;
         }
-        if(!t.getStatus().equals(OperationStatus.CLOSED.name())){
+        if(!sale.getStatus().equals(OperationStatus.CLOSED.name())){
             return null;
         }
 
-        return t;
+        return new SaleTransactionAdapter(sale);
     }
 
     @Override
@@ -1033,6 +1012,7 @@ public class EZShop implements EZShopInterface {
         if (amount <= 0){
             throw new InvalidQuantityException("Invalid Quantity");
         }
+
         ReturnTransaction rt = (ReturnTransaction) accountBook.getTransaction(returnId);
         if(rt == null){
             return false;
@@ -1040,30 +1020,34 @@ public class EZShop implements EZShopInterface {
         if(!rt.getStatus().equals(OperationStatus.OPEN.name())){
             return false;
         }
-        SaleTransaction t = (SaleTransaction) accountBook.getTransaction(rt.getSaleTransactionId());
-        if(t == null){
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(rt.getSaleTransactionId());
+        if(sale == null){
             return false;
         }
-        ProductType p = products.stream()
+        it.polito.ezshop.model.ProductType product = products.stream()
                 // filter products with the given BarCode
                 .filter(x -> x.getBarCode().equals(productCode))
                 // find the first matching product
                 .findFirst()
                 // if a matching product is not found, return null
                 .orElse(null);
-        if (p == null){
+        if (product == null){
             return false;
         }
-        Optional <TicketEntry> entry = t.getEntries().stream().filter(x -> x.getBarCode().equals(productCode)).findFirst();
-        if(!entry.isPresent()){
+        Optional<it.polito.ezshop.model.TicketEntry> entry = sale.getTransactionItems()
+                .stream()
+                .filter(x -> x.getProductType().getBarCode().equals(productCode))
+                .findFirst();
+        if (!entry.isPresent()) {
             return false;
         }
 
         if(amount > entry.get().getAmount()){
             return false;
         }
-        ReturnTransactionItem returnitem = new ReturnTransactionItem(p, amount, p.getPricePerUnit());
-        rt.getTransactionItems().add(returnitem);
+
+        double value = entry.get().getPricePerUnit() * (1-entry.get().getDiscountRate()) * (1-sale.getDiscountRate());
+        rt.addReturnTransactionItem(product, amount, value);
         return true;
     }
 
@@ -1081,25 +1065,25 @@ public class EZShop implements EZShopInterface {
         if(!rt.getStatus().equals(OperationStatus.OPEN.name())){
             return false;
         }
-        SaleTransaction t = (SaleTransaction) accountBook.getTransaction(rt.getSaleTransactionId());
-        if(t == null){
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(rt.getSaleTransactionId());
+        if(sale == null){
             return false;
         }
         if(commit == true){
             List <ReturnTransactionItem> ritems = rt.getTransactionItems();
-            List <TicketEntry> titems = t.getEntries();
+            List <it.polito.ezshop.model.TicketEntry> titems = sale.getTransactionItems();
             //didn't know how to use .stream in this case lol
 
             for(int i = 0; i < ritems.size(); i++) {
                 ReturnTransactionItem ritem = ritems.get(i);
-                TicketEntry titem = titems.stream()
+                it.polito.ezshop.model.TicketEntry titem = titems.stream()
                         // filter products with the given BarCode
-                        .filter(x -> x.getBarCode().equals(ritem.getBarCode()))
+                        .filter(x -> x.getProductType().getBarCode().equals(ritem.getBarCode()))
                         // find the first matching product
                         .findFirst()
                         // if a matching product is not found, return null
                         .orElse(null);
-                ProductType p = products.stream()
+                it.polito.ezshop.model.ProductType p = products.stream()
                         // filter products with the given BarCode
                         .filter(x -> x.getBarCode().equals(ritem.getBarCode()))
                         // find the first matching product
