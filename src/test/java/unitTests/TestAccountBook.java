@@ -180,7 +180,7 @@ public class TestAccountBook {
 
         // add an open credit (does not count towards balance)
         int transactionId = accountBook.generateNewId();
-        accountBook.addTransaction(new Credit(transactionId, null, 23, OperationStatus.OPEN));
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), 23, OperationStatus.OPEN));
 
         // transaction was added
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
@@ -197,7 +197,7 @@ public class TestAccountBook {
 
         // add a closed credit (does not count towards balance)
         int transactionId = accountBook.generateNewId();
-        accountBook.addTransaction(new Credit(transactionId, null, 24, OperationStatus.CLOSED));
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), 24, OperationStatus.CLOSED));
 
         // transaction was added
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
@@ -233,7 +233,7 @@ public class TestAccountBook {
         // add a completed credit (does count towards balance)
         int transactionId = accountBook.generateNewId();
         int value = 8;
-        accountBook.addTransaction(new Credit(transactionId, null, value, OperationStatus.COMPLETED));
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), value, OperationStatus.COMPLETED));
 
         // transaction was added
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
@@ -257,7 +257,7 @@ public class TestAccountBook {
         accountBook.addTransaction(sale);
         accountBook.setTransactionStatus(sale.getBalanceId(), OperationStatus.COMPLETED);
 
-        // sale was added
+        // transaction was added
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance was increased
@@ -279,7 +279,7 @@ public class TestAccountBook {
         accountBook.addTransaction(returnTransaction);
         accountBook.setTransactionStatus(returnTransaction.getBalanceId(), OperationStatus.COMPLETED);
 
-        // sale was added
+        // transaction was added
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance was decreased
@@ -291,13 +291,14 @@ public class TestAccountBook {
      */
     @Test
     public void testAddOrderDecreasesBalance() {
+
         // add an Order (decreases balance)
         int transactionId = accountBook.generateNewId();
-        Order order = new Order(transactionId, null, product.getBarCode(), product.getPricePerUnit(), 2);
+        Order order = new Order(transactionId, LocalDate.now(), product.getBarCode(), product.getPricePerUnit(), 1);
         accountBook.addTransaction(order);
         accountBook.setTransactionStatus(order.getBalanceId(), OperationStatus.COMPLETED);
 
-        // sale was added
+        // transaction was added
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance was decreased
@@ -313,9 +314,9 @@ public class TestAccountBook {
         // add a Debit (decreases balance)
         int transactionId = accountBook.generateNewId();
         double value = 13;
-        accountBook.addTransaction(new Debit(transactionId, null, value, OperationStatus.COMPLETED));
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), value, OperationStatus.COMPLETED));
 
-        // sale was added
+        // transaction was added
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance was decreased
@@ -331,9 +332,9 @@ public class TestAccountBook {
         // add a Debit (decreases balance)
         int transactionId = accountBook.generateNewId();
         double value = 13;
-        accountBook.addTransaction(new Debit(transactionId, null, value, OperationStatus.COMPLETED));
+        accountBook.addTransaction(new Debit(transactionId, LocalDate.now(), value, OperationStatus.COMPLETED));
 
-        // sale was added
+        // transaction was added
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance was decreased
@@ -348,7 +349,7 @@ public class TestAccountBook {
 
         // add an open credit (does not count towards balance)
         int transactionId = accountBook.generateNewId();
-        accountBook.addTransaction(new Credit(transactionId, null, 12, OperationStatus.OPEN));
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), 12, OperationStatus.OPEN));
 
         // delete transaction
         accountBook.removeTransaction(transactionId);
@@ -368,7 +369,7 @@ public class TestAccountBook {
 
         // add a closed credit (does not count towards balance)
         int transactionId = accountBook.generateNewId();
-        accountBook.addTransaction(new Credit(transactionId, null, 67, OperationStatus.CLOSED));
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), 67, OperationStatus.CLOSED));
 
         // delete transaction
         accountBook.removeTransaction(transactionId);
@@ -388,7 +389,7 @@ public class TestAccountBook {
 
         // add a paid credit (does count towards balance)
         int transactionId = accountBook.generateNewId();
-        accountBook.addTransaction(new Credit(transactionId, null, 23, OperationStatus.PAID));
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), 23, OperationStatus.PAID));
 
         // delete transaction
         accountBook.removeTransaction(transactionId);
@@ -446,13 +447,14 @@ public class TestAccountBook {
 
         // add a paid credit transaction (does count towards balance)
         int transactionId = accountBook.generateNewId();
-        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), 234, OperationStatus.PAID));
+        int value = 234;
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), value, OperationStatus.PAID));
 
         // set status to completed
         accountBook.setTransactionStatus(transactionId, OperationStatus.COMPLETED);
 
         // balance didn't change
-        assertEquals(initialBalance, accountBook.getBalance());
+        assertEquals(initialBalance + value, accountBook.getBalance());
     }
 
     /**
@@ -464,13 +466,13 @@ public class TestAccountBook {
         // add a paid credit transaction (does count towards balance)
         int transactionId = accountBook.generateNewId();
         double value = 20;
-        accountBook.addTransaction(new Credit(transactionId, null, value, OperationStatus.PAID));
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), value, OperationStatus.PAID));
 
         // set status to completed
         accountBook.setTransactionStatus(transactionId, OperationStatus.COMPLETED);
 
-        // balance did change
-        assertEquals(initialBalance - value, accountBook.getBalance());
+        // balance didn't change
+        assertEquals(initialBalance + value, accountBook.getBalance());
     }
 
     /**
