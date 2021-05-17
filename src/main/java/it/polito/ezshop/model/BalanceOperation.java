@@ -10,7 +10,8 @@ public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceO
 
     protected OperationStatus status;
 
-    protected BalanceOperation() {}
+    protected BalanceOperation() {
+    }
 
     protected BalanceOperation(int balanceId, LocalDate date, double balanceValue, OperationStatus status) {
         Objects.requireNonNull(date, "date must not be null");
@@ -55,12 +56,22 @@ public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceO
     @Override
     @Deprecated
     public String getType() {
-        return this.getClass().toString();
+        if (this instanceof Order) {
+            return "ORDER";
+        } else if (this instanceof SaleTransaction) {
+            return "SALE";
+        } else if (this instanceof ReturnTransaction) {
+            return "RETURN";
+        } else if (this instanceof Credit) {
+            return "CREDIT";
+        }
+        return "DEBIT";
     }
 
     @Override
     @Deprecated
-    public void setType(String type) { }
+    public void setType(String type) {
+    }
 
     public String getStatus() {
         return status.name();
