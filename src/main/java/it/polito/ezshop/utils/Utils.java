@@ -1,5 +1,13 @@
 package it.polito.ezshop.utils;
 
+import it.polito.ezshop.EZShop;
+import it.polito.ezshop.credit_card_circuit.CreditCardCircuit;
+import it.polito.ezshop.credit_card_circuit.TextualCreditCardCircuit;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import java.util.Arrays;
@@ -121,6 +129,28 @@ public class Utils {
     public static int sumDigits(int[] arr)
     {
         return Arrays.stream(arr).sum();
+    }
+
+    public static Integer readFromFile() {
+            String path = EZShop.main();
+            try {
+                FileReader reader = new FileReader();
+                BufferedReader bufferedReader = new BufferedReader(reader);
+
+                String line;
+                int balance;
+                while ((line = bufferedReader.readLine()) != null) {
+                    String[] parts = line.split(";");
+                    balance = Integer.parseInt(parts[1]);
+                }
+                return balance;
+                reader.close();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
 }
