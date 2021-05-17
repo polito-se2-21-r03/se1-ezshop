@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import it.polito.ezshop.utils.Utils;
 
 public class TextualCreditCardCircuit implements CreditCardCircuit{
     String path;
@@ -28,12 +29,13 @@ public class TextualCreditCardCircuit implements CreditCardCircuit{
 
     @Override
     public boolean validateCode(String creditCardCode) {
-        return false;
+        return Utils.isValidCreditCardNumber(creditCardCode);
     }
 
     @Override
-    public boolean checkAvailability(String creditCardCode, Integer amount) {
-        return false;
+    public boolean checkAvailability(String creditCardCode, Integer amount) { ;
+        Double balance = Utils.readFromFile(this.path, creditCardCode);
+        return amount >= balance;
     }
 
     @Override

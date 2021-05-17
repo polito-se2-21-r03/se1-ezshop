@@ -131,25 +131,27 @@ public class Utils {
         return Arrays.stream(arr).sum();
     }
 
-    public static Integer readFromFile() {
-            String path = EZShop.main();
+    public static Double readFromFile(String path, String cartNumber) {
             try {
-                FileReader reader = new FileReader();
+                FileReader reader = new FileReader(path);
                 BufferedReader bufferedReader = new BufferedReader(reader);
 
                 String line;
-                int balance;
+                String  balance = null;
                 while ((line = bufferedReader.readLine()) != null) {
                     String[] parts = line.split(";");
-                    balance = Integer.parseInt(parts[1]);
+                    if(parts[0].equals(cartNumber))
+                        balance = parts[1];
                 }
-                return balance;
+                assert balance != null;
                 reader.close();
+                return Double.parseDouble(balance);
+
 
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
             }
-        }
 
     }
 
