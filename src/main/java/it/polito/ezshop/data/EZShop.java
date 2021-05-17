@@ -9,6 +9,7 @@ import it.polito.ezshop.model.persistence.JsonInterface;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static it.polito.ezshop.utils.Utils.*;
@@ -187,8 +188,8 @@ public class EZShop implements EZShopInterface {
     public List<User> getAllUsers() throws UnauthorizedException {
         // check the role of the current user
         verifyCurrentUserRole(Role.ADMINISTRATOR);
-        // return an unmodifiable list of users
-        return Collections.unmodifiableList(users);
+        // return a list of users
+        return new ArrayList<>(users);
     }
 
     @Override
@@ -376,10 +377,8 @@ public class EZShop implements EZShopInterface {
         // check the role of the current user
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        // return an unmodifiable list of products
-        return Collections.unmodifiableList(products.stream()
-                .map(ProductTypeAdapter::new)
-                .collect(Collectors.toList()));
+        // return a list of products
+        return products.stream().map(ProductTypeAdapter::new).collect(Collectors.toList());
     }
 
     @Override
@@ -1350,10 +1349,22 @@ public class EZShop implements EZShopInterface {
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
-        // collect all transactions
-        List<BalanceOperation> listOfCreditsAndDebits = accountBook.getAllTransactions().stream().filter(x -> x.getDate().isAfter(from) && x.getDate().isBefore(to)).collect(Collectors.toList());
-        return listOfCreditsAndDebits;
+        Predicate<BalanceOperation> fromPredicate = x -> true;
+        Predicate<BalanceOperation> toPredicate = x -> true;
 
+        if (from != null) {
+            fromPredicate = x -> x.getDate().isAfter(from);
+        }
+
+        if (to != null) {
+            toPredicate = x -> x.getDate().isBefore(to);
+        }
+
+        // collect all transactions
+        return accountBook.getAllTransactions().stream()
+                .filter(fromPredicate)
+                .filter(toPredicate)
+                .collect(Collectors.toList());
     }
 
     @Override

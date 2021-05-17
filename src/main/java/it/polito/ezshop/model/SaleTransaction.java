@@ -106,7 +106,7 @@ public class SaleTransaction extends Credit {
     }
 
     public List<TicketEntry> getTransactionItems() {
-        return Collections.unmodifiableList(this.entries);
+        return this.entries;
     }
 
     public double getDiscountRate() {
@@ -150,7 +150,7 @@ public class SaleTransaction extends Credit {
      * Return all the return transactions related to this sale transaction
      */
     public List<ReturnTransaction> getReturnTransactions() {
-        return Collections.unmodifiableList(this.returnTransactions);
+        return this.returnTransactions;
     }
 
     @Override

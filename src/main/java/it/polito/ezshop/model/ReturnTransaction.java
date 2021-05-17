@@ -31,7 +31,7 @@ public class ReturnTransaction extends Debit {
     }
 
     public List<ReturnTransactionItem> getTransactionItems() {
-        return Collections.unmodifiableList(this.entries);
+        return this.entries;
     }
 
     public void addReturnTransactionItem(ProductType product, int amount, double pricePerUnit) {
