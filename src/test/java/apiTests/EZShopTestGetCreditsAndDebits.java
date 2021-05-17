@@ -7,6 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -43,33 +46,45 @@ public class EZShopTestGetCreditsAndDebits {
         int productId = shop.createProductType("description", productCode, 1, "note");
         shop.updatePosition(productId, "1-1-1");
 
-        // record a CREDIT transaction
+        // set time to 5 days ago
+        shop.setClock(Clock.offset(Clock.systemDefaultZone(), Duration.ofDays(-5)));
+
+        // record a COMPLETED CREDIT transaction
         shop.recordBalanceUpdate(1000);
 
-        // store time after first transaction
-        afterFirst = LocalDate.now();
+        // set time to 4 days ago
+        shop.setClock(Clock.offset(Clock.systemDefaultZone(), Duration.ofDays(-4)));
 
-        // record a DEBIT transaction
+        // store date after first transaction
+        afterFirst = LocalDate.now(shop.getClock());
+
+        // record a COMPLETED DEBIT transaction
         shop.recordBalanceUpdate(-10);
 
-        // record ORDER transaction
+        // record a COMPLETED ORDER transaction
         int orderId = shop.payOrderFor(productCode, 10, 1);
         shop.recordOrderArrival(orderId);
 
-        // record SALE transaction
+        // set time to 3 days ago
+        shop.setClock(Clock.offset(Clock.systemDefaultZone(), Duration.ofDays(-3)));
+
+        // record a COMPLETED SALE transaction
         int saleId = shop.startSaleTransaction();
         shop.addProductToSale(saleId, productCode, 10);
         shop.endSaleTransaction(saleId);
         shop.receiveCashPayment(saleId, 10);
 
         // store time before last few transactions
-        beforeLast = LocalDate.now();
+        beforeLast = LocalDate.now(shop.getClock());
 
-        // record RETURN transaction
+        // record a COMPLETED RETURN transaction
         int returnId = shop.startReturnTransaction(saleId);
         shop.returnProduct(returnId, productCode, 5);
         shop.endReturnTransaction(returnId, true);
         shop.returnCashPayment(returnId);
+
+        // set time to 2 days ago
+        shop.setClock(Clock.offset(Clock.systemDefaultZone(), Duration.ofDays(-2)));
 
         // add ORDER that is in PAID state
         shop.payOrderFor(productCode, 10, 1);
@@ -136,7 +151,7 @@ public class EZShopTestGetCreditsAndDebits {
         balanceOperations.sort(Comparator.comparing(BalanceOperation::getDate));
 
         // verify correct amount of balance operations returned
-        assertEquals(6, balanceOperations.size());
+        assertEquals(5, balanceOperations.size());
 
         // verify the correct balance operations were returned
         assertTrue(balanceOperations.get(0) instanceof Debit);
@@ -160,13 +175,14 @@ public class EZShopTestGetCreditsAndDebits {
         balanceOperations.sort(Comparator.comparing(BalanceOperation::getDate));
 
         // verify correct amount of balance operations returned
-        assertEquals(6, balanceOperations.size());
+        assertEquals(5, balanceOperations.size());
 
         // verify the correct balance operations were returned
         assertTrue(balanceOperations.get(0) instanceof Credit);
         assertTrue(balanceOperations.get(1) instanceof Debit);
         assertTrue(balanceOperations.get(2) instanceof Order);
         assertTrue(balanceOperations.get(3) instanceof SaleTransaction);
+        assertTrue(balanceOperations.get(4) instanceof ReturnTransaction);
     }
 
     /**
@@ -183,12 +199,13 @@ public class EZShopTestGetCreditsAndDebits {
         balanceOperations.sort(Comparator.comparing(BalanceOperation::getDate));
 
         // verify correct amount of balance operations returned
-        assertEquals(6, balanceOperations.size());
+        assertEquals(4, balanceOperations.size());
 
         // verify the correct balance operations were returned
         assertTrue(balanceOperations.get(0) instanceof Debit);
         assertTrue(balanceOperations.get(1) instanceof Order);
         assertTrue(balanceOperations.get(2) instanceof SaleTransaction);
+        assertTrue(balanceOperations.get(3) instanceof ReturnTransaction);
     }
 
     /**
@@ -206,11 +223,12 @@ public class EZShopTestGetCreditsAndDebits {
         balanceOperations.sort(Comparator.comparing(BalanceOperation::getDate));
 
         // verify correct amount of balance operations returned
-        assertEquals(6, balanceOperations.size());
+        assertEquals(4, balanceOperations.size());
 
         // verify the correct balance operations were returned
         assertTrue(balanceOperations.get(0) instanceof Debit);
         assertTrue(balanceOperations.get(1) instanceof Order);
         assertTrue(balanceOperations.get(2) instanceof SaleTransaction);
+        assertTrue(balanceOperations.get(3) instanceof ReturnTransaction);
     }
 }

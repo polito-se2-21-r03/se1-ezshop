@@ -7,6 +7,7 @@ import it.polito.ezshop.model.adapters.ProductTypeAdapter;
 import it.polito.ezshop.model.adapters.SaleTransactionAdapter;
 import it.polito.ezshop.model.persistence.JsonInterface;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,6 +44,10 @@ public class EZShop implements EZShopInterface {
      */
     private final List<it.polito.ezshop.model.ProductType> products = new ArrayList<>();
 
+    /**
+     * The current date and time for the EZShop
+     */
+    private Clock clock = Clock.systemDefaultZone();
 
     /**
      * The account book holding all balance transactions (orders, sale transactions, ect.)
@@ -64,6 +69,25 @@ public class EZShop implements EZShopInterface {
         } catch (Exception ex) {
             // exceptions are ignored
         }
+    }
+
+    /**
+     * Get the current date and time of the EZShop system
+     *
+     * @return currently used clock
+     */
+    public Clock getClock() {
+        return clock;
+    }
+
+    /**
+     * Set the current date and time of the EZShop system
+     *
+     * @param clock clock to be used
+     */
+    public void setClock(Clock clock) {
+        Objects.requireNonNull(clock);
+        this.clock = clock;
     }
 
     /**
@@ -522,7 +546,7 @@ public class EZShop implements EZShopInterface {
 
         // create Order object
         int balanceId = accountBook.generateNewId();
-        LocalDate date = LocalDate.now();
+        LocalDate date = LocalDate.now(clock);
         it.polito.ezshop.model.Order order = new it.polito.ezshop.model.Order(balanceId, date, productCode, pricePerUnit, quantity);
 
         // add order to account book
@@ -838,7 +862,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         int id = accountBook.generateNewId();
-        it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(id, LocalDate.now());
+        it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(id, LocalDate.now(clock));
 
         // add SaleTransaction to account book
         this.accountBook.addTransaction(st);
@@ -1063,7 +1087,7 @@ public class EZShop implements EZShopInterface {
             return -1;
         }
 
-        ReturnTransaction rt = new ReturnTransaction(returnId, saleNumber, LocalDate.now());
+        ReturnTransaction rt = new ReturnTransaction(returnId, saleNumber, LocalDate.now(clock));
         sale.addReturnTransaction(rt);
 
         // add ReturnTransaction to account book
@@ -1313,7 +1337,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         //date
-        LocalDate date = LocalDate.now();
+        LocalDate date = LocalDate.now(clock);
         // create Order object
         int balanceId = accountBook.generateNewId();
         //status

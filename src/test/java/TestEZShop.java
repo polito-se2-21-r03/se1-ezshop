@@ -1,6 +1,10 @@
 import apiTests.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import unitTests.TestAccountBook;
+import unitTests.TestHelpers;
+import unitTests.TestIsValidCreditCardNumber;
+import unitTests.TestUtils;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -41,7 +45,12 @@ import org.junit.runners.Suite;
         // FR 8
         EZShopTestRecordBalanceUpdate.class,
         EZShopTestGetCreditsAndDebits.class,
-        EZShopTestComputeBalance.class
+        EZShopTestComputeBalance.class,
+        // Unit tests
+        TestAccountBook.class,
+        TestHelpers.class,
+        TestIsValidCreditCardNumber.class,
+        TestUtils.class
 })
 
 public class TestEZShop {
