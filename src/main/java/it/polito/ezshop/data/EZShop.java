@@ -695,11 +695,19 @@ public class EZShop implements EZShopInterface {
 
         // generate a list of all ids
         List<Integer> ids = customers.stream().map(Customer::getId).collect(Collectors.toList());
-        // generate a new id that is not already in the list
+        // generate a list of all names
+        List<String> names = customers.stream().map(Customer::getCustomerName).collect(Collectors.toList());
+        // uniqie name checking
+        for(String name : names){
+            if(name.equals(customerName))
+                return -1;
+        }
 
+
+        // generate a new id that is not already in the list
         // create a new customer
         Integer id = generateId(ids);
-        Integer points = null;
+        Integer points = 0;
         String customerCard = null;
 
         if (customerName == null || customerName.equals("")) {
@@ -725,8 +733,8 @@ public class EZShop implements EZShopInterface {
         if (newCustomerName == null || newCustomerName.equals("")) {
             throw new InvalidCustomerNameException("Invalid Customer Name");
         }
-        if (newCustomerCard == null || newCustomerCard.length()!=10) {
-            throw new InvalidCustomerCardException("Invalid Customer Card");
+        if (newCustomerCard !=null || !newCustomerCard.equals("") || newCustomerCard.length() == 10) {
+            throw new InvalidCustomerCardException("Invalid Card Number");
         }
 
         // get the customer
@@ -737,19 +745,28 @@ public class EZShop implements EZShopInterface {
             return false;
         }
 
+        // generate a list of all card numbers
+        List<String> cards = customers.stream().map(Customer::getCustomerName).collect(Collectors.toList());
+        // uniqie card number checking
+        for(String card : cards){
+            if(card.equals(newCustomerCard))
+                throw new InvalidCustomerCardException("Invalid Card Number");
+        }
+
+
         // if the customer is present, update his card and name
         customer.setCustomerName(newCustomerName);
 
-        if(newCustomerCard == " ")
+        if(newCustomerCard == "")
             customer.setCustomerCard(null);
-        else if(newCustomerCard.equals(null))
+        else if(newCustomerCard == null)
             ;
         else
             customer.setCustomerCard(newCustomerCard);
 
         writeState();
         // if the customer is present return true, otherwise return false
-        return customer.getCustomerCard().equals(newCustomerCard);
+        return true;
 
     }
 
