@@ -442,13 +442,14 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updateQuantity(Integer productId, int toBeAdded) throws InvalidProductIdException, UnauthorizedException {
+
+        // verify current user has sufficient rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
         // check that product ID is valid
         if (productId <= 0) {
             throw new InvalidProductIdException("Product ID must be positive integer");
         }
-
-        // verify current user has sufficient rights
-        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         // get product or null if it does not exist
         it.polito.ezshop.model.ProductType product = products.stream()
@@ -461,18 +462,12 @@ public class EZShop implements EZShopInterface {
             return false;
         }
 
-        // check that product has a specified position
-        if (product.getLocation() == null || product.getLocation().equals("")) {
-            return false;
-        }
-
-        // check that resulting quantity is non-negative
-        if (product.getQuantity() + toBeAdded < 0) {
-            return false;
-        }
-
         // update product quantity
-        product.updateQuantity(toBeAdded);
+        try {
+            product.setQuantity(product.getQuantity() + toBeAdded);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return false;
+        }
 
         writeState();
         return true;
@@ -480,39 +475,55 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean updatePosition(Integer productId, String newPos) throws InvalidProductIdException, InvalidLocationException, UnauthorizedException {
+
+        // verify current user has sufficient rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
         // check that product id is valid
         if (productId <= 0) {
             throw new InvalidProductIdException("Product ID must be positive integer");
         }
 
-        // verify current user has sufficient rights
-        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+        // get product to be updated
+        it.polito.ezshop.model.ProductType product = products.stream()
+                .filter(p -> p.getId().equals(productId))
+                .findAny()
+                .orElse(null);
 
-        // check that position has valid format
-        Position position = Position.parsePosition(newPos);
-        if (position == null) {
+        // if product does not exist return false
+        if (product == null) {
+            return false;
+        }
+
+        // if newPos is null or empty string, unassign position from product
+        if (newPos == null || newPos.equals("")) {
+            product.setPosition(null);
+            writeState();
+            return true;
+        }
+
+        // try and parse position, throw exception if format is invalid
+        Position position;
+        try {
+            position = new Position(newPos);
+        } catch (IllegalArgumentException e) {
             throw new InvalidLocationException("Position must be of form <aisleNumber>-<rackAlphabeticIdentifier>-<levelNumber>");
         }
 
-        // check that no product already has given position
+        // return false if position is already taken by different product
         Optional<it.polito.ezshop.model.ProductType> productAtPosition = products.stream()
-                .filter(p -> newPos.equals(p.getLocation()))
-                .findFirst();
+                .filter(p -> position.equals(p.getPosition()))
+                .findAny();
         if (productAtPosition.isPresent()) {
             return false;
         }
 
-        // get product to be updated
-        Optional<it.polito.ezshop.model.ProductType> productWithID = products.stream()
-                .filter(p -> p.getId().equals(productId))
-                .findAny();
-
         // update product position if product with given ID exists
-        productWithID.ifPresent(p -> p.setLocation(newPos));
+        product.setPosition(position);
 
+        // persist changes and return true;
         writeState();
-        // return true iff product exists
-        return productWithID.isPresent();
+        return true;
     }
 
     @Override
@@ -655,14 +666,12 @@ public class EZShop implements EZShopInterface {
             throw new InvalidLocationException("The product specified in this order does not exist");
         }
 
-        // verify product has valid location
-        Position productLocation = Position.parsePosition(orderedProduct.getLocation());
-        if (productLocation == null) {
-            throw new InvalidLocationException("The product does not have a location assigned to it");
-        }
-
         // update product quantity
-        orderedProduct.setQuantity(orderedProduct.getQuantity() + order.getQuantity());
+        try {
+            orderedProduct.setQuantity(orderedProduct.getQuantity() + order.getQuantity());
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return false;
+        }
 
         // mark order as completed
         accountBook.setTransactionStatus(orderId, OperationStatus.COMPLETED);
@@ -919,7 +928,11 @@ public class EZShop implements EZShopInterface {
         }
 
         // update the quantity on the shelves
-        p.updateQuantity(-amount);
+        try {
+            p.setQuantity(p.getQuantity() - amount);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return false;
+        }
 
         sale.addSaleTransactionItem(p, amount, p.getPricePerUnit(), 0);
 
@@ -961,7 +974,11 @@ public class EZShop implements EZShopInterface {
 
         if (sale.removeSaleTransactionItem(product, amount)) {
             // update the quantity on the shelves
-            product.updateQuantity(amount);
+            try {
+                product.setQuantity(product.getQuantity() + amount);
+            } catch (IllegalArgumentException |IllegalStateException e) {
+                return false;
+            }
 
             writeState();
             return true;
@@ -1211,7 +1228,11 @@ public class EZShop implements EZShopInterface {
                     return false;
                 }
                 //change quantity of Product p by adding the returned amount
-                p.setQuantity(p.getQuantity() + ritem.getAmount());
+                try {
+                    p.setQuantity(p.getQuantity() + ritem.getAmount());
+                } catch (IllegalArgumentException | IllegalStateException e) {
+                    return false;
+                }
                 //change quantity of Product p inside the transaction by reducing the returned amount
                 titem.setAmount(titem.getAmount() - ritem.getAmount());
                 //??? do we need to change the final price or it does automatically after removing the items ???

@@ -1,5 +1,6 @@
 package it.polito.ezshop.model.adapters;
 
+import it.polito.ezshop.model.Position;
 import it.polito.ezshop.model.ProductType;
 
 /**
@@ -26,12 +27,12 @@ public class ProductTypeAdapter implements it.polito.ezshop.data.ProductType {
 
     @Override
     public String getLocation() {
-        return product.getLocation();
+        return product.getPosition().toString();
     }
 
     @Override
     public void setLocation(String location) {
-        product.setLocation(location);
+        product.setPosition(new Position(location));
     }
 
     @Override

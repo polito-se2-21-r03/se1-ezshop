@@ -69,9 +69,9 @@ public class TestJsonInterface {
                 new ProductType("note2", "description2", "456",
                         10.0, 2, 1, null),
                 new ProductType("note3", "description3", "789",
-                        15.0, 3, 0, Position.parsePosition("1-1-1")),
+                        15.0, 3, 0, new Position("1-1-1")),
                 new ProductType("note4", "description4", "012",
-                        20.0, 4, 1, Position.parsePosition("1-1-1"))
+                        20.0, 4, 1, new Position("1-1-1"))
         );
         ji.writeProducts(writeData);
 

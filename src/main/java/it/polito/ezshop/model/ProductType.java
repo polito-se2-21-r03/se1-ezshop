@@ -6,7 +6,7 @@ public class ProductType {
 
     private int id;
     private Integer quantity;
-    private Position location;
+    private Position position;
     private String note;
     private String productDescription;
     private String barCode;
@@ -29,31 +29,48 @@ public class ProductType {
         this.pricePerUnit = pricePerUnit;
         this.note = note;
         this.quantity = quantity;
-        this.location = location;
+        this.position = location;
     }
 
     public Integer getQuantity() {
         return this.quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    /**
+     * Set available quantity of this product
+     *
+     * @param quantity quantity to be set, must be positive
+     * @throws IllegalArgumentException thrown if quantity is negative
+     * @throws IllegalStateException thrown if no position has been defined
+     */
+    public void setQuantity(Integer quantity) throws IllegalArgumentException, IllegalStateException {
+        if (quantity < 0) {
+            throw new IllegalArgumentException("Product quantity must be positive");
+        }
+        if (position == null) {
+            throw new IllegalStateException("Can not set quantity, location must be defined");
+        }
         this.quantity = quantity;
     }
 
-    public void updateQuantity(Integer delta) {
-        this.quantity += delta;
-    }
-
-    public String getLocation() {
-        if (this.location == null) {
+    public Position getPosition() {
+        if (this.position == null) {
             return null;
         }
-
-        return this.location.toString();
+        return new Position(this.position);
     }
 
-    public void setLocation(String location) {
-        this.location = Position.parsePosition(location);
+    /**
+     * Set the position this product is assigned to.
+     *
+     * @param position new position of the product, can be zero if no position should be assigned
+     */
+    public void setPosition(Position position) {
+        if (position == null) {
+            this.position = null;
+        } else {
+            this.position = new Position(position);
+        }
     }
 
     public String getNote() {
@@ -102,7 +119,7 @@ public class ProductType {
         ProductType that = (ProductType) o;
         return id == that.id &&
                 quantity.equals(that.quantity) &&
-                Objects.equals(location, that.location) &&
+                Objects.equals(position, that.position) &&
                 note.equals(that.note) &&
                 productDescription.equals(that.productDescription) &&
                 barCode.equals(that.barCode) &&
