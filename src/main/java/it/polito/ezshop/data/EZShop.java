@@ -9,7 +9,6 @@ import it.polito.ezshop.model.persistence.JsonInterface;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static it.polito.ezshop.utils.Utils.*;
@@ -1349,21 +1348,20 @@ public class EZShop implements EZShopInterface {
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
-        Predicate<BalanceOperation> fromPredicate = x -> true;
-        Predicate<BalanceOperation> toPredicate = x -> true;
-
-        if (from != null) {
-            fromPredicate = x -> x.getDate().isAfter(from);
-        }
-
-        if (to != null) {
-            toPredicate = x -> x.getDate().isBefore(to);
+        final LocalDate actualFrom, actualTo;
+        if (from != null && to != null && from.isAfter(to)) {
+            // swap from and to
+            actualFrom = to;
+            actualTo = from;
+        } else {
+            actualFrom = from;
+            actualTo = to;
         }
 
         // collect all transactions
         return accountBook.getAllTransactions().stream()
-                .filter(fromPredicate)
-                .filter(toPredicate)
+                .filter(x -> actualFrom == null || x.getDate().compareTo(actualFrom) >= 0)
+                .filter(x -> actualTo == null || x.getDate().compareTo(actualTo) <= 0)
                 .collect(Collectors.toList());
     }
 
