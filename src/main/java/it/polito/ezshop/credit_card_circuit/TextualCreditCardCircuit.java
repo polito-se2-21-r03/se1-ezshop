@@ -7,7 +7,7 @@ import java.io.IOException;
 import it.polito.ezshop.utils.Utils;
 
 public class TextualCreditCardCircuit implements CreditCardCircuit{
-    String path;
+    String path = "it.polito.ezshop/utils/CreditCards.txt";
 
     public String getPath() {
         return path;
@@ -39,12 +39,13 @@ public class TextualCreditCardCircuit implements CreditCardCircuit{
     }
 
     @Override
-    public boolean addDebit(String creditCardCode, Integer amount) {
-        return false;
+    public boolean addDebit(String creditCardCode, Integer amount) throws IOException {
+        return Utils.whiteToFile(this.path, creditCardCode, amount);
+
     }
 
     @Override
-    public boolean addCredit(String creditCardCode, Integer amount) {
-        return false;
+    public boolean addCredit(String creditCardCode, Integer amount) throws IOException {
+        return Utils.whiteToFile(this.path, creditCardCode, amount);
     }
 }

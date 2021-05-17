@@ -1,5 +1,7 @@
 package it.polito.ezshop.credit_card_circuit;
 
+import java.io.IOException;
+
 public interface CreditCardCircuit {
     /**
      * This method should initialize the application
@@ -40,7 +42,7 @@ public interface CreditCardCircuit {
      *         false if it is not
      *
      * */
-    public boolean addDebit(String creditCardCode, Integer amount);
+    public boolean addDebit(String creditCardCode, Integer amount) throws IOException;
 
     /**
      * This method should add credit to the credit card
@@ -53,5 +55,5 @@ public interface CreditCardCircuit {
      *         false if it is not
      *
      * */
-    public boolean addCredit(String creditCardCode, Integer amount);
+    public boolean addCredit(String creditCardCode, Integer amount) throws IOException;
 }
