@@ -2,52 +2,12 @@ package it.polito.ezshop.model;
 
 import java.util.Objects;
 
-public class User implements it.polito.ezshop.data.User {
+public class User {
 
-    private Integer id;
-    private String username;
-    private String password;
+    private final Integer id;
+    private final String username;
+    private final String password;
     private Role role;
-
-    @Override
-    public Integer getId() {
-        return this.id;
-    }
-
-    @Override
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @Override
-    public String getUsername() {
-        return this.username;
-    }
-
-    @Override
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    @Override
-    public String getRole() {
-        return this.role.getValue();
-    }
-
-    @Override
-    public void setRole(String role) {
-        this.role = Role.fromString(role);
-    }
 
     public User(Integer id, String username, String password, Role role) {
         this.id = id;
@@ -56,8 +16,24 @@ public class User implements it.polito.ezshop.data.User {
         this.role = role;
     }
 
-    public User(Integer id, String username, String password, String role) {
-        this(id, username, password, Role.fromString(role));
+    public Integer getId() {
+        return this.id;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public String getRole() {
+        return this.role.getValue();
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     @Override

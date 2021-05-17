@@ -5,6 +5,7 @@ import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.OrderAdapter;
 import it.polito.ezshop.model.adapters.ProductTypeAdapter;
 import it.polito.ezshop.model.adapters.SaleTransactionAdapter;
+import it.polito.ezshop.model.adapters.UserAdapter;
 import it.polito.ezshop.model.persistence.JsonInterface;
 
 import java.time.Clock;
@@ -177,7 +178,7 @@ public class EZShop implements EZShopInterface {
         }
 
         // generate a list of all ids
-        List<Integer> ids = users.stream().map(User::getId).collect(Collectors.toList());
+        List<Integer> ids = users.stream().map(it.polito.ezshop.model.User::getId).collect(Collectors.toList());
         // generate a new id that is not already in the list
         Integer id = generateId(ids);
 
@@ -212,7 +213,7 @@ public class EZShop implements EZShopInterface {
         // check the role of the current user
         verifyCurrentUserRole(Role.ADMINISTRATOR);
         // return a list of users
-        return new ArrayList<>(users);
+        return users.stream().map(UserAdapter::new).collect(Collectors.toList());
     }
 
     @Override
@@ -229,7 +230,7 @@ public class EZShop implements EZShopInterface {
                 // filter users with the given id
                 .filter(x -> x.getId().equals(id))
                 // find the first matching user
-                .findFirst()
+                .findFirst().map(UserAdapter::new)
                 // if a matching user is not found, return null
                 .orElse(null);
     }
@@ -256,7 +257,7 @@ public class EZShop implements EZShopInterface {
                 .filter(x -> x.getId().equals(id)).findFirst();
 
         // if the user is present, update its role
-        user.ifPresent(value -> value.setRole(role));
+        user.ifPresent(value -> value.setRole(Role.fromString(role)));
 
         writeState();
 
@@ -284,7 +285,7 @@ public class EZShop implements EZShopInterface {
                 // if one user is found return it, otherwise return null
                 .orElse(null);
 
-        return currentUser;
+        return new UserAdapter(currentUser);
     }
 
     @Override
