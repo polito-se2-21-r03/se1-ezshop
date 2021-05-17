@@ -5,6 +5,7 @@ import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.OrderAdapter;
 import it.polito.ezshop.model.adapters.ProductTypeAdapter;
 import it.polito.ezshop.model.adapters.SaleTransactionAdapter;
+import it.polito.ezshop.model.persistence.JsonInterface;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -15,20 +16,27 @@ import static it.polito.ezshop.utils.Utils.*;
 
 public class EZShop implements EZShopInterface {
 
+    public static final String PERSISTENCE_PATH = "tmp/";
+
+    /**
+     * Simple persistence layer for EZShop.
+     */
+    private JsonInterface persistenceLayer;
+
     /**
      * List of all the users registered in EZShop.
      */
-    private final List<User> users = new ArrayList<>();
+    private final List<it.polito.ezshop.model.User> users = new ArrayList<>();
 
     /**
      * List of all the customers registered in EZShop.
      */
-    private final List<Customer> customers = new ArrayList<>();
+    private final List<it.polito.ezshop.model.Customer> customers = new ArrayList<>();
 
     /**
      * Current logged in user.
      */
-    private User currentUser = null;
+    private it.polito.ezshop.model.User currentUser = null;
 
     /**
      * List of all products in EZShop
@@ -39,7 +47,49 @@ public class EZShop implements EZShopInterface {
     /**
      * The account book holding all balance transactions (orders, sale transactions, ect.)
      */
-    private final AccountBook accountBook = new AccountBook();
+    private AccountBook accountBook = new AccountBook();
+
+    public EZShop () {
+        this(PERSISTENCE_PATH);
+    }
+
+    public EZShop(String path) {
+        try {
+            this.persistenceLayer = JsonInterface.create(path);
+
+            this.users.addAll(persistenceLayer.readUsers());
+            this.products.addAll(persistenceLayer.readProducts());
+            this.customers.addAll(persistenceLayer.readCustomers());
+            this.accountBook = persistenceLayer.readAccountBook();
+        } catch (Exception ex) {
+            // exceptions are ignored
+        }
+    }
+
+    /**
+     * Write current state to the persistence layer
+     */
+    private void writeState () {
+        try {
+            persistenceLayer.writeUsers(users);
+            persistenceLayer.writeCustomers(customers);
+            persistenceLayer.writeProducts(products);
+            persistenceLayer.writeAccountBook(accountBook);
+        } catch (Exception ex) {
+            // exceptions are ignored
+        }
+    }
+
+    @Override
+    public void reset() {
+        this.users.clear();
+        this.currentUser = null;
+        this.customers.clear();
+        this.products.clear();
+        this.accountBook.reset();
+
+        writeState();
+    }
 
 
     /**
@@ -81,15 +131,6 @@ public class EZShop implements EZShopInterface {
     }
 
     @Override
-    public void reset() {
-        this.users.clear();
-        this.currentUser = null;
-        this.customers.clear();
-        this.products.clear();
-        this.accountBook.reset();
-    }
-
-    @Override
     public Integer createUser(String username, String password, String role) throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
         // check that the username is neither null or empty
         if (username == null || username.equals("")) {
@@ -117,8 +158,10 @@ public class EZShop implements EZShopInterface {
         Integer id = generateId(ids);
 
         // create a new user
-        User u = new it.polito.ezshop.model.User(id, username, password, Role.fromString(role));
+        it.polito.ezshop.model.User u = new it.polito.ezshop.model.User(id, username, password, Role.fromString(role));
         users.add(u);
+
+        writeState();
 
         return u.getId();
     }
@@ -134,7 +177,10 @@ public class EZShop implements EZShopInterface {
         }
 
         // removeIf returns true if any elements were removed
-        return users.removeIf(x -> x.getId().equals(id));
+        boolean result = users.removeIf(x -> x.getId().equals(id));
+
+        writeState();
+        return result;
     }
 
     @Override
@@ -181,12 +227,14 @@ public class EZShop implements EZShopInterface {
         }
 
         // find the user
-        Optional<User> user = users.stream()
+        Optional<it.polito.ezshop.model.User> user = users.stream()
                 // filter users with the given id
                 .filter(x -> x.getId().equals(id)).findFirst();
 
         // if the user is present, update its role
         user.ifPresent(value -> value.setRole(role));
+
+        writeState();
 
         // if the user is present return true, otherwise return false
         return user.isPresent();
@@ -260,6 +308,8 @@ public class EZShop implements EZShopInterface {
             description, productCode, pricePerUnit, id);
         products.add(p);
 
+        writeState();
+
         return p.getId();
     }
 
@@ -299,6 +349,8 @@ public class EZShop implements EZShopInterface {
             value.setNote(newNote);
         });
 
+        writeState();
+
         return product.isPresent();
     }
 
@@ -313,7 +365,10 @@ public class EZShop implements EZShopInterface {
         }
 
         // removeIf returns true if any elements were removed
-        return products.removeIf(x -> x.getId().equals(id));
+        boolean result =  products.removeIf(x -> x.getId().equals(id));
+
+        writeState();
+        return result;
     }
 
     @Override
@@ -397,6 +452,7 @@ public class EZShop implements EZShopInterface {
         // update product quantity
         product.updateQuantity(toBeAdded);
 
+        writeState();
         return true;
     }
 
@@ -432,6 +488,7 @@ public class EZShop implements EZShopInterface {
         // update product position if product with given ID exists
         productWithID.ifPresent(p -> p.setLocation(newPos));
 
+        writeState();
         // return true iff product exists
         return productWithID.isPresent();
     }
@@ -473,6 +530,7 @@ public class EZShop implements EZShopInterface {
         // add order to account book
         this.accountBook.addTransaction(order);
 
+        writeState();
         // return order ID on success
         return balanceId;
     }
@@ -500,6 +558,7 @@ public class EZShop implements EZShopInterface {
             accountBook.removeTransaction(orderId);
         }
 
+        writeState();
         // return order ID on success
         return orderId;
     }
@@ -535,6 +594,7 @@ public class EZShop implements EZShopInterface {
         // set order status to paid and update account book
         accountBook.setTransactionStatus(orderId, OperationStatus.PAID);
 
+        writeState();
         // return success of operation
         return true;
     }
@@ -585,6 +645,7 @@ public class EZShop implements EZShopInterface {
         // mark order as completed
         accountBook.setTransactionStatus(orderId, OperationStatus.COMPLETED);
 
+        writeState();
         // return success of operation
         return true;
     }
@@ -626,10 +687,10 @@ public class EZShop implements EZShopInterface {
             return -1;
         }
 
-        Customer c = new it.polito.ezshop.model.Customer(customerName, customerCard, id, points);
+        it.polito.ezshop.model.Customer c = new it.polito.ezshop.model.Customer(customerName, customerCard, id, points);
         customers.add(c);
 
-
+        writeState();
         return c.getId();
     }
 
@@ -664,7 +725,7 @@ public class EZShop implements EZShopInterface {
         else
             customer.setCustomerCard(newCustomerCard);
 
-
+        writeState();
         // if the customer is present return true, otherwise return false
         return customer.getCustomerCard().equals(newCustomerCard);
 
@@ -682,9 +743,10 @@ public class EZShop implements EZShopInterface {
 
 
         //removeIf returns true if any elements were removed
-        return customers.removeIf(x -> x.getId().equals(id));
+        boolean result = customers.removeIf(x -> x.getId().equals(id));
 
-
+        writeState();
+        return result;
     }
 
     @Override
@@ -702,7 +764,7 @@ public class EZShop implements EZShopInterface {
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        return customers;
+        return new ArrayList<>(customers);
     }
 
     @Override
@@ -737,6 +799,7 @@ public class EZShop implements EZShopInterface {
         // set customer's card to new card
         customer.setCustomerCard(customerCard);
 
+        writeState();
         return true;
     }
 
@@ -751,7 +814,7 @@ public class EZShop implements EZShopInterface {
         }
 
         // find the customer
-        Optional<Customer> customer = customers.stream()
+        Optional<it.polito.ezshop.model.Customer> customer = customers.stream()
                 // filter users with the given id
                 .filter(x -> x.getCustomerCard().equals(customerCard)).findFirst();
         //false   if there is no card with given code
@@ -767,6 +830,7 @@ public class EZShop implements EZShopInterface {
 
         customer.get().setPoints(validPoints);
 
+        writeState();
         return true;
 
     }
@@ -781,6 +845,7 @@ public class EZShop implements EZShopInterface {
         // add SaleTransaction to account book
         this.accountBook.addTransaction(st);
 
+        writeState();
         return id;
     }
 
@@ -818,6 +883,8 @@ public class EZShop implements EZShopInterface {
         p.updateQuantity(-amount);
 
         sale.addSaleTransactionItem(p, amount, p.getPricePerUnit(), 0);
+
+        writeState();
         return true;
     }
 
@@ -857,6 +924,7 @@ public class EZShop implements EZShopInterface {
             // update the quantity on the shelves
             product.updateQuantity(amount);
 
+            writeState();
             return true;
         }
 
@@ -884,7 +952,10 @@ public class EZShop implements EZShopInterface {
             return false;
         }
 
-        return sale.applyDiscountToProduct(productCode, discountRate);
+        boolean result = sale.applyDiscountToProduct(productCode, discountRate);
+
+        writeState();
+        return result;
     }
 
     @Override
@@ -908,6 +979,7 @@ public class EZShop implements EZShopInterface {
         }
 
         t.setDiscountRate(discountRate);
+        writeState();
         return true;
     }
 
@@ -941,6 +1013,8 @@ public class EZShop implements EZShopInterface {
         }
         sale.setMoney(sale.computeTotal());
         accountBook.setTransactionStatus(transactionId, OperationStatus.CLOSED);
+
+        writeState();
         return true;
     }
 
@@ -957,6 +1031,7 @@ public class EZShop implements EZShopInterface {
         }
 
         accountBook.removeTransaction(saleNumber);
+        writeState();
         return true;
     }
 
@@ -996,6 +1071,7 @@ public class EZShop implements EZShopInterface {
         // add ReturnTransaction to account book
         this.accountBook.addTransaction(rt);
 
+        writeState();
         return returnId;
     }
 
@@ -1048,6 +1124,8 @@ public class EZShop implements EZShopInterface {
 
         double value = entry.get().getPricePerUnit() * (1-entry.get().getDiscountRate()) * (1-sale.getDiscountRate());
         rt.addReturnTransactionItem(product, amount, value);
+
+        writeState();
         return true;
     }
 
@@ -1105,6 +1183,8 @@ public class EZShop implements EZShopInterface {
             //anything else to do if commit == false?
             accountBook.setTransactionStatus(returnId, OperationStatus.CLOSED);
         }
+
+        writeState();
         return true;
     }
 
@@ -1128,6 +1208,8 @@ public class EZShop implements EZShopInterface {
 
         //get sale price information
         double salePrice = accountBook.getTransaction(ticketNumber).getMoney();
+
+        // TODO: add writeState()
 
         //calculate the return amount ***there need to chech for "if the sale does not exists and if there is some problemi with the db"***
         if((cash-salePrice) >= 0)
@@ -1155,6 +1237,8 @@ public class EZShop implements EZShopInterface {
 
         /* The credit card should be registered in the system.
         *  */
+
+        // TODO: add writeState()
         return true;
     }
 
@@ -1185,6 +1269,8 @@ public class EZShop implements EZShopInterface {
         //the money returned to the customer
         else
             return returnAmount;
+
+        // TODO: add writeState()
     }
 
     @Override
@@ -1219,13 +1305,14 @@ public class EZShop implements EZShopInterface {
             //the money returned to the customer
         else
             return returnAmount;
+
+        // TODO: add writeState()
     }
 
     @Override
     public boolean recordBalanceUpdate(double toBeAdded) throws UnauthorizedException {
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
-
 
         //date
         LocalDate date = LocalDate.now();
@@ -1242,6 +1329,8 @@ public class EZShop implements EZShopInterface {
         }
         accountBook.addTransaction(newRecord);
 
+        writeState();
+
         //collect all the balance records to calculate
         List<Double> moneyList = accountBook.getAllTransactions().stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
 
@@ -1252,6 +1341,8 @@ public class EZShop implements EZShopInterface {
         }
 
         return !(total + toBeAdded < 0);
+
+        // TODO: add writeState()
     }
 
     @Override
