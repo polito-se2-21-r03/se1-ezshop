@@ -3,7 +3,7 @@ package it.polito.ezshop.model;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceOperation {
+public abstract class BalanceOperation {
     protected int balanceId;
     protected LocalDate date;
     protected double balanceValue;
@@ -14,71 +14,34 @@ public abstract class BalanceOperation implements it.polito.ezshop.data.BalanceO
     }
 
     protected BalanceOperation(int balanceId, LocalDate date, double balanceValue, OperationStatus status) {
-        Objects.requireNonNull(date, "date must not be null");
-        Objects.requireNonNull(status, "status must not be null");
-
         this.balanceId = balanceId;
         this.date = date;
         this.balanceValue = balanceValue;
         this.status = status;
     }
 
-    @Override
     public int getBalanceId() {
         return this.balanceId;
     }
 
-    @Override
-    public void setBalanceId(int balanceId) {
-        this.balanceId = balanceId;
-    }
-
-    @Override
     public LocalDate getDate() {
         return this.date;
     }
 
-    @Override
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    @Override
     public double getMoney() {
         return this.balanceValue;
     }
 
-    @Override
     public void setMoney(double balanceValue) {
         this.balanceValue = balanceValue;
     }
 
-    @Override
-    @Deprecated
-    public String getType() {
-        if (this instanceof Order) {
-            return "ORDER";
-        } else if (this instanceof SaleTransaction) {
-            return "SALE";
-        } else if (this instanceof ReturnTransaction) {
-            return "RETURN";
-        } else if (this instanceof Credit) {
-            return "CREDIT";
-        }
-        return "DEBIT";
+    public OperationStatus getStatus() {
+        return status;
     }
 
-    @Override
-    @Deprecated
-    public void setType(String type) {
-    }
-
-    public String getStatus() {
-        return status.name();
-    }
-
-    void setStatus(String status) {
-        this.status = OperationStatus.valueOf(status);
+    void setStatus(OperationStatus status) {
+        this.status = status;
     }
 
     @Override

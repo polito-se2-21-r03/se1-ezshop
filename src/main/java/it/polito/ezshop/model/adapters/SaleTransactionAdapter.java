@@ -25,7 +25,7 @@ public class SaleTransactionAdapter implements it.polito.ezshop.data.SaleTransac
 
     @Override
     public void setTicketNumber(Integer ticketNumber) {
-        saleTransaction.setBalanceId(ticketNumber);
+        throw new UnsupportedOperationException();
     }
 
     @Override

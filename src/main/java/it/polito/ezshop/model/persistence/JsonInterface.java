@@ -40,6 +40,11 @@ public class JsonInterface {
     private final Path customersPath;
 
     /**
+     * Path of the loyalty cards json file
+     */
+    private final Path loyaltyCardsPath;
+
+    /**
      * Instance of the Gson serializer/deserializer
      */
     private final Gson gson;
@@ -56,6 +61,7 @@ public class JsonInterface {
         this.productsPath = Paths.get(path.toString(), "products.json");
         this.accountBookPath = Paths.get(path.toString(), "account_book.json");
         this.customersPath = Paths.get(path.toString(), "customers.json");
+        this.loyaltyCardsPath = Paths.get(path.toString(), "loyalty_card.json");
 
         // see https://jansipke.nl/serialize-and-deserialize-a-list-of-polymorphic-objects-with-gson/
         // create a runtime adapter that instantiate the correct subclass of BalanceOperation
@@ -160,6 +166,27 @@ public class JsonInterface {
      */
     public void writeCustomers(List<Customer> customers) throws IOException {
         writeList(customersPath, customers);
+    }
+
+    /**
+     * Read a list of loyalty cards from the persistence layer.
+     * If the persistence layer contains no loyalty cards, an empty list is returned.
+     *
+     * @return a list of loyalty cards
+     * @throws IOException if an I/O exception occurs
+     */
+    public List<LoyaltyCard> readLoyaltyCards() throws IOException {
+        return readList(loyaltyCardsPath, LoyaltyCard.class);
+    }
+
+    /**
+     * Write a list of loyalty cards to the persistence layer.
+     *
+     * @param loyaltyCards list of loyalty cards to be persisted (null is treated as an empty list)
+     * @throws IOException if an I/O exception occurs
+     */
+    public void writeLoyaltyCards(List<LoyaltyCard> loyaltyCards) throws IOException {
+        writeList(loyaltyCardsPath, loyaltyCards);
     }
 
     /**

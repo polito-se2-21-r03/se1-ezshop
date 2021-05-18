@@ -102,7 +102,7 @@ public class AccountBook {
      * Changes the account book's balance if the operation status requires so.
      */
     public void addTransaction(BalanceOperation balanceOperation) {
-        if (statusRequiresBalanceUpdate(OperationStatus.valueOf(balanceOperation.getStatus()))) {
+        if (statusRequiresBalanceUpdate(balanceOperation.getStatus())) {
             this.balance += balanceOperation.getMoney();
         }
         this.balanceOperations.add(balanceOperation);
@@ -118,7 +118,7 @@ public class AccountBook {
 
         BalanceOperation balanceOperation = this.getTransaction(balanceId);
 
-        if (statusRequiresBalanceUpdate(OperationStatus.valueOf(balanceOperation.getStatus()))) {
+        if (statusRequiresBalanceUpdate(balanceOperation.getStatus())) {
             this.balance -= balanceOperation.getMoney();
         }
 
@@ -134,7 +134,7 @@ public class AccountBook {
      */
     public void setTransactionStatus(int balanceId, OperationStatus newStatus) {
         BalanceOperation balanceOperation = this.getTransaction(balanceId);
-        OperationStatus previousStatus = OperationStatus.valueOf(balanceOperation.getStatus());
+        OperationStatus previousStatus = balanceOperation.getStatus();
 
         // balance operation previously did not count towards account book balance but now does
         if (!statusRequiresBalanceUpdate(previousStatus) && statusRequiresBalanceUpdate(newStatus)) {
@@ -146,7 +146,7 @@ public class AccountBook {
             this.balance += balanceOperation.getMoney();
         }
 
-        balanceOperation.setStatus(newStatus.name());
+        balanceOperation.setStatus(newStatus);
     }
 
     /**
@@ -175,7 +175,7 @@ public class AccountBook {
      */
     public double computeBalance() {
         this.balance = this.balanceOperations.stream()
-                .filter(b -> statusRequiresBalanceUpdate(OperationStatus.valueOf(b.getStatus())))
+                .filter(b -> statusRequiresBalanceUpdate(b.getStatus()))
                 .map(BalanceOperation::getMoney)
                 .reduce(Double::sum)
                 .orElse(0.0);

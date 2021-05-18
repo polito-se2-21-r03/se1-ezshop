@@ -5,10 +5,9 @@ import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.InvalidPasswordException;
 import it.polito.ezshop.exceptions.InvalidRoleException;
 import it.polito.ezshop.exceptions.InvalidUsernameException;
-import it.polito.ezshop.model.Credit;
-import it.polito.ezshop.model.Debit;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
+import it.polito.ezshop.model.adapters.BalanceOperationAdapter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,8 +15,8 @@ import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.List;
 
-import static unitTests.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
+import static unitTests.TestHelpers.testAccessRights;
 
 public class EZShopTestRecordBalanceUpdate {
 
@@ -43,8 +42,8 @@ public class EZShopTestRecordBalanceUpdate {
     @Test
     public void testAuthorization() throws Throwable {
         Method defineCustomer = EZShop.class.getMethod("recordBalanceUpdate", double.class);
-        testAccessRights(defineCustomer, new Object[] {0},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR});
+        testAccessRights(defineCustomer, new Object[]{0},
+                new Role[]{Role.SHOP_MANAGER, Role.ADMINISTRATOR});
     }
 
     /**
@@ -66,7 +65,7 @@ public class EZShopTestRecordBalanceUpdate {
         // verify that operation is recorded as CREDIT
         List<BalanceOperation> accountBook = shop.getCreditsAndDebits(null, null);
         assertEquals(1, accountBook.size());
-        assertTrue(accountBook.get(0) instanceof Credit);
+        assertEquals(BalanceOperationAdapter.CREDIT, accountBook.get(0).getType());
     }
 
     /**
@@ -126,8 +125,9 @@ public class EZShopTestRecordBalanceUpdate {
         List<BalanceOperation> accountBook = shop.getCreditsAndDebits(null, null);
         accountBook.sort(Comparator.comparing(BalanceOperation::getDate));
         assertEquals(3, accountBook.size());
-        assertTrue(accountBook.get(0) instanceof Credit);
-        assertTrue(accountBook.get(1) instanceof Debit);
-        assertTrue(accountBook.get(2) instanceof Debit);
+
+        assertEquals(BalanceOperationAdapter.CREDIT, accountBook.get(0).getType());
+        assertEquals(BalanceOperationAdapter.DEBIT, accountBook.get(1).getType());
+        assertEquals(BalanceOperationAdapter.DEBIT, accountBook.get(2).getType());
     }
 }

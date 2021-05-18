@@ -87,7 +87,7 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
     @Test()
     public void testInvalidId() {
         testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs,
-                (value) -> shop.endReturnTransaction(rid1, true));
+                (value) -> shop.endReturnTransaction(value, true));
     }
 
     /**

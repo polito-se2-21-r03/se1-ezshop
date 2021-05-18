@@ -109,11 +109,11 @@ public class EZShopTestGetAllCustomers {
         List<it.polito.ezshop.data.Customer> customers = shop.getAllCustomers();
 
         // extract returned customers from list
-        Customer returnedCustomer1 = (Customer) customers.stream()
+        it.polito.ezshop.data.Customer returnedCustomer1 = customers.stream()
                 .filter(c -> c.getId().equals(customer1.getId()))
                 .findAny()
                 .orElse(null);
-        Customer returnedCustomer2 = (Customer) customers.stream()
+        it.polito.ezshop.data.Customer returnedCustomer2 =  customers.stream()
                 .filter(c -> c.getId().equals(customer2.getId()))
                 .findAny()
                 .orElse(null);
@@ -127,7 +127,7 @@ public class EZShopTestGetAllCustomers {
         assertEquals(card2, returnedCustomer2.getCustomerCard());
 
         // verify that points were returned correctly
-        assertEquals(new Integer(points1), returnedCustomer1.getPoints());
-        assertEquals(new Integer(points2), returnedCustomer2.getPoints());
+        assertEquals((Integer) points1, returnedCustomer1.getPoints());
+        assertEquals((Integer) points2, returnedCustomer2.getPoints());
     }
 }
