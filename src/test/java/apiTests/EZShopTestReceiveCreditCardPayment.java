@@ -158,6 +158,8 @@ public class EZShopTestReceiveCreditCardPayment {
 
         // verify system's balance did not change
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
+
+        // TODO: check credit card balance
     }
 
     /**
@@ -181,6 +183,27 @@ public class EZShopTestReceiveCreditCardPayment {
 
         // verify system's balance did not change
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
+
+        // TODO: check credit card balance
+    }
+
+    /**
+     * If the credit card number is correct according to luhn's algorithm but is not registered, false should be returned.
+     */
+    @Test
+    public void testCreditCardNotRegistered() throws Exception {
+
+        // login with sufficient rights
+        shop.login(admin.getUsername(), admin.getPassword());
+
+        // trying to pay for a sale with unregistered credit card
+        Assert.assertFalse(shop.receiveCreditCardPayment(saleId, "1358954993914491"));
+
+        // verify sale is still in CLOSED state
+        assertEquals(OperationStatus.CLOSED, ((SaleTransaction) shop.getSaleTransaction(saleId)).getStatus());
+
+        // verify system's balance did not change
+        assertEquals(totalBalance, shop.computeBalance(), 0.001);
     }
 
     /**
@@ -200,25 +223,8 @@ public class EZShopTestReceiveCreditCardPayment {
 
         // verify system's balance did not change
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
-    }
 
-    /**
-     * If the credit card number is correct according to luhn's algorithm but is not registered, false should be returned.
-     */
-    @Test
-    public void testCreditCardNotRegistered() throws Exception {
-
-        // login with sufficient rights
-        shop.login(admin.getUsername(), admin.getPassword());
-
-        // trying to pay for a sale with unregistered credit card
-        Assert.assertFalse(shop.receiveCreditCardPayment(saleId, emptyCreditCard));
-
-        // verify sale is still in CLOSED state
-        assertEquals(OperationStatus.CLOSED, ((SaleTransaction) shop.getSaleTransaction(saleId)).getStatus());
-
-        // verify system's balance did not change
-        assertEquals(totalBalance, shop.computeBalance(), 0.001);
+        // TODO: check credit card balance
     }
 
     /**
@@ -241,6 +247,7 @@ public class EZShopTestReceiveCreditCardPayment {
         // verify system's balance did update correctly
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
 
+        // TODO: check credit card balance
         // setup sale transaction that is too expensive to be paid with the credit card now, but could be paid before
         int secondSaleId = shop.startSaleTransaction();
         shop.addProductToSale(secondSaleId, productCode, (int) creditCardBalance);
@@ -273,5 +280,7 @@ public class EZShopTestReceiveCreditCardPayment {
 
         // verify system's balance did not update a second time
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
+
+        // TODO: check credit card balance
     }
 }

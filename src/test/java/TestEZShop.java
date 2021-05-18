@@ -38,7 +38,9 @@ import unitTests.*;
         EZShopTestEndReturnTransaction.class,
         // FR 7
         EZShopTestReceiveCashPayment.class,
+        EZShopTestReceiveCreditCardPayment.class,
         EZShopTestReturnCashPayment.class,
+        EZShopTestReturnCreditCardPayment.class,
         // FR 8
         EZShopTestRecordBalanceUpdate.class,
         EZShopTestGetCreditsAndDebits.class,

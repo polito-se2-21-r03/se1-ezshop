@@ -3,19 +3,21 @@ package apiTests;
 import it.polito.ezshop.data.BalanceOperation;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.Order;
+import it.polito.ezshop.exceptions.InvalidCreditCardException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.*;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 
-import static unitTests.TestHelpers.*;
 import static it.polito.ezshop.utils.Utils.generateId;
-import static org.junit.Assert.assertEquals;
+import static junit.framework.TestCase.assertEquals;
+import static unitTests.TestHelpers.*;
 
-public class EZShopTestReturnCashPayment {
+public class EZShopTestReturnCreditCardPayment {
 
     private static final EZShop shop = new EZShop();
     private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
@@ -25,6 +27,10 @@ public class EZShopTestReturnCashPayment {
     private static int saleId;
     private static int returnId;
     private static int returnedValue;
+
+    // a credit card from the credit cards file with an initial balance of 150.0
+    private static final String creditCard = "4485370086510891";
+    private static final double creditCardBalance = 150.0;
 
     /**
      * Creates a clean shop instance for each test
@@ -79,8 +85,8 @@ public class EZShopTestReturnCashPayment {
      */
     @Test
     public void testAuthorization() throws Throwable {
-        Method defineCustomer = EZShop.class.getMethod("returnCashPayment", Integer.class);
-        testAccessRights(defineCustomer, new Object[] {returnId},
+        Method defineCustomer = EZShop.class.getMethod("returnCreditCardPayment", Integer.class, String.class);
+        testAccessRights(defineCustomer, new Object[] {returnId, creditCard},
                 new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
@@ -94,11 +100,26 @@ public class EZShopTestReturnCashPayment {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown
-        testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs, shop::returnCashPayment);
+        testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs,
+                (transactionId) -> shop.returnCreditCardPayment(transactionId, creditCard));
     }
 
     /**
-     * If the transaction ID does not exist an error value should be returned.
+     * If the credit card is not valid according to the luhn algorithm, the method should throw an InvalidCreditCardException.
+     */
+    @Test
+    public void testInvalidCreditCardException() throws Exception {
+
+        // login with sufficient rights
+        shop.login(admin.getUsername(), admin.getPassword());
+
+        // verify correct exception is thrown
+        testInvalidValues(InvalidCreditCardException.class, invalidCreditCards,
+                (card) -> shop.returnCreditCardPayment(saleId, card));
+    }
+
+    /**
+     * If the transaction ID does not exist false should be returned.
      */
     @Test
     public void testIdDoesNotExist() throws Exception {
@@ -112,11 +133,30 @@ public class EZShopTestReturnCashPayment {
                 .collect(Collectors.toList()));
 
         // if ID does not exist -1 is returned
-        assertEquals(-1, shop.returnCashPayment(nonExistentId), 0.001);
+        assertEquals(-1, shop.returnCreditCardPayment(nonExistentId, creditCard));
     }
 
     /**
-     * Tests that an Order can not be paid using returnCashPayment, only ReturnTransactions should be paid using this method.
+     * If the credit card number is correct according to luhn's algorithm but is not registered, false should be returned.
+     */
+    @Test
+    public void testCreditCardNotRegistered() throws Exception {
+
+        // login with sufficient rights
+        shop.login(admin.getUsername(), admin.getPassword());
+
+        // trying to receive return with unregistered credit card
+        Assert.assertEquals(-1, shop.returnCreditCardPayment(returnId, "1358954993914491"), 0.001);
+
+        // verify return is still in state PAID/COMPLETED
+        Assert.assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
+
+        // verify system's balance did not change
+        Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
+    }
+
+    /**
+     * Tests that an Order can not be paid using returnCreditCardPayment, only ReturnTransactions can be paid using this method.
      */
     @Test
     public void testPayUnpaidOrderFails() throws Exception {
@@ -127,25 +167,27 @@ public class EZShopTestReturnCashPayment {
         // issue an order
         int orderId = shop.issueOrder(productCode, 10, 1);
 
-        // trying to pay for an order with returnCashPayment fails
-        assertEquals(-1, shop.returnCashPayment(orderId), 0.001);
+        // trying to pay for an order with receiveCreditCardPayment fails
+        assertEquals(-1, shop.returnCreditCardPayment(orderId, creditCard));
 
-        // verify order is still in ISSUED state
-        assertEquals("ISSUED", shop.getAllOrders().stream()
+        // verify order is still in CLOSED state
+        Assert.assertEquals(OperationStatus.CLOSED.name(), shop.getAllOrders().stream()
                 .filter(b -> b.getBalanceId() == orderId)
                 .map(Order::getStatus)
                 .findAny()
                 .orElse(null));
 
         // verify system's balance did not change
-        assertEquals(totalBalance, shop.computeBalance(), 0.001);
+        Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
+
+        // TODO: check credit card balance
     }
 
     /**
      * If the ReturnTransaction has net yet been closed an error value should be returned.
      */
     @Test
-    public void testReturnCashForOpenReturnFails() throws Exception {
+    public void testReturnOpenReturnFails() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -155,38 +197,43 @@ public class EZShopTestReturnCashPayment {
         shop.returnProduct(openReturnId, productCode, 2);
 
         // trying to receive cash payment for a still open return fails
-        assertEquals(-1, shop.returnCashPayment(openReturnId), 0.001);
+        Assert.assertEquals(-1, shop.returnCreditCardPayment(openReturnId, creditCard), 0.001);
 
         // verify return is still in OPEN state
-        assertEquals(OperationStatus.OPEN, getStatusOfReturn(returnId));
+        Assert.assertEquals(OperationStatus.OPEN, getStatusOfReturn(returnId));
 
         // verify system's balance did not change
-        assertEquals(totalBalance, shop.computeBalance(), 0.001);
+        Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
+
+        // TODO: check credit card balance
     }
 
     /**
-     * Tests that if the ReturnTransaction has been closed, the cash is returned correctly and the transaction is marked
-     * as PAID/COMPLETED
+     * Tests that if the ReturnTransaction has been closed and the provided credit card is registered, the cash is returned
+     * correctly and the transaction is marked as PAID/COMPLETED
      */
     @Test
-    public void testReturnCashSuccessfully() throws Exception {
+    public void testReturnSuccessfully() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
 
         // verify receive correct amount of cash for return
-        assertEquals(returnedValue, shop.returnCashPayment(returnId), 0.001);
+        Assert.assertEquals(returnedValue, shop.returnCreditCardPayment(returnId, creditCard), 0.001);
         totalBalance -= returnedValue;
 
         // verify return is in state PAID/COMPLETED
-        assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
+        Assert.assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
 
         // verify system's balance did update correctly
-        assertEquals(totalBalance, shop.computeBalance(), 0.001);
+        Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
+
+        // TODO: check credit card balance
     }
 
     /**
-     * Tests that if the ReturnTransaction has already been completed, requesting cash for the same return gives 0 cash
+     * Tests that if the ReturnTransaction has already been completed, requesting payment for the same return adds no
+     * funds to the credit card
      */
     @Test
     public void testReturnCompletedReturnAgain() throws Exception {
@@ -195,17 +242,19 @@ public class EZShopTestReturnCashPayment {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // pay for return so it is in state PAID/COMPLETED
-        assertEquals(returnedValue, shop.returnCashPayment(returnId), 0.001);
+        Assert.assertEquals(returnedValue, shop.returnCreditCardPayment(returnId, creditCard), 0.001);
         totalBalance -= returnedValue;
 
         // try to ask for return a second time gives 0 as amount of cash to be returned
-        assertEquals(0, shop.returnCashPayment(returnId), 0.001);
+        Assert.assertEquals(0, shop.returnCreditCardPayment(returnId, creditCard), 0.001);
 
         // verify return remains in state PAID/COMPLETED
-        assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
+        Assert.assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
 
         // verify system's balance did not update a second time
-        assertEquals(totalBalance, shop.computeBalance(), 0.001);
+        Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
+
+        // TODO: check credit card balance
     }
 
     /**
