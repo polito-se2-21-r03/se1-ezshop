@@ -150,10 +150,71 @@ Version:
 | (-MIN_INT, 0] | *                    | *                    | *                    | Invalid       | new User(-1, "username", "password", "Administrator") -> InvalidUserIdException   | TestUser.testConstructor |
 | [1, MAX_INT)  | Null or empty string | *                    | *                    | Invalid       | new User(1, null, "password", "Administrator") -> InvalidUsernameException        | TestUser.testConstructor |
 | "             | Valid                | Null or empty string | *                    | Invalid       | new User(1, "username", null, "Administrator") -> InvalidPasswordException        | TestUser.testConstructor |
-| "             | "                    | Valid                | Null or empty string | Invalid       | new User(1, "username", "password", "Admin") -> InvalidRoleException              | TestUser.testConstructor |
+| "             | "                    | Valid                | Null or empty string | Invalid       | new User(1, "username", "password", null) -> InvalidRoleException<br>new User(1, "username", "password", "") -> InvalidRoleException              | TestUser.testConstructor |
+| "             | "                    | "                    | Invalid              | Invalid       | new User(1, "username", "password", "Admin") -> InvalidRoleException              | TestUser.testConstructor |
 | "             | "                    | "                    | Valid                | Valid         | u = new User(1, "username", "password", "Administrator") <br>assert u.getId() == 1<br>assert u.getUsername() == "username"<br>assert u.getPassword() == "password"<br>assert u.getRole == "Administrator" | TestUser.testConstructor |
 
-*Similar tests are performed on each setter method of **User***
+
+### **Class *LoyaltyCard* - method *Constructor***
+
+**Criteria for method *Constructor*:**
+
+- Code parameter
+- Number of points
+
+**Predicates for method *Constructor*:**
+
+| Criteria           | Predicate                                                      |
+|--------------------|----------------------------------------------------------------|
+| Code parameter     | Invalid (according to LoyaltyCard.validateCode)                |
+|                    | Valid                                                          |
+| Number of points   | (-MIN_INT, 0)                                                  |
+|                    | [0, MAX_INT)                                                   |
+
+**Boundaries**:
+
+| Criteria           | Boundary values                                                |
+|--------------------|----------------------------------------------------------------|
+| Number of points   | -1, 0, 1                                                       |
+
+**Combination of predicates**:
+
+| Code parameter          | Number of points     | Valid/Invalid | Description of the test case                                                                                                | JUnit test case                 |
+|-------------------------|----------------------|---------------|-----------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| Invalid                 | *                    | Invalid       | new LoyaltyCard(null, 10.0) -> InvalidCustomerCardException<br>new LoyaltyCard("123", 10.0) -> InvalidCustomerCardException | TestLoyaltyCard.testConstructor |
+| Valid                   | (-MIN_INT, 0)        | Invalid       | new LoyaltyCard("1234567890", -1) -> IllegalArgumentException                                                               | TestLoyaltyCard.testConstructor |
+| "                       | [0, MAX_INT)         | Valid         | new LoyaltyCard("1234567890", 10) -> ok                                                                                     | TestLoyaltyCard.testConstructor |
+
+*Similar tests are performed on each setter method of **LoyaltyCard***
+
+
+### **Class *LoyaltyCard* - method *validateCode***
+
+**Criteria for method *validateCode*:**
+
+- Code parameter
+
+**Predicates for method *validateCode*:**
+
+| Criteria           | Predicate                                                      |
+|--------------------|----------------------------------------------------------------|
+| Code parameter     | Null or empty string                                           |
+|                    | Invalid                                                        |
+|                    | Valid (10 characters long numeric value)                       |
+
+**Boundaries**:
+
+*none*
+
+
+**Combination of predicates**:
+
+| Code parameter          | Valid/Invalid | Description of the test case                                                                                                   | JUnit test case                 |
+|-------------------------|---------------|--------------------------------------------------------------------------------------------------------------------------------|---------------------------------|
+| Null or empty string    | Invalid       | LoyaltyCard.validateCode(null) -> InvalidCustomerCardException<br>LoyaltyCard.validateCode("") -> InvalidCustomerCardException | TestLoyaltyCard.testValidateCode |
+| Invalid                 | Invalid       | LoyaltyCard.validateCode("123") -> InvalidCustomerCardException<br>LoyaltyCard.validateCode("123456789A") -> InvalidCustomerCardException<br>LoyaltyCard.validateCode("123456789123") -> InvalidCustomerCardException | TestLoyaltyCard.testValidateCode |
+| Valid                   | Valid         | LoyaltyCard.validateCode("1234567890") -> ok                                                                                   | TestLoyaltyCard.testValidateCode |
+
 
 # White Box Unit Tests
 

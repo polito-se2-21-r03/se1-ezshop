@@ -1,5 +1,6 @@
 package unitTests;
 
+import it.polito.ezshop.exceptions.InvalidCustomerCardException;
 import it.polito.ezshop.model.Customer;
 import it.polito.ezshop.model.LoyaltyCard;
 import it.polito.ezshop.model.adapters.CustomerAdapter;
@@ -13,7 +14,15 @@ public class TestCustomerAdapter {
     public static final String cardCode = "1234567890";
     public static final int points = 10;
     private static final int id = 1;
-    final LoyaltyCard card = new LoyaltyCard(cardCode, points);
+    LoyaltyCard card;
+
+    {
+        try {
+            card = new LoyaltyCard(cardCode, points);
+        } catch (InvalidCustomerCardException e) {
+            e.printStackTrace();
+        }
+    }
 
     Customer customer1 = new Customer(name, id, null);
     Customer customer2 = new Customer(name, id, card);

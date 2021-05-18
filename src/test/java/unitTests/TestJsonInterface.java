@@ -1,5 +1,6 @@
 package unitTests;
 
+import it.polito.ezshop.exceptions.InvalidCustomerCardException;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
 import org.junit.Before;
@@ -112,7 +113,7 @@ public class TestJsonInterface {
      * Test reading and writing of a list of loyalty cards
      */
     @Test
-    public void testReadWriteLoyaltyCards() throws IOException {
+    public void testReadWriteLoyaltyCards() throws Exception {
         // write a null list
         ji.writeLoyaltyCards(null);
         List<LoyaltyCard> readData = ji.readLoyaltyCards();

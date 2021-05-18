@@ -19,7 +19,7 @@ public class Customer {
         this.id = id;
 
         if (customerCard != null && !customerCard.equals("")) {
-            this.card = new LoyaltyCard(customerCard, points);
+            //this.card = new LoyaltyCard(customerCard, points);
         }
     }
 

@@ -777,18 +777,23 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public String createCard() throws UnauthorizedException {
-        //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
+        // invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         List<String> codes = loyaltyCards.stream().map(LoyaltyCard::getCode).collect(Collectors.toList());
+
+        // generate a new card
         String newCode = LoyaltyCard.generateNewCode();
         while (codes.contains(newCode)) {
             newCode = LoyaltyCard.generateNewCode();
         }
 
-        loyaltyCards.add(new LoyaltyCard(newCode, 0));
-
-        return newCode;
+        try {
+            loyaltyCards.add(new LoyaltyCard(newCode, 0));
+            return newCode;
+        } catch (InvalidCustomerCardException e) {
+            throw new Error("Card ID was generated improperly", e);
+        }
     }
 
     @Override
@@ -833,10 +838,8 @@ public class EZShop implements EZShopInterface {
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        //InvalidCustomerCardException if the card is null, empty or in an invalid format
-        if (customerCard == null || customerCard.length() != 10) {
-            throw new InvalidCustomerCardException("Invalid Customer Card");
-        }
+        // validate the card code
+        LoyaltyCard.validateCode(customerCard);
 
         // find the card
         LoyaltyCard card = loyaltyCards.stream()
@@ -844,19 +847,16 @@ public class EZShop implements EZShopInterface {
                 .findFirst().orElse(null);
 
         // if there is no card with given code return false
-        if(card == null) {
+        if (card == null) {
             return false;
         }
 
-        if (pointsToBeAdded < 0 && (card.getPoints() + pointsToBeAdded) < 0) {
-            // not enough points on the card
-            return false;
+        if (card.updatePoints(pointsToBeAdded)) {
+            writeState();
+            return true;
         }
 
-        card.setPoints(card.getPoints() + pointsToBeAdded);
-
-        writeState();
-        return true;
+        return false;
     }
 
     @Override
