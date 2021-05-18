@@ -95,13 +95,38 @@ public class TestJsonInterface {
         // write a list of customers
         List<Customer> writeData = Arrays.asList(
                 new Customer("Pietro", "123", 1, 10),
-                new Customer("Sarah", "456", 2, null),
+                new Customer("Sarah", "456", 2, 0),
                 new Customer("Sarah", "456", 2, 0)
         );
         ji.writeCustomers(writeData);
 
         // read a list of customers
         readData = ji.readCustomers();
+        assertNotNull(readData);
+        assertEquals(writeData.size(), readData.size());
+        assertTrue(readData.containsAll(writeData));
+    }
+
+    /**
+     * Test reading and writing of a list of loyalty cards
+     */
+    @Test
+    public void testReadWriteLoyaltyCards() throws IOException {
+        // write a null list
+        ji.writeLoyaltyCards(null);
+        List<LoyaltyCard> readData = ji.readLoyaltyCards();
+        assertEquals(0, readData.size());
+
+        // write a list of loyalty cards
+        List<LoyaltyCard> writeData = Arrays.asList(
+                new LoyaltyCard("012356789", 10),
+                new LoyaltyCard("012356788", 10),
+                new LoyaltyCard("012356787", 10)
+        );
+        ji.writeLoyaltyCards(writeData);
+
+        // read a list of loyalty cards
+        readData = ji.readLoyaltyCards();
         assertNotNull(readData);
         assertEquals(writeData.size(), readData.size());
         assertTrue(readData.containsAll(writeData));

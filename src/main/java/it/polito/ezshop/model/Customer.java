@@ -2,57 +2,49 @@ package it.polito.ezshop.model;
 
 import java.util.Objects;
 
-public class Customer implements it.polito.ezshop.data.Customer {
+public class Customer {
+    private int id;
     private String customerName;
-    private String customerCard;
-    private Integer id;
-    private Integer points;
+    private LoyaltyCard card;
 
-    public Customer(String customerName, String customerCard, Integer id, Integer points) {
+    public Customer(String customerName, int id, LoyaltyCard loyaltyCard) {
         this.customerName = customerName;
-        this.customerCard = customerCard;
         this.id = id;
-        this.points = points;
+        this.card = loyaltyCard;
     }
 
-    @Override
+    @Deprecated
+    public Customer(String customerName, String customerCard, int id, int points) {
+        this.customerName = customerName;
+        this.id = id;
+
+        if (customerCard != null && !customerCard.equals("")) {
+            this.card = new LoyaltyCard(customerCard, points);
+        }
+    }
+
     public String getCustomerName() {
         return this.customerName;
     }
 
-    @Override
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
     }
 
-    @Override
-    public String getCustomerCard() {
-        return this.customerCard;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    @Override
-    public void setCustomerCard(String customerCard) {
-        this.customerCard = customerCard;
-    }
-
-    @Override
     public Integer getId() {
         return this.id;
     }
 
-    @Override
-    public void setId(Integer id) {
-        this.id = id;
+    public LoyaltyCard getCard() {
+        return card;
     }
 
-    @Override
-    public Integer getPoints() {
-        return this.points;
-    }
-
-    @Override
-    public void setPoints(Integer points) {
-        this.points = points;
+    public void setCard(LoyaltyCard card) {
+        this.card = card;
     }
 
     @Override
@@ -61,9 +53,8 @@ public class Customer implements it.polito.ezshop.data.Customer {
         if (o == null || getClass() != o.getClass()) return false;
         Customer customer = (Customer) o;
         return Objects.equals(customerName, customer.customerName) &&
-                Objects.equals(customerCard, customer.customerCard) &&
-                Objects.equals(id, customer.id) &&
-                Objects.equals(points, customer.points);
+                Objects.equals(card, customer.card) &&
+                Objects.equals(id, customer.id);
     }
 
     @Override
