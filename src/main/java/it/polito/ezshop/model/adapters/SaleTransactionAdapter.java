@@ -1,9 +1,11 @@
 package it.polito.ezshop.model.adapters;
 
 import it.polito.ezshop.data.TicketEntry;
+import it.polito.ezshop.exceptions.InvalidDiscountRateException;
 import it.polito.ezshop.model.SaleTransaction;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -15,6 +17,7 @@ public class SaleTransactionAdapter implements it.polito.ezshop.data.SaleTransac
     private final SaleTransaction saleTransaction;
 
     public SaleTransactionAdapter(SaleTransaction saleTransaction) {
+        Objects.requireNonNull(saleTransaction);
         this.saleTransaction = saleTransaction;
     }
 
@@ -25,7 +28,7 @@ public class SaleTransactionAdapter implements it.polito.ezshop.data.SaleTransac
 
     @Override
     public void setTicketNumber(Integer ticketNumber) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Changing transaction ID is not supported");
     }
 
     @Override
@@ -37,7 +40,7 @@ public class SaleTransactionAdapter implements it.polito.ezshop.data.SaleTransac
 
     @Override
     public void setEntries(List<TicketEntry> entries) {
-        // TODO: not implemented
+        throw new UnsupportedOperationException("Changing transaction entries is not supported");
     }
 
     @Override
@@ -47,7 +50,11 @@ public class SaleTransactionAdapter implements it.polito.ezshop.data.SaleTransac
 
     @Override
     public void setDiscountRate(double discountRate) {
-        saleTransaction.setDiscountRate(discountRate);
+        try {
+            saleTransaction.setDiscountRate(discountRate);
+        } catch (InvalidDiscountRateException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -57,6 +64,6 @@ public class SaleTransactionAdapter implements it.polito.ezshop.data.SaleTransac
 
     @Override
     public void setPrice(double price) {
-        // TODO: not implemented
+        throw new UnsupportedOperationException("Changing transaction price is not supported");
     }
 }

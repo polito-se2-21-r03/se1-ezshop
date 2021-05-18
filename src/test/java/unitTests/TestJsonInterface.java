@@ -1,6 +1,8 @@
 package unitTests;
 
 import it.polito.ezshop.exceptions.InvalidCustomerCardException;
+import it.polito.ezshop.exceptions.InvalidDiscountRateException;
+import it.polito.ezshop.exceptions.InvalidQuantityException;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
 import org.junit.Before;
@@ -138,7 +140,7 @@ public class TestJsonInterface {
      * Test reading and writing of an account book
      */
     @Test
-    public void testReadWriteAccountBook() throws IOException {
+    public void testReadWriteAccountBook() throws Exception {
         // write a null list to the persistence layer
         ji.writeAccountBook(null);
         AccountBook readData = ji.readAccountBook();
@@ -152,7 +154,7 @@ public class TestJsonInterface {
 
         // add a sale transaction to the account book
         SaleTransaction s1 = new SaleTransaction(1, LocalDate.now());
-        s1.addSaleTransactionItem(product, 10, product.getPricePerUnit(), 0.0);
+        s1.addSaleTransactionItem(product, 10);
         writeData.addTransaction(s1);
         writeData.setTransactionStatus(1, OperationStatus.COMPLETED);
 

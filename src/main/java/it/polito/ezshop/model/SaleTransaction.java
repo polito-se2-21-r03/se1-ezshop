@@ -1,7 +1,13 @@
 package it.polito.ezshop.model;
 
+import it.polito.ezshop.exceptions.InvalidDiscountRateException;
+import it.polito.ezshop.exceptions.InvalidQuantityException;
+import it.polito.ezshop.exceptions.InvalidTransactionIdException;
+
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class SaleTransaction extends Credit {
 
@@ -14,20 +20,15 @@ public class SaleTransaction extends Credit {
     private double discountRate;
 
     public SaleTransaction(int balanceId, LocalDate date) {
-        this(balanceId, date, null, null, 0.0);
+        super(balanceId, date, 0.0, OperationStatus.OPEN);
+        this.discountRate = 0.0;
     }
 
-    public SaleTransaction(int balanceId, LocalDate date, List<TicketEntry> entries, double discountRate) {
-        this(balanceId, date, entries, null, discountRate);
-    }
-
-    public SaleTransaction(int balanceId, LocalDate date, List<TicketEntry> entries,
-                           List<ReturnTransaction> returnTransactions, double discountRate) {
+    public SaleTransaction(int balanceId, LocalDate date, List<TicketEntry> entries, double discountRate)
+            throws InvalidDiscountRateException {
         super(balanceId, date, 0.0, OperationStatus.OPEN);
 
-        if (returnTransactions != null) {
-            this.returnTransactions.addAll(returnTransactions);
-        }
+        validateDiscount(discountRate);
 
         this.discountRate = discountRate;
 
@@ -37,30 +38,43 @@ public class SaleTransaction extends Credit {
         }
     }
 
+    public static void validateId(Integer id) throws InvalidTransactionIdException {
+        if (id == null || id <= 0) {
+            throw new InvalidTransactionIdException("Invalid transaction ID");
+        }
+    }
+
+    public static void validateDiscount(double discount) throws InvalidDiscountRateException {
+        if (discount >= 1.00 || discount < 0) {
+            throw new InvalidDiscountRateException("Discount Rate must be between 0 and 1");
+        }
+    }
+
     /**
      * Add a product to the transaction. The transaction must be in the OPEN state.
      * The balance value of the transaction is updated.
      *
      * @param product      to add
      * @param amount       of the product to add
-     * @param pricePerUnit of the product
-     * @param discountRate of the product
      */
-    public void addSaleTransactionItem(ProductType product, int amount, double pricePerUnit, double discountRate) {
-        if (status == OperationStatus.OPEN) {
-            TicketEntry entry = this.entries.stream()
-                    .filter(x -> x.getProductType().getBarCode().equals(product.getBarCode()))
-                    .findFirst()
-                    .orElse(null);
-
-            if (entry != null) {
-                entry.setAmount(entry.getAmount() + amount);
-            } else {
-                entries.add(new TicketEntry(product, amount, pricePerUnit, discountRate));
-            }
-
-            recomputeBalanceValue();
+    public void addSaleTransactionItem(ProductType product, int amount)
+            throws InvalidQuantityException, IllegalStateException {
+        if (this.getStatus() != OperationStatus.OPEN) {
+            throw new IllegalStateException("Sale transaction is not OPEN.");
         }
+
+        TicketEntry entry = this.entries.stream()
+                .filter(x -> x.getProductType().getBarCode().equals(product.getBarCode()))
+                .findFirst()
+                .orElse(null);
+
+        if (entry != null) {
+            entry.setAmount(entry.getAmount() + amount);
+        } else {
+            entries.add(new TicketEntry(product, amount));
+        }
+
+        recomputeBalanceValue();
     }
 
     /**
@@ -70,7 +84,7 @@ public class SaleTransaction extends Credit {
      * @param amount  of the product to remove
      * @return true if the product is removed, false otherwise
      */
-    public boolean removeSaleTransactionItem(ProductType product, int amount) {
+    public boolean removeSaleTransactionItem(ProductType product, int amount) throws InvalidQuantityException {
         TicketEntry entry = entries.stream()
                 .filter(x -> x.getProductType().getBarCode().equals(product.getBarCode()))
                 .findFirst()
@@ -92,17 +106,22 @@ public class SaleTransaction extends Credit {
         return true;
     }
 
-    public boolean applyDiscountToProduct(String productCode, double discountRate) {
-        if (status == OperationStatus.OPEN) {
-            Optional<TicketEntry> entry = entries.stream()
-                    .filter(x -> x.getProductType().getBarCode().equals(productCode))
-                    .findFirst();
-            entry.ifPresent((value) -> value.setDiscountRate(discountRate));
-
-            recomputeBalanceValue();
-            return entry.isPresent();
+    public boolean applyDiscountToProduct(String productCode, double discountRate) throws InvalidDiscountRateException {
+        if (status != OperationStatus.OPEN) {
+            throw new IllegalStateException("Sale transaction is not OPEN.");
         }
-        return false;
+
+        TicketEntry entry = entries.stream()
+                .filter(x -> x.getProductType().getBarCode().equals(productCode))
+                .findFirst().orElse(null);
+
+        if (entry == null) {
+            return false;
+        }
+
+        entry.setDiscountRate(discountRate);
+        recomputeBalanceValue();
+        return true;
     }
 
     public List<TicketEntry> getTransactionItems() {
@@ -113,7 +132,11 @@ public class SaleTransaction extends Credit {
         return this.discountRate;
     }
 
-    public void setDiscountRate(double discountRate) {
+    public void setDiscountRate(double discountRate) throws InvalidDiscountRateException {
+        if (status != OperationStatus.OPEN && status != OperationStatus.CLOSED) {
+            throw new IllegalStateException("Sale transaction is not OPEN.");
+        }
+        validateDiscount(discountRate);
         this.discountRate = discountRate;
     }
 
@@ -123,10 +146,8 @@ public class SaleTransaction extends Credit {
      * @return the total of the transaction
      */
     public double computeTotal() {
-        return (1 - this.discountRate) * this.entries.stream().mapToDouble(entry -> {
-            // compute the subtotal for the entry
-            return entry.getAmount() * entry.getPricePerUnit() * (1 - entry.getDiscountRate());
-        }).sum();
+        return (1 - this.discountRate) * this.entries.stream()
+                .mapToDouble(TicketEntry::computeTotal).sum();
     }
 
     @Override
@@ -144,13 +165,6 @@ public class SaleTransaction extends Credit {
 
     public void addReturnTransaction(ReturnTransaction returnTransaction) {
         this.returnTransactions.add(returnTransaction);
-    }
-
-    /**
-     * Return all the return transactions related to this sale transaction
-     */
-    public List<ReturnTransaction> getReturnTransactions() {
-        return this.returnTransactions;
     }
 
     @Override

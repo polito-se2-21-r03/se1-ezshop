@@ -34,6 +34,8 @@ public class TestHelpers {
     public static final List<String> invalidCustomerCards = Arrays.asList(null, "", "123456789", "12345678901", "123456789a", "123456789A");
     public static final List<Integer> invalidPaymentAmounts = Arrays.asList(-1, 0);
 
+    public static final List<Integer> invalidTicketEntryAmounts = Arrays.asList(-10, -1);
+
     /**
      * This method tests whether the access rights for a given EZShop API function are managed correctly.
      * If an authentication bug is found, Assert.fail() is called.

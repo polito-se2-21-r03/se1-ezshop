@@ -40,7 +40,12 @@ public abstract class BalanceOperation {
         return status;
     }
 
-    void setStatus(OperationStatus status) {
+    /**
+     * Change the status of the operation.
+     * Only AccountBook is supposed to call this method.
+     * @param status new status
+     */
+    public void setStatus(OperationStatus status) {
         this.status = status;
     }
 

@@ -1,7 +1,9 @@
 package it.polito.ezshop.model.adapters;
 
-import it.polito.ezshop.exceptions.InvalidProductCodeException;
+import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.TicketEntry;
+
+import java.util.Objects;
 
 /**
  * TicketEntryAdapter adapts it.polito.ezshop.model.TicketEntry to the
@@ -11,7 +13,8 @@ public class TicketEntryAdapter implements it.polito.ezshop.data.TicketEntry {
 
     private final TicketEntry ticketEntry;
 
-    public TicketEntryAdapter (TicketEntry entry) {
+    public TicketEntryAdapter(TicketEntry entry) {
+        Objects.requireNonNull(entry);
         this.ticketEntry = entry;
     }
 
@@ -23,6 +26,7 @@ public class TicketEntryAdapter implements it.polito.ezshop.data.TicketEntry {
     @Override
     public void setBarCode(String barCode) {
         try {
+            // TODO: dangerous operation
             ticketEntry.getProductType().setBarCode(barCode);
         } catch (InvalidProductCodeException e) {
             throw new IllegalArgumentException(e);
@@ -37,8 +41,8 @@ public class TicketEntryAdapter implements it.polito.ezshop.data.TicketEntry {
     @Override
     public void setProductDescription(String productDescription) {
         try {
-            ticketEntry.getProductType().setBarCode(productDescription);
-        } catch (InvalidProductCodeException e) {
+            ticketEntry.getProductType().setProductDescription(productDescription);
+        } catch (InvalidProductDescriptionException e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -50,7 +54,11 @@ public class TicketEntryAdapter implements it.polito.ezshop.data.TicketEntry {
 
     @Override
     public void setAmount(int amount) {
-        ticketEntry.setAmount(amount);
+        try {
+            ticketEntry.setAmount(amount);
+        } catch (InvalidQuantityException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -60,7 +68,11 @@ public class TicketEntryAdapter implements it.polito.ezshop.data.TicketEntry {
 
     @Override
     public void setPricePerUnit(double pricePerUnit) {
-        ticketEntry.setPricePerUnit(pricePerUnit);
+        try {
+            ticketEntry.setPricePerUnit(pricePerUnit);
+        } catch (InvalidPricePerUnitException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -70,6 +82,23 @@ public class TicketEntryAdapter implements it.polito.ezshop.data.TicketEntry {
 
     @Override
     public void setDiscountRate(double discountRate) {
-        ticketEntry.setDiscountRate(discountRate);
+        try {
+            ticketEntry.setDiscountRate(discountRate);
+        } catch (InvalidDiscountRateException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TicketEntryAdapter that = (TicketEntryAdapter) o;
+        return Objects.equals(ticketEntry, that.ticketEntry);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ticketEntry);
     }
 }
