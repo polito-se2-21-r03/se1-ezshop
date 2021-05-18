@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 public class EZShopTestModifyCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
     private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
     private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
     private static String card1;
@@ -37,10 +37,10 @@ public class EZShopTestModifyCustomer {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
 
         // login to setup shop instance
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // add two customers to shop
         customer1.setId(shop.defineCustomer(customer1.getCustomerName()));
@@ -71,7 +71,7 @@ public class EZShopTestModifyCustomer {
     public void testInvalidCustomerNameException() throws InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown
         testInvalidValues(InvalidCustomerNameException.class, invalidCustomerNames,
@@ -87,7 +87,7 @@ public class EZShopTestModifyCustomer {
     public void testInvalidCustomerCardException() throws InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown for string to short, too long or contains alphabetic characters
         testInvalidValues(InvalidCustomerCardException.class,
@@ -103,7 +103,7 @@ public class EZShopTestModifyCustomer {
             UnauthorizedException, InvalidCustomerCardException, InvalidCustomerIdException, InvalidCustomerNameException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // generate an ID which isn't taken by any customer
         int nonExistentId = generateId(
@@ -123,7 +123,7 @@ public class EZShopTestModifyCustomer {
             UnauthorizedException, InvalidCustomerCardException, InvalidCustomerIdException, InvalidCustomerNameException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // generate a valid card which doesn't exist in the shop
         String nonExistentCard = "123456789";
@@ -143,7 +143,7 @@ public class EZShopTestModifyCustomer {
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // card is successfully attached to customer
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
@@ -160,7 +160,7 @@ public class EZShopTestModifyCustomer {
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // cards are successfully attached to customers
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
@@ -179,7 +179,7 @@ public class EZShopTestModifyCustomer {
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // attach card to customer successfully
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
@@ -199,7 +199,7 @@ public class EZShopTestModifyCustomer {
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // card is successfully attached to customer
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
@@ -219,7 +219,7 @@ public class EZShopTestModifyCustomer {
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // change customer name
         String newCustomerName = customer1.getCustomerName() + "123";
@@ -237,7 +237,7 @@ public class EZShopTestModifyCustomer {
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // try to change to already taken name
         assertFalse(shop.modifyCustomer(customer1.getId(), customer2.getCustomerName(), card1));
@@ -254,7 +254,7 @@ public class EZShopTestModifyCustomer {
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // attach a card to a customer
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
@@ -277,7 +277,7 @@ public class EZShopTestModifyCustomer {
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // attach a card to a customer
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
@@ -297,7 +297,7 @@ public class EZShopTestModifyCustomer {
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // attach card to customer
         assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));

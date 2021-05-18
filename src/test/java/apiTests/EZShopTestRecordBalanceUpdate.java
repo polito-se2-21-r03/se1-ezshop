@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 public class EZShopTestRecordBalanceUpdate {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
 
     /**
      * Creates a clean shop instance for each test
@@ -34,7 +34,7 @@ public class EZShopTestRecordBalanceUpdate {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
     }
 
     /**
@@ -54,7 +54,7 @@ public class EZShopTestRecordBalanceUpdate {
     public void testRecordPositiveBalanceUpdate() throws Throwable {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // add some positive value as balance update
         double totalBalance = 10;
@@ -76,7 +76,7 @@ public class EZShopTestRecordBalanceUpdate {
     public void testNegativeBalanceUpdateDisallowed() throws Throwable {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // try to add negative balance update
         assertFalse(shop.recordBalanceUpdate(-10));
@@ -95,7 +95,7 @@ public class EZShopTestRecordBalanceUpdate {
     public void testRecordNegativeBalanceUpdate() throws Throwable {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         double totalBalance = 0;
         double balanceUpdate;

@@ -42,7 +42,7 @@ public class UserAdapter implements it.polito.ezshop.data.User {
 
     @Override
     public String getRole() {
-        return user.getRole();
+        return user.getRole().getValue();
     }
 
     @Override

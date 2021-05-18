@@ -17,7 +17,9 @@ public class TestHelpers {
     public static final double DOUBLE_COMPARISON_THRESHOLD = 0.001;
 
     public static final List<Integer> invalidProductIDs = Arrays.asList(null, -1, 0);
-    public static final List<String> invalidProductCodes = Arrays.asList(null, "", "123456789B123A", "12345678901232");
+    public static final List<String> invalidProductDescriptions = Arrays.asList(null, "");
+    public static final List<String> invalidProductCodes = Arrays.asList(null, "", "12345678901", "123456789012345", "0123456789a12", "123456789011");
+    public static final List<Double> invalidPricesPerUnit = Arrays.asList(-1.0, 0.0);
     public static final List<Integer> invalidProductAmounts = Arrays.asList(-10, -1);
     public static final List<Integer> invalidTransactionIDs = Arrays.asList(null, -1, 0);
     public static final List<Double> invalidDiscountRates = Arrays.asList(-1.0, -0.1, 1.0, 1.1);

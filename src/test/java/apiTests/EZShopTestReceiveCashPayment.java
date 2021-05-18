@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 public class EZShopTestReceiveCashPayment {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
 
     private static final String productCode = "12345678901231";
     private static int totalBalance = 0;
@@ -40,10 +40,10 @@ public class EZShopTestReceiveCashPayment {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
 
         // login for shop setup
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // create product for transactions in shop
         int productId = shop.createProductType("description", productCode, 1, "note");
@@ -87,7 +87,7 @@ public class EZShopTestReceiveCashPayment {
     public void testInvalidTransactionIdException() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown
         testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs,
@@ -101,7 +101,7 @@ public class EZShopTestReceiveCashPayment {
     public void testInvalidPaymentException() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown
         testInvalidValues(InvalidPaymentException.class, invalidPaymentAmounts,
@@ -115,7 +115,7 @@ public class EZShopTestReceiveCashPayment {
     public void testIdDoesNotExist() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // generate ID not assigned to any transaction in the shop
         int nonExistentId = generateId(shop.getCreditsAndDebits(null, null).stream()
@@ -133,7 +133,7 @@ public class EZShopTestReceiveCashPayment {
     public void testPayUnpaidOrderFails() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // issue an order
         int orderId = shop.issueOrder(productCode, 10, 1);
@@ -159,7 +159,7 @@ public class EZShopTestReceiveCashPayment {
     public void testPayOpenSaleFails() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // open a sale without closing it
         int openSaleId = shop.startSaleTransaction();
@@ -182,7 +182,7 @@ public class EZShopTestReceiveCashPayment {
     public void testNotEnoughCash() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // trying to pay for a sale with insufficient funds
         assertEquals(-1, shop.receiveCashPayment(saleId, toBePaid-1), 0.001);
@@ -202,7 +202,7 @@ public class EZShopTestReceiveCashPayment {
     public void testPayTransactionSuccessfully() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify receive correct change when paying for sale
         double change = 3;
@@ -224,7 +224,7 @@ public class EZShopTestReceiveCashPayment {
     public void testPayCompletedSale() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // pay for sale so it is in state PAID/COMPLETED
         assertEquals(0, shop.receiveCashPayment(saleId, toBePaid), 0.001);

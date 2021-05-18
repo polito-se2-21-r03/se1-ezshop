@@ -19,13 +19,13 @@ public class TestUser {
         assertEquals(id, user.getId());
         assertEquals(username, user.getUsername());
         assertEquals(password, user.getPassword());
-        assertEquals(role.getValue(), user.getRole());
+        assertEquals(role, user.getRole());
 
         user = new User(id, username, password, role);
         assertEquals(id, user.getId());
         assertEquals(username, user.getUsername());
         assertEquals(password, user.getPassword());
-        assertEquals(role.getValue(), user.getRole());
+        assertEquals(role, user.getRole());
     }
 
     @Test
@@ -33,7 +33,7 @@ public class TestUser {
         User user = new User(id, username, password, role);
 
         user.setRole(role);
-        assertEquals(role.getValue(), user.getRole());
+        assertEquals(role, user.getRole());
     }
 
     @Test

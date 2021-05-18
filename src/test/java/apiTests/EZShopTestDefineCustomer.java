@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
 public class EZShopTestDefineCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
 
     /**
      * Creates a clean shop instance for each test
@@ -33,7 +33,7 @@ public class EZShopTestDefineCustomer {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
     }
 
     /**
@@ -53,7 +53,7 @@ public class EZShopTestDefineCustomer {
     public void testInvalidCustomerNameException() throws InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown
         testInvalidValues(InvalidCustomerNameException.class, invalidCustomerNames, shop::defineCustomer);
@@ -67,7 +67,7 @@ public class EZShopTestDefineCustomer {
             InvalidPasswordException, InvalidUsernameException {
 
         // login and create customer
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
         String customerName = "Pietro";
         Integer customerId = shop.defineCustomer(customerName);
 
@@ -94,7 +94,7 @@ public class EZShopTestDefineCustomer {
             InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // define first customer with unique name successfully
         assertTrue(shop.defineCustomer("Pietro") > 0);
@@ -114,7 +114,7 @@ public class EZShopTestDefineCustomer {
             InvalidPasswordException, InvalidUsernameException, InvalidCustomerIdException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // define names and IDs
         String[] customerNames = new String[] {"Pietro", "Andrea", "Sarah", "Maria"};

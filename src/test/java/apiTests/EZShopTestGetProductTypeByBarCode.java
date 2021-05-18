@@ -33,7 +33,7 @@ public class EZShopTestGetProductTypeByBarCode {
         // reset the state of EZShop
         shop.reset();
         // create a new user
-        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
         // and log in with that user
         shop.login(admin.getUsername(), admin.getPassword());
 

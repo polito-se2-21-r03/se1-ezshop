@@ -4,7 +4,6 @@ import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
 import org.junit.Before;
 import org.junit.Test;
-import unitTests.TestHelpers;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -15,14 +14,16 @@ import static org.junit.Assert.*;
 
 public class TestJsonInterface {
 
-    public static final ProductType product = new ProductType("xx", "xx", "xx", 10.0, 1);
+    public static ProductType product;
 
     private static final String dataDirectory = "tmp/";
 
     private JsonInterface ji;
 
     @Before
-    public void clean() throws IOException {
+    public void clean() throws Exception {
+        product = new ProductType(1, "xx", "xx", 10.0, "xx");
+
         ji = JsonInterface.create(dataDirectory);
         ji.reset();
     }
@@ -56,7 +57,7 @@ public class TestJsonInterface {
      * Test reading and writing of a list of products.
      */
     @Test
-    public void testReadWriteProducts() throws IOException {
+    public void testReadWriteProducts() throws Exception {
         // write a null list
         ji.writeProducts(null);
         List<ProductType> readData = ji.readProducts();
@@ -64,14 +65,14 @@ public class TestJsonInterface {
 
         // write a list of products
         List<ProductType> writeData = Arrays.asList(
-                new ProductType("note1", "description1", "123",
-                        20.0, 1, 0, null),
-                new ProductType("note2", "description2", "456",
-                        10.0, 2, 1, null),
-                new ProductType("note3", "description3", "789",
-                        15.0, 3, 0, new Position("1-1-1")),
-                new ProductType("note4", "description4", "012",
-                        20.0, 4, 1, new Position("1-1-1"))
+                new ProductType(1, "description1", "123",
+                        20.0, "note1", 0, null),
+                new ProductType(2, "description2", "456",
+                        10.0, "note2", 1, null),
+                new ProductType(3, "description3", "789",
+                        15.0, "note3", 0, new Position("1-1-1")),
+                new ProductType(4, "description4", "012",
+                        20.0, "note4", 1, new Position("1-1-1"))
         );
         ji.writeProducts(writeData);
 

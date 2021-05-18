@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class EZShopTestModifyPointsOnCard {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.CASHIER);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
     private static final Customer customer = new Customer("Maria", "2345678901", 0, 0);
     private static String card;
 
@@ -32,10 +32,10 @@ public class EZShopTestModifyPointsOnCard {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
 
         // login to setup shop instance
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // add a customer and attach a new card
         customer.setId(shop.defineCustomer(customer.getCustomerName()));
@@ -64,7 +64,7 @@ public class EZShopTestModifyPointsOnCard {
     public void testInvalidCustomerCardException() throws InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown for string null, empty, to short, too long or contains alphabetic characters
         testInvalidValues(InvalidCustomerCardException.class, invalidCustomerCards,
@@ -79,7 +79,7 @@ public class EZShopTestModifyPointsOnCard {
             InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // generate a card number that is not held by any card in the shop
         String cardNotInShop = "0000000000";
@@ -98,7 +98,7 @@ public class EZShopTestModifyPointsOnCard {
             InvalidPasswordException, InvalidUsernameException, InvalidCustomerIdException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // can not add negative points to card
         int pointsOnCard = 10;
@@ -116,7 +116,7 @@ public class EZShopTestModifyPointsOnCard {
             InvalidPasswordException, InvalidUsernameException, InvalidCustomerIdException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // add some points to card
         int pointsOnCard = 5;
@@ -136,7 +136,7 @@ public class EZShopTestModifyPointsOnCard {
     public void testRemovePoints() throws InvalidCustomerCardException, UnauthorizedException, InvalidPasswordException, InvalidUsernameException, InvalidCustomerIdException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // variables to keep track of modifications
         int expectedPointsOnCard = 0;

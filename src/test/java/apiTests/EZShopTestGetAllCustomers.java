@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class EZShopTestGetAllCustomers {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
     private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
     private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
 
@@ -32,7 +32,7 @@ public class EZShopTestGetAllCustomers {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
     }
 
     /**
@@ -52,7 +52,7 @@ public class EZShopTestGetAllCustomers {
     public void testGetEmptyList() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // throw an InvalidCustomerIdException when ID is null
         assertEquals(0, shop.getAllCustomers().size());
@@ -66,7 +66,7 @@ public class EZShopTestGetAllCustomers {
             InvalidCustomerNameException, UnauthorizedException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // add two customers to the shop
         customer1.setId(shop.defineCustomer(customer1.getCustomerName()));
@@ -87,7 +87,7 @@ public class EZShopTestGetAllCustomers {
             InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException, InvalidCustomerIdException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // add two customers to the shop
         customer1.setId(shop.defineCustomer(customer1.getCustomerName()));

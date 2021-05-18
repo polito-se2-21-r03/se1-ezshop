@@ -1,5 +1,6 @@
 package it.polito.ezshop.model.adapters;
 
+import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.model.TicketEntry;
 
 /**
@@ -21,7 +22,11 @@ public class TicketEntryAdapter implements it.polito.ezshop.data.TicketEntry {
 
     @Override
     public void setBarCode(String barCode) {
-        ticketEntry.getProductType().setBarCode(barCode);
+        try {
+            ticketEntry.getProductType().setBarCode(barCode);
+        } catch (InvalidProductCodeException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -31,7 +36,11 @@ public class TicketEntryAdapter implements it.polito.ezshop.data.TicketEntry {
 
     @Override
     public void setProductDescription(String productDescription) {
-        ticketEntry.getProductType().setBarCode(productDescription);
+        try {
+            ticketEntry.getProductType().setBarCode(productDescription);
+        } catch (InvalidProductCodeException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override

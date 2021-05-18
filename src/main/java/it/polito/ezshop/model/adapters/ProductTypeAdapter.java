@@ -1,5 +1,6 @@
 package it.polito.ezshop.model.adapters;
 
+import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.Position;
 import it.polito.ezshop.model.ProductType;
 
@@ -22,17 +23,28 @@ public class ProductTypeAdapter implements it.polito.ezshop.data.ProductType {
 
     @Override
     public void setQuantity(Integer quantity) {
-        product.setQuantity(quantity);
+        try {
+            product.setQuantity(quantity);
+        } catch (InvalidQuantityException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
     public String getLocation() {
+        if (product.getPosition() == null) {
+            return null;
+        }
         return product.getPosition().toString();
     }
 
     @Override
     public void setLocation(String location) {
-        product.setPosition(new Position(location));
+        try {
+            product.setPosition(new Position(location));
+        } catch (InvalidLocationException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -52,7 +64,11 @@ public class ProductTypeAdapter implements it.polito.ezshop.data.ProductType {
 
     @Override
     public void setProductDescription(String productDescription) {
-        product.setProductDescription(productDescription);
+        try {
+            product.setProductDescription(productDescription);
+        } catch (InvalidProductDescriptionException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -62,7 +78,11 @@ public class ProductTypeAdapter implements it.polito.ezshop.data.ProductType {
 
     @Override
     public void setBarCode(String barCode) {
-        product.setBarCode(barCode);
+        try {
+            product.setBarCode(barCode);
+        } catch (InvalidProductCodeException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -72,7 +92,11 @@ public class ProductTypeAdapter implements it.polito.ezshop.data.ProductType {
 
     @Override
     public void setPricePerUnit(Double pricePerUnit) {
-        product.setPricePerUnit(pricePerUnit);
+        try {
+            product.setPricePerUnit(pricePerUnit);
+        } catch (InvalidPricePerUnitException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -82,6 +106,6 @@ public class ProductTypeAdapter implements it.polito.ezshop.data.ProductType {
 
     @Override
     public void setId(Integer id) {
-        product.setId(id);
+        throw new UnsupportedOperationException("Changing the product ID is forbidden.");
     }
 }

@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 public class EZShopTestReturnCashPayment {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
 
     private static final String productCode = "12345678901231";
     private static int totalBalance = 0;
@@ -36,10 +36,10 @@ public class EZShopTestReturnCashPayment {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
 
         // login for shop setup
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // create product for transactions in shop
         int productId = shop.createProductType("description", productCode, 1, "note");
@@ -91,7 +91,7 @@ public class EZShopTestReturnCashPayment {
     public void testInvalidTransactionIdException() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown
         testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs, shop::returnCashPayment);
@@ -104,7 +104,7 @@ public class EZShopTestReturnCashPayment {
     public void testIdDoesNotExist() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // generate ID not assigned to any transaction in the shop
         int nonExistentId = generateId(shop.getCreditsAndDebits(null, null).stream()
@@ -122,7 +122,7 @@ public class EZShopTestReturnCashPayment {
     public void testPayUnpaidOrderFails() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // issue an order
         int orderId = shop.issueOrder(productCode, 10, 1);
@@ -148,7 +148,7 @@ public class EZShopTestReturnCashPayment {
     public void testReturnCashForOpenReturnFails() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // open a return without closing it
         int openReturnId = shop.startReturnTransaction(saleId);
@@ -172,7 +172,7 @@ public class EZShopTestReturnCashPayment {
     public void testReturnCashSuccessfully() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify receive correct amount of cash for return
         assertEquals(returnedValue, shop.returnCashPayment(returnId), 0.001);
@@ -192,7 +192,7 @@ public class EZShopTestReturnCashPayment {
     public void testReturnCompletedReturnAgain() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // pay for return so it is in state PAID/COMPLETED
         assertEquals(returnedValue, shop.returnCashPayment(returnId), 0.001);

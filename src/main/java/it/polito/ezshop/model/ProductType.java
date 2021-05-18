@@ -1,63 +1,133 @@
 package it.polito.ezshop.model;
 
+import it.polito.ezshop.exceptions.*;
+
 import java.util.Objects;
+
+import static it.polito.ezshop.utils.Utils.isValidBarcode;
 
 public class ProductType {
 
-    private int id;
-    private Integer quantity;
+    private final int id;
+    private int quantity;
     private Position position;
     private String note;
     private String productDescription;
     private String barCode;
-    private Double pricePerUnit;
+    private double pricePerUnit;
 
-    public ProductType(String note, String productDescription, String barCode, Double pricePerUnit, int id) {
-        this(note, productDescription, barCode, pricePerUnit, id, 0, null);
+    public ProductType(Integer id, String productDescription, String barCode, Double pricePerUnit, String note) throws
+            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, InvalidProductIdException, InvalidQuantityException {
+        this(id, productDescription, barCode, pricePerUnit, note, 0, null);
     }
 
-    public ProductType(String note, String productDescription, String barCode, Double pricePerUnit, int id, Integer quantity, Position location) {
-        Objects.requireNonNull(productDescription, "productDescription must not be null");
-        Objects.requireNonNull(barCode, "barCode must not be null");
-        Objects.requireNonNull(pricePerUnit, "pricePerUnit must not be null");
-        Objects.requireNonNull(quantity, "quantity must not be null");
-        Objects.requireNonNull(note, "note must not be null");
+    public ProductType(Integer id, String productDescription, String barCode, Double pricePerUnit, String note, Integer quantity, Position position) throws
+            InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, InvalidProductIdException, InvalidQuantityException {
+
+        if (id == null || id <= 0) {
+            throw new InvalidProductIdException("The product ID must be a positive integer");
+        }
 
         this.id = id;
-        this.productDescription = productDescription;
-        this.barCode = barCode;
-        this.pricePerUnit = pricePerUnit;
-        this.note = note;
-        this.quantity = quantity;
-        this.position = location;
+        this.setProductDescription(productDescription);
+        this.setBarCode(barCode);
+        this.setPricePerUnit(pricePerUnit);
+        this.setNote(note);
+        this.setPosition(position);
+        this.setQuantity(quantity);
     }
 
-    public Integer getQuantity() {
-        return this.quantity;
+    public int getId() {
+        return this.id;
+    }
+
+    /**
+     * Set the product's description.
+     *
+     * @param productDescription new product description
+     * @throws InvalidProductDescriptionException thrown if description is null or empty string
+     */
+    public void setProductDescription(String productDescription) throws InvalidProductDescriptionException {
+        if (productDescription == null || productDescription.equals("")) {
+            throw new InvalidProductDescriptionException("Product description may not be null or empty.");
+        }
+        this.productDescription = productDescription;
+    }
+
+    public String getProductDescription() {
+        return this.productDescription;
+    }
+
+    /**
+     * Define a new barcode for the product. Must follow GTIN-12, GTIN-13 or GTIN-14 standard.
+     *
+     * @param barCode new barcode of the product
+     * @throws InvalidProductCodeException thrown if barcode doesn't comply to standard
+     */
+    public void setBarCode(String barCode) throws InvalidProductCodeException {
+        if (!isValidBarcode(barCode)) {
+            throw new InvalidProductCodeException("Barcode must follow the GTIN-12, GTIN-13 or GTIN-14 standard");
+        }
+        this.barCode = barCode;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    /**
+     * Set the selling price for one unit of this product.
+     *
+     * @param pricePerUnit selling price for one unit of this product
+     * @throws InvalidPricePerUnitException thrown if price is 0 or negative
+     */
+    public void setPricePerUnit(Double pricePerUnit) throws InvalidPricePerUnitException {
+        if (pricePerUnit == null || pricePerUnit <= 0) {
+            throw new InvalidPricePerUnitException("Price per unit must be positive double");
+        }
+        this.pricePerUnit = pricePerUnit;
+    }
+
+    public double getPricePerUnit() {
+        return pricePerUnit;
+    }
+
+    /**
+     * Set the note for this product.
+     *
+     * @param note New note for this product. Null means note is empty string
+     */
+    public void setNote(String note) {
+        if (note == null) {
+            this.note = "";
+        } else {
+            this.note = note;
+        }
+    }
+
+    public String getNote() {
+        return this.note;
     }
 
     /**
      * Set available quantity of this product
      *
-     * @param quantity quantity to be set, must be positive
-     * @throws IllegalArgumentException thrown if quantity is negative
+     * @param quantity quantity to be set
+     * @throws InvalidQuantityException thrown if quantity is negative
      * @throws IllegalStateException thrown if no position has been defined
      */
-    public void setQuantity(Integer quantity) throws IllegalArgumentException, IllegalStateException {
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Product quantity must be positive");
+    public void setQuantity(Integer quantity) throws InvalidQuantityException, IllegalStateException {
+        if (quantity == null || quantity < 0) {
+            throw new InvalidQuantityException("Product quantity must non-negative");
         }
-        if (position == null) {
+        if (position == null && quantity > 0) {
             throw new IllegalStateException("Can not set quantity, location must be defined");
         }
         this.quantity = quantity;
     }
 
-    public Position getPosition() {
-        if (this.position == null) {
-            return null;
-        }
-        return new Position(this.position);
+    public int getQuantity() {
+        return this.quantity;
     }
 
     /**
@@ -73,44 +143,11 @@ public class ProductType {
         }
     }
 
-    public String getNote() {
-        return this.note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
-    public String getProductDescription() {
-        return this.productDescription;
-    }
-
-    public void setProductDescription(String productDescription) {
-        this.productDescription = productDescription;
-    }
-
-    public String getBarCode() {
-        return barCode;
-    }
-
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
-    }
-
-    public Double getPricePerUnit() {
-        return pricePerUnit;
-    }
-
-    public void setPricePerUnit(Double pricePerUnit) {
-        this.pricePerUnit = pricePerUnit;
-    }
-
-    public Integer getId() {
-        return this.id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
+    public Position getPosition() {
+        if (this.position == null) {
+            return null;
+        }
+        return new Position(this.position);
     }
 
     public boolean equals(Object o) {
@@ -118,12 +155,12 @@ public class ProductType {
         if (o == null || getClass() != o.getClass()) return false;
         ProductType that = (ProductType) o;
         return id == that.id &&
-                quantity.equals(that.quantity) &&
+                quantity == that.quantity &&
                 Objects.equals(position, that.position) &&
                 note.equals(that.note) &&
                 productDescription.equals(that.productDescription) &&
                 barCode.equals(that.barCode) &&
-                pricePerUnit.equals(that.pricePerUnit);
+                pricePerUnit == that.pricePerUnit;
     }
 
     @Override

@@ -7,6 +7,7 @@ import it.polito.ezshop.model.adapters.ProductTypeAdapter;
 import it.polito.ezshop.model.adapters.SaleTransactionAdapter;
 import it.polito.ezshop.model.adapters.UserAdapter;
 import it.polito.ezshop.model.persistence.JsonInterface;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -129,7 +130,7 @@ public class EZShop implements EZShopInterface {
             throw new UnauthorizedException("No user is currently logged in");
         }
 
-        if (Arrays.stream(roles).map(Role::getValue).noneMatch(r -> r.equals(currentUser.getRole()))) {
+        if (Arrays.stream(roles).noneMatch(r -> r.equals(currentUser.getRole()))) {
             throw new UnauthorizedException("Invalid current user's role");
         }
     }
@@ -303,19 +304,6 @@ public class EZShop implements EZShopInterface {
         // check the role of the current user
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
-        // create a new product
-        if (description == null || description.equals("")) {
-            throw new InvalidProductDescriptionException("Invalid description");
-        }
-
-        if (!isValidBarcode(productCode)) {
-            throw new InvalidProductCodeException("Invalid Bar Code");
-        }
-
-        if (pricePerUnit <= 0) {
-            throw new InvalidPricePerUnitException("Price per Unit must be greater or equal than zero");
-        }
-
         if (products.stream().anyMatch(x -> x.getBarCode().equals(productCode))) {
             return -1;
         }
@@ -325,12 +313,19 @@ public class EZShop implements EZShopInterface {
         // generate a new id that is not already in the list
         int id = generateId(ids);
 
-        // if null an empty string should be saved as note
-        if (note == null) {
-            note = "";
+        it.polito.ezshop.model.ProductType p;
+        try {
+            p = new it.polito.ezshop.model.ProductType(id, description, productCode, pricePerUnit, note);
+
+        } catch (InvalidProductIdException e) {
+            // InvalidProductIdException should never occur for properly generated ID!
+            throw new Error("productID was generated improperly", e);
+
+        } catch (InvalidQuantityException e) {
+            // InvalidQuantityException should never be thrown.
+            throw new Error("It is impossible to initialize ProductType with negative quantity", e);
         }
-        it.polito.ezshop.model.ProductType p = new it.polito.ezshop.model.ProductType(note,
-            description, productCode, pricePerUnit, id);
+
         products.add(p);
 
         writeState();
@@ -348,35 +343,28 @@ public class EZShop implements EZShopInterface {
             throw new InvalidProductIdException("Invalid product id less or equal to 0");
         }
 
-        if (newDescription == null || newDescription.equals("")) {
-            throw new InvalidProductDescriptionException("Invalid description");
-        }
-
-        if (!isValidBarcode(newCode)) {
-            throw new InvalidProductCodeException("Invalid Bar Code");
-        }
-
-        if (newPrice <= 0) {
-            throw new InvalidPricePerUnitException("Price per Unit must be greater or equal than zero");
-        }
-
-        if (products.stream().anyMatch(x -> !x.getId().equals(id) && x.getBarCode().equals(newCode))) {
+        if (products.stream().anyMatch(x -> !(x.getId() == id) && x.getBarCode().equals(newCode))) {
             return false;
         }
 
-        Optional<it.polito.ezshop.model.ProductType> product = products.stream()
+        it.polito.ezshop.model.ProductType product = products.stream()
                 // filter products with the given id
-                .filter(x -> x.getId().equals(id)).findFirst();
-        product.ifPresent(value -> {
-            value.setProductDescription(newDescription);
-            value.setBarCode(newCode);
-            value.setPricePerUnit(newPrice);
-            value.setNote(newNote);
-        });
+                .filter(x -> x.getId() == id)
+                .findFirst()
+                .orElse(null);
+
+        if (product == null) {
+            return false;
+        }
+
+        product.setProductDescription(newDescription);
+        product.setBarCode(newCode);
+        product.setPricePerUnit(newPrice);
+        product.setNote(newNote);
 
         writeState();
 
-        return product.isPresent();
+        return true;
     }
 
     @Override
@@ -390,7 +378,7 @@ public class EZShop implements EZShopInterface {
         }
 
         // removeIf returns true if any elements were removed
-        boolean result =  products.removeIf(x -> x.getId().equals(id));
+        boolean result =  products.removeIf(x -> x.getId() == id);
 
         writeState();
         return result;
@@ -454,7 +442,7 @@ public class EZShop implements EZShopInterface {
 
         // get product or null if it does not exist
         it.polito.ezshop.model.ProductType product = products.stream()
-                .filter(p -> p.getId().equals(productId))
+                .filter(p -> p.getId() == productId)
                 .findAny()
                 .orElse(null);
 
@@ -466,7 +454,7 @@ public class EZShop implements EZShopInterface {
         // update product quantity
         try {
             product.setQuantity(product.getQuantity() + toBeAdded);
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (InvalidQuantityException | IllegalStateException e) {
             return false;
         }
 
@@ -487,7 +475,7 @@ public class EZShop implements EZShopInterface {
 
         // get product to be updated
         it.polito.ezshop.model.ProductType product = products.stream()
-                .filter(p -> p.getId().equals(productId))
+                .filter(p -> p.getId() == productId)
                 .findAny()
                 .orElse(null);
 
@@ -504,18 +492,10 @@ public class EZShop implements EZShopInterface {
         }
 
         // try and parse position, throw exception if format is invalid
-        Position position;
-        try {
-            position = new Position(newPos);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidLocationException("Position must be of form <aisleNumber>-<rackAlphabeticIdentifier>-<levelNumber>");
-        }
+        Position position = new Position(newPos);
 
         // return false if position is already taken by different product
-        Optional<it.polito.ezshop.model.ProductType> productAtPosition = products.stream()
-                .filter(p -> position.equals(p.getPosition()))
-                .findAny();
-        if (productAtPosition.isPresent()) {
+        if (products.stream().anyMatch(p -> position.equals(p.getPosition()))) {
             return false;
         }
 
@@ -670,7 +650,7 @@ public class EZShop implements EZShopInterface {
         // update product quantity
         try {
             orderedProduct.setQuantity(orderedProduct.getQuantity() + order.getQuantity());
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (InvalidQuantityException | IllegalStateException e) {
             return false;
         }
 
@@ -1231,7 +1211,7 @@ public class EZShop implements EZShopInterface {
                 //change quantity of Product p by adding the returned amount
                 try {
                     p.setQuantity(p.getQuantity() + ritem.getAmount());
-                } catch (IllegalArgumentException | IllegalStateException e) {
+                } catch (InvalidQuantityException | IllegalStateException e) {
                     return false;
                 }
                 //change quantity of Product p inside the transaction by reducing the returned amount

@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class EZShopTestComputeBalance {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
 
     /**
      * Creates a clean shop instance for each test
@@ -26,7 +26,7 @@ public class EZShopTestComputeBalance {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
     }
 
     /**
@@ -46,7 +46,7 @@ public class EZShopTestComputeBalance {
     public void testComputeBalance() throws Exception {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // create product for transactions in shop
         String productCode = "12345678901231";

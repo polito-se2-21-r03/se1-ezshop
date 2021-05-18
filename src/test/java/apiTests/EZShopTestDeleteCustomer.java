@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class EZShopTestDeleteCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
     private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
     private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
     private static String card;
@@ -34,10 +34,10 @@ public class EZShopTestDeleteCustomer {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
 
         // login to setup shop instance
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // add two customers and a card to the shop
         customer1.setId(shop.defineCustomer(customer1.getCustomerName()));
@@ -65,7 +65,7 @@ public class EZShopTestDeleteCustomer {
     public void testInvalidCustomerIdException() throws InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown
         testInvalidValues(InvalidCustomerIdException.class, invalidCustomerIDs, shop::deleteCustomer);
@@ -79,7 +79,7 @@ public class EZShopTestDeleteCustomer {
             UnauthorizedException, InvalidCustomerIdException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // generate an ID which isn't taken by any customer
         int nonExistentId = generateId(
@@ -102,7 +102,7 @@ public class EZShopTestDeleteCustomer {
             UnauthorizedException, InvalidCustomerIdException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // delete customer successfully
         assertTrue(shop.deleteCustomer(customer1.getId()));
@@ -125,7 +125,7 @@ public class EZShopTestDeleteCustomer {
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // attach card to customer and add some points
         int pointsOnCard = 100;

@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 public class EZShopTestCreateCard {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
 
     /**
      * Creates a clean shop instance for each test
@@ -29,7 +29,7 @@ public class EZShopTestCreateCard {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
     }
 
     /**
@@ -49,7 +49,7 @@ public class EZShopTestCreateCard {
     public void testValidCardNumberReturned() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // generate card
         String generatedCard = shop.createCard();
@@ -69,7 +69,7 @@ public class EZShopTestCreateCard {
             InvalidPasswordException, InvalidUsernameException, InvalidCustomerCardException, InvalidCustomerIdException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // create user
         int customerId = shop.defineCustomer("Alessio");

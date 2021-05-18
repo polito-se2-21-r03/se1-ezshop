@@ -31,7 +31,7 @@ public class TestUserAdapter {
         assertEquals(user.getId(), userAdapter.getId());
         assertEquals(user.getUsername(), userAdapter.getUsername());
         assertEquals(user.getPassword(), userAdapter.getPassword());
-        assertEquals(user.getRole(), userAdapter.getRole());
+        assertEquals(user.getRole().getValue(), userAdapter.getRole());
     }
 
 }

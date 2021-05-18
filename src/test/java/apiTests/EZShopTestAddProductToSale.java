@@ -135,7 +135,7 @@ public class EZShopTestAddProductToSale extends EZShopTestBase {
         SaleTransaction saleTransaction = shop.getSaleTransaction(tid);
 
         // 3.1 check amount of product 1 in the transaction
-        Integer amountP1 = saleTransaction.getEntries().stream()
+        int amountP1 = saleTransaction.getEntries().stream()
                 .filter(x -> x.getBarCode().equals(product1.getBarCode()))
                 .findAny()
                 .map(TicketEntry::getAmount)
@@ -143,7 +143,7 @@ public class EZShopTestAddProductToSale extends EZShopTestBase {
         assertEquals(product1.getQuantity(), amountP1);
 
         // 3.2 check amount of product 2 in the transaction
-        Integer amountP2 = saleTransaction.getEntries().stream()
+        int amountP2 = saleTransaction.getEntries().stream()
                 .filter(x -> x.getBarCode().equals(product2.getBarCode()))
                 .findAny()
                 .map(TicketEntry::getAmount)

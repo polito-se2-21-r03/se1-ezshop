@@ -28,8 +28,8 @@ public class User {
         return this.password;
     }
 
-    public String getRole() {
-        return this.role.getValue();
+    public Role getRole() {
+        return this.role;
     }
 
     public void setRole(Role role) {

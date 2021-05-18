@@ -1,10 +1,7 @@
 import apiTests.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import unitTests.TestAccountBook;
-import unitTests.TestHelpers;
-import unitTests.TestIsValidCreditCardNumber;
-import unitTests.TestUtils;
+import unitTests.*;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -48,9 +45,13 @@ import unitTests.TestUtils;
         EZShopTestComputeBalance.class,
         // Unit tests
         TestAccountBook.class,
-        TestHelpers.class,
         TestIsValidCreditCardNumber.class,
-        TestUtils.class
+        TestUtils.class,
+        TestPosition.class,
+        TestProductType.class,
+        TestProductTypeAdapter.class,
+        TestUser.class,
+        TestUserAdapter.class
 })
 
 public class TestEZShop {

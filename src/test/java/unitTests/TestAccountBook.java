@@ -1,5 +1,8 @@
 package unitTests;
 
+import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
+import it.polito.ezshop.exceptions.InvalidProductCodeException;
+import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
 import it.polito.ezshop.model.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +14,15 @@ import static junit.framework.TestCase.*;
 
 public class TestAccountBook {
 
-    private static final ProductType product = new ProductType("xx", "xx", "xx", 5.0, 1);
+    private static final ProductType product;
+
+    static {
+        try {
+            product = new ProductType(1, "xx", "123456789012", 5.0, "xx");
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     private static final AccountBook accountBook = new AccountBook();
     private static final SaleTransaction saleTransaction1 = new SaleTransaction(1,

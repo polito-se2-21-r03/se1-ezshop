@@ -135,7 +135,7 @@ public class EZShopTestDeleteProductFromSale extends EZShopTestBase {
         assertTrue(shop.deleteProductFromSale(transactionId, product2.getBarCode(), PRODUCT_TRANSACTION_AMOUNT_2));
 
         // 2.1 verify that the quantity of PRODUCT_CODE_2 in the inventory is correctly updated
-        assertEquals(product2.getQuantity(), shop.getProductTypeByBarCode(product2.getBarCode()).getQuantity());
+        assertEquals(new Integer(product2.getQuantity()), shop.getProductTypeByBarCode(product2.getBarCode()).getQuantity());
 
         // 3. verify the final status of the transaction
         shop.endSaleTransaction(transactionId);

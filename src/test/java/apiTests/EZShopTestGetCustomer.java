@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 public class EZShopTestGetCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User user = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
     private static final Customer customer = new Customer("Pietro", "1234567890", 0, 0);
     private static String card;
 
@@ -34,10 +34,10 @@ public class EZShopTestGetCustomer {
         shop.reset();
 
         // setup authorized user
-        shop.createUser(user.getUsername(), user.getPassword(), user.getRole());
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
 
         // login to setup shop instance
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // add two customers and a card to the shop
         customer.setId(shop.defineCustomer(customer.getCustomerName()));
@@ -64,7 +64,7 @@ public class EZShopTestGetCustomer {
     public void testInvalidCustomerIdException() throws InvalidPasswordException, InvalidUsernameException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown
         testInvalidValues(InvalidCustomerIdException.class, invalidCustomerIDs, shop::getCustomer);
@@ -78,7 +78,7 @@ public class EZShopTestGetCustomer {
             UnauthorizedException, InvalidCustomerIdException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // generate an ID which isn't taken by any customer
         int nonExistentId = generateId(
@@ -98,7 +98,7 @@ public class EZShopTestGetCustomer {
             UnauthorizedException, InvalidCustomerIdException, InvalidCustomerNameException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // get customer
         it.polito.ezshop.data.Customer customer = shop.getCustomer(EZShopTestGetCustomer.customer.getId());
@@ -116,7 +116,7 @@ public class EZShopTestGetCustomer {
             UnauthorizedException, InvalidCustomerIdException, InvalidCustomerNameException, InvalidCustomerCardException {
 
         // login with sufficient rights
-        shop.login(user.getUsername(), user.getPassword());
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // attach card to customer and add some points
         int pointsOnCard = 100;
