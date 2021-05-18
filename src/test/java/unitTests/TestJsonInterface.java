@@ -23,7 +23,7 @@ public class TestJsonInterface {
 
     @Before
     public void clean() throws Exception {
-        product = new ProductType(1, "xx", "xx", 10.0, "xx");
+        product = new ProductType(1, "xx", "213124134135", 10.0, "xx");
 
         ji = JsonInterface.create(dataDirectory);
         ji.reset();
@@ -66,14 +66,14 @@ public class TestJsonInterface {
 
         // write a list of products
         List<ProductType> writeData = Arrays.asList(
-                new ProductType(1, "description1", "123",
-                        20.0, "note1", 0, null),
-                new ProductType(2, "description2", "456",
-                        10.0, "note2", 1, null),
-                new ProductType(3, "description3", "789",
-                        15.0, "note3", 0, new Position("1-1-1")),
-                new ProductType(4, "description4", "012",
-                        20.0, "note4", 1, new Position("1-1-1"))
+                new ProductType(1, "description1", "213124134135",
+                        20.0, "note1", 0, new Position("1-1-1")),
+                new ProductType(2, "description2", "213125134134",
+                        10.0, "note2", 1, new Position("1-1-2")),
+                new ProductType(3, "description3", "213125134196",
+                        15.0, "note3", 0, new Position("1-1-3")),
+                new ProductType(4, "description4", "2131251334199",
+                        20.0, "note4", 1, new Position("1-1-4"))
         );
         ji.writeProducts(writeData);
 
@@ -88,7 +88,7 @@ public class TestJsonInterface {
      * Test reading and writing of a list of customers
      */
     @Test
-    public void testReadWriteCustomers() throws IOException {
+    public void testReadWriteCustomers() throws Exception {
         // write a null list
         ji.writeCustomers(null);
         List<Customer> readData = ji.readCustomers();
@@ -96,9 +96,9 @@ public class TestJsonInterface {
 
         // write a list of customers
         List<Customer> writeData = Arrays.asList(
-                new Customer("Pietro", "123", 1, 10),
-                new Customer("Sarah", "456", 2, 0),
-                new Customer("Sarah", "456", 2, 0)
+                new Customer(1, "Pietro", new LoyaltyCard("1234567890", 10)),
+                new Customer(2, "Sarah", new LoyaltyCard("1234567891", 10)),
+                new Customer(3, "Sarah", null)
         );
         ji.writeCustomers(writeData);
 
@@ -121,9 +121,9 @@ public class TestJsonInterface {
 
         // write a list of loyalty cards
         List<LoyaltyCard> writeData = Arrays.asList(
-                new LoyaltyCard("012356789", 10),
-                new LoyaltyCard("012356788", 10),
-                new LoyaltyCard("012356787", 10)
+                new LoyaltyCard("1234567890", 10),
+                new LoyaltyCard("1234567891", 10),
+                new LoyaltyCard("1234567892", 10)
         );
         ji.writeLoyaltyCards(writeData);
 

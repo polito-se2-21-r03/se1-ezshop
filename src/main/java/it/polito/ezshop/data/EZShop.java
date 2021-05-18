@@ -663,32 +663,31 @@ public class EZShop implements EZShopInterface {
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        // generate a list of all ids
-        List<Integer> ids = customers.stream().map(it.polito.ezshop.model.Customer::getId).collect(Collectors.toList());
-        // generate a list of all names
-        List<String> names = customers.stream().map(it.polito.ezshop.model.Customer::getCustomerName).collect(Collectors.toList());
-        // uniqie name checking
-        for(String name : names){
-            if(name.equals(customerName))
-                return -1;
+        // validate the name parameter
+        it.polito.ezshop.model.Customer.validateName(customerName);
+
+        // unique name checking
+        boolean alreadyRegisteredName = customers.stream()
+                .map(it.polito.ezshop.model.Customer::getCustomerName)
+                .anyMatch(x -> x.equals(customerName));
+
+        if (alreadyRegisteredName) {
+            return -1;
         }
 
         // generate a new id that is not already in the list
         // create a new customer
+        List<Integer> ids = customers.stream().map(it.polito.ezshop.model.Customer::getId).collect(Collectors.toList());
         Integer id = generateId(ids);
 
-        if (customerName == null || customerName.equals("")) {
-            throw new InvalidCustomerNameException("Customer name can not be null or empty");
-        }
-        if (id == null || id <= 0) {
-            return -1;
-        }
+        try {
+            customers.add(new it.polito.ezshop.model.Customer(id, customerName, null));
 
-        it.polito.ezshop.model.Customer c = new it.polito.ezshop.model.Customer(customerName,  id, null);
-        customers.add(c);
-
-        writeState();
-        return c.getId();
+            writeState();
+            return id;
+        } catch (InvalidCustomerIdException e) {
+            throw new Error("Customer ID was generated improperly", e);
+        }
     }
 
     @Override

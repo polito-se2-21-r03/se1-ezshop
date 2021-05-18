@@ -3,6 +3,7 @@ package apiTests;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.Customer;
+import it.polito.ezshop.model.LoyaltyCard;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
@@ -10,25 +11,20 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
-import static unitTests.TestHelpers.*;
-import static unitTests.TestHelpers.invalidCustomerCards;
 import static org.junit.Assert.*;
+import static unitTests.TestHelpers.*;
 
 public class EZShopTestModifyPointsOnCard {
 
     private static final EZShop shop = new EZShop();
-    private static User admin;
+    private final Customer customer;
+    private final User admin;
+    private String card;
 
-    static {
-        try {
-            admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public EZShopTestModifyPointsOnCard() throws Exception {
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        customer = new Customer(1, "Maria", new LoyaltyCard("2345678901", 0));
     }
-
-    private static final Customer customer = new Customer("Maria", "2345678901", 0, 0);
-    private static String card;
 
     /**
      * Creates a clean shop instance for each test
@@ -61,8 +57,8 @@ public class EZShopTestModifyPointsOnCard {
     @Test
     public void testAuthorization() throws Throwable {
         Method defineCustomer = EZShop.class.getMethod("modifyPointsOnCard", String.class, int.class);
-        testAccessRights(defineCustomer, new Object[] {card, 10},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
+        testAccessRights(defineCustomer, new Object[]{card, 10},
+                new Role[]{Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
     /**

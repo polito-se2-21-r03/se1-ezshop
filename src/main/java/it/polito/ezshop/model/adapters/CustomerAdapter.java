@@ -1,12 +1,16 @@
 package it.polito.ezshop.model.adapters;
 
+import it.polito.ezshop.exceptions.InvalidCustomerNameException;
 import it.polito.ezshop.model.Customer;
+
+import java.util.Objects;
 
 public class CustomerAdapter implements it.polito.ezshop.data.Customer {
 
     private final Customer customer;
 
     public CustomerAdapter(Customer customer) {
+        Objects.requireNonNull(customer);
         this.customer = customer;
     }
 
@@ -17,7 +21,11 @@ public class CustomerAdapter implements it.polito.ezshop.data.Customer {
 
     @Override
     public void setCustomerName(String customerName) {
-        throw new UnsupportedOperationException();
+        try {
+            customer.setCustomerName(customerName);
+        } catch (InvalidCustomerNameException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     @Override
@@ -31,7 +39,7 @@ public class CustomerAdapter implements it.polito.ezshop.data.Customer {
 
     @Override
     public void setCustomerCard(String customerCard) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Changing the card code is forbidden.");
     }
 
     @Override
@@ -55,6 +63,8 @@ public class CustomerAdapter implements it.polito.ezshop.data.Customer {
 
     @Override
     public void setPoints(Integer points) {
-        throw new UnsupportedOperationException();
+        if (customer.getCard() != null) {
+            customer.getCard().setPoints(points);
+        }
     }
 }

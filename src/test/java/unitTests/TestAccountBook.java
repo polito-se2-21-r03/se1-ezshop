@@ -1,8 +1,5 @@
 package unitTests;
 
-import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
-import it.polito.ezshop.exceptions.InvalidProductCodeException;
-import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
 import it.polito.ezshop.model.*;
 import org.junit.Before;
 import org.junit.Test;

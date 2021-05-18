@@ -3,6 +3,7 @@ package apiTests;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.Customer;
+import it.polito.ezshop.model.LoyaltyCard;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
@@ -11,24 +12,21 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static unitTests.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
+import static unitTests.TestHelpers.testAccessRights;
 
 public class EZShopTestGetAllCustomers {
 
     private static final EZShop shop = new EZShop();
-    private static User admin;
+    private final Customer customer1;
+    private final Customer customer2;
+    private final User admin;
 
-    static {
-        try {
-            admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public EZShopTestGetAllCustomers() throws Exception {
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        customer1 = new Customer(1, "Pietro", new LoyaltyCard("1234567890", 0));
+        customer2 = new Customer(2, "Maria", new LoyaltyCard("2345678901", 0));
     }
-
-    private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
-    private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
 
     /**
      * Creates a clean shop instance for each test
@@ -50,8 +48,8 @@ public class EZShopTestGetAllCustomers {
     @Test
     public void testAuthorization() throws Throwable {
         Method defineCustomer = EZShop.class.getMethod("getAllCustomers");
-        testAccessRights(defineCustomer, new Object[] {},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
+        testAccessRights(defineCustomer, new Object[]{},
+                new Role[]{Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
     /**
@@ -71,8 +69,7 @@ public class EZShopTestGetAllCustomers {
      * Tests that a list of customers is returned successfully
      */
     @Test
-    public void testGetCustomersSuccessfully() throws InvalidPasswordException, InvalidUsernameException,
-            InvalidCustomerNameException, UnauthorizedException {
+    public void testGetCustomersSuccessfully() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -122,7 +119,7 @@ public class EZShopTestGetAllCustomers {
                 .filter(c -> c.getId().equals(customer1.getId()))
                 .findAny()
                 .orElse(null);
-        it.polito.ezshop.data.Customer returnedCustomer2 =  customers.stream()
+        it.polito.ezshop.data.Customer returnedCustomer2 = customers.stream()
                 .filter(c -> c.getId().equals(customer2.getId()))
                 .findAny()
                 .orElse(null);

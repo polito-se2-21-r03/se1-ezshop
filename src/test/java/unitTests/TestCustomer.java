@@ -1,6 +1,8 @@
 package unitTests;
 
 import it.polito.ezshop.exceptions.InvalidCustomerCardException;
+import it.polito.ezshop.exceptions.InvalidCustomerIdException;
+import it.polito.ezshop.exceptions.InvalidCustomerNameException;
 import it.polito.ezshop.model.Customer;
 import it.polito.ezshop.model.LoyaltyCard;
 import org.junit.Test;
@@ -12,56 +14,82 @@ public class TestCustomer {
     public static final int id = 1;
     public static final String name = "Simone";
 
-    final LoyaltyCard card = new LoyaltyCard("1234567890", 10);
-    final LoyaltyCard card2 = new LoyaltyCard("1234567891", 2);
+    final LoyaltyCard card;
+    final LoyaltyCard card2;
 
     public TestCustomer() throws InvalidCustomerCardException {
+        card = new LoyaltyCard("1234567890", 10);
+        card2 = new LoyaltyCard("1234567891", 2);
     }
 
     @Test
-    public void testConstructor() {
-        Customer customer = new Customer(name, id, null);
+    public void testConstructor() throws InvalidCustomerIdException, InvalidCustomerNameException {
+        for (Integer id : TestHelpers.invalidCustomerIDs) {
+            assertThrows(InvalidCustomerIdException.class, () -> new Customer(id, name, null));
+        }
 
+        for (String name : TestHelpers.invalidCustomerNames) {
+            assertThrows(InvalidCustomerNameException.class, () -> new Customer(id, name, null));
+        }
+
+        Customer customer = new Customer(id, name, null);
         assertEquals((Integer) id, customer.getId());
         assertEquals(name, customer.getCustomerName());
         assertNull(customer.getCard());
 
-        customer = new Customer(name, id, card);
-
-        assertEquals((Integer) id, customer.getId());
-        assertEquals(name, customer.getCustomerName());
+        customer = new Customer(id, name, card);
         assertEquals(card, customer.getCard());
     }
 
     @Test
-    public void testSetId() {
-        Customer customer = new Customer(name, id, null);
+    public void testSetId() throws InvalidCustomerIdException, InvalidCustomerNameException {
+        Customer customer = new Customer(id, name, null);
 
-        customer.setId(2);
-        assertEquals((Integer) 2, customer.getId());
+        for (Integer id : TestHelpers.invalidCustomerIDs) {
+            assertThrows(InvalidCustomerIdException.class, () -> customer.setId(id));
+        }
+
+        customer.setId(id + 1);
+        assertEquals((Integer) (id + 1), customer.getId());
     }
 
     @Test
-    public void testSetName() {
-        Customer customer = new Customer(name, id, null);
+    public void testSetName() throws InvalidCustomerIdException, InvalidCustomerNameException {
+        Customer customer = new Customer(id, name, null);
+
+        for (String name : TestHelpers.invalidCustomerNames) {
+            assertThrows(InvalidCustomerNameException.class, () -> customer.setCustomerName(name));
+        }
 
         customer.setCustomerName("Pietro");
         assertEquals("Pietro", customer.getCustomerName());
     }
 
     @Test
-    public void testSetCard() {
-        Customer customer = new Customer(name, id, null);
+    public void testSetCard() throws InvalidCustomerIdException, InvalidCustomerNameException {
+        Customer customer = new Customer(id, name, null);
 
         customer.setCard(card2);
         assertEquals(card2, customer.getCard());
+
+        customer.setCard(null);
+        assertNull(customer.getCard());
     }
 
     @Test
-    public void testEqualsHashCode() {
-        Customer customer = new Customer(name, id, null);
-        Customer customerSame = new Customer(name, id, null);
-        Customer customerDifferent = new Customer("Pietro", id + 1, card2);
+    public void testValidateUsername() throws InvalidCustomerNameException {
+        for (String name : TestHelpers.invalidCustomerNames) {
+            assertThrows(InvalidCustomerNameException.class, () -> Customer.validateName(name));
+        }
+
+        Customer.validateName("Frank");
+    }
+
+    @Test
+    public void testEqualsHashCode() throws Exception {
+        Customer customer = new Customer(id, name, null);
+        Customer customerSame = new Customer(id, name, null);
+        Customer customerDifferent = new Customer(id + 1, "Pietro", card2);
 
         assertEquals(customer, customerSame);
         assertNotEquals(customer, customerDifferent);

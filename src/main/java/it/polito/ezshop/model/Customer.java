@@ -1,25 +1,34 @@
 package it.polito.ezshop.model;
 
+import it.polito.ezshop.exceptions.InvalidCustomerIdException;
+import it.polito.ezshop.exceptions.InvalidCustomerNameException;
+
 import java.util.Objects;
 
 public class Customer {
-    private int id;
+    private Integer id;
     private String customerName;
     private LoyaltyCard card;
 
-    public Customer(String customerName, int id, LoyaltyCard loyaltyCard) {
-        this.customerName = customerName;
+    public Customer(Integer id, String customerName, LoyaltyCard loyaltyCard) throws InvalidCustomerIdException,
+            InvalidCustomerNameException {
+        validateId(id);
+        validateName(customerName);
+
         this.id = id;
+        this.customerName = customerName;
         this.card = loyaltyCard;
     }
 
-    @Deprecated
-    public Customer(String customerName, String customerCard, int id, int points) {
-        this.customerName = customerName;
-        this.id = id;
+    public static void validateId(Integer id) throws InvalidCustomerIdException {
+        if (id == null || id <= 0) {
+            throw new InvalidCustomerIdException("Customer ID must be a non-null positive number");
+        }
+    }
 
-        if (customerCard != null && !customerCard.equals("")) {
-            //this.card = new LoyaltyCard(customerCard, points);
+    public static void validateName(String name) throws InvalidCustomerNameException {
+        if (name == null || name.equals("")) {
+            throw new InvalidCustomerNameException("Customer name must be a non-null non-empty string");
         }
     }
 
@@ -27,16 +36,18 @@ public class Customer {
         return this.customerName;
     }
 
-    public void setCustomerName(String customerName) {
+    public void setCustomerName(String customerName) throws InvalidCustomerNameException {
+        validateName(customerName);
         this.customerName = customerName;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public Integer getId() {
         return this.id;
+    }
+
+    public void setId(Integer id) throws InvalidCustomerIdException {
+        validateId(id);
+        this.id = id;
     }
 
     public LoyaltyCard getCard() {

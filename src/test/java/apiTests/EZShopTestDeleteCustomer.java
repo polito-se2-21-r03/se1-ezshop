@@ -3,6 +3,7 @@ package apiTests;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.Customer;
+import it.polito.ezshop.model.LoyaltyCard;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
@@ -11,33 +12,29 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 
-import static unitTests.TestHelpers.*;
 import static it.polito.ezshop.utils.Utils.generateId;
 import static org.junit.Assert.*;
+import static unitTests.TestHelpers.*;
 
 public class EZShopTestDeleteCustomer {
 
     private static final EZShop shop = new EZShop();
     private static User admin;
-
-    static {
-        try {
-            admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
-    private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
     private static String card;
+    private final Customer customer1;
+    private final Customer customer2;
+
+    public EZShopTestDeleteCustomer() throws Exception {
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        customer1 = new Customer(1, "Pietro", new LoyaltyCard("1234567890", 0));
+        customer2 = new Customer(2, "Maria", new LoyaltyCard("2345678901", 0));
+    }
 
     /**
      * Creates a clean shop instance for each test
      */
     @Before
-    public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException,
-            UnauthorizedException, InvalidCustomerNameException {
+    public void beforeEach() throws Exception {
 
         // reset shop to blanc state
         shop.reset();
@@ -63,8 +60,8 @@ public class EZShopTestDeleteCustomer {
     @Test
     public void testAuthorization() throws Throwable {
         Method defineCustomer = EZShop.class.getMethod("deleteCustomer", Integer.class);
-        testAccessRights(defineCustomer, new Object[] {1},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
+        testAccessRights(defineCustomer, new Object[]{1},
+                new Role[]{Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
     /**

@@ -24,7 +24,7 @@ public class TestLoyaltyCard {
         LoyaltyCard card = new LoyaltyCard(code, 0);
 
         assertEquals(code, card.getCode());
-        assertEquals(points, card.getPoints());
+        assertEquals(0, card.getPoints());
 
         // test positive number of points
         card = new LoyaltyCard(code, points);

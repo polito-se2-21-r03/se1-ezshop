@@ -11,7 +11,18 @@ import org.junit.runners.Suite;
         TestLoyaltyCard.class,
         // User, UserAdapter
         TestUser.class,
-        TestUserAdapter.class
+        TestUserAdapter.class,
+        // ProductType and Position
+        TestProductType.class,
+        TestProductTypeAdapter.class,
+        TestPosition.class,
+        // AccountBook
+        TestAccountBook.class,
+        // Json interface
+        TestJsonInterface.class,
+        // Utils
+        TestUtils.class,
+        TestIsValidCreditCardNumber.class
 })
 public class UnitTests {
 }

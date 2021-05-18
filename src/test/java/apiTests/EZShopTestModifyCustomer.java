@@ -3,6 +3,7 @@ package apiTests;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.Customer;
+import it.polito.ezshop.model.LoyaltyCard;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
@@ -12,36 +13,30 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static unitTests.TestHelpers.*;
-import static unitTests.TestHelpers.invalidCustomerNames;
 import static it.polito.ezshop.utils.Utils.generateId;
 import static org.junit.Assert.*;
+import static unitTests.TestHelpers.*;
 
 public class EZShopTestModifyCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static  User admin;
-
-    static {
-        try {
-            admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
-    private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
+    private static User admin;
     private static String card1;
     private static String card2;
+    private final Customer customer1;
+    private final Customer customer2;
+
+    public EZShopTestModifyCustomer() throws Exception {
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        customer1 = new Customer(1, "Pietro", new LoyaltyCard("1234567890", 0));
+        customer2 = new Customer(2, "Maria", new LoyaltyCard("2345678901", 0));
+    }
 
     /**
      * Creates a clean shop instance for each test
      */
     @Before
-    public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException,
-            InvalidCustomerNameException, UnauthorizedException {
-
+    public void beforeEach() throws Exception {
         // reset shop to clean state
         shop.reset();
 
@@ -69,8 +64,8 @@ public class EZShopTestModifyCustomer {
     @Test
     public void testAuthorization() throws Throwable {
         Method modifyCustomer = EZShop.class.getMethod("modifyCustomer", Integer.class, String.class, String.class);
-        testAccessRights(modifyCustomer, new Object[] {1, "Pietro", null},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
+        testAccessRights(modifyCustomer, new Object[]{1, "Pietro", null},
+                new Role[]{Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
     /**
@@ -137,7 +132,9 @@ public class EZShopTestModifyCustomer {
         // generate a valid card which doesn't exist in the shop
         String nonExistentCard = "123456789";
         char lastDigit = '0';
-        while (card1.equals(nonExistentCard + lastDigit) || card2.equals(nonExistentCard + lastDigit)) {lastDigit++;}
+        while (card1.equals(nonExistentCard + lastDigit) || card2.equals(nonExistentCard + lastDigit)) {
+            lastDigit++;
+        }
         nonExistentCard += lastDigit;
 
         // assigning a non-existing card returns false
