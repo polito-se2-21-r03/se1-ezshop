@@ -20,12 +20,6 @@ public class TestUser {
         assertEquals(username, user.getUsername());
         assertEquals(password, user.getPassword());
         assertEquals(role.getValue(), user.getRole());
-
-        user = new User(id, username, password, role);
-        assertEquals(id, user.getId());
-        assertEquals(username, user.getUsername());
-        assertEquals(password, user.getPassword());
-        assertEquals(role.getValue(), user.getRole());
     }
 
     @Test
