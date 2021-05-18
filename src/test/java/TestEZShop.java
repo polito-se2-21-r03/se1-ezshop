@@ -48,7 +48,6 @@ import unitTests.TestUtils;
         EZShopTestComputeBalance.class,
         // Unit tests
         TestAccountBook.class,
-        TestHelpers.class,
         TestIsValidCreditCardNumber.class,
         TestUtils.class
 })

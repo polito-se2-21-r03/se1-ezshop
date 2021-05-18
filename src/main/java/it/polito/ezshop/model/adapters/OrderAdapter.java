@@ -1,5 +1,6 @@
 package it.polito.ezshop.model.adapters;
 
+import it.polito.ezshop.model.OperationStatus;
 import it.polito.ezshop.model.Order;
 
 public class OrderAdapter implements it.polito.ezshop.data.Order {
@@ -17,7 +18,7 @@ public class OrderAdapter implements it.polito.ezshop.data.Order {
 
     @Override
     public void setBalanceId(Integer balanceId) {
-        order.setBalanceId(balanceId);
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -52,12 +53,12 @@ public class OrderAdapter implements it.polito.ezshop.data.Order {
 
     @Override
     public String getStatus() {
-        if (order.getStatus().equals("PAID")) {
+        if (order.getStatus() == OperationStatus.PAID) {
             return "PAYED";
-        } else if (order.getStatus().equals("CLOSED")) {
+        } else if (order.getStatus() == OperationStatus.CLOSED) {
             return "ISSUED";
         }
-        return order.getStatus();
+        return order.getStatus().name();
     }
 
     @Override
@@ -72,6 +73,6 @@ public class OrderAdapter implements it.polito.ezshop.data.Order {
 
     @Override
     public void setOrderId(Integer orderId) {
-        order.setBalanceId(orderId);
+        throw new UnsupportedOperationException();
     }
 }

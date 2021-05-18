@@ -606,7 +606,7 @@ public class EZShop implements EZShopInterface {
 
         // verify that Order was either issued or already paid for
         it.polito.ezshop.model.Order order = (it.polito.ezshop.model.Order) transactionWithId;
-        OperationStatus previousStatus = OperationStatus.valueOf(order.getStatus());
+        OperationStatus previousStatus = order.getStatus();
         if (!(previousStatus == OperationStatus.CLOSED || previousStatus == OperationStatus.PAID)) {
             return false;
         }
@@ -642,7 +642,7 @@ public class EZShop implements EZShopInterface {
 
         // verify that Order was either paid for or has already been completed
         it.polito.ezshop.model.Order order = (it.polito.ezshop.model.Order) transactionWithId;
-        OperationStatus previousStatus = OperationStatus.valueOf(order.getStatus());
+        OperationStatus previousStatus = order.getStatus();
         if (!(previousStatus == OperationStatus.PAID || previousStatus == OperationStatus.COMPLETED)) {
             return false;
         }
@@ -683,7 +683,7 @@ public class EZShop implements EZShopInterface {
         // return list of all orders
         return accountBook.getOrders().stream()
                 .filter(order -> {
-                    OperationStatus orderstatus = OperationStatus.valueOf(order.getStatus());
+                    OperationStatus orderstatus = order.getStatus();
                     return orderstatus == OperationStatus.CLOSED
                             || orderstatus == OperationStatus.PAID
                             || orderstatus == OperationStatus.COMPLETED;
@@ -923,7 +923,7 @@ public class EZShop implements EZShopInterface {
         }
 
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null || !sale.getStatus().equals(OperationStatus.OPEN.name())) {
+        if (sale == null || sale.getStatus() != OperationStatus.OPEN){
             return false;
         }
 
@@ -962,7 +962,7 @@ public class EZShop implements EZShopInterface {
         }
 
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null || !sale.getStatus().equals(OperationStatus.OPEN.name())) {
+        if (sale == null || !(sale.getStatus() == OperationStatus.OPEN)) {
             return false;
         }
 
@@ -1005,7 +1005,7 @@ public class EZShop implements EZShopInterface {
         }
 
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null || !sale.getStatus().equals(OperationStatus.OPEN.name())) {
+        if (sale == null || !(sale.getStatus() == OperationStatus.OPEN)) {
             return false;
         }
 
@@ -1031,7 +1031,7 @@ public class EZShop implements EZShopInterface {
         if (t == null) {
             return false;
         }
-        if (t.getStatus().equals(OperationStatus.PAID.name()) || t.getStatus().equals(OperationStatus.COMPLETED.name())) {
+        if (t.getStatus() == OperationStatus.PAID || t.getStatus() == OperationStatus.COMPLETED) {
             return false;
         }
 
@@ -1065,7 +1065,7 @@ public class EZShop implements EZShopInterface {
         if (sale == null){
             return false;
         }
-        if (sale.getStatus().equals(OperationStatus.CLOSED.name())){
+        if (sale.getStatus() == OperationStatus.CLOSED){
             return false;
         }
         sale.setMoney(sale.computeTotal());
@@ -1083,7 +1083,7 @@ public class EZShop implements EZShopInterface {
         }
 
         it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(saleNumber);
-        if (t == null || t.getStatus().equals(OperationStatus.PAID.name())){
+        if (t == null || t.getStatus() == OperationStatus.PAID){
             return false;
         }
 
@@ -1102,7 +1102,7 @@ public class EZShop implements EZShopInterface {
         if (sale == null){
             return null;
         }
-        if(!sale.getStatus().equals(OperationStatus.CLOSED.name())){
+        if(!(sale.getStatus() == OperationStatus.CLOSED)){
             return null;
         }
 
@@ -1118,7 +1118,7 @@ public class EZShop implements EZShopInterface {
             throw new InvalidTransactionIdException("Invalid Transaction ID");
         }
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(saleNumber);
-        if (sale == null || !sale.getStatus().equals(OperationStatus.CLOSED.name())) {
+        if (sale == null || !(sale.getStatus() == OperationStatus.CLOSED)) {
             return -1;
         }
 
@@ -1150,7 +1150,7 @@ public class EZShop implements EZShopInterface {
         if(rt == null){
             return false;
         }
-        if(!rt.getStatus().equals(OperationStatus.OPEN.name())){
+        if(!(rt.getStatus() == OperationStatus.OPEN)){
             return false;
         }
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(rt.getSaleTransactionId());
@@ -1197,14 +1197,14 @@ public class EZShop implements EZShopInterface {
         if(rt == null){
             return false;
         }
-        if(!rt.getStatus().equals(OperationStatus.OPEN.name())){
+        if(rt.getStatus() != OperationStatus.OPEN){
             return false;
         }
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(rt.getSaleTransactionId());
         if(sale == null){
             return false;
         }
-        if(commit == true){
+        if(commit){
             List <ReturnTransactionItem> ritems = rt.getTransactionItems();
             List <it.polito.ezshop.model.TicketEntry> titems = sale.getTransactionItems();
             //didn't know how to use .stream in this case lol
@@ -1318,10 +1318,7 @@ public class EZShop implements EZShopInterface {
         double returnAmount = returnTransaction.getMoney();
 
         //if the return transaction is not ended,
-        if(returnTransaction.getStatus().equals("open"))
-            return -1;
-        //if it does not exist,
-        else if(returnTransaction.getStatus().isEmpty())
+        if(returnTransaction.getStatus() == OperationStatus.OPEN)
             return -1;
         //the money returned to the customer
         else
@@ -1353,10 +1350,7 @@ public class EZShop implements EZShopInterface {
         double returnAmount = returnTransaction.getMoney();
 
         //if the return transaction is not ended,
-        if(returnTransaction.getStatus().equals("OPEN"))
-            return -1;
-            //if it does not exist,
-        else if(returnTransaction.getStatus().isEmpty())
+        if(returnTransaction.getStatus() == OperationStatus.OPEN)
             return -1;
         //*** I should registered card control ***
             //the money returned to the customer
@@ -1382,24 +1376,16 @@ public class EZShop implements EZShopInterface {
         if (toBeAdded >= 0) {
             newRecord = new Credit(balanceId, date, toBeAdded, newStatus);
         } else {
-            newRecord = new Debit(balanceId, date, toBeAdded, newStatus);
+            if (!accountBook.checkAvailability(-toBeAdded)) {
+                return false;
+            }
+
+            newRecord = new Debit(balanceId, date, -toBeAdded, newStatus);
         }
         accountBook.addTransaction(newRecord);
 
         writeState();
-
-        //collect all the balance records to calculate
-        List<Double> moneyList = accountBook.getAllTransactions().stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
-
-        //sum all of the moneys
-        double total = 0;
-        for(double money:moneyList ){
-            total += money;
-        }
-
-        return !(total + toBeAdded < 0);
-
-        // TODO: add writeState()
+        return true;
     }
 
     @Override
@@ -1421,6 +1407,7 @@ public class EZShop implements EZShopInterface {
         return accountBook.getAllTransactions().stream()
                 .filter(x -> actualFrom == null || x.getDate().compareTo(actualFrom) >= 0)
                 .filter(x -> actualTo == null || x.getDate().compareTo(actualTo) <= 0)
+                .map(BalanceOperationAdapter::new)
                 .collect(Collectors.toList());
     }
 
@@ -1430,7 +1417,8 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         //collect all the balance records to calculate
-        List<Double> moneyList = accountBook.getAllTransactions().stream().map(BalanceOperation::getMoney).collect(Collectors.toList());
+        List<Double> moneyList = accountBook.getAllTransactions().stream()
+                .map(it.polito.ezshop.model.BalanceOperation::getMoney).collect(Collectors.toList());
 
         //sum all of the moneys
         double total = 0;

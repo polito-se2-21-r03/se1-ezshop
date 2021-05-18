@@ -130,8 +130,8 @@ public class EZShopTestReturnCashPayment {
         // trying to pay for an order with returnCashPayment fails
         assertEquals(-1, shop.returnCashPayment(orderId), 0.001);
 
-        // verify order is still in CLOSED state
-        assertEquals(OperationStatus.CLOSED.name(), shop.getAllOrders().stream()
+        // verify order is still in ISSUED state
+        assertEquals("ISSUED", shop.getAllOrders().stream()
                 .filter(b -> b.getBalanceId() == orderId)
                 .map(Order::getStatus)
                 .findAny()
@@ -158,7 +158,7 @@ public class EZShopTestReturnCashPayment {
         assertEquals(-1, shop.returnCashPayment(openReturnId), 0.001);
 
         // verify return is still in OPEN state
-        assertEquals(OperationStatus.OPEN.name(), getStatusOfReturn(returnId));
+        assertEquals(OperationStatus.OPEN, getStatusOfReturn(returnId));
 
         // verify system's balance did not change
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -179,7 +179,7 @@ public class EZShopTestReturnCashPayment {
         totalBalance -= returnedValue;
 
         // verify return is in state PAID/COMPLETED
-        assertEquals(OperationStatus.COMPLETED.name(), getStatusOfReturn(returnId));
+        assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
 
         // verify system's balance did update correctly
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -202,7 +202,7 @@ public class EZShopTestReturnCashPayment {
         assertEquals(0, shop.returnCashPayment(returnId), 0.001);
 
         // verify return remains in state PAID/COMPLETED
-        assertEquals(OperationStatus.COMPLETED.name(), getStatusOfReturn(returnId));
+        assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
 
         // verify system's balance did not update a second time
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -215,7 +215,7 @@ public class EZShopTestReturnCashPayment {
      * @return the Operation status of the return transaction as a String,
      *         null if not found
      */
-    private static String getStatusOfReturn(int returnId) throws Exception {
+    private static OperationStatus getStatusOfReturn(int returnId) throws Exception {
         return shop.getCreditsAndDebits(null, null).stream()
                 .filter(b -> b.getBalanceId() == returnId)
                 .map(b -> ((ReturnTransaction) b).getStatus())
