@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static it.polito.ezshop.utils.Utils.isValidCreditCardNumber;
 import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 
 public class TestIsValidCreditCardNumber {
 
@@ -40,7 +41,7 @@ public class TestIsValidCreditCardNumber {
         // 1  4  5  8  9  5  4  9  9  3  9  1  4  4
         // 2  4  10 8  18 5  8  9  18 3  18 1  8  4
         // 2  4  1  8  9  5  8  9  9  3  9  1  8  4
-        // 80 % 10 == 0
+        // 80 % 10 = 0
         assertFalse(isValidCreditCardNumber("13589549939144"));
     }
 
@@ -53,7 +54,7 @@ public class TestIsValidCreditCardNumber {
         // 1  4  5  8  9  5  4  9  9  3  9  1  4  4  3  5  2  5
         // 2  4  10 8  18 5  8  9  18 3  18 1  8  4  6  5  4  5
         // 2  4  1  8  9  5  8  9  9  3  9  1  8  4  6  5  4  5
-        // 100 % 10 == 0
+        // 100 % 10 = 0
         assertFalse(isValidCreditCardNumber("135895499391443525"));
     }
 
@@ -62,7 +63,7 @@ public class TestIsValidCreditCardNumber {
      */
     @Test
     public void testCardNumberWrongChecksumReturnsFalse() {
-        assertFalse(isValidCreditCardNumber("1358954993914492"));
+        assertFalse(isValidCreditCardNumber("1358954993914436"));
     }
 
     /**
@@ -70,6 +71,10 @@ public class TestIsValidCreditCardNumber {
      */
     @Test
     public void testValidCardNumberReturnsTrue() {
-        assertFalse(isValidCreditCardNumber("1358954993914491"));
+        // 1  3  5  8  9  5  4  9  9  3  9  1  4  4  3  5
+        // 2  3  10 8  18 5  8  9  18 3  18 1  8  4  6  5
+        // 2  3  1  8  9  5  8  9  9  3  9  1  8  4  6  5
+        // 90 % 10 = 0
+        assertTrue(isValidCreditCardNumber("1358954993914435"));
     }
 }

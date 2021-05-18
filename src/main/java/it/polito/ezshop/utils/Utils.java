@@ -90,43 +90,49 @@ public class Utils {
      * @param cardNumber the barcode whose conformity to the above mentioned standard is to be verified
      * @return whether the given creditcard number is valid or not
      */
-    public static boolean isValidCreditCardNumber(String cardNumber)
-    {
-        // int array for processing the cardNumber
-        int[] cardIntArray=new int[cardNumber.length()];
+    public static boolean isValidCreditCardNumber(String cardNumber) {
 
-        for(int i=0;i<cardNumber.length();i++)
-        {
-            char c= cardNumber.charAt(i);
-            cardIntArray[i]=  Integer.parseInt(""+c);
+        // credit card number may not be null
+        if (cardNumber == null) {
+            return false;
         }
 
-        for(int i=cardIntArray.length-2;i>=0;i=i-2)
-        {
-            int num = cardIntArray[i];
-            num = num * 2;  // step 1
-            if(num>9)
-            {
-                num = num%10 + num/10;  // step 2
+        // credit card number must have 16 digits
+        if (cardNumber.length() != 16) {
+            return false;
+        }
+
+        // sum all digits, every other digit counts double
+        int checksum = 0;
+        for (int i=0; i<cardNumber.length(); i++) {
+
+            // get digit at position i
+            int digit = Character.getNumericValue(cardNumber.charAt(i));
+
+            // verify parsed digit was actually a numeric digit
+            if (digit < 0 || digit > 9) {
+                return false;
             }
-            cardIntArray[i]=num;
+
+            // sum digits, counting every other digit double
+            if (i%2 == 0) {
+
+                int twiceDigit = 2 * digit;
+
+                // if doubling digit results in double digit number, add digit sum instead
+                if (twiceDigit > 9) {
+                    int digitSum = twiceDigit/10 + twiceDigit%10;
+                    checksum += digitSum;
+                } else {
+                    checksum += twiceDigit;
+                }
+            } else {
+                checksum += digit;
+            }
         }
 
-        int sum = sumDigits(cardIntArray);  // step 3
-
-        System.out.println(sum);
-
-        if(sum%10==0)  // step 4
-        {
-            return true;
-        }
-
-        return false;
-
-    }
-    public static int sumDigits(int[] arr)
-    {
-        return Arrays.stream(arr).sum();
+        // credit card is valid iff computed checksum is divisible by 10
+        return checksum%10 == 0;
     }
 
     public static Double readFromFile(String path, String cardNumber) {

@@ -689,10 +689,9 @@ public class EZShop implements EZShopInterface {
         List<Integer> ids = customers.stream().map(it.polito.ezshop.model.Customer::getId).collect(Collectors.toList());
         // generate a list of all names
         List<String> names = customers.stream().map(it.polito.ezshop.model.Customer::getCustomerName).collect(Collectors.toList());
-        // uniqie name checking
-        for(String name : names){
-            if(name.equals(customerName))
-                return -1;
+        // unique name checking
+        if(names.contains(customerName)) {
+            return -1;
         }
 
         // generate a new id that is not already in the list
