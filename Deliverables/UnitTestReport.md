@@ -112,6 +112,49 @@ Version:
 
 
 
+### **Class *User* - method *Constructor***
+
+**Criteria for method *Constructor*:**
+
+- Id parameter
+- Username parameter
+- Password parameter
+- Role parameter
+
+**Predicates for method *Constructor*:**
+
+| Criteria           | Predicate                                                      |
+|--------------------|----------------------------------------------------------------|
+| Id parameter       | Null                                                           |
+|                    | (-MIN_INT, 0]                                                  |
+|                    | [1, MAX_INT)                                                   |
+| Username parameter | Null or empty string                                           |
+|                    | Valid                                                          |
+| Password parameter | Null or empty string                                           |
+|                    | Valid                                                          |
+| Role parameter     | Null or empty string                                           |
+|                    | Invalid                                                        |
+|                    | Valid (one of "Administrator", "ShopManager", "Cashier")       |
+
+**Boundaries**:
+
+| Criteria           | Boundary values                                                |
+|--------------------|----------------------------------------------------------------|
+| Id parameter       | -1, 0, 1                                                       |
+
+**Combination of predicates**:
+
+| Id parameter  | Username parameter   | Password parameter   | Role parameter       | Valid/Invalid | Description of the test case                                                      | JUnit test case          |
+|---------------|----------------------|----------------------|----------------------|---------------|-----------------------------------------------------------------------------------|--------------------------|
+| Null          | *                    | *                    | *                    | Invalid       | new User(null, "username", "password", "Administrator") -> InvalidUserIdException | TestUser.testConstructor |
+| (-MIN_INT, 0] | *                    | *                    | *                    | Invalid       | new User(-1, "username", "password", "Administrator") -> InvalidUserIdException   | TestUser.testConstructor |
+| [1, MAX_INT)  | Null or empty string | *                    | *                    | Invalid       | new User(1, null, "password", "Administrator") -> InvalidUsernameException        | TestUser.testConstructor |
+| "             | Valid                | Null or empty string | *                    | Invalid       | new User(1, "username", null, "Administrator") -> InvalidPasswordException        | TestUser.testConstructor |
+| "             | "                    | Valid                | Null or empty string | Invalid       | new User(1, "username", "password", "Admin") -> InvalidRoleException              | TestUser.testConstructor |
+| "             | "                    | "                    | Valid                | Valid         | u = new User(1, "username", "password", "Administrator") <br>assert u.getId() == 1<br>assert u.getUsername() == "username"<br>assert u.getPassword() == "password"<br>assert u.getRole == "Administrator" | TestUser.testConstructor |
+
+*Similar tests are performed on each setter method of **User***
+
 # White Box Unit Tests
 
 ### Test cases definition
@@ -123,9 +166,17 @@ Version:
 
 | Unit name            | JUnit test case |
 |----------------------|-----------------|
-| Utils.isValidBarcode | TestUtils.testNonAlphanumericBarcode |
-|||
-||||
+| User                 | TestUser.testConstructor |
+|                      | TestUser.testSetId |
+|                      | TestUser.testSetUsername |
+|                      | TestUser.testSetPassword |
+|                      | TestUser.testValidateId |
+|                      | TestUser.testValidateUsername |
+|                      | TestUser.testValidatePassword |
+|                      | TestUser.testValidateRole |
+|                      | TestUser.testEqualsHashCode |
+| UserAdapter          | TestUserAdapter.testConstructor |
+|                      | TestUserAdapter.testSetters |
 
 ### Code coverage report
 

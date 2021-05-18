@@ -16,7 +16,15 @@ import static org.junit.Assert.assertTrue;
 public class EZShopTestCreateCard {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
+
+    static {
+        try {
+            admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Creates a clean shop instance for each test

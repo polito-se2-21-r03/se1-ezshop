@@ -32,7 +32,7 @@ public class TestJsonInterface {
      * Test reading and writing of a list of users.
      */
     @Test
-    public void testReadWriteUsers() throws IOException {
+    public void testReadWriteUsers() throws Exception {
         // write a null list
         ji.writeUsers(null);
         List<User> readData = ji.readUsers();

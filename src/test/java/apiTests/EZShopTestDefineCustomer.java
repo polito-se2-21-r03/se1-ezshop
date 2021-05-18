@@ -21,7 +21,15 @@ import static org.junit.Assert.*;
 public class EZShopTestDefineCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
+
+    static {
+        try {
+            admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Creates a clean shop instance for each test

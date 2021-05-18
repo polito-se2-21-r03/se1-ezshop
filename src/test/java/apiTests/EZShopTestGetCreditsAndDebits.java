@@ -2,6 +2,10 @@ package apiTests;
 
 import it.polito.ezshop.data.BalanceOperation;
 import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.exceptions.InvalidPasswordException;
+import it.polito.ezshop.exceptions.InvalidRoleException;
+import it.polito.ezshop.exceptions.InvalidUserIdException;
+import it.polito.ezshop.exceptions.InvalidUsernameException;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.BalanceOperationAdapter;
 import org.junit.Before;
@@ -21,7 +25,15 @@ import static org.junit.Assert.assertEquals;
 public class EZShopTestGetCreditsAndDebits {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
+
+    static {
+        try {
+            admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private static LocalDate afterFirst;
     private static LocalDate beforeLast;

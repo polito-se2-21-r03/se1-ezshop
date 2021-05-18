@@ -4,7 +4,6 @@ import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
-import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -160,24 +159,13 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer createUser(String username, String password, String role) throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
-        // check that the username is neither null or empty
-        if (username == null || username.equals("")) {
-            throw new InvalidUsernameException("Username can not be null or empty");
-        }
-
         // check that a user with the same name does not already exists
+        it.polito.ezshop.model.User.validateUsername(username);
+        it.polito.ezshop.model.User.validatePassword(password);
+        it.polito.ezshop.model.User.validateRole(role);
+
         if (users.stream().anyMatch(x -> x.getUsername().equals(username))) {
             return -1;
-        }
-
-        // check that the password is neither null or empty
-        if (password == null || password.equals("")) {
-            throw new InvalidPasswordException("Password can not be null or empty");
-        }
-
-        // check if the role is valid
-        if (Role.fromString(role) == null) {
-            throw new InvalidRoleException("Invalid role");
         }
 
         // generate a list of all ids
@@ -186,12 +174,16 @@ public class EZShop implements EZShopInterface {
         Integer id = generateId(ids);
 
         // create a new user
-        it.polito.ezshop.model.User u = new it.polito.ezshop.model.User(id, username, password, Role.fromString(role));
-        users.add(u);
+        it.polito.ezshop.model.User u;
+        try {
+            u = new it.polito.ezshop.model.User(id, username, password, role);
+            users.add(u);
 
-        writeState();
-
-        return u.getId();
+            writeState();
+            return u.getId();
+        } catch (InvalidUserIdException e) {
+            throw new Error("UserId was generated improperly", e);
+        }
     }
 
     @Override
@@ -200,9 +192,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
-        if (id == null || id <= 0) {
-            throw new InvalidUserIdException("Invalid user id less or equal to 0");
-        }
+        it.polito.ezshop.model.User.validateId(id);
 
         // removeIf returns true if any elements were removed
         boolean result = users.removeIf(x -> x.getId().equals(id));
@@ -225,9 +215,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
-        if (id == null || id <= 0) {
-            throw new InvalidUserIdException("Invalid user id less or equal to 0");
-        }
+        it.polito.ezshop.model.User.validateId(id);
 
         return users.stream()
                 // filter users with the given id
@@ -244,41 +232,31 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
-        if (id == null || id <= 0) {
-            throw new InvalidUserIdException("Invalid user id less or equal to 0");
-        }
-
-
+        it.polito.ezshop.model.User.validateId(id);
         // check if the role is valid
-        if (Role.fromString(role) == null) {
-            throw new InvalidRoleException("Invalid role");
-        }
+        it.polito.ezshop.model.User.validateRole(Role.fromString(role));
 
         // find the user
-        Optional<it.polito.ezshop.model.User> user = users.stream()
+        it.polito.ezshop.model.User user = users.stream()
                 // filter users with the given id
-                .filter(x -> x.getId().equals(id)).findFirst();
+                .filter(x -> x.getId().equals(id)).findFirst().orElse(null);
 
         // if the user is present, update its role
-        user.ifPresent(value -> value.setRole(Role.fromString(role)));
-
-        writeState();
-
-        // if the user is present return true, otherwise return false
-        return user.isPresent();
+        if (user != null) {
+            user.setRole(Role.fromString(role));
+            writeState();
+            return true;
+        }
+        return false;
     }
 
     @Override
     public User login(String username, String password) throws InvalidUsernameException, InvalidPasswordException {
         // check that the username is neither null or empty
-        if (username == null || username.equals("")) {
-            throw new InvalidUsernameException("Username can not be null or empty");
-        }
+        it.polito.ezshop.model.User.validateUsername(username);
 
         // check that the password is neither null or empty
-        if (password == null || password.equals("")) {
-            throw new InvalidPasswordException("Password can not be null or empty");
-        }
+        it.polito.ezshop.model.User.validatePassword(password);
 
         currentUser = users.stream()
                 // filters all the users with a matching username and password

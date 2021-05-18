@@ -16,6 +16,12 @@ public class TestHelpers {
 
     public static final double DOUBLE_COMPARISON_THRESHOLD = 0.001;
 
+    // invalid parameters for users
+    public static List<Integer> invalidUserIDs = Arrays.asList(null, -1, 0);
+    public static List<String> invalidUserUsernames = Arrays.asList(null, "");
+    public static List<String> invalidUserPassword = Arrays.asList(null, "");
+    public static List<String> invalidUserRoles = Arrays.asList(null, "", "administrator", "CashieR");
+
     public static final List<Integer> invalidProductIDs = Arrays.asList(null, -1, 0);
     public static final List<String> invalidProductDescriptions = Arrays.asList(null, "");
     public static final List<String> invalidProductCodes = Arrays.asList(null, "", "12345678901", "123456789012345", "0123456789a12", "123456789011");

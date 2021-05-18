@@ -19,7 +19,16 @@ import static org.junit.Assert.*;
 public class EZShopTestGetCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
+
+    static {
+        try {
+            admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private static final Customer customer = new Customer("Pietro", "1234567890", 0, 0);
     private static String card;
 
