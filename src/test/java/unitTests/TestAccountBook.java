@@ -1,8 +1,6 @@
 package unitTests;
 
-import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
-import it.polito.ezshop.exceptions.InvalidProductCodeException;
-import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
+import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,40 +12,39 @@ import static junit.framework.TestCase.*;
 
 public class TestAccountBook {
 
-    private static final ProductType product;
+    private final AccountBook accountBook;
+    private final SaleTransaction saleTransaction1;
+    private final SaleTransaction saleTransaction2;
+    private final ReturnTransaction returnTransaction1;
+    private final ReturnTransaction returnTransaction2;
+    private final Credit credit = new Credit(5, LocalDate.now(), 150, OperationStatus.COMPLETED);
+    private final Debit debit = new Debit(6, LocalDate.now(), 33, OperationStatus.COMPLETED);
+    private final Order order1 = new Order(7, LocalDate.now(), "xx", 17, 1);
+    private final Order order2 = new Order(8, LocalDate.now(), "xx", 15, 1);
+    private final double initialBalance = 175;
+    private final ProductType product;
 
-    static {
-        try {
-            product = new ProductType(1, "xx", "123456789012", 5.0, "xx");
-        } catch (Exception e) {
-            throw new ExceptionInInitializerError(e);
-        }
+    public TestAccountBook() throws InvalidQuantityException, InvalidProductDescriptionException, InvalidPricePerUnitException, InvalidProductIdException, InvalidProductCodeException, InvalidDiscountRateException {
+        product = new ProductType(1, "xx", "123456789012", 5.0, "xx");
+
+        accountBook = new AccountBook();
+        saleTransaction1 = new SaleTransaction(1,
+                LocalDate.now(),
+                Collections.singletonList(new TicketEntry(product, 20, 0.0)),
+                0.0);
+        saleTransaction2 = new SaleTransaction(2,
+                LocalDate.now(),
+                Collections.singletonList(new TicketEntry(product, 10, 0.0)),
+                0.1);
+        returnTransaction1 = new ReturnTransaction(3,
+                saleTransaction1.getBalanceId(),
+                LocalDate.now(),
+                Collections.singletonList(new ReturnTransactionItem(product, 4, product.getPricePerUnit())));
+        returnTransaction2 = new ReturnTransaction(4,
+                saleTransaction1.getBalanceId(),
+                LocalDate.now(),
+                Collections.singletonList(new ReturnTransactionItem(product, 7, product.getPricePerUnit())));
     }
-
-    private static final AccountBook accountBook = new AccountBook();
-    private static final SaleTransaction saleTransaction1 = new SaleTransaction(1,
-            LocalDate.now(),
-            Collections.singletonList(new TicketEntry(product, 20, product.getPricePerUnit(), 0.0)),
-            0.0);
-    private static final SaleTransaction saleTransaction2 = new SaleTransaction(2,
-            LocalDate.now(),
-            Collections.singletonList(new TicketEntry(product, 10, product.getPricePerUnit(), 0.0)),
-            0.1);
-    private static final ReturnTransaction returnTransaction1 = new ReturnTransaction(3,
-            saleTransaction1.getBalanceId(),
-            LocalDate.now(),
-            Collections.singletonList(new ReturnTransactionItem(product, 4, product.getPricePerUnit())));
-    private static final ReturnTransaction returnTransaction2 = new ReturnTransaction(4,
-            saleTransaction1.getBalanceId(),
-            LocalDate.now(),
-            Collections.singletonList(new ReturnTransactionItem(product, 7, product.getPricePerUnit())));
-
-    private static final Credit credit = new Credit(5, LocalDate.now(), 150, OperationStatus.COMPLETED);
-    private static final Debit debit = new Debit(6, LocalDate.now(), 33, OperationStatus.COMPLETED);
-    private static final Order order1 = new Order(7, LocalDate.now(), "xx", 17, 1);
-    private static final Order order2 = new Order(8, LocalDate.now(), "xx", 15, 1);
-
-    private static final double initialBalance = 175;
 
     @Before
     public void beforeEach() throws Exception {
@@ -257,13 +254,13 @@ public class TestAccountBook {
      * Test that adding a sale transaction increases the balance
      */
     @Test
-    public void testAddSaleTransactionIncreasesBalance() {
+    public void testAddSaleTransactionIncreasesBalance() throws InvalidQuantityException, InvalidDiscountRateException {
 
         // add a sale transaction (increases balance)
         int transactionId = accountBook.generateNewId();
         SaleTransaction sale = new SaleTransaction(transactionId,
                 LocalDate.now(),
-                Collections.singletonList(new TicketEntry(product, 1, product.getPricePerUnit(), 0.0)),
+                Collections.singletonList(new TicketEntry(product, 1, 0.0)),
                 0.0);
         accountBook.addTransaction(sale);
         accountBook.setTransactionStatus(sale.getBalanceId(), OperationStatus.COMPLETED);

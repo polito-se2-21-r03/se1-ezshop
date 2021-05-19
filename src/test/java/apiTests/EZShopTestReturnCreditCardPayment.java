@@ -20,7 +20,7 @@ import static unitTests.TestHelpers.*;
 public class EZShopTestReturnCreditCardPayment {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
 
     private static final String productCode = "12345678901231";
     private static int totalBalance = 0;
@@ -31,6 +31,10 @@ public class EZShopTestReturnCreditCardPayment {
     // a credit card from the credit cards file with an initial balance of 150.0
     private static final String creditCard = "4485370086510891";
     private static final double creditCardBalance = 150.0;
+
+    public EZShopTestReturnCreditCardPayment() throws Exception {
+        admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    }
 
     /**
      * Creates a clean shop instance for each test

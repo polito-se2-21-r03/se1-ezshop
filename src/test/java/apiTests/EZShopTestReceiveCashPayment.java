@@ -3,8 +3,7 @@ package apiTests;
 import it.polito.ezshop.data.BalanceOperation;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.Order;
-import it.polito.ezshop.exceptions.InvalidPaymentException;
-import it.polito.ezshop.exceptions.InvalidTransactionIdException;
+import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.OperationStatus;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.SaleTransaction;
@@ -23,7 +22,15 @@ import static org.junit.Assert.assertTrue;
 public class EZShopTestReceiveCashPayment {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
+
+    static {
+        try {
+            admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private static final String productCode = "12345678901231";
     private static int totalBalance = 0;

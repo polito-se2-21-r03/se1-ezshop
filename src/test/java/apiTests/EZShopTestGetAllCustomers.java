@@ -2,7 +2,6 @@ package apiTests;
 
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.*;
-import it.polito.ezshop.model.Customer;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
@@ -11,17 +10,20 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static unitTests.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
+import static unitTests.TestHelpers.testAccessRights;
 
 public class EZShopTestGetAllCustomers {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private final User admin;
     private static final String customer1Name = "Pietro";
     private static final String customer2Name = "Andrea";
     private static Integer customer1ID;
     private static Integer customer2ID;
+    public EZShopTestGetAllCustomers() throws Exception {
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+    }
 
     /**
      * Creates a clean shop instance for each test
@@ -43,8 +45,8 @@ public class EZShopTestGetAllCustomers {
     @Test
     public void testAuthorization() throws Throwable {
         Method defineCustomer = EZShop.class.getMethod("getAllCustomers");
-        testAccessRights(defineCustomer, new Object[] {},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
+        testAccessRights(defineCustomer, new Object[]{},
+                new Role[]{Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
     /**
@@ -64,8 +66,7 @@ public class EZShopTestGetAllCustomers {
      * Tests that a list of customers is returned successfully
      */
     @Test
-    public void testGetCustomersSuccessfully() throws InvalidPasswordException, InvalidUsernameException,
-            InvalidCustomerNameException, UnauthorizedException {
+    public void testGetCustomersSuccessfully() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());

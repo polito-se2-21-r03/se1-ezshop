@@ -9,17 +9,20 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
-import static unitTests.TestHelpers.*;
-import static unitTests.TestHelpers.invalidCustomerCards;
 import static org.junit.Assert.*;
+import static unitTests.TestHelpers.*;
 
 public class EZShopTestModifyPointsOnCard {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static  User admin;
     private static final String customerName = "Pietro";
     private static Integer customerID;
     private static String card;
+
+    public EZShopTestModifyPointsOnCard() throws Exception {
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+    }
 
     /**
      * Creates a clean shop instance for each test
@@ -52,8 +55,8 @@ public class EZShopTestModifyPointsOnCard {
     @Test
     public void testAuthorization() throws Throwable {
         Method defineCustomer = EZShop.class.getMethod("modifyPointsOnCard", String.class, int.class);
-        testAccessRights(defineCustomer, new Object[] {card, 10},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
+        testAccessRights(defineCustomer, new Object[]{card, 10},
+                new Role[]{Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
     /**

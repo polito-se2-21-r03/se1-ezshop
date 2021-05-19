@@ -37,8 +37,18 @@ public class ProductType {
         this.setQuantity(quantity);
     }
 
+    public static void validateProductCode(String code) throws InvalidProductCodeException {
+        if (!isValidBarcode(code)) {
+            throw new InvalidProductCodeException("Invalid Bar Code");
+        }
+    }
+
     public int getId() {
         return this.id;
+    }
+
+    public String getProductDescription() {
+        return this.productDescription;
     }
 
     /**
@@ -54,8 +64,8 @@ public class ProductType {
         this.productDescription = productDescription;
     }
 
-    public String getProductDescription() {
-        return this.productDescription;
+    public String getBarCode() {
+        return barCode;
     }
 
     /**
@@ -71,8 +81,8 @@ public class ProductType {
         this.barCode = barCode;
     }
 
-    public String getBarCode() {
-        return barCode;
+    public double getPricePerUnit() {
+        return pricePerUnit;
     }
 
     /**
@@ -88,8 +98,8 @@ public class ProductType {
         this.pricePerUnit = pricePerUnit;
     }
 
-    public double getPricePerUnit() {
-        return pricePerUnit;
+    public String getNote() {
+        return this.note;
     }
 
     /**
@@ -105,8 +115,8 @@ public class ProductType {
         }
     }
 
-    public String getNote() {
-        return this.note;
+    public int getQuantity() {
+        return this.quantity;
     }
 
     /**
@@ -114,7 +124,7 @@ public class ProductType {
      *
      * @param quantity quantity to be set
      * @throws InvalidQuantityException thrown if quantity is negative
-     * @throws IllegalStateException thrown if no position has been defined
+     * @throws IllegalStateException    thrown if no position has been defined
      */
     public void setQuantity(Integer quantity) throws InvalidQuantityException, IllegalStateException {
         if (quantity == null || quantity < 0) {
@@ -126,8 +136,11 @@ public class ProductType {
         this.quantity = quantity;
     }
 
-    public int getQuantity() {
-        return this.quantity;
+    public Position getPosition() {
+        if (this.position == null) {
+            return null;
+        }
+        return new Position(this.position);
     }
 
     /**
@@ -141,13 +154,6 @@ public class ProductType {
         } else {
             this.position = new Position(position);
         }
-    }
-
-    public Position getPosition() {
-        if (this.position == null) {
-            return null;
-        }
-        return new Position(this.position);
     }
 
     public boolean equals(Object o) {

@@ -46,14 +46,7 @@ import unitTests.*;
         EZShopTestGetCreditsAndDebits.class,
         EZShopTestComputeBalance.class,
         // Unit tests
-        TestAccountBook.class,
-        TestIsValidCreditCardNumber.class,
-        TestUtils.class,
-        TestPosition.class,
-        TestProductType.class,
-        TestProductTypeAdapter.class,
-        TestUser.class,
-        TestUserAdapter.class
+        UnitTests.class
 })
 
 public class TestEZShop {

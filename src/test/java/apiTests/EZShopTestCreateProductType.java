@@ -25,7 +25,15 @@ public class EZShopTestCreateProductType {
     private static final String PRODUCT_NOTE = "note";
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Admin", "123", Role.ADMINISTRATOR);
+    private static User admin;
+
+    static {
+        try {
+            admin = new User(1, "Admin", "123", Role.ADMINISTRATOR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Before
     public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {

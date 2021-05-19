@@ -10,26 +10,29 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 
-import static unitTests.TestHelpers.*;
 import static it.polito.ezshop.utils.Utils.generateId;
 import static org.junit.Assert.*;
+import static unitTests.TestHelpers.*;
 
 public class EZShopTestDeleteCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
     private static final String customer1Name = "Pietro";
     private static final String customer2Name = "Antonia";
     private static Integer customer1ID;
     private static Integer customer2ID;
     private static String card;
 
+    public EZShopTestDeleteCustomer() throws Exception {
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+    }
+
     /**
      * Creates a clean shop instance for each test
      */
     @Before
-    public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException,
-            UnauthorizedException, InvalidCustomerNameException {
+    public void beforeEach() throws Exception {
 
         // reset shop to blanc state
         shop.reset();
@@ -55,8 +58,8 @@ public class EZShopTestDeleteCustomer {
     @Test
     public void testAuthorization() throws Throwable {
         Method defineCustomer = EZShop.class.getMethod("deleteCustomer", Integer.class);
-        testAccessRights(defineCustomer, new Object[] {1},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
+        testAccessRights(defineCustomer, new Object[]{1},
+                new Role[]{Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
     /**

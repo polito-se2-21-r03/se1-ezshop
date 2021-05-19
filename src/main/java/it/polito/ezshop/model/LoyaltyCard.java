@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Random;
 
 public class LoyaltyCard {
-    public static final Random rnd = new Random();
     private final String code;
     private int points;
 
@@ -22,7 +21,14 @@ public class LoyaltyCard {
         this.points = points;
     }
 
+    /**
+     * Generate a loyalty card code.
+     *
+     * @return a 10 characters long numeric code
+     */
     public static String generateNewCode() {
+        Random rnd = new Random();
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 10; i++) {
             char c = (char) ('0' + ((char) rnd.nextInt('9' - '0')));

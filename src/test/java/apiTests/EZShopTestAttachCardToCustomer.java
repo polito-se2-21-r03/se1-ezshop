@@ -10,15 +10,14 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 
-import static unitTests.TestHelpers.*;
 import static it.polito.ezshop.utils.Utils.generateId;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import static unitTests.TestHelpers.*;
 
 public class EZShopTestAttachCardToCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
     private static final String customer1Name = "Pietro";
     private static final String customer2Name = "Andrea";
     private static Integer customer1ID;
@@ -26,12 +25,15 @@ public class EZShopTestAttachCardToCustomer {
     private static String card1;
     private static String card2;
 
+    public EZShopTestAttachCardToCustomer() throws Exception {
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+    }
+
     /**
      * Creates a clean shop instance for each test
      */
     @Before
-    public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException,
-            InvalidCustomerNameException, UnauthorizedException {
+    public void beforeEach() throws Exception {
 
         // reset shop to clean state
         shop.reset();
@@ -60,8 +62,8 @@ public class EZShopTestAttachCardToCustomer {
     @Test
     public void testAuthorization() throws Throwable {
         Method modifyCustomer = EZShop.class.getMethod("attachCardToCustomer", String.class, Integer.class);
-        testAccessRights(modifyCustomer, new Object[] {card1, 1},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
+        testAccessRights(modifyCustomer, new Object[]{card1, 1},
+                new Role[]{Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
     /**
@@ -124,7 +126,9 @@ public class EZShopTestAttachCardToCustomer {
         // generate a valid card which doesn't exist in the shop
         String nonExistentCard = "123456789";
         char lastDigit = '0';
-        while (card1.equals(nonExistentCard + lastDigit) || card2.equals(nonExistentCard + lastDigit)) {lastDigit++;}
+        while (card1.equals(nonExistentCard + lastDigit) || card2.equals(nonExistentCard + lastDigit)) {
+            lastDigit++;
+        }
         nonExistentCard += lastDigit;
 
         // attaching a non-existing card returns false

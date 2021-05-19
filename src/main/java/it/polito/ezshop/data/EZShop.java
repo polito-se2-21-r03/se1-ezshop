@@ -1,6 +1,7 @@
 package it.polito.ezshop.data;
 
 import it.polito.ezshop.exceptions.*;
+import it.polito.ezshop.model.TicketEntry;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
@@ -133,24 +134,13 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer createUser(String username, String password, String role) throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
-        // check that the username is neither null or empty
-        if (username == null || username.equals("")) {
-            throw new InvalidUsernameException("Username can not be null or empty");
-        }
-
         // check that a user with the same name does not already exists
+        it.polito.ezshop.model.User.validateUsername(username);
+        it.polito.ezshop.model.User.validatePassword(password);
+        it.polito.ezshop.model.User.validateRole(role);
+
         if (users.stream().anyMatch(x -> x.getUsername().equals(username))) {
             return -1;
-        }
-
-        // check that the password is neither null or empty
-        if (password == null || password.equals("")) {
-            throw new InvalidPasswordException("Password can not be null or empty");
-        }
-
-        // check if the role is valid
-        if (Role.fromString(role) == null) {
-            throw new InvalidRoleException("Invalid role");
         }
 
         // generate a list of all ids
@@ -159,12 +149,16 @@ public class EZShop implements EZShopInterface {
         Integer id = generateId(ids);
 
         // create a new user
-        it.polito.ezshop.model.User u = new it.polito.ezshop.model.User(id, username, password, Role.fromString(role));
-        users.add(u);
+        it.polito.ezshop.model.User u;
+        try {
+            u = new it.polito.ezshop.model.User(id, username, password, role);
+            users.add(u);
 
-        writeState();
-
-        return u.getId();
+            writeState();
+            return u.getId();
+        } catch (InvalidUserIdException e) {
+            throw new Error("UserId was generated improperly", e);
+        }
     }
 
     @Override
@@ -173,9 +167,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
-        if (id == null || id <= 0) {
-            throw new InvalidUserIdException("Invalid user id less or equal to 0");
-        }
+        it.polito.ezshop.model.User.validateId(id);
 
         // removeIf returns true if any elements were removed
         boolean result = users.removeIf(x -> x.getId().equals(id));
@@ -198,9 +190,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
-        if (id == null || id <= 0) {
-            throw new InvalidUserIdException("Invalid user id less or equal to 0");
-        }
+        it.polito.ezshop.model.User.validateId(id);
 
         return users.stream()
                 // filter users with the given id
@@ -217,41 +207,31 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR);
 
         // check that id is neither null or non-positive
-        if (id == null || id <= 0) {
-            throw new InvalidUserIdException("Invalid user id less or equal to 0");
-        }
-
-
+        it.polito.ezshop.model.User.validateId(id);
         // check if the role is valid
-        if (Role.fromString(role) == null) {
-            throw new InvalidRoleException("Invalid role");
-        }
+        it.polito.ezshop.model.User.validateRole(Role.fromString(role));
 
         // find the user
-        Optional<it.polito.ezshop.model.User> user = users.stream()
+        it.polito.ezshop.model.User user = users.stream()
                 // filter users with the given id
-                .filter(x -> x.getId().equals(id)).findFirst();
+                .filter(x -> x.getId().equals(id)).findFirst().orElse(null);
 
         // if the user is present, update its role
-        user.ifPresent(value -> value.setRole(Role.fromString(role)));
-
-        writeState();
-
-        // if the user is present return true, otherwise return false
-        return user.isPresent();
+        if (user != null) {
+            user.setRole(Role.fromString(role));
+            writeState();
+            return true;
+        }
+        return false;
     }
 
     @Override
     public User login(String username, String password) throws InvalidUsernameException, InvalidPasswordException {
         // check that the username is neither null or empty
-        if (username == null || username.equals("")) {
-            throw new InvalidUsernameException("Username can not be null or empty");
-        }
+        it.polito.ezshop.model.User.validateUsername(username);
 
         // check that the password is neither null or empty
-        if (password == null || password.equals("")) {
-            throw new InvalidPasswordException("Password can not be null or empty");
-        }
+        it.polito.ezshop.model.User.validatePassword(password);
 
         currentUser = users.stream()
                 // filters all the users with a matching username and password
@@ -752,9 +732,9 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         int id = accountBook.generateNewId();
-        it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(id, LocalDate.now(clock));
 
         // add SaleTransaction to account book
+        it.polito.ezshop.model.SaleTransaction st = new it.polito.ezshop.model.SaleTransaction(id, LocalDate.now(clock));
         this.accountBook.addTransaction(st);
 
         writeState();
@@ -765,60 +745,50 @@ public class EZShop implements EZShopInterface {
     public boolean addProductToSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        if (transactionId == null || transactionId <= 0) {
-            throw new InvalidTransactionIdException("Invalid transaction ID");
-        }
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
+        it.polito.ezshop.model.ProductType.validateProductCode(productCode);
 
-        if (!isValidBarcode(productCode)) {
-            throw new InvalidProductCodeException("Invalid Bar Code");
-        }
+        // verify amount is a positive integer value
+        TicketEntry.validateAmount(amount);
 
-        if (amount <= 0) {
-            throw new InvalidQuantityException("Product quantity must be greater than 0");
-        }
-
+        // retrieve the OPEN sale transaction
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
         if (sale == null || sale.getStatus() != OperationStatus.OPEN){
             return false;
         }
 
+        // retrieve the product and verify the quantity on the shelves is greater than amount
         it.polito.ezshop.model.ProductType p = products.stream()
-                // filter users with the given BarCode
                 .filter(x -> x.getBarCode().equals(productCode) && x.getQuantity() >= amount)
-                // find the first matching product
                 .findFirst().orElse(null);
         if (p == null) {
             return false;
         }
 
-        // update the quantity on the shelves
         try {
+            // update the quantity on the shelves
             p.setQuantity(p.getQuantity() - amount);
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return false;
+            // amount the amount in the transaction
+            sale.addSaleTransactionItem(p, amount);
+
+            writeState();
+            return true;
+        } catch (Exception ignored) {
+            // ignored exception: should never reach this point
         }
-
-        sale.addSaleTransactionItem(p, amount, p.getPricePerUnit(), 0);
-
-        writeState();
-        return true;
+        return false;
     }
 
     @Override
-    public boolean deleteProductFromSale(Integer transactionId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
+    public boolean deleteProductFromSale(Integer transactionId, String productCode, int amount) throws
+            InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        if (transactionId == null || transactionId <= 0) {
-            throw new InvalidTransactionIdException("Invalid transaction ID");
-        }
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
+        it.polito.ezshop.model.ProductType.validateProductCode(productCode);
 
-        if (!isValidBarcode(productCode)) {
-            throw new InvalidProductCodeException("Invalid Bar Code");
-        }
-
-        if (amount <= 0) {
-            throw new InvalidQuantityException("Product quantity must be greater than 0");
-        }
+        // verify amount is a positive integer value
+        TicketEntry.validateAmount(amount);
 
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
         if (sale == null || !(sale.getStatus() == OperationStatus.OPEN)) {
@@ -826,26 +796,21 @@ public class EZShop implements EZShopInterface {
         }
 
         it.polito.ezshop.model.ProductType product = products.stream()
-                // filter users with the given BarCode
                 .filter(x -> x.getBarCode().equals(productCode))
-                // find the first matching product
-                .findFirst()
-                // if a matching product is not found, return null
-                .orElse(null);
+                .findFirst().orElse(null);
         if (product == null) {
             return false;
         }
 
-        if (sale.removeSaleTransactionItem(product, amount)) {
-            // update the quantity on the shelves
-            try {
+        try {
+            if (sale.removeSaleTransactionItem(product, amount)) {
+                // update the quantity on the shelves
                 product.setQuantity(product.getQuantity() + amount);
-            } catch (IllegalArgumentException |IllegalStateException e) {
-                return false;
+                writeState();
+                return true;
             }
-
-            writeState();
-            return true;
+        } catch (Exception ignored) {
+            // ignored exception: should never reach this point
         }
 
         return false;
@@ -855,17 +820,11 @@ public class EZShop implements EZShopInterface {
     public boolean applyDiscountRateToProduct(Integer transactionId, String productCode, double discountRate) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidDiscountRateException, UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        if (transactionId == null || transactionId <= 0) {
-            throw new InvalidTransactionIdException("Invalid transaction ID");
-        }
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
+        it.polito.ezshop.model.ProductType.validateProductCode(productCode);
 
-        if (!isValidBarcode(productCode)) {
-            throw new InvalidProductCodeException("Invalid Bar Code");
-        }
-
-        if (discountRate >= 1.00 || discountRate < 0) {
-            throw new InvalidDiscountRateException("Discount Rate must be between 0 and 1");
-        }
+        // validate the discount rate
+        TicketEntry.validateDiscount(discountRate);
 
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
         if (sale == null || !(sale.getStatus() == OperationStatus.OPEN)) {
@@ -882,25 +841,28 @@ public class EZShop implements EZShopInterface {
     public boolean applyDiscountRateToSale(Integer transactionId, double discountRate) throws InvalidTransactionIdException, InvalidDiscountRateException, UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        if (transactionId == null || transactionId <= 0) {
-            throw new InvalidTransactionIdException("Invalid transaction ID");
-        }
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
 
-        if (discountRate >= 1.00 || discountRate < 0) {
-            throw new InvalidDiscountRateException("Discount Rate must be between 0 and 1");
-        }
+        // validate the discount rate
+        it.polito.ezshop.model.SaleTransaction.validateDiscount(discountRate);
 
         it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
         if (t == null) {
             return false;
         }
+
+        // todo: check this condition
         if (t.getStatus() == OperationStatus.PAID || t.getStatus() == OperationStatus.COMPLETED) {
             return false;
         }
 
-        t.setDiscountRate(discountRate);
-        writeState();
-        return true;
+        try {
+            t.setDiscountRate(discountRate);
+            writeState();
+            return true;
+        } catch (IllegalStateException ex) {
+            return false;
+        }
     }
 
     @Override
@@ -921,17 +883,14 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean endSaleTransaction(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
-        if (transactionId == null || transactionId <= 0){
-            throw new InvalidTransactionIdException("Invalid transaction ID");
-        }
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
+
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null){
+        if (sale == null || sale.getStatus() == OperationStatus.CLOSED){
             return false;
         }
-        if (sale.getStatus() == OperationStatus.CLOSED){
-            return false;
-        }
-        sale.setMoney(sale.computeTotal());
+
+        // sale.setMoney(sale.computeTotal());
         accountBook.setTransactionStatus(transactionId, OperationStatus.CLOSED);
 
         writeState();
@@ -941,12 +900,10 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean deleteSaleTransaction(Integer saleNumber) throws InvalidTransactionIdException, UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
-        if (saleNumber == null || saleNumber <= 0){
-            throw new InvalidTransactionIdException("Invalid transaction ID");
-        }
+        it.polito.ezshop.model.SaleTransaction.validateId(saleNumber);
 
         it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(saleNumber);
-        if (t == null || t.getStatus() == OperationStatus.PAID){
+        if (t == null || t.getStatus() == OperationStatus.PAID || t.getStatus() == OperationStatus.COMPLETED){
             return false;
         }
 
@@ -958,14 +915,10 @@ public class EZShop implements EZShopInterface {
     @Override
     public SaleTransaction getSaleTransaction(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
-        if (transactionId == null || transactionId <= 0){
-            throw new InvalidTransactionIdException("Invalid transaction ID");
-        }
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
+
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null){
-            return null;
-        }
-        if(!(sale.getStatus() == OperationStatus.CLOSED)){
+        if (sale == null || sale.getStatus() != OperationStatus.CLOSED){
             return null;
         }
 
@@ -1094,12 +1047,13 @@ public class EZShop implements EZShopInterface {
                 //change quantity of Product p by adding the returned amount
                 try {
                     p.setQuantity(p.getQuantity() + ritem.getAmount());
+
+                    //change quantity of Product p inside the transaction by reducing the returned amount
+                    titem.setAmount(titem.getAmount() - ritem.getAmount());
+                    //??? do we need to change the final price or it does automatically after removing the items ???
                 } catch (InvalidQuantityException | IllegalStateException e) {
                     return false;
                 }
-                //change quantity of Product p inside the transaction by reducing the returned amount
-                titem.setAmount(titem.getAmount() - ritem.getAmount());
-                //??? do we need to change the final price or it does automatically after removing the items ???
             }
             accountBook.setTransactionStatus(returnId, OperationStatus.CLOSED);
         }

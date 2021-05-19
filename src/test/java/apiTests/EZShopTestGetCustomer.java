@@ -10,26 +10,27 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 
-import static unitTests.TestHelpers.*;
-import static unitTests.TestHelpers.invalidCustomerIDs;
 import static it.polito.ezshop.utils.Utils.generateId;
 import static org.junit.Assert.*;
+import static unitTests.TestHelpers.*;
 
 public class EZShopTestGetCustomer {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
     private static final String customerName = "Pietro";
     private static Integer customerID;
     private static String card;
+
+    public EZShopTestGetCustomer() throws Exception {
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+    }
 
     /**
      * Creates a clean shop instance for each test
      */
     @Before
-    public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException,
-            UnauthorizedException, InvalidCustomerNameException {
-
+    public void beforeEach() throws Exception {
         // reset shop to blanc state
         shop.reset();
 
@@ -53,8 +54,8 @@ public class EZShopTestGetCustomer {
     @Test
     public void testAuthorization() throws Throwable {
         Method defineCustomer = EZShop.class.getMethod("getCustomer", Integer.class);
-        testAccessRights(defineCustomer, new Object[] {1},
-                new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
+        testAccessRights(defineCustomer, new Object[]{1},
+                new Role[]{Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
     /**
@@ -74,8 +75,7 @@ public class EZShopTestGetCustomer {
      * Tests that null is returned if no customer with the given ID exists
      */
     @Test
-    public void testNullIfCustomerNotExists() throws InvalidPasswordException, InvalidUsernameException,
-            UnauthorizedException, InvalidCustomerIdException {
+    public void testNullIfCustomerNotExists() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());

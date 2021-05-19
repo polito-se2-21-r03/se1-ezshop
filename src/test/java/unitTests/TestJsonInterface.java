@@ -1,5 +1,8 @@
 package unitTests;
 
+import it.polito.ezshop.exceptions.InvalidCustomerCardException;
+import it.polito.ezshop.exceptions.InvalidDiscountRateException;
+import it.polito.ezshop.exceptions.InvalidQuantityException;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
 import org.junit.Before;
@@ -22,7 +25,7 @@ public class TestJsonInterface {
 
     @Before
     public void clean() throws Exception {
-        product = new ProductType(1, "xx", "1234567890128", 10.0, "xx");
+        product = new ProductType(1, "xx", "213124134135", 10.0, "xx");
 
         ji = JsonInterface.create(dataDirectory);
         ji.reset();
@@ -32,7 +35,7 @@ public class TestJsonInterface {
      * Test reading and writing of a list of users.
      */
     @Test
-    public void testReadWriteUsers() throws IOException {
+    public void testReadWriteUsers() throws Exception {
         // write a null list
         ji.writeUsers(null);
         List<User> readData = ji.readUsers();
@@ -65,14 +68,14 @@ public class TestJsonInterface {
 
         // write a list of products
         List<ProductType> writeData = Arrays.asList(
-                new ProductType(1, "description1", "1234567890128",
-                        20.0, "note1", 0, null),
-                new ProductType(2, "description2", "1234567890128",
-                        10.0, "note2", 1, new Position("1-1-1")),
-                new ProductType(3, "description3", "1234567890128",
-                        15.0, "note3", 0, new Position("1-1-1")),
-                new ProductType(4, "description4", "1234567890128",
-                        20.0, "note4", 1, new Position("1-1-1"))
+                new ProductType(1, "description1", "213124134135",
+                        20.0, "note1", 0, new Position("1-1-1")),
+                new ProductType(2, "description2", "213125134134",
+                        10.0, "note2", 1, new Position("1-1-2")),
+                new ProductType(3, "description3", "213125134196",
+                        15.0, "note3", 0, new Position("1-1-3")),
+                new ProductType(4, "description4", "2131251334199",
+                        20.0, "note4", 1, new Position("1-1-4"))
         );
         ji.writeProducts(writeData);
 
@@ -84,10 +87,10 @@ public class TestJsonInterface {
     }
 
     /**
-     * Test reading and writing of a list of customers
+     * Test reading and writing of a customer list
      */
     @Test
-    public void testReadWriteCustomers() throws Exception {
+    public void testReadWriteCustomerList() throws Exception {
         // write a null list
         ji.writeCustomerList(null);
         CustomerList readData = ji.readCustomerList();
@@ -127,7 +130,7 @@ public class TestJsonInterface {
      * Test reading and writing of an account book
      */
     @Test
-    public void testReadWriteAccountBook() throws IOException {
+    public void testReadWriteAccountBook() throws Exception {
         // write a null list to the persistence layer
         ji.writeAccountBook(null);
         AccountBook readData = ji.readAccountBook();
@@ -141,7 +144,7 @@ public class TestJsonInterface {
 
         // add a sale transaction to the account book
         SaleTransaction s1 = new SaleTransaction(1, LocalDate.now());
-        s1.addSaleTransactionItem(product, 10, product.getPricePerUnit(), 0.0);
+        s1.addSaleTransactionItem(product, 10);
         writeData.addTransaction(s1);
         writeData.setTransactionStatus(1, OperationStatus.COMPLETED);
 

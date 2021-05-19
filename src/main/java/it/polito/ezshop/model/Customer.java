@@ -22,16 +22,6 @@ public class Customer {
         this.card = loyaltyCard;
     }
 
-    @Deprecated
-    public Customer(String customerName, String customerCard, int id, int points) {
-        this.customerName = customerName;
-        this.id = id;
-
-        if (customerCard != null && !customerCard.equals("")) {
-            this.card = new LoyaltyCard(customerCard, points);
-        }
-    }
-
     public Integer getId() {
         return this.id;
     }
@@ -45,9 +35,9 @@ public class Customer {
         return this.customerName;
     }
 
-    public void setCard(LoyaltyCard card) {
-        this.card = card;
-    }
+    public void setCard(LoyaltyCard card){
+            this.card = card;
+        }
 
     public LoyaltyCard getCard() {
         return card;

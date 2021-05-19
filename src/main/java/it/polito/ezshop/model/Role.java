@@ -21,6 +21,10 @@ public enum Role {
      * @return the enum
      */
     public static Role fromString(String value) {
+        if (value == null) {
+            return null;
+        }
+
         for (Role r : Role.values()) {
             if (r.value.equals(value)) {
                 return r;

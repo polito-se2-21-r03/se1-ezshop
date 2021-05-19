@@ -25,7 +25,7 @@ import static unitTests.TestHelpers.*;
 public class EZShopTestReceiveCreditCardPayment {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
 
     private static final String productCode = "12345678901231";
     private static int totalBalance = 0;
@@ -37,6 +37,10 @@ public class EZShopTestReceiveCreditCardPayment {
     private static final double creditCardBalance = 150.0;
     // a credit card from the credit cards file with an initial balance of 0.0
     private static final String emptyCreditCard = "4716258050958645";
+
+    public EZShopTestReceiveCreditCardPayment() throws Exception {
+        admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    }
 
     /**
      * Creates a clean shop instance for each test

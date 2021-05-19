@@ -7,7 +7,8 @@ import it.polito.ezshop.model.adapters.CustomerAdapter;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class TestCustomerAdapter {
 
@@ -15,7 +16,6 @@ public class TestCustomerAdapter {
     public static final String cardCode = "1234567890";
     public static final int points = 10;
     private static final int id = 1;
-    final LoyaltyCard card = new LoyaltyCard(cardCode, points);
 
     CustomerAdapter customerAdapter1;
     CustomerAdapter customerAdapter2;
@@ -25,29 +25,33 @@ public class TestCustomerAdapter {
 
         Customer customer1 = new Customer(id, name);
         Customer customer2 = new Customer(id, name);
-        customer2.setCard(card);
+        customer2.setCard(new LoyaltyCard(cardCode));
 
         customerAdapter1 = new CustomerAdapter(customer1);
         customerAdapter2 = new CustomerAdapter(customer2);
     }
 
     @Test
-    public void testSetters() {
-        assertThrows(UnsupportedOperationException.class, () -> customerAdapter2.setId(id));
-        assertThrows(UnsupportedOperationException.class, () -> customerAdapter2.setCustomerName(name));
-        assertThrows(UnsupportedOperationException.class, () -> customerAdapter2.setCustomerCard(cardCode));
-        assertThrows(UnsupportedOperationException.class, () -> customerAdapter2.setPoints(points));
+    public void testConstructor() {
+        assertThrows(NullPointerException.class, () -> new CustomerAdapter(null));
     }
 
     @Test
-    public void testGetters() {
-        assertEquals((Integer) id, customerAdapter1.getId());
-        assertEquals(name, customerAdapter1.getCustomerName());
-        assertNull(customerAdapter1.getCustomerCard());
-        assertEquals((Integer) 0, customerAdapter1.getPoints());
+    public void testSetters() {
 
-        assertEquals(cardCode, customerAdapter2.getCustomerCard());
-        assertEquals((Integer) points, customerAdapter2.getPoints());
+        // test get/set id
+        assertThrows(UnsupportedOperationException.class, () -> customerAdapter1.setId(id + 1));
+
+        // test get/set name
+        for (String name : TestHelpers.invalidCustomerNames) {
+            assertThrows(IllegalArgumentException.class, () -> customerAdapter1.setCustomerName(name));
+        }
+
+        customerAdapter1.setCustomerName("John");
+        assertEquals("John", customerAdapter1.getCustomerName());
+
+        // test get/set points
+        customerAdapter1.setPoints(points + 1);
+        assertEquals((Integer) (points + 1), customerAdapter1.getPoints());
     }
-
 }

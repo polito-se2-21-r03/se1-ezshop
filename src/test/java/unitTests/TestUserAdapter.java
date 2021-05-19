@@ -10,28 +10,44 @@ import static org.junit.Assert.assertThrows;
 
 public class TestUserAdapter {
 
-    final Integer id = 1;
-    final String username = "username";
-    final String password = "password";
-    final Role role = Role.ADMINISTRATOR;
-
-    final User user = new User(id, username, password, role);
-    final UserAdapter userAdapter = new UserAdapter(user);
+    static final Integer id = 1;
+    static final String username = "username";
+    static final String password = "password";
+    static final Role role = Role.ADMINISTRATOR;
 
     @Test
-    public void testSetters() {
+    public void testConstructor() {
+        assertThrows(NullPointerException.class, () -> new UserAdapter(null));
+    }
+
+    @Test
+    public void testSetters() throws Exception {
+        User user = new User(id, username, password, role);
+        UserAdapter userAdapter = new UserAdapter(user);
+
+        // test get/set id
         assertThrows(UnsupportedOperationException.class, () -> userAdapter.setId(id));
-        assertThrows(UnsupportedOperationException.class, () -> userAdapter.setUsername(username));
-        assertThrows(UnsupportedOperationException.class, () -> userAdapter.setPassword(password));
-        assertThrows(UnsupportedOperationException.class, () -> userAdapter.setRole(role.getValue()));
-    }
-
-    @Test
-    public void testGetters() {
         assertEquals(user.getId(), userAdapter.getId());
-        assertEquals(user.getUsername(), userAdapter.getUsername());
-        assertEquals(user.getPassword(), userAdapter.getPassword());
-        assertEquals(user.getRole().getValue(), userAdapter.getRole());
-    }
 
+        // test get/set username
+        for (String username : TestHelpers.invalidUserUsernames) {
+            assertThrows(IllegalArgumentException.class, () -> userAdapter.setUsername(username));
+        }
+        userAdapter.setUsername("Alex");
+        assertEquals(user.getUsername(), userAdapter.getUsername());
+
+        // test get/set password
+        for (String password : TestHelpers.invalidUserPassword) {
+            assertThrows(IllegalArgumentException.class, () -> userAdapter.setPassword(password));
+        }
+        userAdapter.setPassword("1234");
+        assertEquals("1234", userAdapter.getPassword());
+
+        // test get/set role
+        for (String role : TestHelpers.invalidUserRoles) {
+            assertThrows(IllegalArgumentException.class, () -> userAdapter.setRole(role));
+        }
+        userAdapter.setRole(Role.CASHIER.getValue());
+        assertEquals(Role.CASHIER.getValue(), userAdapter.getRole());
+    }
 }

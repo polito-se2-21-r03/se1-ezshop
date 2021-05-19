@@ -4,6 +4,7 @@ import it.polito.ezshop.data.BalanceOperation;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.InvalidPasswordException;
 import it.polito.ezshop.exceptions.InvalidRoleException;
+import it.polito.ezshop.exceptions.InvalidUserIdException;
 import it.polito.ezshop.exceptions.InvalidUsernameException;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
@@ -21,7 +22,15 @@ import static unitTests.TestHelpers.testAccessRights;
 public class EZShopTestRecordBalanceUpdate {
 
     private static final EZShop shop = new EZShop();
-    private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+    private static User admin;
+
+    static {
+        try {
+            admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Creates a clean shop instance for each test

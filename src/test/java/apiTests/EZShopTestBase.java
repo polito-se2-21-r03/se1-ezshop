@@ -42,9 +42,15 @@ public class EZShopTestBase {
 
     private static final String ADMIN_USERNAME = "admin";
     private static final String ADMIN_PASSWORD = "123";
-    protected static final User admin = new User(0, ADMIN_USERNAME, ADMIN_PASSWORD, Role.ADMINISTRATOR);
+    protected static User admin;
 
     static {
+        try {
+            admin = new User(1, ADMIN_USERNAME, ADMIN_PASSWORD, Role.ADMINISTRATOR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         try {
             // initialization of product 1
             product1 = new it.polito.ezshop.model.ProductType(1, PRODUCT_DESCRIPTION_1, PRODUCT_CODE_1, PRODUCT_PRICE_1,
