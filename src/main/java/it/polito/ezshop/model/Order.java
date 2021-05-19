@@ -11,7 +11,7 @@ public class Order extends Debit {
 
     public Order(int balanceId, LocalDate date, String productCode, double pricePerUnit, int quantity) {
         super(balanceId, date, pricePerUnit * quantity, OperationStatus.CLOSED);
-
+        Objects.requireNonNull(date, "date must not be null");
         Objects.requireNonNull(productCode, "productCode must not be null");
 
         this.productCode = productCode;

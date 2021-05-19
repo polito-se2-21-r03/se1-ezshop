@@ -103,40 +103,21 @@ interface "EZShopInterface" {
     + computeBalance()
 }
 ```
+
 ```plantuml
 
-package it.polito.ezshop.model.adapter {
-class BalanceOperationAdapter{
-
-}
-class CustomerAdapter{
-
-}
-class OrderAdapter{
-
-}
-class ProductTypeAdapter{
-
-}
-class SaleTransactionAdapter{
-
-}
-class TicketEntryAdapter{
-
-}
-class UserAdapter{
-
-}
-it.polito.ezshop.model.adapter --down- EZShop
-}
-
 package it.polito.ezshop.data {
-interface EZShopInterface {
+    interface EZShopInterface {
+    }
 }
 
-note "This the provided EZShopInterface interface" as n
+package it.polito.ezshop.model {
 
-n -down- EZShopInterface
+package adapter {
+}
+
+note "see below" as see_below
+see_below - adapter
 
 class EZShop {
     + currentUser
@@ -145,21 +126,22 @@ class EZShop {
 EZShopInterface <|-- EZShop
 
 
-
-class JsonInterface {
-    + reset()
-    + readUsers()
-    + writeUsers(List<User>)
-    + readProducts()
-    + writeProducts(List<ProductType>)
-    + readCustomerList()
-    + writeCustomerList(CustomerList)
-    + readAccountBook()
-    + writeAccountBook(AccountBook)
-    + write(Path, String)
-    + read(Path)
-    + writeList(Path, List<T>)
-    + readList(Path, Class<T>)
+package persistence {
+    class JsonInterface {
+        + reset()
+        + readUsers()
+        + writeUsers(List<User>)
+        + readProducts()
+        + writeProducts(List<ProductType>)
+        + readCustomerList()
+        + writeCustomerList(CustomerList)
+        + readAccountBook()
+        + writeAccountBook(AccountBook)
+        + write(Path, String)
+        + read(Path)
+        + writeList(Path, List<T>)
+        + readList(Path, Class<T>)
+    }
 }
 
 JsonInterface ---right- EZShop
@@ -168,9 +150,6 @@ JsonInterface ---right- EZShop
 EZShop -right- "*" User
 EZShop -- AccountBook
 EZShop -down--- "*" ProductType
-note right on link
-Map
-end note
 
 class User {
     + ID
@@ -178,7 +157,7 @@ class User {
     + passwordHash
     + role
     + validateId(Integer)
-    validateUsername(String)
+    + validateUsername(String)
     + validatePassword(String)
     + validateRole(Role)
     + setRole(String)
@@ -226,7 +205,8 @@ Order "*" -down- ProductType
 class LoyaltyCard {
     + cardCode
     + points
-    + updatePoints(int)
+    + generateNewCode()
+    + validateCode(String)
 }
 
 class Customer {
@@ -249,7 +229,6 @@ class SaleTransaction {
     + getTransactionItems()
     + addSaleTransactionItem(SaleTransactionItem)
     + computePoints()
-    + closeTransaction()
 }
 
 class SaleTransactionItem {
@@ -300,8 +279,6 @@ class AccountBook {
     + computeBalance()
     + generateNewId()
     + reset()
-    + equals(Object)
-    + hashCode()
 }
 
 enum OperationStatus {
@@ -336,18 +313,12 @@ SaleTransaction -up-|> Credit
 ReturnTransaction -up-|> Debit
 }
 
-note "All the classes in this package, with the exception of EZShop and JsonInterface, should be persisted." as note_persistence
-
-it.polito.ezshop.data -down- note_persistence
-
 package it.polito.ezshop.utils {
   class Utils {
       + generateId(List<Integer>)
       + isValidBarcode(String)
       + isValidCreditCardNumber(String)
       + luhnValidate(String)
-      + readFromFile(String, String)
-      + whiteToFile(String, String, double)
   }
   Utils <-right- EZShop
 }
@@ -374,12 +345,10 @@ package it.polito.ezshop.credit_card_circuit {
         + balance
         + checkAvailability (amount)
         + updateBalance (amount)
+        + getBalance (String)
     }
 
     CreditCard "*" -up- TextualCreditCardCircuit
-    note right on link
-    Map
-    end note
 
     class VisaCreditCardCircuitAdapter {}
 
@@ -396,8 +365,73 @@ package it.polito.ezshop.credit_card_circuit {
 
 ```
 
+```plantuml
+package it.polito.ezshop.data{
+interface BalanceOperation{
+
+}
+interface Customer{
+
+}
+interface Order{
+
+}
+interface ProductType{
+
+}
+interface SaleTransaction{
+
+}
+interface TicketEntry{
+
+}
+interface User{
+
+}
+}
+package it.polito.ezshop.model{
+    package adapter {
+        class BalanceOperationAdapter{
+            - balanceOperation
+        }
+        class CustomerAdapter{
+            - customer
+        }
+        class OrderAdapter {
+            - order
+        }
+        class ProductTypeAdapter{
+            - product
+        }
+        class SaleTransactionAdapter{
+            - saleTransaction
+        }
+        class TicketEntryAdapter{
+            - ticketEntry
+        }
+        class UserAdapter{
+            - user
+        }
+
+        SaleTransactionAdapter - "*" TicketEntryAdapter
+    }
+}
+
+BalanceOperationAdapter --|> BalanceOperation
+CustomerAdapter --|> Customer
+OrderAdapter --|> Order
+ProductTypeAdapter --|> ProductType
+TicketEntryAdapter --|> TicketEntry
+SaleTransactionAdapter --|> SaleTransaction
+UserAdapter --|> User
+
+```
+
+## Adapter packages
+The classes in *it.polito.ezshop.model.adapters* adapts the internal model in *it.polito.ezshop.model* to the interfaces required by API (*it.polito.ezshop.data*). 
+
 ## Persistence
-All the classes in the *it.polito.ezshop.data* package, with the exception of EZShop and JsonInterface, should be persisted. The *JsonInterface* class offers a possible interface for persisting the application's data using JSON files.
+All the classes in the *it.polito.ezshop.model* package, with the exception of EZShop and JsonInterface, should be persisted. The *JsonInterface* class offers a possible interface for persisting the application's data using JSON files.
 
 ## Credit card circuit
 The *it.polito.ezshop.credit_card_circuit* implements the interaction between the EZShop and the credit card circuit using the Adapter pattern. The *CreditCardCircuit* interface defines the methods for charging and crediting a credit card. The interface is implemented by the *TextualCreditCardCircuit* class that simulates the credit card circuit using a textual file as described in the requirements document.

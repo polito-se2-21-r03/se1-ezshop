@@ -19,11 +19,13 @@ import org.junit.runners.Suite;
         // transaction
         TestBalanceOperationAdapter.class,
         TestOperationStatus.class,
+        TestOrder.class,
         TestOrderAdapter.class,
         TestTicketEntry.class,
         TestTicketEntryAdapter.class,
         TestSaleTransaction.class,
         TestSaleTransactionAdapter.class,
+        TestReturnTransaction.class,
         TestReturnTransactionItem.class,
         // Utils
         TestUtils.class,

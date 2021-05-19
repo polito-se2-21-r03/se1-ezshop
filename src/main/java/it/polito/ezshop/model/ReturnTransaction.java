@@ -18,6 +18,8 @@ public class ReturnTransaction extends Debit {
     public ReturnTransaction(int balanceId, int saleTransactionId, LocalDate date, List<ReturnTransactionItem> entries) {
         super(balanceId, date, 0.0, OperationStatus.OPEN);
 
+        Objects.requireNonNull(date, "date must not be null");
+
         this.saleTransactionId = saleTransactionId;
 
         if (entries != null) {
