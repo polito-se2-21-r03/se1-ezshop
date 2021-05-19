@@ -40,11 +40,6 @@ public class JsonInterface {
     private final Path customerListPath;
 
     /**
-     * Path of the loyalty cards json file
-     */
-    private final Path loyaltyCardsPath;
-
-    /**
      * Instance of the Gson serializer/deserializer
      */
     private final Gson gson;
@@ -61,7 +56,6 @@ public class JsonInterface {
         this.productsPath = Paths.get(path.toString(), "products.json");
         this.accountBookPath = Paths.get(path.toString(), "account_book.json");
         this.customerListPath = Paths.get(path.toString(), "customers.json");
-        this.loyaltyCardsPath = Paths.get(path.toString(), "loyalty_card.json");
 
         // see https://jansipke.nl/serialize-and-deserialize-a-list-of-polymorphic-objects-with-gson/
         // create a runtime adapter that instantiate the correct subclass of BalanceOperation
@@ -176,7 +170,7 @@ public class JsonInterface {
         if (customerList == null) {
             customerList = new CustomerList();
         }
-        write(accountBookPath, gson.toJson(customerList));
+        write(customerListPath, gson.toJson(customerList));
     }
 
     /**

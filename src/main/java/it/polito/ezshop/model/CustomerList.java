@@ -36,7 +36,13 @@ public class CustomerList {
 
         // add customer to list
         int customerID = this.generateNewId();
-        Customer customer = new Customer(customerID, name);
+        Customer customer;
+        try {
+            customer = new Customer(customerID, name);
+        } catch (InvalidCustomerIdException e) {
+            // this should not happen if the ID was generated properly
+            throw new Error("An unexpected error was encountered when creating a new customer", e);
+        }
         this.customers.add(customer);
 
         // return successfully
@@ -58,7 +64,7 @@ public class CustomerList {
     public boolean modifyCustomer(Integer id, String newName, String newCard) throws InvalidCustomerIdException, InvalidCustomerCardException, InvalidCustomerNameException {
 
         // ensure ID is valid
-        validateID(id);
+        Customer.validateID(id);
 
         // validate name
         Customer.validateName(newName);
@@ -128,7 +134,7 @@ public class CustomerList {
     public boolean attachCardToCustomer(Integer id, String cardCode) throws InvalidCustomerIdException, InvalidCustomerCardException {
 
         // ensure id is valid
-        validateID(id);
+        Customer.validateID(id);
 
         // ensure card is valid
         LoyaltyCard.validateCode(cardCode);
@@ -187,7 +193,7 @@ public class CustomerList {
      * @throws InvalidCustomerIdException if the provided ID is not valid
      */
     public boolean removeCustomer(Integer id) throws InvalidCustomerIdException {
-        validateID(id);
+        Customer.validateID(id);
         return this.customers.removeIf(c -> id.equals(c.getId()));
     }
 
@@ -199,9 +205,9 @@ public class CustomerList {
      * @return the customer with the given id if he exists
      *         null, if no customer with id exists
      * @throws InvalidCustomerIdException if the provided ID is not valid
-     */ // TODO copy
+     */
     public Customer getCustomer(Integer id) throws InvalidCustomerIdException {
-        validateID(id);
+        Customer.validateID(id);
         return customers.stream()
                 .filter(c -> id.equals(c.getId()))
                 .findAny()
@@ -246,16 +252,6 @@ public class CustomerList {
         }
 
         return newCode;
-    }
-
-    public static void validateID(Integer id) throws InvalidCustomerIdException {
-        if (!isValidID(id)) {
-            throw new InvalidCustomerIdException("The customer id must be a non-null positive integer");
-        }
-    }
-
-    public static boolean isValidID(Integer id) {
-        return id != null && id > 0;
     }
 
     /**

@@ -25,7 +25,7 @@ public class TestCustomerAdapter {
 
         Customer customer1 = new Customer(id, name);
         Customer customer2 = new Customer(id, name);
-        customer2.setCard(new LoyaltyCard(cardCode));
+        customer1.setCard(new LoyaltyCard(cardCode));
 
         customerAdapter1 = new CustomerAdapter(customer1);
         customerAdapter2 = new CustomerAdapter(customer2);
@@ -39,18 +39,22 @@ public class TestCustomerAdapter {
     @Test
     public void testSetters() {
 
-        // test get/set id
+        // test set id illegal
         assertThrows(UnsupportedOperationException.class, () -> customerAdapter1.setId(id + 1));
 
-        // test get/set name
+        // test set illegal names
         for (String name : TestHelpers.invalidCustomerNames) {
             assertThrows(IllegalArgumentException.class, () -> customerAdapter1.setCustomerName(name));
         }
 
+        // test set negative points
+        assertThrows(IllegalArgumentException.class, () -> customerAdapter1.setPoints(-1));
+
+        // test set/get name
         customerAdapter1.setCustomerName("John");
         assertEquals("John", customerAdapter1.getCustomerName());
 
-        // test get/set points
+        // test set/get points
         customerAdapter1.setPoints(points + 1);
         assertEquals((Integer) (points + 1), customerAdapter1.getPoints());
     }

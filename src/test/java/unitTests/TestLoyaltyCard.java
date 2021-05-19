@@ -14,31 +14,34 @@ public class TestLoyaltyCard {
     @Test
     public void testConstructor() throws InvalidCustomerCardException {
         for (String code : TestHelpers.invalidCustomerCards) {
-            assertThrows(InvalidCustomerCardException.class, () -> new LoyaltyCard(code, points));
+            assertThrows(InvalidCustomerCardException.class, () -> new LoyaltyCard(code));
         }
 
-        // test invalid number of points
-        assertThrows(IllegalArgumentException.class, () -> new LoyaltyCard(code, -1));
-
-        // test zero points
-        LoyaltyCard card = new LoyaltyCard(code, 0);
-
+        // test correct initialization
+        LoyaltyCard card = new LoyaltyCard(code);
         assertEquals(code, card.getCode());
         assertEquals(0, card.getPoints());
-
-        // test positive number of points
-        card = new LoyaltyCard(code, points);
-
-        assertEquals(code, card.getCode());
-        assertEquals(points, card.getPoints());
     }
 
     @Test
     public void testSetPoints() throws Exception {
-        LoyaltyCard card = new LoyaltyCard(code, points);
+        LoyaltyCard card = new LoyaltyCard(code);
 
         card.setPoints(12);
         assertEquals(12, card.getPoints());
+        card.setPoints(0);
+        assertEquals(0, card.getPoints());
+
+        assertThrows(IllegalArgumentException.class, () -> card.setPoints(-5));
+    }
+
+    @Test
+    public void testIsValidCode() throws Exception {
+        for (String code : TestHelpers.invalidCustomerCards) {
+            assertFalse(LoyaltyCard.isValidCode(code));
+        }
+
+        assertTrue(LoyaltyCard.isValidCode("1234565764"));
     }
 
     @Test
@@ -57,9 +60,13 @@ public class TestLoyaltyCard {
 
     @Test
     public void testEqualsHashCode() throws Exception {
-        LoyaltyCard card = new LoyaltyCard(code, points);
-        LoyaltyCard cardSame = new LoyaltyCard(code, points);
-        LoyaltyCard cardDifferent = new LoyaltyCard(code, points + 1);
+        LoyaltyCard card = new LoyaltyCard(code);
+        LoyaltyCard cardSame = new LoyaltyCard(code);
+        LoyaltyCard cardDifferent = new LoyaltyCard(code);
+
+        card.setPoints(points);
+        cardSame.setPoints(points);
+        cardDifferent.setPoints(points+1);
 
         assertEquals(card, cardSame);
         assertNotEquals(card, cardDifferent);

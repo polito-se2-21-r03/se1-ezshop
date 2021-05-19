@@ -1,25 +1,20 @@
 package it.polito.ezshop.model;
 
+import it.polito.ezshop.exceptions.InvalidCustomerIdException;
 import it.polito.ezshop.exceptions.InvalidCustomerNameException;
 
 import java.util.Objects;
 
 public class Customer {
-    private final int id;
+    private final Integer id;
     private String customerName;
     private LoyaltyCard card;
 
-    public Customer(int id, String customerName) throws InvalidCustomerNameException {
+    public Customer(Integer id, String customerName) throws InvalidCustomerNameException, InvalidCustomerIdException {
+        validateID(id);
         this.id = id;
         this.setCustomerName(customerName);
         this.setCard(null);
-    }
-
-    @Deprecated
-    public Customer(int id, String customerName, LoyaltyCard loyaltyCard) throws InvalidCustomerNameException {
-        this.id = id;
-        setCustomerName(customerName);
-        this.card = loyaltyCard;
     }
 
     public Integer getId() {
@@ -41,6 +36,16 @@ public class Customer {
 
     public LoyaltyCard getCard() {
         return card;
+    }
+
+    public static void validateID(Integer id) throws InvalidCustomerIdException {
+        if (!isValidID(id)) {
+            throw new InvalidCustomerIdException("The customer id must be a non-null positive integer");
+        }
+    }
+
+    public static boolean isValidID(Integer id) {
+        return id != null && id > 0;
     }
 
     public static void validateName(String name) throws InvalidCustomerNameException {
