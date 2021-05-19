@@ -33,7 +33,7 @@ public class EZShopTestReturnCreditCardPayment {
     private static final double creditCardBalance = 150.0;
 
     public EZShopTestReturnCreditCardPayment() throws Exception {
-        admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
     }
 
     /**
@@ -44,6 +44,7 @@ public class EZShopTestReturnCreditCardPayment {
 
         // reset shop to blanc state
         shop.reset();
+        totalBalance = 0;
 
         // setup authorized user
         shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
@@ -137,7 +138,7 @@ public class EZShopTestReturnCreditCardPayment {
                 .collect(Collectors.toList()));
 
         // if ID does not exist -1 is returned
-        assertEquals(-1, shop.returnCreditCardPayment(nonExistentId, creditCard));
+        assertEquals(-1, shop.returnCreditCardPayment(nonExistentId, creditCard), 0.001);
     }
 
     /**
@@ -150,10 +151,10 @@ public class EZShopTestReturnCreditCardPayment {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // trying to receive return with unregistered credit card
-        Assert.assertEquals(-1, shop.returnCreditCardPayment(returnId, "1358954993914491"), 0.001);
+        Assert.assertEquals(-1, shop.returnCreditCardPayment(returnId, "1358954993914492"), 0.001);
 
-        // verify return is still in state PAID/COMPLETED
-        Assert.assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
+        // verify return is still unpaid
+        Assert.assertNull(getStatusOfTransaction(returnId));
 
         // verify system's balance did not change
         Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -172,14 +173,10 @@ public class EZShopTestReturnCreditCardPayment {
         int orderId = shop.issueOrder(productCode, 10, 1);
 
         // trying to pay for an order with receiveCreditCardPayment fails
-        assertEquals(-1, shop.returnCreditCardPayment(orderId, creditCard));
+        assertEquals(-1, shop.returnCreditCardPayment(orderId, creditCard), 0.001);
 
-        // verify order is still in CLOSED state
-        Assert.assertEquals(OperationStatus.CLOSED.name(), shop.getAllOrders().stream()
-                .filter(b -> b.getBalanceId() == orderId)
-                .map(Order::getStatus)
-                .findAny()
-                .orElse(null));
+        // verify order is still in unpaid state
+        Assert.assertNull(getStatusOfTransaction(orderId));
 
         // verify system's balance did not change
         Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -203,8 +200,8 @@ public class EZShopTestReturnCreditCardPayment {
         // trying to receive cash payment for a still open return fails
         Assert.assertEquals(-1, shop.returnCreditCardPayment(openReturnId, creditCard), 0.001);
 
-        // verify return is still in OPEN state
-        Assert.assertEquals(OperationStatus.OPEN, getStatusOfReturn(returnId));
+        // verify return is still in unpaid state
+        Assert.assertNull(getStatusOfTransaction(returnId));
 
         // verify system's balance did not change
         Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -227,7 +224,7 @@ public class EZShopTestReturnCreditCardPayment {
         totalBalance -= returnedValue;
 
         // verify return is in state PAID/COMPLETED
-        Assert.assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
+        Assert.assertEquals(OperationStatus.COMPLETED, getStatusOfTransaction(returnId));
 
         // verify system's balance did update correctly
         Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -253,7 +250,7 @@ public class EZShopTestReturnCreditCardPayment {
         Assert.assertEquals(0, shop.returnCreditCardPayment(returnId, creditCard), 0.001);
 
         // verify return remains in state PAID/COMPLETED
-        Assert.assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
+        Assert.assertEquals(OperationStatus.COMPLETED, getStatusOfTransaction(returnId));
 
         // verify system's balance did not update a second time
         Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -262,16 +259,17 @@ public class EZShopTestReturnCreditCardPayment {
     }
 
     /**
-     * Gets the OperationStatus of the return transaction with the given ID or null if not found
+     * Gets the OperationStatus of the transaction with the given ID or null if it is not in PAID/COMPLETED
+     * state or if it does not exist
      *
-     * @param returnId ID of the requested ReturnTransaction
-     * @return the Operation status of the return transaction as a String,
-     *         null if not found
+     * @param returnId ID of the requested transaction
+     * @return the Operation status of the transaction as a String,
+     *         null not paid or does not exist
      */
-    private static OperationStatus getStatusOfReturn(int returnId) throws Exception {
+    private static OperationStatus getStatusOfTransaction(int returnId) throws Exception {
         return shop.getCreditsAndDebits(null, null).stream()
                 .filter(b -> b.getBalanceId() == returnId)
-                .map(b -> ((ReturnTransaction) b).getStatus())
+                .map(b -> ((it.polito.ezshop.model.BalanceOperation) b).getStatus())
                 .findAny()
                 .orElse(null);
     }

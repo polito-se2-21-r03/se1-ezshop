@@ -1237,7 +1237,8 @@ public class EZShop implements EZShopInterface {
         // change transaction status to COMPLETED and automatically updated shop balance
         accountBook.setTransactionStatus(ticketNumber, OperationStatus.COMPLETED);
 
-        // return successfully
+        // presist and return successfully
+        writeState();
         return true;
     }
 
@@ -1274,35 +1275,46 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public double returnCreditCardPayment(Integer returnId, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
+
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        //if the  number is less than or equal to 0 or if it is null
+        // if the  number is less than or equal to 0 or if it is null
         if(returnId == null || returnId.compareTo(0) <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
         //if the credit card number is empty, null or if luhn algorithm does not validate the credit card
-        if (creditCard.isEmpty() || !isValidCreditCardNumber(creditCard))
+        if (!isValidCreditCardNumber(creditCard))
             throw new InvalidCreditCardException("Invalid credit card number.");
 
-        //find the returntransaction and the return amount
-        ReturnTransaction returnTransaction = accountBook.getReturnTransactions().stream()
-                .filter(x -> x.getBalanceId() == returnId)
-                .findFirst()
-                .orElse(null);
+        // get return transaction
+        it.polito.ezshop.model.BalanceOperation returnT = accountBook.getTransaction(returnId);
 
-        assert returnTransaction != null;
-        double returnAmount = returnTransaction.getMoney();
-
-        //if the return transaction is not ended,
-        if(returnTransaction.getStatus() == OperationStatus.OPEN)
+        // return -1 if the return transaction does not exist
+        if (!(returnT instanceof ReturnTransaction)) {
             return -1;
-        //*** I should registered card control ***
-            //the money returned to the customer
-        else
-            return returnAmount;
+        }
 
-        // TODO: add writeState()
+        // return -1 if the return transaction is not in CLOSED state
+        if (returnT.getStatus() != OperationStatus.CLOSED) {
+            return -1;
+        }
+
+        // get the value of the return transaction
+        double returnValue = Math.abs(returnT.getMoney());
+
+        // try to add funds to credit card, return -1 if operation fails
+        try {
+            if (!creditCardCircuit.addCredit(creditCard, returnValue)) {
+                return -1;
+            }
+        } catch (IOException e) {
+            return -1;
+        }
+
+        // persist and return amount of money that was credited to the customer
+        writeState();
+        return returnValue;
     }
 
     @Override
