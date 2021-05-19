@@ -252,6 +252,64 @@ Version:
 | [0, MAX_INT)     | Valid         | card.setPoints(1)<br>assert card.getPoints() == 1 | TestLoyaltyCard.testGenerateNewCode |
 
 
+### **Class *Customer* - method *Constructor***
+
+**Criteria for method *Constructor*:**
+
+- Id parameter
+- Name parameter
+
+**Predicates for method *Constructor*:**
+
+| Criteria           | Predicate                                                      |
+|--------------------|----------------------------------------------------------------|
+| Id parameter       | Null                                                           |
+|                    | (MIN_INT, 0]                                                   |
+|                    | [1, MAX_INT)                                                   |
+| Name parameter     | Null or empty string                                           |
+|                    | Valid                                                          |
+
+**Boundaries**:
+
+| Criteria           | Boundary values                                                |
+|--------------------|----------------------------------------------------------------|
+| Id parameter       | -1, 0, 1                                                       |
+
+**Combination of predicates**:
+
+| Id parameter     | Name parameter        | Valid/Invalid | Description of the test case                                                                                                                         | JUnit test case                     |
+|------------------|-----------------------|---------------|------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
+| Null             | *                     | Invalid       | new Customer(null, "John") -> InvalidCustomerIdException                                                                                             | TestCustomer.testConstructor        |
+| (MIN_INT, 0]     | *                     | Invalid       | new Customer(-1, "John") -> InvalidCustomerIdException                                                                                               | TestCustomer.testConstructor        |
+| [0, MAX_INT)     | Null or empty string  | Invalid       | new Customer(1, null) -> InvalidCustomerNameException                                                                                                | TestCustomer.testConstructor        |
+| "                | Valid                 | Valid         | customer = new Customer(id, name)<br>assert customer.getId() == id<br>assert customer.getCustomerName() == name<br>assert customer.getCard() == null | TestCustomer.testConstructor        |
+
+
+### **Class *Customer* - method *setCustomerName***
+
+**Criteria for method *setCustomerName*:**
+
+- Name parameter
+
+**Predicates for method *setCustomerName*:**
+
+| Criteria           | Predicate                                                      |
+|--------------------|----------------------------------------------------------------|
+| Name parameter     | Null or empty string                                           |
+|                    | Valid                                                          |
+
+**Boundaries**:
+
+*none*
+
+**Combination of predicates**:
+
+| Name parameter        | Valid/Invalid | Description of the test case                                                | JUnit test case                     |
+|-----------------------|---------------|-----------------------------------------------------------------------------|-------------------------------------|
+| Null or empty string  | Invalid       | customer.setCustomerName(null) -> InvalidCustomerNameException              | TestCustomer.testSetName            |
+| Valid                 | Valid         | customer.setCustomerName(name)<br>assert customer.getCustomerName() == name | TestCustomer.testSetName            |
+
+
 ### **Class *Position* - method *Constructor***
 
 **Criteria for method *Constructor*:**
@@ -271,10 +329,10 @@ Version:
 
 **Combination of predicates**:
 
-| Position parameter | Valid/Invalid | Description of the test case                                                                                                              | JUnit test case                     |
-|--------------------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
-| Invalid            | Invalid       | new Position("") -> InvalidLocationException<br>new Position("1-2-3-4") -> InvalidLocationException                                       | TestLoyaltyCard.testGenerateNewCode |
-| Valid              | Valid         | position = new Position("1-2-3")<br>assert position.getAisleID() == 1<br>assert position.getRackID() == "2"<br>position.getLevelID() == 3 | TestLoyaltyCard.testGenerateNewCode |
+| Position parameter | Valid/Invalid | Description of the test case                                                                                                              | JUnit test case                           |
+|--------------------|---------------|-------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| Invalid            | Invalid       | new Position("") -> InvalidLocationException<br>new Position("1-2-3-4") -> InvalidLocationException                                       | TestPosition.testConstructorInvalidFormat |
+| Valid              | Valid         | position = new Position("1-2-3")<br>assert position.getAisleID() == 1<br>assert position.getRackID() == "2"<br>position.getLevelID() == 3 | TestPosition.testConstructors             |
 
 ### **Class *ProductType* - method *Constructor***
 
@@ -455,8 +513,7 @@ Version:
 
 | Unit name            | JUnit test case |
 |----------------------|-----------------|
-| User                 | TestUser.testConstructor |
-|                      | TestUser.testSetId |
+| User                 | TestUser.testSetId |
 |                      | TestUser.testSetUsername |
 |                      | TestUser.testSetPassword |
 |                      | TestUser.testValidateId |
@@ -466,6 +523,21 @@ Version:
 |                      | TestUser.testEqualsHashCode |
 | UserAdapter          | TestUserAdapter.testConstructor |
 |                      | TestUserAdapter.testSetters |
+| LoyaltyCard          | TestLoyaltyCard.testEqualsHashCode |
+|                      | TestLoyaltyCard.testIsValidCode |
+|                      | TestLoyaltyCard.testValidateCode |
+|                      | TestLoyaltyCard.testEqualsHashCode |
+| Customer             | TestCustomer.testSetCard |
+|                      | TestCustomer.testIsValidUsername |
+|                      | TestCustomer.testValidateUsername |
+|                      | TestCustomer.testIsValidID |
+|                      | TestCustomer.testValidateID |
+|                      | TestCustomer.testEqualsHashCode |
+| TestCustomerAdapter  | TestCustomerAdapter.testConstructor |
+|                      | TestCustomerAdapter.testSetters |
+| Position             | TestPosition.testEqualsAndHashCode |
+|                      | TestPosition.testToString |
+
 
 ### Code coverage report
 
@@ -482,5 +554,14 @@ Version:
 | Utils.luhnValidate     | Lines 8-33                                    | 0                    | it.polito.ezshop.unitTests.TestIsValidCreditCardNumber.testLuhnValidateZeroIterations |
 |                        | Lines 8-33                                    | 1                    | it.polito.ezshop.unitTests.TestIsValidCreditCardNumber.testLuhnValidateOneIteration |
 |                        | Lines 8-33                                    | 2+                   | it.polito.ezshop.unitTests.TestIsValidCreditCardNumber.testLuhnValidateMultipleIterations |
+
+
+
+
+
+
+
+
+
 
 
