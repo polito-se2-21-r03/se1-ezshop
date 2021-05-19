@@ -118,14 +118,19 @@ class EZShop {
 EZShopInterface <|-- EZShop
 
 class JsonInterface {
+    + reset()
     + readUsers()
     + writeUsers(List<User>)
-    + readProductTypes()
-    + writeProductTypes(List<ProductType>)
-    + readBalanceOperations()
-    + writeBalanceOperations(List<BalanceOperation>)
+    + readProducts()
+    + writeProducts(List<ProductType>)
+    + readCustomerList()
+    + writeCustomerList(CustomerList)
     + readAccountBook()
     + writeAccountBook(AccountBook)
+    + write(Path, String)
+    + read(Path)
+    + writeList(Path, List<T>)
+    + readList(Path, Class<T>)
 }
 
 JsonInterface ---right- EZShop
@@ -263,7 +268,8 @@ class AccountBook {
 enum OperationStatus {
     OPEN
     CLOSED
-    PAYED
+    PAID
+    COMPLETED
 }
 
 class BalanceOperation {
