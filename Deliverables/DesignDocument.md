@@ -105,7 +105,7 @@ interface "EZShopInterface" {
 ```
 ```plantuml
 
-package adapter {
+package it.polito.ezshop.model.adapter {
 class BalanceOperationAdapter{
 
 }
@@ -127,6 +127,7 @@ class TicketEntryAdapter{
 class UserAdapter{
 
 }
+it.polito.ezshop.model.adapter --down- EZShop
 }
 
 package it.polito.ezshop.data {
