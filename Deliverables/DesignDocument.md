@@ -135,6 +135,7 @@ class JsonInterface {
 
 JsonInterface ---right- EZShop
 
+
 class RuntimeTypeAdapterFactory {
     + of(Class<T>, String, boolean)
     + registerSubtype(Class<? extends T>, String)
@@ -262,17 +263,23 @@ ReturnTransaction "*" -up- SaleTransaction
 ReturnTransactionItem "*" -right- ProductType
 
 class AccountBook {
-    + addTransaction(BalanceOperation)
-    + getTransactions(LocalDate, LocalDate)
-    + removeTransaction(int)
-    + getCredits()
+    + getTransaction(int)
+    + getAllTransactions()
+    + getCreditTransactions()
+    + getDebitTransactions()
     + getSaleTransactions()
-    + updateSaleTransaction(Integer)
-    + getDebits()
     + getReturnTransactions()
     + getOrders()
+    + addTransaction(BalanceOperation)
+    + removeTransaction(int)
+    + setTransactionStatus(int, OperationStatus)
     + checkAvailability(double)
+    + getBalance()
     + computeBalance()
+    + generateNewId()
+    + reset()
+    + equals(Object)
+    + hashCode()
 }
 
 enum OperationStatus {
@@ -310,6 +317,18 @@ ReturnTransaction -up-|> Debit
 note "All the classes in this package, with the exception of EZShop and JsonInterface, should be persisted." as note_persistence
 
 it.polito.ezshop.data -down- note_persistence
+
+package it.polito.ezshop.utils {
+  class Utils {
+      + generateId(List<Integer>)
+      + isValidBarcode(String)
+      + isValidCreditCardNumber(String)
+      + luhnValidate(String)
+      + readFromFile(String, String)
+      + whiteToFile(String, String, double)
+  }
+  Utils <-right- EZShop
+}
 
 package it.polito.ezshop.credit_card_circuit {
     interface CreditCardCircuit {
