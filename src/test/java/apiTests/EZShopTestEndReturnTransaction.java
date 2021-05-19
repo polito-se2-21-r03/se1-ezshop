@@ -113,7 +113,7 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
         assertTrue(shop.endReturnTransaction(rid1, true));
 
         // get the amount of returned items
-        it.polito.ezshop.model.SaleTransaction st = getSaleTransaction(sid1);
+        it.polito.ezshop.model.SaleTransaction st = (it.polito.ezshop.model.SaleTransaction) getSaleTransaction(sid1);
         int delta = SALE_1_PRODUCT_1_AMOUNT - st.getTransactionItems().stream()
                 .filter(x -> x.getProductType().getBarCode().equals(product1.getBarCode()))
                 .map(it.polito.ezshop.model.TicketEntry::getAmount).findAny().orElse(0);
