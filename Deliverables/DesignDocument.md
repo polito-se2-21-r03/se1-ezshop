@@ -34,12 +34,14 @@ package "data" {}
 package "model" {}
 package "exceptions" {}
 package "credit_card_circuit" {}
+package "utils" {}
 
 "it.polito.ezshop" --> "GUI"
 "it.polito.ezshop" --> "data"
 "it.polito.ezshop" --> "model"
 "it.polito.ezshop" --> "exceptions"
 "it.polito.ezshop" --> "credit_card_circuit"
+"it.polito.ezshop" --> "utils"
 
 @enduml
 ```
@@ -158,7 +160,10 @@ class User {
     + username
     + passwordHash
     + role
-    + verifyPassword(String)
+    + validateId(Integer)
+    validateUsername(String)
+    + validatePassword(String)
+    + validateRole(Role)
     + setRole(String)
 }
 
