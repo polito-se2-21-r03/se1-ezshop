@@ -103,63 +103,8 @@ interface "EZShopInterface" {
     + computeBalance()
 }
 ```
+
 ```plantuml
-
-package it.polito.ezshop.data{
-interface BalanceOperation{
-
-}
-interface Customer{
-
-}
-interface Order{
-
-}
-interface ProductType{
-
-}
-interface SaleTransaction{
-
-}
-interface TicketEntry{
-
-}
-interface User{
-
-}
-package adapter {
-class BalanceOperationAdapter{
-
-}
-class CustomerAdapter{
-
-}
-class OrderAdapter{
-
-}
-class ProductTypeAdapter{
-
-}
-class SaleTransactionAdapter{
-
-}
-class TicketEntryAdapter{
-
-}
-class UserAdapter{
-
-}
-BalanceOperationAdapter -- BalanceOperation
-CustomerAdapter -- Customer
-OrderAdapter -- Order
-ProductTypeAdapter -- ProductType
-TicketEntryAdapter -- TicketEntry
-SaleTransactionAdapter -- SaleTransaction
-UserAdapter -- User
-
-}
-
-}
 
 package it.polito.ezshop.model {
 interface EZShopInterface {
@@ -424,6 +369,63 @@ package it.polito.ezshop.credit_card_circuit {
     VisaCreditCardCircuitService <-up- VisaCreditCardCircuitAdapter : "adaptees"
 }
 
+```
+
+```plantuml
+package it.polito.ezshop.data{
+interface BalanceOperation{
+
+}
+interface Customer{
+
+}
+interface Order{
+
+}
+interface ProductType{
+
+}
+interface SaleTransaction{
+
+}
+interface TicketEntry{
+
+}
+interface User{
+
+}
+package it.polito.ezshop.model.adapter{
+class BalanceOperationAdapter{
+
+}
+class CustomerAdapter{
+
+}
+class OrderAdapter{
+
+}
+class ProductTypeAdapter{
+
+}
+class SaleTransactionAdapter{
+
+}
+class TicketEntryAdapter{
+
+}
+class UserAdapter{
+
+}
+}
+BalanceOperationAdapter -- BalanceOperation
+CustomerAdapter -- Customer
+OrderAdapter -- Order
+ProductTypeAdapter -- ProductType
+TicketEntryAdapter -- TicketEntry
+SaleTransactionAdapter -- SaleTransaction
+UserAdapter -- User
+
+}
 ```
 
 ## Persistence
