@@ -1312,6 +1312,9 @@ public class EZShop implements EZShopInterface {
             return -1;
         }
 
+        // change transaction status to COMPLETED and automatically updated shop balance
+        accountBook.setTransactionStatus(returnId, OperationStatus.COMPLETED);
+
         // persist and return amount of money that was credited to the customer
         writeState();
         return returnValue;

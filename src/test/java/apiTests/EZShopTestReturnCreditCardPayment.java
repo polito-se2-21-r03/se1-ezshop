@@ -1,8 +1,8 @@
 package apiTests;
 
+import it.polito.ezshop.credit_card_circuit.TextualCreditCardCircuit;
 import it.polito.ezshop.data.BalanceOperation;
 import it.polito.ezshop.data.EZShop;
-import it.polito.ezshop.data.Order;
 import it.polito.ezshop.exceptions.InvalidCreditCardException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.*;
@@ -11,13 +11,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 import static it.polito.ezshop.utils.Utils.generateId;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static junit.framework.TestCase.assertEquals;
 import static unitTests.TestHelpers.*;
 
 public class EZShopTestReturnCreditCardPayment {
+
+    private static final String creditCardsFile = "tmp/CreditCards-tests.txt";
 
     private static final EZShop shop = new EZShop();
     private static User admin;
@@ -32,6 +37,9 @@ public class EZShopTestReturnCreditCardPayment {
     private static final String creditCard = "4485370086510891";
     private static final double creditCardBalance = 150.0;
 
+    // credit card circuit
+    public TextualCreditCardCircuit fakeCreditCardCircuit;
+
     public EZShopTestReturnCreditCardPayment() throws Exception {
         admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
     }
@@ -41,9 +49,15 @@ public class EZShopTestReturnCreditCardPayment {
      */
     @Before
     public void beforeEach() throws Exception {
+        // copy a clean version of the credit cards file
+        Files.copy(Paths.get(TextualCreditCardCircuit.CLEAN_TEXT_FILE), Paths.get(creditCardsFile), REPLACE_EXISTING);
+        // create a new credit card circuit
+        fakeCreditCardCircuit = new TextualCreditCardCircuit(creditCardsFile);
+        fakeCreditCardCircuit.init();
 
         // reset shop to blanc state
         shop.reset();
+        shop.setCreditCardCircuit(fakeCreditCardCircuit);
         totalBalance = 0;
 
         // setup authorized user
@@ -165,6 +179,7 @@ public class EZShopTestReturnCreditCardPayment {
      */
     @Test
     public void testPayUnpaidOrderFails() throws Exception {
+        double initialCardBalance = fakeCreditCardCircuit.getBalance(creditCard);
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -181,7 +196,7 @@ public class EZShopTestReturnCreditCardPayment {
         // verify system's balance did not change
         Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
 
-        // TODO: check credit card balance
+        Assert.assertEquals(initialCardBalance, fakeCreditCardCircuit.getBalance(creditCard), 0.01);
     }
 
     /**
@@ -189,6 +204,7 @@ public class EZShopTestReturnCreditCardPayment {
      */
     @Test
     public void testReturnOpenReturnFails() throws Exception {
+        double initialCardBalance = fakeCreditCardCircuit.getBalance(creditCard);
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -206,7 +222,7 @@ public class EZShopTestReturnCreditCardPayment {
         // verify system's balance did not change
         Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
 
-        // TODO: check credit card balance
+        Assert.assertEquals(initialCardBalance, fakeCreditCardCircuit.getBalance(creditCard), 0.01);
     }
 
     /**
@@ -215,6 +231,7 @@ public class EZShopTestReturnCreditCardPayment {
      */
     @Test
     public void testReturnSuccessfully() throws Exception {
+        double initialCardBalance = fakeCreditCardCircuit.getBalance(creditCard);
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -229,7 +246,7 @@ public class EZShopTestReturnCreditCardPayment {
         // verify system's balance did update correctly
         Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
 
-        // TODO: check credit card balance
+        Assert.assertEquals(initialCardBalance + returnedValue, fakeCreditCardCircuit.getBalance(creditCard), 0.01);
     }
 
     /**
@@ -238,6 +255,7 @@ public class EZShopTestReturnCreditCardPayment {
      */
     @Test
     public void testReturnCompletedReturnAgain() throws Exception {
+        double initialCardBalance = fakeCreditCardCircuit.getBalance(creditCard);
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -247,7 +265,7 @@ public class EZShopTestReturnCreditCardPayment {
         totalBalance -= returnedValue;
 
         // try to ask for return a second time gives 0 as amount of cash to be returned
-        Assert.assertEquals(0, shop.returnCreditCardPayment(returnId, creditCard), 0.001);
+        Assert.assertEquals(-1.0, shop.returnCreditCardPayment(returnId, creditCard), 0.001);
 
         // verify return remains in state PAID/COMPLETED
         Assert.assertEquals(OperationStatus.COMPLETED, getStatusOfTransaction(returnId));
@@ -255,7 +273,7 @@ public class EZShopTestReturnCreditCardPayment {
         // verify system's balance did not update a second time
         Assert.assertEquals(totalBalance, shop.computeBalance(), 0.001);
 
-        // TODO: check credit card balance
+        Assert.assertEquals(initialCardBalance + returnedValue, fakeCreditCardCircuit.getBalance(creditCard), 0.01);
     }
 
     /**
@@ -269,7 +287,7 @@ public class EZShopTestReturnCreditCardPayment {
     private static OperationStatus getStatusOfTransaction(int returnId) throws Exception {
         return shop.getCreditsAndDebits(null, null).stream()
                 .filter(b -> b.getBalanceId() == returnId)
-                .map(b -> ((it.polito.ezshop.model.BalanceOperation) b).getStatus())
+                .map(b -> ((it.polito.ezshop.model.adapters.BalanceOperationAdapter) b).getTransaction().getStatus())
                 .findAny()
                 .orElse(null);
     }

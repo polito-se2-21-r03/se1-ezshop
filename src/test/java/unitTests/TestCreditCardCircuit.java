@@ -16,8 +16,7 @@ import static org.junit.Assert.*;
 
 public class TestCreditCardCircuit {
 
-    private static final String originalPath = "CreditCards.txt";
-    private static final String path = "CreditCards-tests.txt";
+    private static final String path = "tmp/CreditCards-tests.txt";
 
     private static final List<CreditCard> cards = Arrays.asList(
             new CreditCard("4485370086510891", 150.0),
@@ -27,7 +26,7 @@ public class TestCreditCardCircuit {
 
     @Before
     public void beforeEach() throws IOException {
-        Files.copy(Paths.get(originalPath), Paths.get(path), REPLACE_EXISTING);
+        Files.copy(Paths.get(TextualCreditCardCircuit.CLEAN_TEXT_FILE), Paths.get(path), REPLACE_EXISTING);
     }
 
     @Before
