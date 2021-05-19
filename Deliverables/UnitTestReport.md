@@ -651,7 +651,7 @@ Version: 1.0
     <Add here the screenshot report of the statement and branch coverage obtained using
     the Eclemma tool. >
 
-![Coverage (unit tests)](images/coverage_unit_tests.png)
+![Coverage](images/coverage_unit_tests.png)
 
 ### Loop coverage analysis
 
