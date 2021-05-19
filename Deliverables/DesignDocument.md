@@ -138,6 +138,7 @@ JsonInterface ---right- EZShop
 class RuntimeTypeAdapterFactory {
     + of(Class<T>, String, boolean)
     + registerSubtype(Class<? extends T>, String)
+    + create(Gson, TypeToken<R>)
     + read(JsonReader)
     +write(JsonWriter, R)
 }
