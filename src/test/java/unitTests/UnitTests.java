@@ -1,6 +1,5 @@
 package unitTests;
 
-import it.polito.ezshop.model.adapters.TicketEntryAdapter;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -18,15 +17,14 @@ import org.junit.runners.Suite;
         TestProductTypeAdapter.class,
         TestPosition.class,
         // transaction
+        TestBalanceOperationAdapter.class,
+        TestOperationStatus.class,
+        TestOrderAdapter.class,
         TestTicketEntry.class,
         TestTicketEntryAdapter.class,
         TestSaleTransaction.class,
         TestSaleTransactionAdapter.class,
         TestReturnTransactionItem.class,
-        // AccountBook
-        TestAccountBook.class,
-        // Json interface
-        TestJsonInterface.class,
         // Utils
         TestUtils.class,
         TestIsValidCreditCardNumber.class

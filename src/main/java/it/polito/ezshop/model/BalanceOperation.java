@@ -4,14 +4,11 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public abstract class BalanceOperation {
-    protected int balanceId;
+    protected final int balanceId;
     protected LocalDate date;
     protected double balanceValue;
 
     protected OperationStatus status;
-
-    protected BalanceOperation() {
-    }
 
     protected BalanceOperation(int balanceId, LocalDate date, double balanceValue, OperationStatus status) {
         this.balanceId = balanceId;
@@ -26,6 +23,14 @@ public abstract class BalanceOperation {
 
     public LocalDate getDate() {
         return this.date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public void setBalanceValue(double balanceValue) {
+        this.balanceValue = balanceValue;
     }
 
     public double getMoney() {
@@ -43,6 +48,7 @@ public abstract class BalanceOperation {
     /**
      * Change the status of the operation.
      * Only AccountBook is supposed to call this method.
+     *
      * @param status new status
      */
     public void setStatus(OperationStatus status) {

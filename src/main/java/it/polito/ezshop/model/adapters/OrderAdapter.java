@@ -3,11 +3,14 @@ package it.polito.ezshop.model.adapters;
 import it.polito.ezshop.model.OperationStatus;
 import it.polito.ezshop.model.Order;
 
+import java.util.Objects;
+
 public class OrderAdapter implements it.polito.ezshop.data.Order {
 
     private final Order order;
 
     public OrderAdapter(Order order) {
+        Objects.requireNonNull(order);
         this.order = order;
     }
 
@@ -28,7 +31,7 @@ public class OrderAdapter implements it.polito.ezshop.data.Order {
 
     @Override
     public void setProductCode(String productCode) {
-        order.setProductCode(productCode);
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -63,7 +66,7 @@ public class OrderAdapter implements it.polito.ezshop.data.Order {
 
     @Override
     public void setStatus(String status) {
-        // TODO: setStatus is not reachable
+        throw new UnsupportedOperationException();
     }
 
     @Override
