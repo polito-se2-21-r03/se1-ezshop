@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.Collections;
 
 import static junit.framework.TestCase.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class TestAccountBook {
 
@@ -75,7 +77,7 @@ public class TestAccountBook {
      */
     @Test
     public void testGetBalance() {
-        assertEquals(initialBalance, accountBook.getBalance());
+        assertEquals(initialBalance, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -98,20 +100,20 @@ public class TestAccountBook {
         accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), value, OperationStatus.COMPLETED));
 
         // balance did change
-        assertEquals(initialBalance + value, accountBook.getBalance());
+        assertEquals(initialBalance + value, accountBook.getBalance(), 0.01);
 
         // change credit's value even though it is completed, breaking the value
         double newValue = 30;
         accountBook.getTransaction(transactionId).setMoney(newValue);
 
         // balance didn't update
-        assertEquals(initialBalance + value, accountBook.getBalance());
+        assertEquals(initialBalance + value, accountBook.getBalance(), 0.01);
 
         // recompute balance
         accountBook.computeBalance();
 
         // balance is now correct again
-        assertEquals(initialBalance + newValue, accountBook.getBalance());
+        assertEquals(initialBalance + newValue, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -194,7 +196,7 @@ public class TestAccountBook {
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance didn't change
-        assertEquals(initialBalance, accountBook.getBalance());
+        assertEquals(initialBalance, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -211,7 +213,7 @@ public class TestAccountBook {
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance didn't change
-        assertEquals(initialBalance, accountBook.getBalance());
+        assertEquals(initialBalance, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -229,7 +231,7 @@ public class TestAccountBook {
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance did change
-        assertEquals(initialBalance + value, accountBook.getBalance());
+        assertEquals(initialBalance + value, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -247,7 +249,7 @@ public class TestAccountBook {
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance did change
-        assertEquals(initialBalance + value, accountBook.getBalance());
+        assertEquals(initialBalance + value, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -269,7 +271,7 @@ public class TestAccountBook {
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance was increased
-        assertEquals(initialBalance + product.getPricePerUnit(), accountBook.getBalance());
+        assertEquals(initialBalance + product.getPricePerUnit(), accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -291,7 +293,7 @@ public class TestAccountBook {
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance was decreased
-        assertEquals(initialBalance - 2 * product.getPricePerUnit(), accountBook.getBalance());
+        assertEquals(initialBalance - 2 * product.getPricePerUnit(), accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -310,7 +312,7 @@ public class TestAccountBook {
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance was decreased
-        assertEquals(initialBalance - product.getPricePerUnit(), accountBook.getBalance());
+        assertEquals(initialBalance - product.getPricePerUnit(), accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -328,7 +330,7 @@ public class TestAccountBook {
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance was decreased
-        assertEquals(initialBalance + value, accountBook.getBalance());
+        assertEquals(initialBalance + value, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -346,7 +348,7 @@ public class TestAccountBook {
         assertEquals(transactionId, accountBook.getTransaction(transactionId).getBalanceId());
 
         // balance was decreased
-        assertEquals(initialBalance - value, accountBook.getBalance());
+        assertEquals(initialBalance - value, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -366,7 +368,7 @@ public class TestAccountBook {
         assertNull(accountBook.getTransaction(transactionId));
 
         // balance didn't change
-        assertEquals(initialBalance, accountBook.getBalance());
+        assertEquals(initialBalance, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -386,7 +388,7 @@ public class TestAccountBook {
         assertNull(accountBook.getTransaction(transactionId));
 
         // balance didn't change
-        assertEquals(initialBalance, accountBook.getBalance());
+        assertEquals(initialBalance, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -406,7 +408,7 @@ public class TestAccountBook {
         assertNull(accountBook.getTransaction(transactionId));
 
         // balance went back
-        assertEquals(initialBalance, accountBook.getBalance());
+        assertEquals(initialBalance, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -426,7 +428,7 @@ public class TestAccountBook {
         assertNull(accountBook.getTransaction(transactionId));
 
         // balance went back
-        assertEquals(initialBalance, accountBook.getBalance());
+        assertEquals(initialBalance, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -444,7 +446,7 @@ public class TestAccountBook {
         accountBook.setTransactionStatus(transactionId, OperationStatus.PAID);
 
         // balance did change
-        assertEquals(initialBalance + value, accountBook.getBalance());
+        assertEquals(initialBalance + value, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -462,7 +464,7 @@ public class TestAccountBook {
         accountBook.setTransactionStatus(transactionId, OperationStatus.COMPLETED);
 
         // balance didn't change
-        assertEquals(initialBalance + value, accountBook.getBalance());
+        assertEquals(initialBalance + value, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -480,7 +482,43 @@ public class TestAccountBook {
         accountBook.setTransactionStatus(transactionId, OperationStatus.COMPLETED);
 
         // balance didn't change
-        assertEquals(initialBalance + value, accountBook.getBalance());
+        assertEquals(initialBalance + value, accountBook.getBalance(), 0.01);
+    }
+
+    /**
+     * Test that changing a transaction state from paid to open does affect the balance
+     */
+    @Test
+    public void testChangeStatePaidToOpenDoesAffectBalance() {
+
+        // add a paid credit transaction (does count towards balance)
+        int transactionId = accountBook.generateNewId();
+        double value = 20;
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), value, OperationStatus.PAID));
+
+        // set status to completed
+        accountBook.setTransactionStatus(transactionId, OperationStatus.OPEN);
+
+        // balance didn't change
+        assertNotEquals(initialBalance + value, accountBook.getBalance(), 0.01);
+    }
+
+    /**
+     * Test that changing a transaction state from open to open does NOT affect the balance
+     */
+    @Test
+    public void testChangeStateOpenToOpenDoesNotAffectBalance() {
+
+        // add a paid credit transaction (does count towards balance)
+        int transactionId = accountBook.generateNewId();
+        double value = 20;
+        accountBook.addTransaction(new Credit(transactionId, LocalDate.now(), value, OperationStatus.OPEN));
+
+        // set status to completed
+        accountBook.setTransactionStatus(transactionId, OperationStatus.OPEN);
+
+        // balance didn't change
+        assertNotEquals(initialBalance + value, accountBook.getBalance(), 0.01);
     }
 
     /**
@@ -489,5 +527,39 @@ public class TestAccountBook {
     @Test
     public void testGenerateIdIsUnique() {
         assertNull(accountBook.getTransaction(accountBook.generateNewId()));
+    }
+
+    @Test
+    public void testEqualsHashCode() throws Exception {
+        AccountBook obj = new AccountBook();
+
+        Credit credit = new Credit(obj.generateNewId(), LocalDate.now(), 10.0, OperationStatus.PAID);
+        Debit debit = new Debit(obj.generateNewId(), LocalDate.now(), 10.0, OperationStatus.PAID);
+
+        // add a few transactions
+        obj.addTransaction(credit);
+        obj.addTransaction(debit);
+
+        AccountBook same = new AccountBook();
+
+        // add a few transactions
+        same.addTransaction(credit);
+        same.addTransaction(debit);
+
+        AccountBook different = new AccountBook();
+
+        // add a transaction
+        different.addTransaction(new Debit(same.generateNewId(), LocalDate.now(), 20.0, OperationStatus.PAID));
+
+        assertNotEquals(obj, null);
+        assertNotEquals(obj, "boost coverage");
+
+        assertEquals(obj, obj);
+
+        assertEquals(obj, same);
+        assertNotEquals(obj, different);
+
+        assertEquals(obj.hashCode(), same.hashCode());
+        assertNotEquals(obj.hashCode(), different.hashCode());
     }
 }

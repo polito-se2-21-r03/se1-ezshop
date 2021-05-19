@@ -1,14 +1,10 @@
 package unitTests;
 
-import it.polito.ezshop.exceptions.InvalidCustomerCardException;
-import it.polito.ezshop.exceptions.InvalidDiscountRateException;
-import it.polito.ezshop.exceptions.InvalidQuantityException;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;

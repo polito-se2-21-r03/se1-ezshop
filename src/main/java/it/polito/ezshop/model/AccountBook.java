@@ -207,8 +207,7 @@ public class AccountBook {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AccountBook that = (AccountBook) o;
-        return balanceOperations.equals(that.balanceOperations) &&
-                balance.equals(that.balance);
+        return balanceOperations.equals(that.balanceOperations);
     }
 
     @Override
