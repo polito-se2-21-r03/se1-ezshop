@@ -67,4 +67,8 @@ public class BalanceOperationAdapter implements it.polito.ezshop.data.BalanceOpe
     public void setType(String type) {
         throw new UnsupportedOperationException();
     }
+
+    public BalanceOperation getTransaction() {
+        return this.balanceOperation;
+    }
 }

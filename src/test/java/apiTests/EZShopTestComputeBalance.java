@@ -9,6 +9,7 @@ import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
+import unitTests.TestUtils;
 
 import java.lang.reflect.Method;
 
@@ -67,38 +68,43 @@ public class EZShopTestComputeBalance {
 
         // record a CREDIT transaction (balance = 1000)
         shop.recordBalanceUpdate(1000);
+        assertEquals(1000, shop.computeBalance(), 0.001);
 
         // record a DEBIT transaction (balance = 995)
         shop.recordBalanceUpdate(-5);
+        assertEquals(995, shop.computeBalance(), 0.001);
 
         // record ORDER transaction (balance = 675)
         int orderId = shop.payOrderFor(productCode, 320, 1);
         shop.recordOrderArrival(orderId);
+        assertEquals(675, shop.computeBalance(), 0.001);
 
         // record SALE transaction (balance = 695)
         int saleId = shop.startSaleTransaction();
         shop.addProductToSale(saleId, productCode, 20);
         shop.endSaleTransaction(saleId);
         shop.receiveCashPayment(saleId, 20);
+        assertEquals(695, shop.computeBalance(), 0.001);
 
         // record RETURN transaction (balance = 685)
         int returnId = shop.startReturnTransaction(saleId);
         shop.returnProduct(returnId, productCode, 10);
         shop.endReturnTransaction(returnId, true);
         shop.returnCashPayment(returnId);
+        assertEquals(685, shop.computeBalance(), 0.001);
 
         // add ORDER that is in PAID state (balance = 605)
         shop.payOrderFor(productCode, 80, 1);
+        assertEquals(605, shop.computeBalance(), 0.001);
 
         // add SALE transaction that is in CLOSED state (balance = 605)
         int saleId2 = shop.startSaleTransaction();
         shop.addProductToSale(saleId2, productCode, 160);
         shop.endSaleTransaction(saleId2);
+        assertEquals(605, shop.computeBalance(), 0.001);
 
         // add RETURN transaction that is in OPEN state (balance = 605)
         shop.startReturnTransaction(saleId);
-
-        // verify that balance is correct
         assertEquals(605, shop.computeBalance(), 0.001);
     }
 }

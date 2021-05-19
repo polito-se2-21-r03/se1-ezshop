@@ -71,9 +71,9 @@ public class EZShopTestStartReturnTransaction extends EZShopTestBase {
     @Test
     public void testStartReturnTransactionSuccessfully() throws Exception {
         // pay the transaction before creating a return transaction
+        shop.endSaleTransaction(tid);
         shop.receiveCashPayment(tid, product1.getPricePerUnit());
 
         assertTrue(shop.startReturnTransaction(tid) > 0);
     }
-
 }

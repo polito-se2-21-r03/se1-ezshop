@@ -151,7 +151,7 @@ public class TestSaleTransaction {
         double total = sale.computeTotal();
 
         sale.setDiscountRate(saleDiscountRate);
-        assertEquals((1 - saleDiscountRate) * total, sale.computeTotal(), 0.01);
+        assertEquals((1 - saleDiscountRate) * total, sale.getMoney(), 0.01);
 
         // close the transaction
         sale.setStatus(OperationStatus.CLOSED);

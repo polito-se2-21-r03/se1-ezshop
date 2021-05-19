@@ -63,10 +63,11 @@ public class EZShopTestDeleteSaleTransaction extends EZShopTestBase {
     @Test
     public void testPaidTransaction() throws Exception {
         assertTrue(shop.endSaleTransaction(tid));
+        shop.endSaleTransaction(tid);
         shop.receiveCashPayment(tid, 50.0);
 
         assertFalse(shop.deleteSaleTransaction(tid));
-        assertNotNull(shop.getSaleTransaction(tid));
+        assertTrue(shop.getCreditsAndDebits(null, null).stream().anyMatch(t -> t.getBalanceId() == tid));
     }
 
     /**

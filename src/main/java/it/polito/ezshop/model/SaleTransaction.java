@@ -133,11 +133,12 @@ public class SaleTransaction extends Credit {
     }
 
     public void setDiscountRate(double discountRate) throws InvalidDiscountRateException {
-        if (status != OperationStatus.OPEN && status != OperationStatus.CLOSED) {
-            throw new IllegalStateException("Sale transaction is not OPEN.");
+        if (status.affectsBalance()) {
+            throw new IllegalStateException("Sale transaction has already been paid.");
         }
         validateDiscount(discountRate);
         this.discountRate = discountRate;
+        this.recomputeBalanceValue();
     }
 
     /**

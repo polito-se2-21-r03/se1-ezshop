@@ -51,7 +51,4 @@ public class CreditCard {
         setBalance(this.balance + updateAmount);
         return true;
     }
-
-
-
 }

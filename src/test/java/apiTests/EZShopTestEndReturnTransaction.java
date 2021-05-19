@@ -1,10 +1,12 @@
 package apiTests;
 
+import it.polito.ezshop.data.BalanceOperation;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.SaleTransaction;
 import it.polito.ezshop.data.TicketEntry;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.Role;
+import it.polito.ezshop.model.adapters.BalanceOperationAdapter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -104,22 +106,24 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
     @Test
     public void testCommitSuccessfully1() throws Exception {
         double initialBalance = shop.computeBalance();
-        double initialSaleTransactionValue = shop.getSaleTransaction(sid1).getPrice();
+        double initialSaleTransactionValue = Math.abs(getSaleTransaction(sid1).getMoney());
         double expectedReturnValue = computeValue(product1.getPricePerUnit(), SALE_1_PRODUCT_1_RETURN_AMOUNT, 0, 0);
 
         // commit the return transaction
         assertTrue(shop.endReturnTransaction(rid1, true));
 
-        // verify that the sale transaction was correctly updated
-        SaleTransaction st = shop.getSaleTransaction(sid1);
-        int delta = SALE_1_PRODUCT_1_AMOUNT - st.getEntries().stream()
-                .filter(x -> x.getBarCode().equals(product1.getBarCode()))
-                .map(TicketEntry::getAmount).findAny().orElse(0);
-        // verify that the amount removed from the transaction is correct
+        // get the amount of returned items
+        it.polito.ezshop.model.SaleTransaction st = getSaleTransaction(sid1);
+        int delta = SALE_1_PRODUCT_1_AMOUNT - st.getTransactionItems().stream()
+                .filter(x -> x.getProductType().getBarCode().equals(product1.getBarCode()))
+                .map(it.polito.ezshop.model.TicketEntry::getAmount).findAny().orElse(0);
+
+        // verify that the amount of items returned is correct
         assertEquals((int) SALE_1_PRODUCT_1_RETURN_AMOUNT, delta);
+
         // verify that the total of the sale transaction was updated correctly
         double expectedNewTotal = initialSaleTransactionValue - expectedReturnValue;
-        assertEquals(expectedNewTotal, st.getPrice(), DOUBLE_COMPARISON_THRESHOLD);
+        assertEquals(expectedNewTotal, st.getMoney(), DOUBLE_COMPARISON_THRESHOLD);
 
         // verify that the balance was NOT updated
         assertEquals(initialBalance, shop.computeBalance(), DOUBLE_COMPARISON_THRESHOLD);
@@ -135,7 +139,7 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
     @Test
     public void testCommitSuccessfully2() throws Exception {
         double initialBalance = shop.computeBalance();
-        double initialSaleTransactionValue = shop.getSaleTransaction(sid2).getPrice();
+        double initialSaleTransactionValue = Math.abs(getSaleTransaction(sid2).getMoney());
         double expectedReturnValue = computeValue(product2.getPricePerUnit(), SALE_2_PRODUCT_2_RETURN_AMOUNT,
                 SALE_2_PRODUCT_2_DISCOUNT_RATE,SALE_2_DISCOUNT_RATE);
 
@@ -185,4 +189,13 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
         assertFalse(shop.endReturnTransaction(rid1, true));
     }
 
+    private it.polito.ezshop.model.SaleTransaction getSaleTransaction(int sid) throws Exception {
+        BalanceOperation sale = shop.getCreditsAndDebits(null, null).stream().filter(b -> b.getBalanceId() == sid).findAny().orElse(null);
+        if (sale == null || !sale.getType().equals(BalanceOperationAdapter.SALE)) {
+            fail("Sale transaction not found");
+        }
+        //
+        assertTrue(sale instanceof BalanceOperationAdapter);
+        return (it.polito.ezshop.model.SaleTransaction) ((BalanceOperationAdapter) sale).getTransaction();
+    }
 }
