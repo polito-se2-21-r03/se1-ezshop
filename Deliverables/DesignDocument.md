@@ -201,7 +201,8 @@ Order "*" -down- ProductType
 class LoyaltyCard {
     + cardCode
     + points
-    + updatePoints(int)
+    + generateNewCode()
+    + validateCode(String)
 }
 
 class Customer {
@@ -275,8 +276,6 @@ class AccountBook {
     + computeBalance()
     + generateNewId()
     + reset()
-    + equals(Object)
-    + hashCode()
 }
 
 enum OperationStatus {
