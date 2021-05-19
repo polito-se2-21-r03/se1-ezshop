@@ -105,7 +105,29 @@ interface "EZShopInterface" {
 ```
 ```plantuml
 
-package it.polito.ezshop.model.adapter {
+package it.polito.ezshop.data{
+interface BalanceOperation{
+
+}
+interface Customer{
+
+}
+interface Order{
+
+}
+interface ProductType{
+
+}
+interface SaleTransaction{
+
+}
+interface TicketEntry{
+
+}
+interface User{
+
+}
+package adapter {
 class BalanceOperationAdapter{
 
 }
@@ -127,10 +149,19 @@ class TicketEntryAdapter{
 class UserAdapter{
 
 }
-it.polito.ezshop.model.adapter --down- EZShop
+BalanceOperationAdapter -- BalanceOperation
+CustomerAdapter -- Customer
+OrderAdapter -- Order
+ProductTypeAdapter -- ProductType
+TicketEntryAdapter -- TicketEntry
+SaleTransactionAdapter -- SaleTransaction
+UserAdapter -- User
+
 }
 
-package it.polito.ezshop.data {
+}
+
+package it.polito.ezshop.model {
 interface EZShopInterface {
 }
 
@@ -143,7 +174,6 @@ class EZShop {
 }
 
 EZShopInterface <|-- EZShop
-
 
 
 class JsonInterface {
@@ -338,7 +368,7 @@ ReturnTransaction -up-|> Debit
 
 note "All the classes in this package, with the exception of EZShop and JsonInterface, should be persisted." as note_persistence
 
-it.polito.ezshop.data -down- note_persistence
+it.polito.ezshop.model -down- note_persistence
 
 package it.polito.ezshop.utils {
   class Utils {
@@ -397,7 +427,7 @@ package it.polito.ezshop.credit_card_circuit {
 ```
 
 ## Persistence
-All the classes in the *it.polito.ezshop.data* package, with the exception of EZShop and JsonInterface, should be persisted. The *JsonInterface* class offers a possible interface for persisting the application's data using JSON files.
+All the classes in the *it.polito.ezshop.model* package, with the exception of EZShop and JsonInterface, should be persisted. The *JsonInterface* class offers a possible interface for persisting the application's data using JSON files.
 
 ## Credit card circuit
 The *it.polito.ezshop.credit_card_circuit* implements the interaction between the EZShop and the credit card circuit using the Adapter pattern. The *CreditCardCircuit* interface defines the methods for charging and crediting a credit card. The interface is implemented by the *TextualCreditCardCircuit* class that simulates the credit card circuit using a textual file as described in the requirements document.
