@@ -66,3 +66,5 @@ data/*
 #.project
 .idea/
 ezshop.iml
+
+CreditCards-tests.txt

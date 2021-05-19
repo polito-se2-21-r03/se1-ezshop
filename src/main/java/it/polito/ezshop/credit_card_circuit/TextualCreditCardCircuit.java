@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
 
 public class TextualCreditCardCircuit implements CreditCardCircuit {
 
+    public static final String CLEAN_TEXT_FILE = "CreditCards-original.txt";
+    public static final String WORKING_TEXT_FILE = "CreditCards.txt";
+
+
     private final String path;
 
     private final List<CreditCard> creditCards = new ArrayList<>();
