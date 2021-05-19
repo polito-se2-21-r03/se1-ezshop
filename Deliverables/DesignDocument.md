@@ -135,6 +135,15 @@ class JsonInterface {
 
 JsonInterface ---right- EZShop
 
+class RuntimeTypeAdapterFactory {
+    + of(Class<T>, String, boolean)
+    + registerSubtype(Class<? extends T>, String)
+    + read(JsonReader)
+    +write(JsonWriter, R)
+}
+
+RuntimeTypeAdapterFactory ---right- EZShop
+
 EZShop -right- "*" User
 EZShop -- AccountBook
 EZShop -down--- "*" ProductType
