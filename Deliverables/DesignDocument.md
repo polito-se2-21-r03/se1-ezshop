@@ -146,7 +146,6 @@ CustomerAdapter <-- Customer
 OrderAdapter <-- Order
 ProductTypeAdapter <-- ProductType
 SaleTransactionAdapter <-- SaleTransaction
-#TicketEntryAdapter <-- TicketEntry
 UserAdapter <-- User
 
 }
