@@ -2,7 +2,6 @@ package apiTests;
 
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.*;
-import it.polito.ezshop.model.Customer;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
@@ -19,8 +18,10 @@ public class EZShopTestDeleteCustomer {
 
     private static final EZShop shop = new EZShop();
     private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
-    private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
-    private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
+    private static final String customer1Name = "Pietro";
+    private static final String customer2Name = "Antonia";
+    private static Integer customer1ID;
+    private static Integer customer2ID;
     private static String card;
 
     /**
@@ -40,8 +41,8 @@ public class EZShopTestDeleteCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // add two customers and a card to the shop
-        customer1.setId(shop.defineCustomer(customer1.getCustomerName()));
-        customer2.setId(shop.defineCustomer(customer2.getCustomerName()));
+        customer1ID = shop.defineCustomer(customer1Name);
+        customer2ID = shop.defineCustomer(customer2Name);
         card = shop.createCard();
 
         // logout after setup
@@ -105,15 +106,15 @@ public class EZShopTestDeleteCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // delete customer successfully
-        assertTrue(shop.deleteCustomer(customer1.getId()));
+        assertTrue(shop.deleteCustomer(customer1ID));
 
         // verify customer does not exist anymore
         assertEquals(1, shop.getAllCustomers().size());
-        assertNull(shop.getCustomer(customer1.getId()));
+        assertNull(shop.getCustomer(customer1ID));
 
         // verify other customer still exist
-        assertEquals(customer2.getId(), shop.getCustomer(customer2.getId()).getId());
-        assertEquals(customer2.getCustomerName(), shop.getCustomer(customer2.getId()).getCustomerName());
+        assertEquals(customer2ID, shop.getCustomer(customer2ID).getId());
+        assertEquals(customer2Name, shop.getCustomer(customer2ID).getCustomerName());
     }
 
     /**
@@ -129,16 +130,16 @@ public class EZShopTestDeleteCustomer {
 
         // attach card to customer and add some points
         int pointsOnCard = 100;
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, card));
         assertTrue(shop.modifyPointsOnCard(card, pointsOnCard));
 
         // delete customer
-        assertTrue(shop.deleteCustomer(customer1.getId()));
+        assertTrue(shop.deleteCustomer(customer1ID));
 
         // attach card to different customer
-        assertTrue(shop.modifyCustomer(customer2.getId(), customer2.getCustomerName(), card));
+        assertTrue(shop.modifyCustomer(customer2ID, customer2Name, card));
 
         // verify points on card hasn't changed
-        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer2.getId()).getPoints());
+        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer2ID).getPoints());
     }
 }

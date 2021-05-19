@@ -1,5 +1,7 @@
 package it.polito.ezshop.model;
 
+import it.polito.ezshop.exceptions.InvalidCustomerCardException;
+
 import java.util.Objects;
 import java.util.Random;
 
@@ -8,6 +10,13 @@ public class LoyaltyCard {
     private final String code;
     private int points;
 
+    public LoyaltyCard(String customerCard) throws InvalidCustomerCardException {
+        validateCode(customerCard);
+        this.code = customerCard;
+        this.points = 0;
+    }
+
+    @Deprecated
     public LoyaltyCard(String customerCard, int points) {
         this.code = customerCard;
         this.points = points;
@@ -22,16 +31,40 @@ public class LoyaltyCard {
         return sb.toString();
     }
 
+    public static void validateCode(String code) throws InvalidCustomerCardException {
+        if (!isValidCode(code)) {
+            throw new InvalidCustomerCardException("The customer card must be a string of 10 digits.");
+        }
+    }
+
+    public static boolean isValidCode(String code) {
+
+        if (code == null || code.length() != 10) {
+            return false;
+        }
+
+        for (int i=0; i<code.length(); i++) {
+            if (!Character.isDigit(code.charAt(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public String getCode() {
         return code;
     }
 
-    public int getPoints() {
-        return points;
+    public void setPoints(int points) {
+        if (points < 0) {
+            throw new IllegalArgumentException("Loyalty cards do not allow for negative points.");
+        }
+        this.points = points;
     }
 
-    public void setPoints(int points) {
-        this.points = points;
+    public int getPoints() {
+        return points;
     }
 
     @Override

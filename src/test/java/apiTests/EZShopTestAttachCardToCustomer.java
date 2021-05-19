@@ -2,7 +2,6 @@ package apiTests;
 
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.*;
-import it.polito.ezshop.model.Customer;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
@@ -20,8 +19,10 @@ public class EZShopTestAttachCardToCustomer {
 
     private static final EZShop shop = new EZShop();
     private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
-    private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
-    private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
+    private static final String customer1Name = "Pietro";
+    private static final String customer2Name = "Andrea";
+    private static Integer customer1ID;
+    private static Integer customer2ID;
     private static String card1;
     private static String card2;
 
@@ -42,8 +43,8 @@ public class EZShopTestAttachCardToCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // add two customers to shop
-        customer1.setId(shop.defineCustomer(customer1.getCustomerName()));
-        customer2.setId(shop.defineCustomer(customer2.getCustomerName()));
+        customer1ID = shop.defineCustomer(customer1Name);
+        customer2ID = shop.defineCustomer(customer2Name);
 
         // generate two cards for shop
         card1 = shop.createCard();
@@ -75,7 +76,7 @@ public class EZShopTestAttachCardToCustomer {
 
         // verify correct exception is thrown for string null, empty, to short, too long or contains alphabetic characters
         testInvalidValues(InvalidCustomerCardException.class, invalidCustomerCards,
-                (card) -> shop.attachCardToCustomer(card, customer1.getId()));
+                (card) -> shop.attachCardToCustomer(card, customer1ID));
     }
 
     /**
@@ -96,8 +97,7 @@ public class EZShopTestAttachCardToCustomer {
      * Tests that false is returned if the customer with the given ID does not exist
      */
     @Test
-    public void testFalseIfCustomerNotExists() throws InvalidPasswordException, InvalidUsernameException,
-            UnauthorizedException, InvalidCustomerCardException, InvalidCustomerIdException, InvalidCustomerNameException {
+    public void testFalseIfCustomerNotExists() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -116,8 +116,7 @@ public class EZShopTestAttachCardToCustomer {
      * Tests that false is returned if the card does not exist
      */
     @Test
-    public void testFalseIfCardNotExists() throws InvalidPasswordException, InvalidUsernameException,
-            UnauthorizedException, InvalidCustomerCardException, InvalidCustomerIdException, InvalidCustomerNameException {
+    public void testFalseIfCardNotExists() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -129,94 +128,89 @@ public class EZShopTestAttachCardToCustomer {
         nonExistentCard += lastDigit;
 
         // attaching a non-existing card returns false
-        assertFalse(shop.attachCardToCustomer(nonExistentCard, customer1.getId()));
+        assertFalse(shop.attachCardToCustomer(nonExistentCard, customer1ID));
     }
 
     /**
      * Test whether an existing card can be attached to a customer successfully
      */
     @Test
-    public void testAttachCardToCustomer() throws InvalidPasswordException, InvalidUsernameException,
-            InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
+    public void testAttachCardToCustomer() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
 
         // card is successfully attached to customer
-        assertTrue(shop.attachCardToCustomer(card1, customer1.getId()));
+        assertTrue(shop.attachCardToCustomer(card1, customer1ID));
 
         // verify that customer's card is indeed updated correctly
-        assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
+        assertEquals(card1, shop.getCustomer(customer1ID).getCustomerCard());
     }
 
     /**
      * Test whether two different cards can be attached to two different customers successfully
      */
     @Test
-    public void testAttachCardsToCustomers() throws InvalidPasswordException, InvalidUsernameException,
-            InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
+    public void testAttachCardsToCustomers() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
 
         // cards are successfully attached to customers
-        assertTrue(shop.attachCardToCustomer(card1, customer1.getId()));
-        assertTrue(shop.attachCardToCustomer(card2, customer2.getId()));
+        assertTrue(shop.attachCardToCustomer(card1, customer1ID));
+        assertTrue(shop.attachCardToCustomer(card2, customer2ID));
 
         // verify that customer cards are indeed updated correctly
-        assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
-        assertEquals(card2, shop.getCustomer(customer2.getId()).getCustomerCard());
+        assertEquals(card1, shop.getCustomer(customer1ID).getCustomerCard());
+        assertEquals(card2, shop.getCustomer(customer2ID).getCustomerCard());
     }
 
     /**
      * Test that each card can only be attached to a single customer
      */
     @Test
-    public void testOneCustomerPerCard() throws InvalidPasswordException, InvalidUsernameException,
-            InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
+    public void testOneCustomerPerCard() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
 
         // attach different a card to a customer
-        assertTrue(shop.attachCardToCustomer(card1, customer1.getId()));
+        assertTrue(shop.attachCardToCustomer(card1, customer1ID));
 
         // try to attach the same card to a different customer
-        assertFalse(shop.attachCardToCustomer(card1, customer2.getId()));
+        assertFalse(shop.attachCardToCustomer(card1, customer2ID));
 
         // verify that the first customer's card is still attached to first customer
-        assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
+        assertEquals(card1, shop.getCustomer(customer1ID).getCustomerCard());
 
         // verify that the second customer has no attached card
-        assertNull(shop.getCustomer(customer2.getId()).getCustomerCard());
+        assertNull(shop.getCustomer(customer2ID).getCustomerCard());
     }
 
     /**
-     * Test that each customer can only have one attached card
+     * Test that assigning a new card to  customer removes the previous association
      */
     @Test
-    public void testOneCardPerCustomer() throws InvalidPasswordException, InvalidUsernameException,
-            InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
+    public void testOneCardPerCustomer() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
 
         // attach a card to a customer
-        assertTrue(shop.attachCardToCustomer(card1, customer1.getId()));
+        assertTrue(shop.attachCardToCustomer(card1, customer1ID));
 
-        // try to attach a different card to the same customer
-        assertFalse(shop.attachCardToCustomer(card2, customer1.getId()));
+        // attach a different card to the same customer
+        assertTrue(shop.attachCardToCustomer(card2, customer1ID));
 
-        // verify that the first customer's card is still attached to first customer
-        assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
+        // verify that the second card is now attached to first customer
+        assertEquals(card2, shop.getCustomer(customer1ID).getCustomerCard());
     }
 
     /**
      * Test that card still has same amount of points after being attached to a customer
      */
     @Test
-    public void testCardPointsArePersistent() throws InvalidPasswordException, InvalidUsernameException,
-            InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
+    public void testCardPointsArePersistent() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -226,9 +220,9 @@ public class EZShopTestAttachCardToCustomer {
         assertTrue(shop.modifyPointsOnCard(card1, pointsOnCard));
 
         // attach card to customer
-        assertTrue(shop.attachCardToCustomer(card1, customer1.getId()));
+        assertTrue(shop.attachCardToCustomer(card1, customer1ID));
 
         // verify that points on card still remains the same
-        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer2.getId()).getPoints());
+        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer1ID).getPoints());
     }
 }

@@ -18,8 +18,10 @@ public class EZShopTestGetAllCustomers {
 
     private static final EZShop shop = new EZShop();
     private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
-    private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
-    private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
+    private static final String customer1Name = "Pietro";
+    private static final String customer2Name = "Andrea";
+    private static Integer customer1ID;
+    private static Integer customer2ID;
 
     /**
      * Creates a clean shop instance for each test
@@ -69,14 +71,30 @@ public class EZShopTestGetAllCustomers {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // add two customers to the shop
-        customer1.setId(shop.defineCustomer(customer1.getCustomerName()));
-        customer2.setId(shop.defineCustomer(customer2.getCustomerName()));
+        customer1ID = shop.defineCustomer(customer1Name);
+        customer2ID = shop.defineCustomer(customer2Name);
 
-        // verify that customers are returned correctly
+        // verify that correct amount of customers have been returned
         List<it.polito.ezshop.data.Customer> customers = shop.getAllCustomers();
         assertEquals(2, customers.size());
-        assertTrue(customers.contains(customer1));
-        assertTrue(customers.contains(customer2));
+
+        // get returned customers
+        it.polito.ezshop.data.Customer returnedCustomer1 = customers.stream()
+                .filter(c -> c.getId().equals(customer1ID))
+                .findAny()
+                .orElse(null);
+        it.polito.ezshop.data.Customer returnedCustomer2 =  customers.stream()
+                .filter(c -> c.getId().equals(customer2ID))
+                .findAny()
+                .orElse(null);
+
+        assertNotNull(returnedCustomer1);
+        assertEquals(customer1ID, returnedCustomer1.getId());
+        assertEquals(customer1Name, returnedCustomer1.getCustomerName());
+
+        assertNotNull(returnedCustomer2);
+        assertEquals(customer2ID, returnedCustomer2.getId());
+        assertEquals(customer2Name, returnedCustomer2.getCustomerName());
     }
 
     /**
@@ -90,14 +108,14 @@ public class EZShopTestGetAllCustomers {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // add two customers to the shop
-        customer1.setId(shop.defineCustomer(customer1.getCustomerName()));
-        customer2.setId(shop.defineCustomer(customer2.getCustomerName()));
+        customer1ID = shop.defineCustomer(customer1Name);
+        customer2ID = shop.defineCustomer(customer2Name);
 
         // attach cards to customers
         String card1 = shop.createCard();
         String card2 = shop.createCard();
-        assertTrue(shop.attachCardToCustomer(card1, customer1.getId()));
-        assertTrue(shop.attachCardToCustomer(card2, customer2.getId()));
+        assertTrue(shop.attachCardToCustomer(card1, customer1ID));
+        assertTrue(shop.attachCardToCustomer(card2, customer2ID));
 
         // add points to cards
         int points1 = 50;
@@ -110,11 +128,11 @@ public class EZShopTestGetAllCustomers {
 
         // extract returned customers from list
         it.polito.ezshop.data.Customer returnedCustomer1 = customers.stream()
-                .filter(c -> c.getId().equals(customer1.getId()))
+                .filter(c -> c.getId().equals(customer1ID))
                 .findAny()
                 .orElse(null);
         it.polito.ezshop.data.Customer returnedCustomer2 =  customers.stream()
-                .filter(c -> c.getId().equals(customer2.getId()))
+                .filter(c -> c.getId().equals(customer2ID))
                 .findAny()
                 .orElse(null);
 

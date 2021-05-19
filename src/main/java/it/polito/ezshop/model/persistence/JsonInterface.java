@@ -37,7 +37,7 @@ public class JsonInterface {
     /**
      * Path of the customers json file
      */
-    private final Path customersPath;
+    private final Path customerListPath;
 
     /**
      * Path of the loyalty cards json file
@@ -60,7 +60,7 @@ public class JsonInterface {
         this.usersPath = Paths.get(path.toString(), "users.json");
         this.productsPath = Paths.get(path.toString(), "products.json");
         this.accountBookPath = Paths.get(path.toString(), "account_book.json");
-        this.customersPath = Paths.get(path.toString(), "customers.json");
+        this.customerListPath = Paths.get(path.toString(), "customers.json");
         this.loyaltyCardsPath = Paths.get(path.toString(), "loyalty_card.json");
 
         // see https://jansipke.nl/serialize-and-deserialize-a-list-of-polymorphic-objects-with-gson/
@@ -100,7 +100,7 @@ public class JsonInterface {
      * @throws IOException if an I/O exception occurs
      */
     public void reset() throws IOException {
-        for (Path path : Arrays.asList(usersPath, productsPath, accountBookPath, customersPath)) {
+        for (Path path : Arrays.asList(usersPath, productsPath, accountBookPath, customerListPath)) {
             Files.deleteIfExists(path);
         }
     }
@@ -148,45 +148,35 @@ public class JsonInterface {
     }
 
     /**
-     * Read a list of customers from the persistence layer.
-     * If the persistence layer contains no customers, an empty list is returned.
+     * Read the customer list from the persistence layer.
+     * If the persistence layer contains no customer list,
+     * a new clean instance is returned.
      *
-     * @return a list of customers
+     * @return the customer list
      * @throws IOException if an I/O exception occurs
      */
-    public List<Customer> readCustomers() throws IOException {
-        return readList(customersPath, Customer.class);
+    public CustomerList readCustomerList() throws IOException {
+        String json = read(customerListPath);
+        if (json == null || json.equals("")) {
+            return new CustomerList();
+        }
+
+        Type type = new TypeToken<CustomerList>() {
+        }.getType();
+        return gson.fromJson(json, type);
     }
 
     /**
      * Write a list of customers to the persistence layer.
      *
-     * @param customers list of customers to be persisted (null is treated as an empty list)
+     * @param customerList the customer list to be persisted (null is treated as a clean instance)
      * @throws IOException if an I/O exception occurs
      */
-    public void writeCustomers(List<Customer> customers) throws IOException {
-        writeList(customersPath, customers);
-    }
-
-    /**
-     * Read a list of loyalty cards from the persistence layer.
-     * If the persistence layer contains no loyalty cards, an empty list is returned.
-     *
-     * @return a list of loyalty cards
-     * @throws IOException if an I/O exception occurs
-     */
-    public List<LoyaltyCard> readLoyaltyCards() throws IOException {
-        return readList(loyaltyCardsPath, LoyaltyCard.class);
-    }
-
-    /**
-     * Write a list of loyalty cards to the persistence layer.
-     *
-     * @param loyaltyCards list of loyalty cards to be persisted (null is treated as an empty list)
-     * @throws IOException if an I/O exception occurs
-     */
-    public void writeLoyaltyCards(List<LoyaltyCard> loyaltyCards) throws IOException {
-        writeList(loyaltyCardsPath, loyaltyCards);
+    public void writeCustomerList(CustomerList customerList) throws IOException {
+        if (customerList == null) {
+            customerList = new CustomerList();
+        }
+        write(accountBookPath, gson.toJson(customerList));
     }
 
     /**

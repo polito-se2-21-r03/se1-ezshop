@@ -25,7 +25,6 @@ public class CustomerAdapter implements it.polito.ezshop.data.Customer {
         if (customer.getCard() == null) {
             return null;
         }
-
         return customer.getCard().getCode();
     }
 

@@ -21,8 +21,10 @@ public class EZShopTestModifyCustomer {
 
     private static final EZShop shop = new EZShop();
     private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
-    private static final Customer customer1 = new Customer("Pietro", "1234567890", 0, 0);
-    private static final Customer customer2 = new Customer("Maria", "2345678901", 0, 0);
+    private static final String customer1Name = "Pietro";
+    private static final String customer2Name = "Andrea";
+    private static Integer customer1ID;
+    private static Integer customer2ID;
     private static String card1;
     private static String card2;
 
@@ -43,8 +45,8 @@ public class EZShopTestModifyCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // add two customers to shop
-        customer1.setId(shop.defineCustomer(customer1.getCustomerName()));
-        customer2.setId(shop.defineCustomer(customer2.getCustomerName()));
+        customer1ID = shop.defineCustomer(customer1Name);
+        customer2ID = shop.defineCustomer(customer2Name);
 
         // generate two cards for shop
         card1 = shop.createCard();
@@ -60,7 +62,7 @@ public class EZShopTestModifyCustomer {
     @Test
     public void testAuthorization() throws Throwable {
         Method modifyCustomer = EZShop.class.getMethod("modifyCustomer", Integer.class, String.class, String.class);
-        testAccessRights(modifyCustomer, new Object[] {1, "Pietro", null},
+        testAccessRights(modifyCustomer, new Object[] {1, "Pietro", card1},
                 new Role[] {Role.SHOP_MANAGER, Role.ADMINISTRATOR, Role.CASHIER});
     }
 
@@ -75,7 +77,7 @@ public class EZShopTestModifyCustomer {
 
         // verify correct exception is thrown
         testInvalidValues(InvalidCustomerNameException.class, invalidCustomerNames,
-                (name) -> shop.modifyCustomer(customer1.getId(), name, card1));
+                (name) -> shop.modifyCustomer(customer1ID, name, card1));
     }
 
     /**
@@ -92,7 +94,7 @@ public class EZShopTestModifyCustomer {
         // verify correct exception is thrown for string to short, too long or contains alphabetic characters
         testInvalidValues(InvalidCustomerCardException.class,
                 Arrays.asList("123456789", "12345678901", "123456789a", "123456789A"),
-                (card) -> shop.modifyCustomer(customer1.getId(), "Diogo", card));
+                (card) -> shop.modifyCustomer(customer1ID, "Diogo", card));
     }
 
     /**
@@ -132,7 +134,7 @@ public class EZShopTestModifyCustomer {
         nonExistentCard += lastDigit;
 
         // assigning a non-existing card returns false
-        assertFalse(shop.modifyCustomer(customer1.getId(), "Diogo", nonExistentCard));
+        assertFalse(shop.modifyCustomer(customer1ID, "Diogo", nonExistentCard));
     }
 
     /**
@@ -146,10 +148,10 @@ public class EZShopTestModifyCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // card is successfully attached to customer
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, card1));
 
         // verify that customer's card is indeed updated correctly
-        assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
+        assertEquals(card1, shop.getCustomer(customer1ID).getCustomerCard());
     }
 
     /**
@@ -163,12 +165,12 @@ public class EZShopTestModifyCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // cards are successfully attached to customers
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
-        assertTrue(shop.modifyCustomer(customer2.getId(), customer2.getCustomerName(), card2));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, card1));
+        assertTrue(shop.modifyCustomer(customer2ID, customer2Name, card2));
 
         // verify that customer cards are indeed updated correctly
-        assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
-        assertEquals(card2, shop.getCustomer(customer2.getId()).getCustomerCard());
+        assertEquals(card1, shop.getCustomer(customer1ID).getCustomerCard());
+        assertEquals(card2, shop.getCustomer(customer2ID).getCustomerCard());
     }
 
     /**
@@ -182,13 +184,13 @@ public class EZShopTestModifyCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // attach card to customer successfully
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, card1));
 
         // detach card from customer by specifying empty string as new card
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), ""));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, ""));
 
         // verify that customer has no attached card
-        assertNull(shop.getCustomer(customer1.getId()).getCustomerCard());
+        assertNull(shop.getCustomer(customer1ID).getCustomerCard());
     }
 
     /**
@@ -202,13 +204,13 @@ public class EZShopTestModifyCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // card is successfully attached to customer
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, card1));
 
         // change customer name without changing card
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), null));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, null));
 
         // verify that customer still has previous card
-        assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
+        assertEquals(card1, shop.getCustomer(customer1ID).getCustomerCard());
     }
 
     /**
@@ -222,11 +224,11 @@ public class EZShopTestModifyCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // change customer name
-        String newCustomerName = customer1.getCustomerName() + "123";
-        assertTrue(shop.modifyCustomer(customer1.getId(), newCustomerName, card1));
+        String newCustomerName = customer1Name + "123";
+        assertTrue(shop.modifyCustomer(customer1ID, newCustomerName, card1));
 
         // verify that customer name was updated correctly
-        assertEquals(newCustomerName, shop.getCustomer(customer1.getId()).getCustomerName());
+        assertEquals(newCustomerName, shop.getCustomer(customer1ID).getCustomerName());
     }
 
     /**
@@ -240,10 +242,10 @@ public class EZShopTestModifyCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // try to change to already taken name
-        assertFalse(shop.modifyCustomer(customer1.getId(), customer2.getCustomerName(), card1));
+        assertFalse(shop.modifyCustomer(customer1ID, customer2Name, card1));
 
         // verify that customer name was not changed
-        assertEquals(customer1.getCustomerName(), shop.getCustomer(customer1.getId()).getCustomerName());
+        assertEquals(customer1Name, shop.getCustomer(customer1ID).getCustomerName());
     }
 
     /**
@@ -257,36 +259,36 @@ public class EZShopTestModifyCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // attach a card to a customer
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, card1));
 
         // try to modify a second customer to have the same card as the first customer
-        assertFalse(shop.modifyCustomer(customer2.getId(), customer2.getCustomerName(), card1));
+        assertFalse(shop.modifyCustomer(customer2ID, customer2Name, card1));
 
         // verify that the first customer's card is still attached to first customer
-        assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
+        assertEquals(card1, shop.getCustomer(customer1ID).getCustomerCard());
 
         // verify that the second customer has no attached card
-        assertNull(shop.getCustomer(customer2.getId()).getCustomerCard());
+        assertNull(shop.getCustomer(customer2ID).getCustomerCard());
     }
 
     /**
-     * Test that each customer can only have one attached card
+     * Test that assigning a new card to a customer overwrites his last card
      */
     @Test
-    public void testOneCardPerCustomer() throws InvalidPasswordException, InvalidUsernameException,
+    public void testOverwriteAttachedCard() throws InvalidPasswordException, InvalidUsernameException,
             InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
 
         // attach a card to a customer
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, card1));
 
-        // try attach a second card to the customer
-        assertFalse(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card2));
+        // try attach a differnt card to the customer
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, card2));
 
-        // verify that the first customer's card is still attached to first customer
-        assertEquals(card1, shop.getCustomer(customer1.getId()).getCustomerCard());
+        // verify that the second card is now attached to first customer
+        assertEquals(card2, shop.getCustomer(customer1ID).getCustomerCard());
     }
 
     /**
@@ -300,22 +302,22 @@ public class EZShopTestModifyCustomer {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // attach card to customer
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), card1));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, card1));
 
         // add points to card
         int pointsOnCard = 100;
         assertTrue(shop.modifyPointsOnCard(card1, pointsOnCard));
 
         // detach card from customer
-        assertTrue(shop.modifyCustomer(customer1.getId(), customer1.getCustomerName(), ""));
+        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, ""));
 
         // attach card to different customer
-        assertTrue(shop.modifyCustomer(customer2.getId(), customer2.getCustomerName(), card1));
+        assertTrue(shop.modifyCustomer(customer2ID, customer2Name, card1));
 
         // verify that points on card still remains the same
-        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer2.getId()).getPoints());
+        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer2ID).getPoints());
 
         // verify that first customer no longer has points
-        assertEquals(new Integer(0), shop.getCustomer(customer1.getId()).getPoints());
+        assertEquals(new Integer(0), shop.getCustomer(customer1ID).getPoints());
     }
 }

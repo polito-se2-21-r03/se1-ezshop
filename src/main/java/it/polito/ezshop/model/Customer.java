@@ -1,15 +1,24 @@
 package it.polito.ezshop.model;
 
+import it.polito.ezshop.exceptions.InvalidCustomerNameException;
+
 import java.util.Objects;
 
 public class Customer {
-    private int id;
+    private final int id;
     private String customerName;
     private LoyaltyCard card;
 
-    public Customer(String customerName, int id, LoyaltyCard loyaltyCard) {
-        this.customerName = customerName;
+    public Customer(int id, String customerName) throws InvalidCustomerNameException {
         this.id = id;
+        this.setCustomerName(customerName);
+        this.setCard(null);
+    }
+
+    @Deprecated
+    public Customer(int id, String customerName, LoyaltyCard loyaltyCard) throws InvalidCustomerNameException {
+        this.id = id;
+        setCustomerName(customerName);
         this.card = loyaltyCard;
     }
 
@@ -23,28 +32,35 @@ public class Customer {
         }
     }
 
+    public Integer getId() {
+        return this.id;
+    }
+
+    public void setCustomerName(String customerName) throws InvalidCustomerNameException {
+        validateName(customerName);
+        this.customerName = customerName;
+    }
+
     public String getCustomerName() {
         return this.customerName;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Integer getId() {
-        return this.id;
+    public void setCard(LoyaltyCard card) {
+        this.card = card;
     }
 
     public LoyaltyCard getCard() {
         return card;
     }
 
-    public void setCard(LoyaltyCard card) {
-        this.card = card;
+    public static void validateName(String name) throws InvalidCustomerNameException {
+        if (!isValidName(name)) {
+            throw new InvalidCustomerNameException("Customer name can not be null or empty");
+        }
+    }
+
+    public static boolean isValidName(String name) {
+        return name != null && !name.equals("");
     }
 
     @Override

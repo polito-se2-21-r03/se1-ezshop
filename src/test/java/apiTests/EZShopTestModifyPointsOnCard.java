@@ -2,7 +2,6 @@ package apiTests;
 
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.*;
-import it.polito.ezshop.model.Customer;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
@@ -18,7 +17,8 @@ public class EZShopTestModifyPointsOnCard {
 
     private static final EZShop shop = new EZShop();
     private static final User admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
-    private static final Customer customer = new Customer("Maria", "2345678901", 0, 0);
+    private static final String customerName = "Pietro";
+    private static Integer customerID;
     private static String card;
 
     /**
@@ -38,9 +38,9 @@ public class EZShopTestModifyPointsOnCard {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // add a customer and attach a new card
-        customer.setId(shop.defineCustomer(customer.getCustomerName()));
+        customerID = shop.defineCustomer(customerName);
         card = shop.createCard();
-        shop.attachCardToCustomer(card, customer.getId());
+        shop.attachCardToCustomer(card, customerID);
 
         // logout after setup
         shop.logout();
@@ -105,7 +105,7 @@ public class EZShopTestModifyPointsOnCard {
         assertTrue(shop.modifyPointsOnCard(card, pointsOnCard));
 
         // verify that points are indeed on card
-        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer.getId()).getPoints());
+        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customerID).getPoints());
     }
 
     /**
@@ -126,7 +126,7 @@ public class EZShopTestModifyPointsOnCard {
         assertFalse(shop.modifyPointsOnCard(card, -10));
 
         // verify that points on card have not been changed
-        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer.getId()).getPoints());
+        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customerID).getPoints());
     }
 
     /**
@@ -158,10 +158,10 @@ public class EZShopTestModifyPointsOnCard {
 
         // remove remaining points from card
         modifyPoints = -5;
-        assertFalse(shop.modifyPointsOnCard(card, modifyPoints));
+        assertTrue(shop.modifyPointsOnCard(card, modifyPoints));
         expectedPointsOnCard += modifyPoints;
 
         // verify that points on card are as expected
-        assertEquals(new Integer(expectedPointsOnCard), shop.getCustomer(customer.getId()).getPoints());
+        assertEquals(new Integer(expectedPointsOnCard), shop.getCustomer(customerID).getPoints());
     }
 }

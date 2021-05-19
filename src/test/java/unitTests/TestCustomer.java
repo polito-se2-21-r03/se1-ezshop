@@ -1,5 +1,6 @@
 package unitTests;
 
+import it.polito.ezshop.exceptions.InvalidCustomerNameException;
 import it.polito.ezshop.model.Customer;
 import it.polito.ezshop.model.LoyaltyCard;
 import org.junit.Test;
@@ -15,14 +16,14 @@ public class TestCustomer {
     final LoyaltyCard card2 = new LoyaltyCard("1234567891", 2);
 
     @Test
-    public void testConstructor() {
-        Customer customer = new Customer(name, id, null);
+    public void testConstructor() throws InvalidCustomerNameException {
+        Customer customer = new Customer(id, name, null);
 
         assertEquals((Integer) id, customer.getId());
         assertEquals(name, customer.getCustomerName());
         assertNull(customer.getCard());
 
-        customer = new Customer(name, id, card);
+        customer = new Customer(id, name, card);
 
         assertEquals((Integer) id, customer.getId());
         assertEquals(name, customer.getCustomerName());
@@ -30,34 +31,26 @@ public class TestCustomer {
     }
 
     @Test
-    public void testSetId() {
-        Customer customer = new Customer(name, id, null);
-
-        customer.setId(2);
-        assertEquals((Integer) 2, customer.getId());
-    }
-
-    @Test
-    public void testSetName() {
-        Customer customer = new Customer(name, id, null);
+    public void testSetName() throws Exception {
+        Customer customer = new Customer(id, name, null);
 
         customer.setCustomerName("Pietro");
         assertEquals("Pietro", customer.getCustomerName());
     }
 
     @Test
-    public void testSetCard() {
-        Customer customer = new Customer(name, id, null);
+    public void testSetCard() throws InvalidCustomerNameException {
+        Customer customer = new Customer(id, name, null);
 
         customer.setCard(card2);
         assertEquals(card2, customer.getCard());
     }
 
     @Test
-    public void testEqualsHashCode() {
-        Customer customer = new Customer(name, id, null);
-        Customer customerSame = new Customer(name, id, null);
-        Customer customerDifferent = new Customer("Pietro", id + 1, card2);
+    public void testEqualsHashCode() throws InvalidCustomerNameException {
+        Customer customer = new Customer(id, name, null);
+        Customer customerSame = new Customer(id, name, null);
+        Customer customerDifferent = new Customer(id + 1, "Pietro", card2);
 
         assertEquals(customer, customerSame);
         assertNotEquals(customer, customerDifferent);

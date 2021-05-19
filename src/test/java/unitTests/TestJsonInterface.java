@@ -22,7 +22,7 @@ public class TestJsonInterface {
 
     @Before
     public void clean() throws Exception {
-        product = new ProductType(1, "xx", "xx", 10.0, "xx");
+        product = new ProductType(1, "xx", "1234567890128", 10.0, "xx");
 
         ji = JsonInterface.create(dataDirectory);
         ji.reset();
@@ -65,13 +65,13 @@ public class TestJsonInterface {
 
         // write a list of products
         List<ProductType> writeData = Arrays.asList(
-                new ProductType(1, "description1", "123",
+                new ProductType(1, "description1", "1234567890128",
                         20.0, "note1", 0, null),
-                new ProductType(2, "description2", "456",
-                        10.0, "note2", 1, null),
-                new ProductType(3, "description3", "789",
+                new ProductType(2, "description2", "1234567890128",
+                        10.0, "note2", 1, new Position("1-1-1")),
+                new ProductType(3, "description3", "1234567890128",
                         15.0, "note3", 0, new Position("1-1-1")),
-                new ProductType(4, "description4", "012",
+                new ProductType(4, "description4", "1234567890128",
                         20.0, "note4", 1, new Position("1-1-1"))
         );
         ji.writeProducts(writeData);
@@ -87,50 +87,40 @@ public class TestJsonInterface {
      * Test reading and writing of a list of customers
      */
     @Test
-    public void testReadWriteCustomers() throws IOException {
+    public void testReadWriteCustomers() throws Exception {
         // write a null list
-        ji.writeCustomers(null);
-        List<Customer> readData = ji.readCustomers();
-        assertEquals(0, readData.size());
+        ji.writeCustomerList(null);
+        CustomerList readData = ji.readCustomerList();
+        assertNotNull(readData);
+        assertEquals(0, readData.getAllCustomers().size());
 
-        // write a list of customers
-        List<Customer> writeData = Arrays.asList(
-                new Customer("Pietro", "123", 1, 10),
-                new Customer("Sarah", "456", 2, 0),
-                new Customer("Sarah", "456", 2, 0)
-        );
-        ji.writeCustomers(writeData);
+        // create a new customer list
+        CustomerList writeData = new CustomerList();
+
+        // create customers
+        int cID1 = writeData.addCustomer("Pietro");
+        int cID2 = writeData.addCustomer("Sarah");
+        writeData.addCustomer("Ramona");
+
+        // create cards
+        String cCard1 = writeData.generateNewLoyaltyCard();
+        String cCard2 = writeData.generateNewLoyaltyCard();
+        String cCard3 = writeData.generateNewLoyaltyCard();
+
+        // attach cards to customers
+        writeData.attachCardToCustomer(cID1, cCard1);
+        writeData.attachCardToCustomer(cID2, cCard2);
+
+        // add points to card
+        writeData.modifyPointsOnCard(cCard1, 10);
+        writeData.modifyPointsOnCard(cCard3, 20);
+
+        ji.writeCustomerList(writeData);
 
         // read a list of customers
-        readData = ji.readCustomers();
+        readData = ji.readCustomerList();
         assertNotNull(readData);
-        assertEquals(writeData.size(), readData.size());
-        assertTrue(readData.containsAll(writeData));
-    }
-
-    /**
-     * Test reading and writing of a list of loyalty cards
-     */
-    @Test
-    public void testReadWriteLoyaltyCards() throws IOException {
-        // write a null list
-        ji.writeLoyaltyCards(null);
-        List<LoyaltyCard> readData = ji.readLoyaltyCards();
-        assertEquals(0, readData.size());
-
-        // write a list of loyalty cards
-        List<LoyaltyCard> writeData = Arrays.asList(
-                new LoyaltyCard("012356789", 10),
-                new LoyaltyCard("012356788", 10),
-                new LoyaltyCard("012356787", 10)
-        );
-        ji.writeLoyaltyCards(writeData);
-
-        // read a list of loyalty cards
-        readData = ji.readLoyaltyCards();
-        assertNotNull(readData);
-        assertEquals(writeData.size(), readData.size());
-        assertTrue(readData.containsAll(writeData));
+        assertEquals(writeData, readData);
     }
 
     /**

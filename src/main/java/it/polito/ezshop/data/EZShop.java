@@ -4,7 +4,6 @@ import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
-import org.omg.CORBA.DynAnyPackage.Invalid;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -29,14 +28,9 @@ public class EZShop implements EZShopInterface {
     private final List<it.polito.ezshop.model.User> users = new ArrayList<>();
 
     /**
-     * List of all the customers registered in EZShop.
+     * Encapsulated list of all the customers registered in EZShop.
      */
-    private final List<it.polito.ezshop.model.Customer> customers = new ArrayList<>();
-
-    /**
-     * List of loyalty card registered in the system
-     */
-    public final List<LoyaltyCard> loyaltyCards = new ArrayList<>();
+    private CustomerList customerList = new CustomerList();
 
     /**
      * Current logged in user.
@@ -68,8 +62,7 @@ public class EZShop implements EZShopInterface {
 
             this.users.addAll(persistenceLayer.readUsers());
             this.products.addAll(persistenceLayer.readProducts());
-            this.customers.addAll(persistenceLayer.readCustomers());
-            this.loyaltyCards.addAll(persistenceLayer.readLoyaltyCards());
+            this.customerList = persistenceLayer.readCustomerList();
             this.accountBook = persistenceLayer.readAccountBook();
         } catch (Exception ex) {
             // exceptions are ignored
@@ -101,7 +94,7 @@ public class EZShop implements EZShopInterface {
     private void writeState () {
         try {
             persistenceLayer.writeUsers(users);
-            persistenceLayer.writeCustomers(customers);
+            persistenceLayer.writeCustomerList(customerList);
             persistenceLayer.writeProducts(products);
             persistenceLayer.writeAccountBook(accountBook);
         } catch (Exception ex) {
@@ -113,7 +106,7 @@ public class EZShop implements EZShopInterface {
     public void reset() {
         this.users.clear();
         this.currentUser = null;
-        this.customers.clear();
+        this.customerList.reset();
         this.products.clear();
         this.accountBook.reset();
 
@@ -136,26 +129,6 @@ public class EZShop implements EZShopInterface {
         if (Arrays.stream(roles).noneMatch(r -> r.equals(currentUser.getRole()))) {
             throw new UnauthorizedException("Invalid current user's role");
         }
-    }
-
-    /**
-     * Returns the customer with the given ID. If no customer with that ID exists null is returned. Throws an
-     * InvalidCustomerIdException if the given ID is not valid
-     *
-     * @param id ID of the requested customer
-     * @return the customer with the given id if he exists
-     *         null, if no customer with id exists
-     * @throws InvalidCustomerIdException if the provided ID is not valid
-     */
-    private it.polito.ezshop.model.Customer getCustomerById(Integer id) throws InvalidCustomerIdException {
-        if (id == null || id <= 0) {
-            throw new InvalidCustomerIdException("The customer id must be a non-null positive integer");
-        }
-
-        return customers.stream()
-                .filter(c -> id.equals(c.getId()))
-                .findAny()
-                .orElse(null);
     }
 
     @Override
@@ -683,33 +656,14 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer defineCustomer(String customerName) throws InvalidCustomerNameException, UnauthorizedException {
+
+        // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        // generate a list of all ids
-        List<Integer> ids = customers.stream().map(it.polito.ezshop.model.Customer::getId).collect(Collectors.toList());
-        // generate a list of all names
-        List<String> names = customers.stream().map(it.polito.ezshop.model.Customer::getCustomerName).collect(Collectors.toList());
-        // unique name checking
-        if(names.contains(customerName)) {
-            return -1;
-        }
-
-        // generate a new id that is not already in the list
-        // create a new customer
-        Integer id = generateId(ids);
-
-        if (customerName == null || customerName.equals("")) {
-            throw new InvalidCustomerNameException("Customer name can not be null or empty");
-        }
-        if (id == null || id <= 0) {
-            return -1;
-        }
-
-        it.polito.ezshop.model.Customer c = new it.polito.ezshop.model.Customer(customerName,  id, null);
-        customers.add(c);
+        int newCustomerID = customerList.addCustomer(customerName);
 
         writeState();
-        return c.getId();
+        return newCustomerID;
     }
 
     @Override
@@ -718,41 +672,10 @@ public class EZShop implements EZShopInterface {
         // check the role of the current user
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        if (newCustomerName == null || newCustomerName.equals("")) {
-            throw new InvalidCustomerNameException("Invalid Customer Name");
-        }
-        if (newCustomerCard == null || newCustomerCard.equals("") || newCustomerCard.length() == 10) {
-            throw new InvalidCustomerCardException("Invalid Card Number");
-        }
-
-        // get the customer
-        it.polito.ezshop.model.Customer customer = getCustomerById(id);
-
-        // return false if customer does not exist
-        if (customer == null) {
-            return false;
-        }
-
-        // generate a list of all card numbers
-        List<String> cards = customers.stream().map(it.polito.ezshop.model.Customer::getCustomerName).collect(Collectors.toList());
-        // uniqie card number checking
-        for(String card : cards){
-            if(card.equals(newCustomerCard))
-                throw new InvalidCustomerCardException("Invalid Card Number");
-        }
-
-
-        // if the customer is present, update his card and name
-        customer.setCustomerName(newCustomerName);
-
-        LoyaltyCard card = loyaltyCards.stream().filter(x -> x.getCode().equals(newCustomerCard))
-                .findAny().orElse(null);
-
-        customer.setCard(card);
+        boolean success = customerList.modifyCustomer(id, newCustomerName, newCustomerCard);
 
         writeState();
-        // if the customer is present return true, otherwise return false
-        return true;
+        return success;
 
     }
 
@@ -761,17 +684,9 @@ public class EZShop implements EZShopInterface {
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        //InvalidCustomerIdException if the ***id is null***, less than or equal to 0
-        if (id == null || id <= 0) {
-            throw new InvalidCustomerIdException("Invalid Customer id");
-        }
-
-
-        //removeIf returns true if any elements were removed
-        boolean result = customers.removeIf(x -> x.getId().equals(id));
-
+        boolean success = customerList.removeCustomer(id);
         writeState();
-        return result;
+        return success;
     }
 
     @Override
@@ -780,7 +695,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         // return customer if found, null otherwise, throw exception if necessary
-        it.polito.ezshop.model.Customer customer = getCustomerById(id);
+        it.polito.ezshop.model.Customer customer = customerList.getCustomer(id);
         if (customer == null) {
             return null;
         }
@@ -793,91 +708,43 @@ public class EZShop implements EZShopInterface {
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        return customers.stream().map(CustomerAdapter::new).collect(Collectors.toList());
+        return customerList.getAllCustomers().stream().map(CustomerAdapter::new).collect(Collectors.toList());
     }
 
     @Override
     public String createCard() throws UnauthorizedException {
+
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        List<String> codes = loyaltyCards.stream().map(LoyaltyCard::getCode).collect(Collectors.toList());
-        String newCode = LoyaltyCard.generateNewCode();
-        while (codes.contains(newCode)) {
-            newCode = LoyaltyCard.generateNewCode();
-        }
+        String newCard = customerList.generateNewLoyaltyCard();
 
-        loyaltyCards.add(new LoyaltyCard(newCode, 0));
-
-        return newCode;
+        writeState();
+        return newCard;
     }
 
     @Override
     public boolean attachCardToCustomer(String customerCard, Integer customerId) throws InvalidCustomerIdException, InvalidCustomerCardException, UnauthorizedException {
+
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        //InvalidCustomerCardException if the card is null, empty or in an invalid format
-        if (customerCard == null || customerCard.length() != 10) {
-            throw new InvalidCustomerCardException("Invalid Customer Card");
-        }
-
-        // check if another customer is associated with the same card
-        boolean alreadyAssigned = customers.stream()
-                .filter(x -> !x.getId().equals(customerId)) // not same customer
-                .map(it.polito.ezshop.model.Customer::getCard)
-                .anyMatch(x -> x != null && x.getCode().equals(customerCard));
-
-        if (alreadyAssigned) {
-            return false;
-        }
-
-        // get the customer
-        it.polito.ezshop.model.Customer customer = customers.stream()
-                .filter(x -> x.getId().equals(customerId)).findFirst().orElse(null);
-
-        if (customer == null) {
-            return false;
-        }
-
-        LoyaltyCard card = loyaltyCards.stream().filter(x -> x.getCode().equals(customerCard)).findAny().orElse(null);
-
-        // set customer's card to new card
-        customer.setCard(card);
+        boolean success = customerList.attachCardToCustomer(customerId, customerCard);
 
         writeState();
-        return true;
+        return success;
     }
 
     @Override
     public boolean modifyPointsOnCard(String customerCard, int pointsToBeAdded) throws InvalidCustomerCardException, UnauthorizedException {
+
         //invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        //InvalidCustomerCardException if the card is null, empty or in an invalid format
-        if (customerCard == null || customerCard.length() != 10) {
-            throw new InvalidCustomerCardException("Invalid Customer Card");
-        }
-
-        // find the card
-        LoyaltyCard card = loyaltyCards.stream()
-                .filter(x -> x != null && x.getCode().equals(customerCard))
-                .findFirst().orElse(null);
-
-        // if there is no card with given code return false
-        if(card == null) {
-            return false;
-        }
-
-        if (pointsToBeAdded < 0 && (card.getPoints() + pointsToBeAdded) < 0) {
-            // not enough points on the card
-            return false;
-        }
-
-        card.setPoints(card.getPoints() + pointsToBeAdded);
+        boolean success = customerList.modifyPointsOnCard(customerCard, pointsToBeAdded);
 
         writeState();
-        return true;
+        return success;
     }
 
     @Override
