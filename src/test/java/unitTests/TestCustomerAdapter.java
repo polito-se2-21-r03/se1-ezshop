@@ -1,14 +1,12 @@
 package unitTests;
 
-import it.polito.ezshop.exceptions.InvalidCustomerNameException;
 import it.polito.ezshop.model.Customer;
 import it.polito.ezshop.model.LoyaltyCard;
 import it.polito.ezshop.model.adapters.CustomerAdapter;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 public class TestCustomerAdapter {
 
@@ -17,14 +15,14 @@ public class TestCustomerAdapter {
     public static final int points = 10;
     private static final int id = 1;
 
+    Customer customer1, customer2;
     CustomerAdapter customerAdapter1;
     CustomerAdapter customerAdapter2;
 
     @Before
     public void beforeEach() throws Exception {
-
-        Customer customer1 = new Customer(id, name);
-        Customer customer2 = new Customer(id, name);
+        customer1 = new Customer(id, name);
+        customer2 = new Customer(id, name);
         customer1.setCard(new LoyaltyCard(cardCode));
 
         customerAdapter1 = new CustomerAdapter(customer1);
@@ -38,7 +36,6 @@ public class TestCustomerAdapter {
 
     @Test
     public void testSetters() {
-
         // test set id illegal
         assertThrows(UnsupportedOperationException.class, () -> customerAdapter1.setId(id + 1));
 
@@ -46,6 +43,9 @@ public class TestCustomerAdapter {
         for (String name : TestHelpers.invalidCustomerNames) {
             assertThrows(IllegalArgumentException.class, () -> customerAdapter1.setCustomerName(name));
         }
+
+        // test set card illegal
+        assertThrows(UnsupportedOperationException.class, () -> customerAdapter1.setCustomerCard(LoyaltyCard.generateNewCode()));
 
         // test set negative points
         assertThrows(IllegalArgumentException.class, () -> customerAdapter1.setPoints(-1));
@@ -57,5 +57,17 @@ public class TestCustomerAdapter {
         // test set/get points
         customerAdapter1.setPoints(points + 1);
         assertEquals((Integer) (points + 1), customerAdapter1.getPoints());
+    }
+
+    @Test
+    public void testGetters() {
+        assertEquals(customer1.getId(), customerAdapter1.getId());
+        assertEquals(customer1.getCustomerName(), customerAdapter1.getCustomerName());
+
+        assertEquals(customer1.getCard().getCode(), customerAdapter1.getCustomerCard());
+        assertNull(customerAdapter2.getCustomerCard());
+
+        assertEquals((Integer) customer1.getCard().getPoints(), customerAdapter1.getPoints());
+        assertEquals((Integer) 0, customerAdapter2.getPoints());
     }
 }

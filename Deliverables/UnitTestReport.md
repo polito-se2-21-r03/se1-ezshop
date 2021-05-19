@@ -589,6 +589,7 @@ Version: 1.0
 |                             | TestCustomer.testEqualsHashCode |
 | TestCustomerAdapter         | TestCustomerAdapter.testConstructor |
 |                             | TestCustomerAdapter.testSetters |
+|                             | TestCustomerAdapter.testGetters |
 | Position                    | TestPosition.testEqualsAndHashCode |
 |                             | TestPosition.testToString |
 | ProductType                 | TestProductType.testConstructorNoteNullSetsToEmptyString |
@@ -617,6 +618,9 @@ Version: 1.0
 |                             | TestBalanceOperationAdapter.testSetters |
 |                             | TestBalanceOperationAdapter.testGetters |
 | OperationStatus             | TestOperationStatus.testAffectsBalance |
+| Order                       | TestOrder.testConstructor |
+|                             | TestOrder.testSetters |
+|                             | TestOrder.testEqualsAndHashCode |
 | OrderAdapter                | TestOrderAdapter.testConstructor |
 |                             | TestOrderAdapter.testSetters |
 |                             | TestOrderAdapter.testGetters |
@@ -635,6 +639,9 @@ Version: 1.0
 | SaleTransactionAdapter      | TestSaleTransactionAdapter.testConstructor |
 |                             | TestSaleTransactionAdapter.testSetters |
 |                             | TestSaleTransactionAdapter.testGetters |
+| ReturnTransaction           | TestReturnTransaction.testConstructor |
+|                             | TestReturnTransaction.testAddReturnTransactionItem |
+|                             | TestReturnTransaction.testEqualsAndHashCode |
 | ReturnTransactionItem       | TestReturnTransactionItem.testConstructor |
 |                             | TestReturnTransactionItem.testComputeValue |
 |                             | TestReturnTransactionItem.testEqualsHashCode |
@@ -643,6 +650,8 @@ Version: 1.0
 
     <Add here the screenshot report of the statement and branch coverage obtained using
     the Eclemma tool. >
+
+![Coverage (unit tests)](images/coverage_unit_tests.png)
 
 ### Loop coverage analysis
 

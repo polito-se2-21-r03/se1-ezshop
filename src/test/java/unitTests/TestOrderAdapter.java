@@ -1,5 +1,6 @@
 package unitTests;
 
+import it.polito.ezshop.model.OperationStatus;
 import it.polito.ezshop.model.Order;
 import it.polito.ezshop.model.adapters.BalanceOperationAdapter;
 import it.polito.ezshop.model.adapters.OrderAdapter;
@@ -51,6 +52,13 @@ public class TestOrderAdapter {
         assertEquals(order.getQuantity(), orderAdapter.getQuantity());
         assertEquals(order.getPricePerUnit(), orderAdapter.getPricePerUnit(), 0.01);
         assertEquals(order.getProductCode(), orderAdapter.getProductCode());
+
+        // check correct conversion of status
+        assertEquals("ISSUED", orderAdapter.getStatus());
+        order.setStatus(OperationStatus.COMPLETED);
+        assertEquals("PAYED", orderAdapter.getStatus());
+        order.setStatus(OperationStatus.OPEN);
+        assertEquals("OPEN", orderAdapter.getStatus());
     }
 
 }
