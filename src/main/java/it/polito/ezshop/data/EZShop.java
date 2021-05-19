@@ -29,7 +29,7 @@ public class EZShop implements EZShopInterface {
     /**
      * Credit card circuit handling credit card payments
      */
-    private CreditCardCircuit creditCardCircuit = new TextualCreditCardCircuit("CreditCards.txt");
+    private CreditCardCircuit creditCardCircuit = new TextualCreditCardCircuit(TextualCreditCardCircuit.WORKING_TEXT_FILE);
 
     /**
      * List of all the users registered in EZShop.
@@ -76,6 +76,8 @@ public class EZShop implements EZShopInterface {
         } catch (Exception ex) {
             // exceptions are ignored
         }
+
+        this.creditCardCircuit.init();
     }
 
     /**
@@ -936,7 +938,7 @@ public class EZShop implements EZShopInterface {
         it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
 
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null || sale.getStatus() != OperationStatus.CLOSED){
+        if (sale == null || sale.getStatus() == OperationStatus.OPEN){
             return null;
         }
 
