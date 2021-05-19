@@ -1,14 +1,9 @@
 package it.polito.ezshop.utils;
 
-import it.polito.ezshop.EZShop;
-import it.polito.ezshop.credit_card_circuit.CreditCardCircuit;
-import it.polito.ezshop.credit_card_circuit.TextualCreditCardCircuit;
-
 import java.io.*;
 import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
-import java.util.Arrays;
 
 public class Utils {
 
@@ -53,7 +48,7 @@ public class Utils {
         int checksum = 0;
 
         // sum multiples (1x or 3x depending on position) of each digit except last one in checksum
-        for (int i = 0; i < barcode.length()-1; i++) {
+        for (int i = 0; i < barcode.length() - 1; i++) {
 
             // read digit at position i
             int digit = Character.getNumericValue(barcode.charAt(i));
@@ -84,14 +79,12 @@ public class Utils {
     }
 
     /**
-     * Check if given credit number is valid according to luhn algorithm.
-     * Implementation follows the algorithm described at: https://java2blog.com/luhn-algorithm-java/
+     * Check if given credit number is valid.
      *
      * @param cardNumber the barcode whose conformity to the above mentioned standard is to be verified
      * @return whether the given creditcard number is valid or not
      */
     public static boolean isValidCreditCardNumber(String cardNumber) {
-
         // credit card number may not be null
         if (cardNumber == null) {
             return false;
@@ -102,12 +95,28 @@ public class Utils {
             return false;
         }
 
+        return luhnValidate(cardNumber);
+    }
+
+    /**
+     * Validate a code according to the Luhn's algorithm according to Luhn algorithm.
+     * Implementation follows the algorithm described at: https://java2blog.com/luhn-algorithm-java/
+     *
+     * @param code the code to be verified
+     * @return true if the code is valid, false otherwise
+     */
+    public static boolean luhnValidate(String code) {
         // sum all digits, every other digit counts double
         int checksum = 0;
-        for (int i=0; i<cardNumber.length(); i++) {
+
+        // if the code length is even, double the digits on even positions
+        // if the code length is odd, double the digits on odd positions
+        int doublePosition = (code.length() % 2 == 0) ? 0 : 1;
+
+        for (int i = 0; i < code.length(); i++) {
 
             // get digit at position i
-            int digit = Character.getNumericValue(cardNumber.charAt(i));
+            int digit = Character.getNumericValue(code.charAt(i));
 
             // verify parsed digit was actually a numeric digit
             if (digit < 0 || digit > 9) {
@@ -115,13 +124,13 @@ public class Utils {
             }
 
             // sum digits, counting every other digit double
-            if (i%2 == 0) {
+            if (i % 2 == doublePosition) {
 
                 int twiceDigit = 2 * digit;
 
                 // if doubling digit results in double digit number, add digit sum instead
                 if (twiceDigit > 9) {
-                    int digitSum = twiceDigit/10 + twiceDigit%10;
+                    int digitSum = twiceDigit / 10 + twiceDigit % 10;
                     checksum += digitSum;
                 } else {
                     checksum += twiceDigit;
@@ -132,32 +141,33 @@ public class Utils {
         }
 
         // credit card is valid iff computed checksum is divisible by 10
-        return checksum%10 == 0;
+        return checksum % 10 == 0;
     }
 
     public static Double readFromFile(String path, String cardNumber) {
-            try {
-                FileReader reader = new FileReader(path);
-                BufferedReader bufferedReader = new BufferedReader(reader);
+        try {
+            FileReader reader = new FileReader(path);
+            BufferedReader bufferedReader = new BufferedReader(reader);
 
-                String line;
-                String  balance = null;
-                while ((line = bufferedReader.readLine()) != null) {
-                    String[] parts = line.split(";");
-                    if(parts[0].equals(cardNumber))
-                        balance = parts[1];
-                }
-                assert balance != null;
-                reader.close();
-                return Double.parseDouble(balance);
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
+            String line;
+            String balance = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] parts = line.split(";");
+                if (parts[0].equals(cardNumber))
+                    balance = parts[1];
             }
+            assert balance != null;
+            reader.close();
+            return Double.parseDouble(balance);
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
 
     }
+
     public static boolean whiteToFile(String path, String cardNumber, double amount) throws IOException {
         //Instantiating the Scanner class to read the file
         Scanner sc = new Scanner(new File(path));
@@ -173,7 +183,7 @@ public class Utils {
         sc.close();
         assert balance != null;
         double newBalance = balance + amount;
-        String oldLine = cardNumber + ";" + balance.toString();
+        String oldLine = cardNumber + ";" + balance;
         String newLine = cardNumber + ";" + newBalance;
         //Replacing the old line with new line
         fileContents = fileContents.replaceAll(oldLine, newLine);
@@ -182,7 +192,7 @@ public class Utils {
         writer.append(fileContents);
         writer.flush();
 
-        return newBalance == balance+amount;
+        return newBalance == balance + amount;
     }
 
 

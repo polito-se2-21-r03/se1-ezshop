@@ -3,6 +3,7 @@ package unitTests;
 import org.junit.Test;
 
 import static it.polito.ezshop.utils.Utils.isValidCreditCardNumber;
+import static it.polito.ezshop.utils.Utils.luhnValidate;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
@@ -76,5 +77,22 @@ public class TestIsValidCreditCardNumber {
         // 2  3  1  8  9  5  8  9  9  3  9  1  8  4  6  5
         // 90 % 10 = 0
         assertTrue(isValidCreditCardNumber("1358954993914435"));
+    }
+
+    @Test
+    public void testLuhnValidateZeroIterations() {
+        assertTrue(luhnValidate(""));
+    }
+
+    @Test
+    public void testLuhnValidateOneIteration() {
+        assertTrue(luhnValidate("0"));
+    }
+
+    @Test
+    public void testLuhnValidateMultipleIterations() {
+        assertTrue(luhnValidate("18"));
+        assertTrue(luhnValidate("182"));
+        assertTrue(luhnValidate("1826"));
     }
 }
