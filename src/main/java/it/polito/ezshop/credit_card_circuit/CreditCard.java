@@ -3,7 +3,7 @@ package it.polito.ezshop.credit_card_circuit;
 import java.util.Objects;
 
 public class CreditCard {
-    private String code;
+    private final String code;
     private Double balance;
 
     public CreditCard(String code, Double balance) {
@@ -15,15 +15,11 @@ public class CreditCard {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public Double getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    private void setBalance(Double balance) {
         this.balance = balance;
     }
 

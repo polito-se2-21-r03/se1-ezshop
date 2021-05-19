@@ -22,17 +22,6 @@ public class TestCreditCard {
     }
 
     @Test
-    public void testSetters() {
-        CreditCard card = new CreditCard(code, balance);
-
-        card.setCode("5555666677778884");
-        assertEquals("5555666677778884", card.getCode());
-
-        card.setBalance(10.0);
-        assertEquals(10.0, card.getBalance(), 0.01);
-    }
-
-    @Test
     public void testCheckAvailability() {
         CreditCard card = new CreditCard(code, balance);
 
