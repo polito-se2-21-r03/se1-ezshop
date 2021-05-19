@@ -127,13 +127,6 @@ class TicketEntryAdapter{
 class UserAdapter{
 
 }
-BalanceOperationAdapter -up- BalanceOperation
-CustomerAdapter -up- Customer
-OrderAdapter -up- Order
-ProductTypeAdapter -up- ProductType
-SaleTransactionAdapter -up- SaleTransaction
-UserAdapter -up- User
-
 }
 
 package it.polito.ezshop.data {
