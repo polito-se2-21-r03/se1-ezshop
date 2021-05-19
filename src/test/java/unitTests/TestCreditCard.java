@@ -25,6 +25,7 @@ public class TestCreditCard {
     public void testCheckAvailability() {
         CreditCard card = new CreditCard(code, balance);
 
+        assertFalse(card.checkAvailability(-1.0));
         assertTrue(card.checkAvailability(balance / 2.0));
         assertTrue(card.checkAvailability(balance));
         assertFalse(card.checkAvailability(balance + 0.01));

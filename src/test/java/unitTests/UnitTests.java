@@ -27,7 +27,8 @@ import org.junit.runners.Suite;
         TestReturnTransactionItem.class,
         // Utils
         TestUtils.class,
-        TestIsValidCreditCardNumber.class,
+        TestUtilsIsValidCreditCardNumber.class,
+        TestUtilsIsValidBarcode.class,
         // CreditCard
         TestCreditCard.class,
         TestCreditCardCircuit.class

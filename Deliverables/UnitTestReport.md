@@ -1,10 +1,11 @@
 # Unit Testing Documentation
 
-Authors:
+Authors: Can Karacomak (s287864), Alessandro Loconsolo (s244961), Julian Neubert (s288423), Simone Alberto Peirone (
+s286886)
 
-Date:
+Date: 19/05/2021
 
-Version:
+Version: 1.0
 
 # Contents
 
@@ -224,7 +225,6 @@ Version:
 |---------------|---------------------------------------------------------------------------------|-------------------------------------|
 | Invalid       | code = LoyaltyCard.generateNewCode()<br>LoyaltyCard.validateCode(code) -> ok    | TestLoyaltyCard.testGenerateNewCode |
 
-
 ### **Class *LoyaltyCard* - method *setPoints***
 
 **Criteria for method *setPoints*:**
@@ -250,7 +250,6 @@ Version:
 |------------------|---------------|-------------------------------------------------|-------------------------------------|
 | (-MIN_INT, 0)    | Invalid       | card.setPoints(-1) -> IllegalArgumentException  | TestLoyaltyCard.testGenerateNewCode |
 | [0, MAX_INT)     | Valid         | card.setPoints(1)<br>assert card.getPoints() == 1 | TestLoyaltyCard.testGenerateNewCode |
-
 
 ### **Class *Customer* - method *Constructor***
 
@@ -284,7 +283,6 @@ Version:
 | [0, MAX_INT)     | Null or empty string  | Invalid       | new Customer(1, null) -> InvalidCustomerNameException                                                                                                | TestCustomer.testConstructor        |
 | "                | Valid                 | Valid         | customer = new Customer(id, name)<br>assert customer.getId() == id<br>assert customer.getCustomerName() == name<br>assert customer.getCard() == null | TestCustomer.testConstructor        |
 
-
 ### **Class *Customer* - method *setCustomerName***
 
 **Criteria for method *setCustomerName*:**
@@ -308,7 +306,6 @@ Version:
 |-----------------------|---------------|-----------------------------------------------------------------------------|-------------------------------------|
 | Null or empty string  | Invalid       | customer.setCustomerName(null) -> InvalidCustomerNameException              | TestCustomer.testSetName            |
 | Valid                 | Valid         | customer.setCustomerName(name)<br>assert customer.getCustomerName() == name | TestCustomer.testSetName            |
-
 
 ### **Class *Position* - method *Constructor***
 
@@ -390,7 +387,6 @@ Version:
 
 *Similar tests are performed on each setter method of **ProductType***
 
-
 ### **Class *TicketEntry* - method *Constructor***
 
 **Criteria for method *Constructor*:**
@@ -421,7 +417,6 @@ Version:
 | Valid   | (-MIN_INT, 0) | Invalid       | new TicketEntry(product, -1) -> InvalidQuantityException                                                                                                                                                                 | TestTicketEntry.testConstructor |
 | "       | [0, MAX_INT)  | Valid         | entry = new TicketEntry(product, 1)<br>assert entry.getProductType() == product<br>assert entry.getAmount() == 1<br>assert entry.getPricePerUnit() == product.getPricePerUnit()<br>assert entry.getDiscountRate() == 0.0 | TestTicketEntry.testConstructor |
 
-
 ### **Class *TicketEntry* - method *setDiscountRate***
 
 **Criteria for method *setDiscountRate*:**
@@ -447,7 +442,6 @@ Version:
 |--------------------|---------------|---------------------------------------------------------------------|-------------------------------------|
 | (-MIN_INT, 0)      | Invalid       | entry.setDiscountRate(-0.2) -> InvalidDiscountRateException         | TestTicketEntry.testSetDiscountRate |
 | [0, MAX_INT)       | Valid         | entry.setDiscountRate(0.2)<br>assert entry.getDiscountRate() == 0.2 | TestTicketEntry.testSetDiscountRate |
-
 
 ### **Class *TicketEntry* - method *setPricePerUnit***
 
@@ -475,12 +469,11 @@ Version:
 | (-MIN_DOUBLE, 0.0] | Invalid       | entry.setPricePerUnit(-1.0) -> InvalidPricePerUnitException         | TestTicketEntry.testSetPricePerUnit |
 | (0.0, MAX_DOUBLE)  | Valid         | entry.setPricePerUnit(1.0)<br>assert entry.getPricePerUnit() == 1.0 | TestTicketEntry.testSetPricePerUnit |
 
-
 ### **Class *TicketEntry* - method *setAmount***
 
 **Criteria for method *setAmount*:**
 
-- Amount      
+- Amount
 
 **Predicates for method *setAmount*:**
 
@@ -502,6 +495,67 @@ Version:
 | (-MIN_INT, 0]      | Invalid       | entry.setAmount(-1) -> InvalidQuantityException                     | TestTicketEntry.testSetAmount       |
 | (0.0, MAX_INT)     | Valid         | entry.setAmount(1)<br>assert entry.getAmount() == 1                 | TestTicketEntry.testSetAmount       |
 
+### **Class *CreditCard* - method *checkAvailability***
+
+**Criteria for method *checkAvailability*:**
+
+- Current balance of the credit card
+- Requested amount
+
+**Predicates for method *checkAvailability*:**
+
+| Criteria                                   | Predicate          |
+|--------------------------------------------|--------------------|
+| Current balance of the credit card         | [0, MAX_DOUBLE)    |
+| Requested amount                           | (MIN_DOUBLE, 0)    |
+|                                            | [0, MAX_DOUBLE)    |
+| Current balance >= requested amount        | True               |
+|                                            | False              |
+
+**Boundaries**:
+
+| Criteria         | Boundary values                            |
+|------------------|--------------------------------------------|
+| Requested amount | -0.01, 0.0, 0.01                           |
+
+**Combination of predicates**:
+
+| Current balance    | Requested amount   | Current balance >= requested amount   | Invalid/Valid | Description of the test case                                                                          | JUnit test case                       |
+|--------------------|--------------------|---------------------------------------|---------------|-------------------------------------------------------------------------------------------------------|---------------------------------------|
+| [0, MAX_DOUBLE)    | (MIN_DOUBLE, 0)    | *                                     | Invalid       | creditCard.checkAvailability(-1) -> false                                                             | TestTicketEntry.testCheckAvailability |
+| "                  | [0, MAX_DOUBLE)    | False                                 | Valid         | creditCard = new CreditCard(code, 100.0)<br>creditCard.checkAvailability(150.0) -> false              | TestTicketEntry.testCheckAvailability |
+| "                  | "                  | True                                  | Valid         | creditCard = new CreditCard(code, 100.0)<br>creditCard.checkAvailability(50.0) -> true                | TestTicketEntry.testCheckAvailability |
+
+### **Class *CreditCard* - method *updateBalance***
+
+**Criteria for method *updateBalance*:**
+
+- Current balance of the credit card
+- Requested amount
+
+**Predicates for method *updateBalance*:**
+
+| Criteria                                   | Predicate          |
+|--------------------------------------------|--------------------|
+| Current balance of the credit card         | [0, MAX_DOUBLE)    |
+| Requested amount                           | (MIN_DOUBLE, 0)    |
+|                                            | [0, MAX_DOUBLE)    |
+| Current balance >= requested amount        | True               |
+|                                            | False              |
+
+**Boundaries**:
+
+| Criteria         | Boundary values                            |
+|------------------|--------------------------------------------|
+| Requested amount | -0.01, 0.0, 0.01                           |
+
+**Combination of predicates**:
+
+| Current balance    | Requested amount   | Current balance >= requested amount   | Invalid/Valid | Description of the test case                                                                                                     | JUnit test case                       |
+|--------------------|--------------------|---------------------------------------|---------------|----------------------------------------------------------------------------------------------------------------------------------|---------------------------------------|
+| [0, MAX_DOUBLE)    | (MIN_DOUBLE, 0)    | *                                     | Invalid       | creditCard.checkAvailability(-1) -> false                                                                                        | TestTicketEntry.testUpdateBalance |
+| "                  | [0, MAX_DOUBLE)    | False                                 | Valid         | creditCard = new CreditCard(code, 100.0)<br>creditCard.updateBalance(150.0) -> false<br>assert creditCard.getBalance() == 100.0  | TestTicketEntry.testUpdateBalance |
+| "                  | "                  | True                                  | Valid         | creditCard = new CreditCard(code, 100.0)<br>creditCard.updateBalance(50.0) -> true<br>assert creditCard.getBalance() == 50.0     | TestTicketEntry.testUpdateBalance |
 
 # White Box Unit Tests
 
@@ -511,33 +565,79 @@ Version:
     <Report here all the created JUnit test cases, and the units/classes under test >
     <For traceability write the class and method name that contains the test case>
 
-| Unit name            | JUnit test case |
-|----------------------|-----------------|
-| User                 | TestUser.testSetId |
-|                      | TestUser.testSetUsername |
-|                      | TestUser.testSetPassword |
-|                      | TestUser.testValidateId |
-|                      | TestUser.testValidateUsername |
-|                      | TestUser.testValidatePassword |
-|                      | TestUser.testValidateRole |
-|                      | TestUser.testEqualsHashCode |
-| UserAdapter          | TestUserAdapter.testConstructor |
-|                      | TestUserAdapter.testSetters |
-| LoyaltyCard          | TestLoyaltyCard.testEqualsHashCode |
-|                      | TestLoyaltyCard.testIsValidCode |
-|                      | TestLoyaltyCard.testValidateCode |
-|                      | TestLoyaltyCard.testEqualsHashCode |
-| Customer             | TestCustomer.testSetCard |
-|                      | TestCustomer.testIsValidUsername |
-|                      | TestCustomer.testValidateUsername |
-|                      | TestCustomer.testIsValidID |
-|                      | TestCustomer.testValidateID |
-|                      | TestCustomer.testEqualsHashCode |
-| TestCustomerAdapter  | TestCustomerAdapter.testConstructor |
-|                      | TestCustomerAdapter.testSetters |
-| Position             | TestPosition.testEqualsAndHashCode |
-|                      | TestPosition.testToString |
-
+| Unit name                   | JUnit test case |
+|-----------------------------|-----------------|
+| User                        | TestUser.testSetId |
+|                             | TestUser.testSetUsername |
+|                             | TestUser.testSetPassword |
+|                             | TestUser.testValidateId |
+|                             | TestUser.testValidateUsername |
+|                             | TestUser.testValidatePassword |
+|                             | TestUser.testValidateRole |
+|                             | TestUser.testEqualsHashCode |
+| UserAdapter                 | TestUserAdapter.testConstructor |
+|                             | TestUserAdapter.testSetters |
+| LoyaltyCard                 | TestLoyaltyCard.testEqualsHashCode |
+|                             | TestLoyaltyCard.testIsValidCode |
+|                             | TestLoyaltyCard.testValidateCode |
+|                             | TestLoyaltyCard.testEqualsHashCode |
+| Customer                    | TestCustomer.testSetCard |
+|                             | TestCustomer.testIsValidUsername |
+|                             | TestCustomer.testValidateUsername |
+|                             | TestCustomer.testIsValidID |
+|                             | TestCustomer.testValidateID |
+|                             | TestCustomer.testEqualsHashCode |
+| TestCustomerAdapter         | TestCustomerAdapter.testConstructor |
+|                             | TestCustomerAdapter.testSetters |
+| Position                    | TestPosition.testEqualsAndHashCode |
+|                             | TestPosition.testToString |
+| ProductType                 | TestProductType.testConstructorNoteNullSetsToEmptyString |
+|                             | TestProductType.testSetIllegalDescriptions |
+|                             | TestProductType.testSetIllegalBarcodes |
+|                             | TestProductType.testSetIllegalPricesPerUnit |
+|                             | TestProductType.testSetIllegalQuantities |
+|                             | TestProductType.testSetNoteNullResultsEmptyString |
+|                             | TestProductType.testGetters |
+| ProductTypeAdapter          | TestProductTypeAdapter.testConstructor |
+|                             | TestProductTypeAdapter.testSetIDIllegal |
+|                             | TestProductTypeAdapter.testSetIllegalDescriptions |
+|                             | TestProductTypeAdapter.testSetIllegalBarcodes |
+|                             | TestProductTypeAdapter.testSetIllegalPricesPerUnit | 
+|                             | TestProductTypeAdapter.testSetIllegalQuantities |
+|                             | TestProductTypeAdapter.testExceptionSetQuantityWithoutLocation |
+|                             | TestProductTypeAdapter.testGetters |
+| CreditCard                  | CreditCard.testConstructor |
+|                             | CreditCard.testToString |
+|                             | CreditCard.testEqualsHashCode |
+| TextualCreditCardCircuit    | TestCreditCardCircuit.testLoad |
+|                             | TestCreditCardCircuit.testCheckAvailability |
+|                             | TestCreditCardCircuit.testAddDebit |
+|                             | TestCreditCardCircuit.testValidateCode |
+| BalanceOperationAdapter     | TestBalanceOperationAdapter.testConstructor |
+|                             | TestBalanceOperationAdapter.testSetters |
+|                             | TestBalanceOperationAdapter.testGetters |
+| OperationStatus             | TestOperationStatus.testAffectsBalance |
+| OrderAdapter                | TestOrderAdapter.testConstructor |
+|                             | TestOrderAdapter.testSetters |
+|                             | TestOrderAdapter.testGetters |
+| TicketEntry                 | TestTicketEntry.testConstructor |
+|                             | TestTicketEntry.testEqualsHashCode |
+| TicketEntryAdapter          | TestTicketEntryAdapter.testConstructor |
+|                             | TestTicketEntryAdapter.testSetters |
+| SaleTransaction             | TestSaleTransaction.testConstructor |
+|                             | TestSaleTransaction.testAddSaleTransactionItem |
+|                             | TestSaleTransaction.testRemoveSaleTransactionItem |
+|                             | TestSaleTransaction.testApplyDiscountToProduct |
+|                             | TestSaleTransaction.testSetDiscountRate |
+|                             | TestSaleTransaction.testComputePoints |
+|                             | TestSaleTransaction.testValidateId |
+|                             | TestSaleTransaction.testEqualsHashCode |
+| SaleTransactionAdapter      | TestSaleTransactionAdapter.testConstructor |
+|                             | TestSaleTransactionAdapter.testSetters |
+|                             | TestSaleTransactionAdapter.testGetters |
+| ReturnTransactionItem       | TestReturnTransactionItem.testConstructor |
+|                             | TestReturnTransactionItem.testComputeValue |
+|                             | TestReturnTransactionItem.testEqualsHashCode |
 
 ### Code coverage report
 
@@ -551,17 +651,12 @@ Version:
 
 |Unit name               | Loop rows (relative to start of unit)         | Number of iterations | JUnit test case |
 |------------------------|-----------------------------------------------|----------------------|-----------------|
-| Utils.luhnValidate     | Lines 8-33                                    | 0                    | it.polito.ezshop.unitTests.TestIsValidCreditCardNumber.testLuhnValidateZeroIterations |
-|                        | Lines 8-33                                    | 1                    | it.polito.ezshop.unitTests.TestIsValidCreditCardNumber.testLuhnValidateOneIteration |
-|                        | Lines 8-33                                    | 2+                   | it.polito.ezshop.unitTests.TestIsValidCreditCardNumber.testLuhnValidateMultipleIterations |
-
-
-
-
-
-
-
-
-
+| Utils.luhnValidate     | Lines 8-33                                    | 0                    | TestUtilsIsValidCreditCardNumber.testLuhnValidateZeroIterations |
+|                        | Lines 8-33                                    | 1                    | TestUtilsIsValidCreditCardNumber.testLuhnValidateOneIteration |
+|                        | Lines 8-33                                    | 2+                   | TestUtilsIsValidCreditCardNumber.testLuhnValidateMultipleIterations |
+| Utils.isValidBarcode   | Lines 15-32                                   | 0                    | TestUtilsIsValidBarcode.testNullBarcode<br>TestUtilsIsValidBarcode.testBarcodeTooShort |
+|                        | Lines 15-32                                   | 1                    | TestUtilsIsValidBarcode.testNonNumericBarcode |
+|                        | Lines 15-32                                   | [2, 13]              | TestUtilsIsValidBarcode.testWrongCheckDigit<br>TestUtilsIsValidBarcode.testValidBarcodes |
+|                        | Lines 15-32                                   | 14+                  | TestUtilsIsValidBarcode.testBarcodeTooLong |
 
 
