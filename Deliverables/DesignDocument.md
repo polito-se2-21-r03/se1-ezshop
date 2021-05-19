@@ -119,6 +119,38 @@ class EZShop {
 
 EZShopInterface <|-- EZShop
 
+package adapter {
+class BalanceOperationAdapter{
+
+}
+class CustomerAdapter{
+
+}
+class OrderAdapter{
+
+}
+class ProductTypeAdapter{
+
+}
+class SaleTransactionAdapter{
+
+}
+class TicketEntryAdapter{
+
+}
+class UserAdapter{
+
+}
+BalanceOperationAdapter <-- BalanceOperation
+CustomerAdapter <-- Customer
+OrderAdapter <-- Order
+ProductTypeAdapter <-- ProductType
+SaleTransactionAdapter <-- SaleTransaction
+#TicketEntryAdapter <-- TicketEntry
+UserAdapter <-- User
+
+}
+
 class JsonInterface {
     + reset()
     + readUsers()
@@ -137,16 +169,6 @@ class JsonInterface {
 
 JsonInterface ---right- EZShop
 
-
-class RuntimeTypeAdapterFactory {
-    + of(Class<T>, String, boolean)
-    + registerSubtype(Class<? extends T>, String)
-    + create(Gson, TypeToken<R>)
-    + read(JsonReader)
-    +write(JsonWriter, R)
-}
-
-RuntimeTypeAdapterFactory ---right- EZShop
 
 EZShop -right- "*" User
 EZShop -- AccountBook
