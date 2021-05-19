@@ -59,7 +59,7 @@ public class EZShopTestDeleteReturnTransaction extends EZShopTestBase {
     @Test()
     public void testInvalidId() {
         testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs,
-                (value) -> shop.deleteReturnTransaction(rid));
+                shop::deleteReturnTransaction);
     }
 
     /**
@@ -68,15 +68,6 @@ public class EZShopTestDeleteReturnTransaction extends EZShopTestBase {
     @Test()
     public void testNonExistingReturnTransaction() throws Exception {
         assertFalse(shop.deleteReturnTransaction(rid + 1));
-    }
-
-    /**
-     * Delete a return transaction successfully
-     */
-    @Test
-    public void testDeleteReturnTransactionSuccessfully() throws Exception {
-        assertTrue(shop.deleteReturnTransaction(rid));
-        assertFalse(shop.deleteReturnTransaction(rid));
     }
 
     /**

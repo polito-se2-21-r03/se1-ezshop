@@ -1142,6 +1142,80 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteReturnTransaction(Integer returnId) throws InvalidTransactionIdException, UnauthorizedException {
+
+        // verify access rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        // verify returnId
+        if(returnId == null || returnId <= 0) {
+            throw new InvalidTransactionIdException("Invalid Return ID");
+        }
+
+        // get return transaction
+        it.polito.ezshop.model.BalanceOperation returnT = accountBook.getTransaction(returnId);
+
+        // return false if return transaction doesn't exist
+        if (!(returnT instanceof ReturnTransaction)) {
+            return false;
+        }
+
+        // cast return transaction
+        ReturnTransaction returnTransaction = (ReturnTransaction) returnT;
+
+        // return false if the return transaction hasn't been paid yet
+        if (!returnTransaction.getStatus().affectsBalance()) {
+            return false;
+        }
+
+        // get sale transaction
+        it.polito.ezshop.model.BalanceOperation saleT = accountBook.getTransaction(returnTransaction.getSaleTransactionId());
+
+        // cast sale transaction
+        if (!(saleT instanceof it.polito.ezshop.model.SaleTransaction)) {
+            return false;
+        }
+        it.polito.ezshop.model.SaleTransaction saleTransaction = (it.polito.ezshop.model.SaleTransaction) saleT;
+
+        // for each item of the sale transaction
+        for (TicketEntry saleTransactionItem:saleTransaction.getTransactionItems()) {
+
+            // get the corresponding return transaction item
+            ReturnTransactionItem returnTransactionItem = returnTransaction.getTransactionItems().stream()
+                    .filter(rti -> rti.getBarCode().equals(saleTransactionItem.getProductType().getBarCode()))
+                    .findAny()
+                    .orElse(null);
+
+            // if some items of this product were returned we need to decrease their amount in the shop and increase their
+            //  amount in the sale transaction
+            if (returnTransactionItem != null) {
+
+                // decrease the amount in the shop
+                // get product
+                it.polito.ezshop.model.ProductType product = products.stream()
+                        .filter(p -> p.getBarCode().equals(returnTransactionItem.getBarCode()))
+                        .findAny()
+                        .orElse(null);
+                // decrease available amount if product still exists
+                if (product != null) {
+                    try {
+                        product.setQuantity(product.getQuantity() - returnTransactionItem.getAmount());
+                    } catch (InvalidQuantityException e) {
+                        // this should never happen, items can only be added back to the sale if they exist in the shop
+                        throw new Error("Unexpected error encountered when trying to delete return transaction.", e);
+                    }
+                }
+
+                // increase the amount in the sale transaction
+                try {
+                    saleTransactionItem.setAmount(saleTransactionItem.getAmount() + returnTransactionItem.getAmount());
+                } catch (InvalidQuantityException e) {
+                    // this should never happen, you can always increase the amount of products in a sale
+                    throw new Error("Unexpected error encountered when trying to delete return transaction.", e);
+                }
+            }
+
+        }
+
         return false;
     }
 
