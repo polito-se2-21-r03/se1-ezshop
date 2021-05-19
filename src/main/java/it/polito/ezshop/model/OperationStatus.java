@@ -12,5 +12,9 @@ public enum OperationStatus {
     OPEN,
     CLOSED,
     PAID,
-    COMPLETED
+    COMPLETED;
+
+    public boolean affectsBalance() {
+        return this == PAID || this == COMPLETED;
+    }
 }

@@ -10,10 +10,6 @@ public class AccountBook {
     private final List<BalanceOperation> balanceOperations = new ArrayList<>();
     private Double balance = 0.0;
 
-    private static boolean statusRequiresBalanceUpdate(OperationStatus status) {
-        return status == OperationStatus.PAID || status == OperationStatus.COMPLETED;
-    }
-
     /**
      * Returns the balance operation with the given ID
      *
@@ -102,7 +98,7 @@ public class AccountBook {
      * Changes the account book's balance if the operation status requires so.
      */
     public void addTransaction(BalanceOperation balanceOperation) {
-        if (statusRequiresBalanceUpdate(balanceOperation.getStatus())) {
+        if (balanceOperation.getStatus().affectsBalance()) {
             this.balance += balanceOperation.getMoney();
         }
         this.balanceOperations.add(balanceOperation);
@@ -118,7 +114,7 @@ public class AccountBook {
 
         BalanceOperation balanceOperation = this.getTransaction(balanceId);
 
-        if (statusRequiresBalanceUpdate(balanceOperation.getStatus())) {
+        if (balanceOperation.getStatus().affectsBalance()) {
             this.balance -= balanceOperation.getMoney();
         }
 
@@ -137,12 +133,12 @@ public class AccountBook {
         OperationStatus previousStatus = balanceOperation.getStatus();
 
         // balance operation previously did not count towards account book balance but now does
-        if (!statusRequiresBalanceUpdate(previousStatus) && statusRequiresBalanceUpdate(newStatus)) {
+        if (!previousStatus.affectsBalance() && newStatus.affectsBalance()) {
             this.balance += balanceOperation.getMoney();
         }
 
         // balance operation previously did count towards account book balance but does not anymore
-        if (statusRequiresBalanceUpdate(previousStatus) && !statusRequiresBalanceUpdate(newStatus)) {
+        if (previousStatus.affectsBalance() && !newStatus.affectsBalance()) {
             this.balance += balanceOperation.getMoney();
         }
 
@@ -175,7 +171,7 @@ public class AccountBook {
      */
     public double computeBalance() {
         this.balance = this.balanceOperations.stream()
-                .filter(b -> statusRequiresBalanceUpdate(b.getStatus()))
+                .filter(b -> b.getStatus().affectsBalance())
                 .map(BalanceOperation::getMoney)
                 .reduce(Double::sum)
                 .orElse(0.0);

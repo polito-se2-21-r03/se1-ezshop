@@ -4,9 +4,7 @@ import it.polito.ezshop.data.BalanceOperation;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.Order;
 import it.polito.ezshop.exceptions.*;
-import it.polito.ezshop.model.OperationStatus;
 import it.polito.ezshop.model.Role;
-import it.polito.ezshop.model.SaleTransaction;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,10 +12,9 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.*;
 import static unitTests.TestHelpers.*;
 import static it.polito.ezshop.utils.Utils.generateId;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class EZShopTestReceiveCashPayment {
 
@@ -33,7 +30,7 @@ public class EZShopTestReceiveCashPayment {
     }
 
     private static final String productCode = "12345678901231";
-    private static int totalBalance = 0;
+    private static int totalBalance;
     private static int toBePaid;
     private static int saleId;
 
@@ -45,6 +42,7 @@ public class EZShopTestReceiveCashPayment {
 
         // reset shop to blanc state
         shop.reset();
+        totalBalance = 0;
 
         // setup authorized user
         shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
@@ -148,8 +146,8 @@ public class EZShopTestReceiveCashPayment {
         // trying to pay for an order with receiveCashPayment fails
         assertEquals(-1, shop.receiveCashPayment(orderId, 10), 0.001);
 
-        // verify order is still in CLOSED state
-        assertEquals(OperationStatus.CLOSED.name(), shop.getAllOrders().stream()
+        // verify order is still in ISSUED state
+        assertEquals("ISSUED", shop.getAllOrders().stream()
                 .filter(b -> b.getBalanceId() == orderId)
                 .map(Order::getStatus)
                 .findAny()
@@ -170,13 +168,13 @@ public class EZShopTestReceiveCashPayment {
 
         // open a sale without closing it
         int openSaleId = shop.startSaleTransaction();
-        assertTrue(shop.addProductToSale(saleId, productCode, 5));
+        assertTrue(shop.addProductToSale(openSaleId, productCode, 5));
 
         // trying to pay for an open sale fails
         assertEquals(-1, shop.receiveCashPayment(openSaleId, 10), 0.001);
 
-        // verify sale is still in OPEN state
-        assertEquals(OperationStatus.OPEN.name(), ((SaleTransaction) shop.getSaleTransaction(saleId)).getStatus());
+        // verify sale did not change state to PAID/COMPLETED
+        assertFalse(isTransactionInAccountBook(saleId));
 
         // verify system's balance did not change
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -194,8 +192,8 @@ public class EZShopTestReceiveCashPayment {
         // trying to pay for a sale with insufficient funds
         assertEquals(-1, shop.receiveCashPayment(saleId, toBePaid-1), 0.001);
 
-        // verify sale is still in CLOSED state
-        assertEquals(OperationStatus.CLOSED.name(), ((SaleTransaction) shop.getSaleTransaction(saleId)).getStatus());
+        // verify sale did not change state to PAID/COMPLETED
+        assertFalse(isTransactionInAccountBook(saleId));
 
         // verify system's balance did not change
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -217,7 +215,7 @@ public class EZShopTestReceiveCashPayment {
         totalBalance += toBePaid;
 
         // verify sale is in state PAID/COMPLETED
-        assertEquals(OperationStatus.COMPLETED.name(), ((SaleTransaction) shop.getSaleTransaction(saleId)).getStatus());
+        assertTrue(isTransactionInAccountBook(saleId));
 
         // verify system's balance did update correctly
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -239,12 +237,16 @@ public class EZShopTestReceiveCashPayment {
 
         // try to pay for sale second time returns full amount of cash as change
         double change = 3;
-        assertEquals(toBePaid+change, shop.receiveCashPayment(saleId, toBePaid+change), 0.001);
+        assertEquals(toBePaid + change, shop.receiveCashPayment(saleId, toBePaid + change), 0.001);
 
         // verify sale remains in state PAID/COMPLETED
-        assertEquals(OperationStatus.COMPLETED.name(), ((SaleTransaction) shop.getSaleTransaction(saleId)).getStatus());
+        assertTrue(isTransactionInAccountBook(saleId));
 
         // verify system's balance did not update a second time
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
+    }
+
+    private static boolean isTransactionInAccountBook(int id) throws Exception {
+        return shop.getCreditsAndDebits(null, null).stream().anyMatch(b -> b.getBalanceId() == id);
     }
 }

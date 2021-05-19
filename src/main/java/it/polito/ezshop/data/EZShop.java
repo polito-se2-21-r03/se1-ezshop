@@ -1073,6 +1073,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public double receiveCashPayment(Integer ticketNumber, double cash) throws InvalidTransactionIdException, InvalidPaymentException, UnauthorizedException {
+
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
@@ -1084,17 +1085,37 @@ public class EZShop implements EZShopInterface {
         if(cash <= 0)
             throw new InvalidPaymentException("Invalid cash amount.");
 
-        //get sale price information
-        double salePrice = accountBook.getTransaction(ticketNumber).getMoney();
+        // get sale transaction
+        it.polito.ezshop.model.BalanceOperation balanceOperation = accountBook.getTransaction(ticketNumber);
 
-        // TODO: add writeState()
-
-        //calculate the return amount ***there need to chech for "if the sale does not exists and if there is some problemi with the db"***
-        if((cash-salePrice) >= 0)
-            return cash - salePrice;
-        else
+        // return -1 if transaction doesn't exist or is not a sale transaction
+        if (!(balanceOperation instanceof it.polito.ezshop.model.SaleTransaction)) {
             return -1;
+        }
 
+        // return -1 if transaction is still open
+        if (balanceOperation.getStatus() == OperationStatus.OPEN) {
+            return -1;
+        }
+
+        // return full amount of cash, if transaction has already been paid
+        if (balanceOperation.getStatus().affectsBalance()) {
+            return cash;
+        }
+
+        // calculate change
+        double change = cash - Math.abs(balanceOperation.getMoney());
+
+        // return -1 if cash is not enough
+        if (change < 0) {
+            return -1;
+        }
+
+        // set transaction status to COMPLETED and automatically update balance
+        accountBook.setTransactionStatus(ticketNumber, OperationStatus.COMPLETED);
+
+        writeState();
+        return change;
     }
 
     @Override
@@ -1183,27 +1204,28 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean recordBalanceUpdate(double toBeAdded) throws UnauthorizedException {
+
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
-        //date
-        LocalDate date = LocalDate.now(clock);
-        // create Order object
+        // set parameters
         int balanceId = accountBook.generateNewId();
-        //status
-        OperationStatus newStatus = OperationStatus.PAID;
+        LocalDate date = LocalDate.now(clock);
+        OperationStatus newStatus = OperationStatus.COMPLETED;
 
-        it.polito.ezshop.model.BalanceOperation newRecord;
         if (toBeAdded >= 0) {
-            newRecord = new Credit(balanceId, date, toBeAdded, newStatus);
+
+            // record positive balance update
+            accountBook.addTransaction(new Credit(balanceId, date, toBeAdded, newStatus));
         } else {
+
+            // if balance would be decreased below zero, return false
             if (!accountBook.checkAvailability(-toBeAdded)) {
                 return false;
             }
-
-            newRecord = new Debit(balanceId, date, -toBeAdded, newStatus);
+            // record negative balance update
+            accountBook.addTransaction(new Debit(balanceId, date, -toBeAdded, newStatus));
         }
-        accountBook.addTransaction(newRecord);
 
         writeState();
         return true;
@@ -1228,25 +1250,17 @@ public class EZShop implements EZShopInterface {
         return accountBook.getAllTransactions().stream()
                 .filter(x -> actualFrom == null || x.getDate().compareTo(actualFrom) >= 0)
                 .filter(x -> actualTo == null || x.getDate().compareTo(actualTo) <= 0)
+                .filter(x -> x.getStatus().affectsBalance())
                 .map(BalanceOperationAdapter::new)
                 .collect(Collectors.toList());
     }
 
     @Override
     public double computeBalance() throws UnauthorizedException {
+
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
-        //collect all the balance records to calculate
-        List<Double> moneyList = accountBook.getAllTransactions().stream()
-                .map(it.polito.ezshop.model.BalanceOperation::getMoney).collect(Collectors.toList());
-
-        //sum all of the moneys
-        double total = 0;
-        for(double money:moneyList ){
-            total += money;
-        }
-
-        return total;
+        return accountBook.computeBalance();
     }
 }
