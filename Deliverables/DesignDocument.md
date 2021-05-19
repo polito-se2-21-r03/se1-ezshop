@@ -104,22 +104,7 @@ interface "EZShopInterface" {
 }
 ```
 ```plantuml
-
-package it.polito.ezshop.data {
-interface EZShopInterface {
-}
-
-note "This the provided EZShopInterface interface" as n
-
-n -down- EZShopInterface
-
-class EZShop {
-    + currentUser
-}
-
-EZShopInterface <|-- EZShop
-
-package adapter {
+package it.polito.ezshop.data.adapter {
 class BalanceOperationAdapter{
 
 }
@@ -141,14 +126,24 @@ class TicketEntryAdapter{
 class UserAdapter{
 
 }
-BalanceOperationAdapter <-- BalanceOperation
-CustomerAdapter <-- Customer
-OrderAdapter <-- Order
-ProductTypeAdapter <-- ProductType
-SaleTransactionAdapter <-- SaleTransaction
-UserAdapter <-- User
 
 }
+
+package it.polito.ezshop.data {
+interface EZShopInterface {
+}
+
+note "This the provided EZShopInterface interface" as n
+
+n -down- EZShopInterface
+
+class EZShop {
+    + currentUser
+}
+
+EZShopInterface <|-- EZShop
+
+
 
 class JsonInterface {
     + reset()
