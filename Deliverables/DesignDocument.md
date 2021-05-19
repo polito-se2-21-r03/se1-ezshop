@@ -373,6 +373,9 @@ package it.polito.ezshop.credit_card_circuit {
 
 ```plantuml
 package it.polito.ezshop.data{
+class EZShop{
+
+}
 interface BalanceOperation{
 
 }
@@ -393,6 +396,7 @@ interface TicketEntry{
 }
 interface User{
 
+}
 }
 package it.polito.ezshop.model.adapter{
 class BalanceOperationAdapter{
@@ -417,6 +421,7 @@ class UserAdapter{
 
 }
 }
+
 BalanceOperationAdapter -- BalanceOperation
 CustomerAdapter -- Customer
 OrderAdapter -- Order
@@ -425,7 +430,6 @@ TicketEntryAdapter -- TicketEntry
 SaleTransactionAdapter -- SaleTransaction
 UserAdapter -- User
 
-}
 ```
 
 ## Persistence
