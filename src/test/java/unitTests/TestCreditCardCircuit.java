@@ -104,4 +104,13 @@ public class TestCreditCardCircuit {
         assertFalse(circuit.addDebit("123", 10.0));
     }
 
+    @Test
+    public void testValidateCode () {
+        TextualCreditCardCircuit circuit = new TextualCreditCardCircuit(path);
+        circuit.init();
+
+        assertTrue(circuit.validateCode("4716258050958645"));
+        assertFalse(circuit.validateCode("4716258050958641"));
+    }
+
 }

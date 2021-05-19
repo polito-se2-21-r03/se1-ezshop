@@ -14,7 +14,7 @@ public class TestCreditCard {
     private static final double balance = 10.0;
 
     @Test
-    public void testConstructor () {
+    public void testConstructor() {
         CreditCard card = new CreditCard(code, balance);
 
         assertEquals(code, card.getCode());
@@ -33,7 +33,7 @@ public class TestCreditCard {
     }
 
     @Test
-    public void testCheckAvailability () {
+    public void testCheckAvailability() {
         CreditCard card = new CreditCard(code, balance);
 
         assertTrue(card.checkAvailability(balance / 2.0));
@@ -42,7 +42,7 @@ public class TestCreditCard {
     }
 
     @Test
-    public void testUpdateBalance () {
+    public void testUpdateBalance() {
         CreditCard card = new CreditCard(code, balance);
 
         // add 5.0
@@ -59,9 +59,22 @@ public class TestCreditCard {
     }
 
     @Test
-    public void testToString () {
+    public void testToString() {
         CreditCard card = new CreditCard(code, balance);
         assertEquals("1111222233334444;10.00", card.toString());
+    }
+
+    @Test
+    public void testEqualsHashCode() throws Exception {
+        CreditCard obj = new CreditCard("4485370086510891", 150.0);
+        CreditCard same = new CreditCard("4485370086510891", 150.0);
+        CreditCard different = new CreditCard("4716258050958645", 0.0);
+
+        assertEquals(obj, same);
+        assertNotEquals(obj, different);
+
+        assertEquals(obj.hashCode(), same.hashCode());
+        assertNotEquals(obj.hashCode(), different.hashCode());
     }
 
 }
