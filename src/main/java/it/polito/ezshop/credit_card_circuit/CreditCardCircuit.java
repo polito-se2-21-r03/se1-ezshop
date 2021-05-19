@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public interface CreditCardCircuit {
     /**
-     * This method should initialize the application
+     * This method should initialize the credit card system.
      */
     public void init();
 
@@ -15,8 +15,7 @@ public interface CreditCardCircuit {
      *
      * @return true if credit card is validated
      *         false if it is not
-     *
-     * */
+     */
     public boolean validateCode(String creditCardCode);
 
     /**
@@ -27,9 +26,8 @@ public interface CreditCardCircuit {
      *
      * @return true if credit card's amount is available
      *         false if it is not
-     *
-     * */
-    public boolean checkAvailability(String creditCardCode, Integer amount);
+     */
+    public boolean checkAvailability(String creditCardCode, double amount);
 
     /**
      * This method should add debit to the credit card
@@ -38,11 +36,10 @@ public interface CreditCardCircuit {
      * @param creditCardCode credit card number in the system, should be unique and not empty
      * @param amount the amount which should be added as debit
      *
-     * @return true if the method finish successfully
-     *         false if it is not
-     *
-     * */
-    public boolean addDebit(String creditCardCode, Integer amount) throws IOException;
+     * @return true if the operation is completed successfully
+     *         false if the amount is less than zero or if the operation is not completed successfully.
+     */
+    public boolean addDebit(String creditCardCode, double amount) throws IOException;
 
     /**
      * This method should add credit to the credit card
@@ -51,9 +48,8 @@ public interface CreditCardCircuit {
      * @param creditCardCode credit card number in the system, should be unique and not empty
      * @param amount the amount which should be added as credit
      *
-     * @return true if the method finish successfully
-     *         false if it is not
-     *
-     * */
-    public boolean addCredit(String creditCardCode, Integer amount) throws IOException;
+     * @return true if the operation is completed successfully
+     *         false if the amount is less than zero or if the operation is not completed successfully.
+     */
+    public boolean addCredit(String creditCardCode, double amount) throws IOException;
 }

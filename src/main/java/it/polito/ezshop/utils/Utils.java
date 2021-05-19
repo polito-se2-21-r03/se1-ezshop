@@ -144,57 +144,5 @@ public class Utils {
         return checksum % 10 == 0;
     }
 
-    public static Double readFromFile(String path, String cardNumber) {
-        try {
-            FileReader reader = new FileReader(path);
-            BufferedReader bufferedReader = new BufferedReader(reader);
-
-            String line;
-            String balance = null;
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] parts = line.split(";");
-                if (parts[0].equals(cardNumber))
-                    balance = parts[1];
-            }
-            assert balance != null;
-            reader.close();
-            return Double.parseDouble(balance);
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-
-    public static boolean whiteToFile(String path, String cardNumber, double amount) throws IOException {
-        //Instantiating the Scanner class to read the file
-        Scanner sc = new Scanner(new File(path));
-        //instantiating the StringBuffer class
-        StringBuilder buffer = new StringBuilder();
-        //Reading lines of the file and appending them to StringBuffer
-        while (sc.hasNextLine()) {
-            buffer.append(sc.nextLine()).append(System.lineSeparator());
-        }
-        String fileContents = buffer.toString();
-        Double balance = readFromFile(path, cardNumber);
-
-        sc.close();
-        assert balance != null;
-        double newBalance = balance + amount;
-        String oldLine = cardNumber + ";" + balance;
-        String newLine = cardNumber + ";" + newBalance;
-        //Replacing the old line with new line
-        fileContents = fileContents.replaceAll(oldLine, newLine);
-        //instantiating the FileWriter class
-        FileWriter writer = new FileWriter(path);
-        writer.append(fileContents);
-        writer.flush();
-
-        return newBalance == balance + amount;
-    }
-
-
 }
 

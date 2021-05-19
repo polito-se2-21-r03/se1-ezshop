@@ -34,12 +34,14 @@ package "data" {}
 package "model" {}
 package "exceptions" {}
 package "credit_card_circuit" {}
+package "utils" {}
 
 "it.polito.ezshop" --> "GUI"
 "it.polito.ezshop" --> "data"
 "it.polito.ezshop" --> "model"
 "it.polito.ezshop" --> "exceptions"
 "it.polito.ezshop" --> "credit_card_circuit"
+"it.polito.ezshop" --> "utils"
 
 @enduml
 ```
@@ -103,6 +105,31 @@ interface "EZShopInterface" {
 ```
 ```plantuml
 
+package it.polito.ezshop.model.adapter {
+class BalanceOperationAdapter{
+
+}
+class CustomerAdapter{
+
+}
+class OrderAdapter{
+
+}
+class ProductTypeAdapter{
+
+}
+class SaleTransactionAdapter{
+
+}
+class TicketEntryAdapter{
+
+}
+class UserAdapter{
+
+}
+it.polito.ezshop.model.adapter --down- EZShop
+}
+
 package it.polito.ezshop.data {
 interface EZShopInterface {
 }
@@ -117,18 +144,26 @@ class EZShop {
 
 EZShopInterface <|-- EZShop
 
+
+
 class JsonInterface {
+    + reset()
     + readUsers()
     + writeUsers(List<User>)
-    + readProductTypes()
-    + writeProductTypes(List<ProductType>)
-    + readBalanceOperations()
-    + writeBalanceOperations(List<BalanceOperation>)
+    + readProducts()
+    + writeProducts(List<ProductType>)
+    + readCustomerList()
+    + writeCustomerList(CustomerList)
     + readAccountBook()
     + writeAccountBook(AccountBook)
+    + write(Path, String)
+    + read(Path)
+    + writeList(Path, List<T>)
+    + readList(Path, Class<T>)
 }
 
 JsonInterface ---right- EZShop
+
 
 EZShop -right- "*" User
 EZShop -- AccountBook
@@ -142,7 +177,10 @@ class User {
     + username
     + passwordHash
     + role
-    + verifyPassword(String)
+    + validateId(Integer)
+    validateUsername(String)
+    + validatePassword(String)
+    + validateRole(Role)
     + setRole(String)
 }
 
@@ -247,23 +285,30 @@ ReturnTransaction "*" -up- SaleTransaction
 ReturnTransactionItem "*" -right- ProductType
 
 class AccountBook {
-    + addTransaction(BalanceOperation)
-    + getTransactions(LocalDate, LocalDate)
-    + removeTransaction(int)
-    + getCredits()
+    + getTransaction(int)
+    + getAllTransactions()
+    + getCreditTransactions()
+    + getDebitTransactions()
     + getSaleTransactions()
-    + updateSaleTransaction(Integer)
-    + getDebits()
     + getReturnTransactions()
     + getOrders()
+    + addTransaction(BalanceOperation)
+    + removeTransaction(int)
+    + setTransactionStatus(int, OperationStatus)
     + checkAvailability(double)
+    + getBalance()
     + computeBalance()
+    + generateNewId()
+    + reset()
+    + equals(Object)
+    + hashCode()
 }
 
 enum OperationStatus {
     OPEN
     CLOSED
-    PAYED
+    PAID
+    COMPLETED
 }
 
 class BalanceOperation {
@@ -294,6 +339,18 @@ ReturnTransaction -up-|> Debit
 note "All the classes in this package, with the exception of EZShop and JsonInterface, should be persisted." as note_persistence
 
 it.polito.ezshop.data -down- note_persistence
+
+package it.polito.ezshop.utils {
+  class Utils {
+      + generateId(List<Integer>)
+      + isValidBarcode(String)
+      + isValidCreditCardNumber(String)
+      + luhnValidate(String)
+      + readFromFile(String, String)
+      + whiteToFile(String, String, double)
+  }
+  Utils <-right- EZShop
+}
 
 package it.polito.ezshop.credit_card_circuit {
     interface CreditCardCircuit {

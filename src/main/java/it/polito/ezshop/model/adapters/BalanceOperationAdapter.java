@@ -3,6 +3,7 @@ package it.polito.ezshop.model.adapters;
 import it.polito.ezshop.model.*;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class BalanceOperationAdapter implements it.polito.ezshop.data.BalanceOperation {
 
@@ -16,6 +17,7 @@ public class BalanceOperationAdapter implements it.polito.ezshop.data.BalanceOpe
     private final BalanceOperation balanceOperation;
 
     public BalanceOperationAdapter(BalanceOperation balanceOperation) {
+        Objects.requireNonNull(balanceOperation);
         this.balanceOperation = balanceOperation;
     }
 
@@ -36,7 +38,7 @@ public class BalanceOperationAdapter implements it.polito.ezshop.data.BalanceOpe
 
     @Override
     public void setDate(LocalDate date) {
-        throw new UnsupportedOperationException();
+        this.balanceOperation.setDate(date);
     }
 
     @Override

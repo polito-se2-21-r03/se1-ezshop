@@ -7,7 +7,7 @@ import static it.polito.ezshop.utils.Utils.luhnValidate;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
-public class TestIsValidCreditCardNumber {
+public class TestUtilsIsValidCreditCardNumber {
 
     /**
      * Tests that passing null as the credit card number returns false

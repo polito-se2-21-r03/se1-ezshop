@@ -13,17 +13,17 @@ public class VisaCreditCardCircuitAdapter implements CreditCardCircuit{
     }
 
     @Override
-    public boolean checkAvailability(String creditCardCode, Integer amount) {
+    public boolean checkAvailability(String creditCardCode, double amount) {
         return false;
     }
 
     @Override
-    public boolean addDebit(String creditCardCode, Integer amount) {
+    public boolean addDebit(String creditCardCode, double amount) {
         return false;
     }
 
     @Override
-    public boolean addCredit(String creditCardCode, Integer amount) {
+    public boolean addCredit(String creditCardCode, double amount) {
         return false;
     }
 }
