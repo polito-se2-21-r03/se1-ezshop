@@ -1025,64 +1025,99 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean endReturnTransaction(Integer returnId, boolean commit) throws InvalidTransactionIdException, UnauthorizedException {
+
+        // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
+        // verify returnId
         if(returnId == null || returnId <= 0) {
             throw new InvalidTransactionIdException("Invalid Return ID");
         }
-        ReturnTransaction rt = (ReturnTransaction) accountBook.getTransaction(returnId);
-        if(rt == null){
-            return false;
-        }
-        if(rt.getStatus() != OperationStatus.OPEN){
-            return false;
-        }
-        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(rt.getSaleTransactionId());
-        if(sale == null){
-            return false;
-        }
-        if(commit){
-            List <ReturnTransactionItem> ritems = rt.getTransactionItems();
-            List <it.polito.ezshop.model.TicketEntry> titems = sale.getTransactionItems();
-            //didn't know how to use .stream in this case lol
 
-            for(int i = 0; i < ritems.size(); i++) {
-                ReturnTransactionItem ritem = ritems.get(i);
-                it.polito.ezshop.model.TicketEntry titem = titems.stream()
-                        // filter products with the given BarCode
-                        .filter(x -> x.getProductType().getBarCode().equals(ritem.getBarCode()))
-                        // find the first matching product
-                        .findFirst()
-                        // if a matching product is not found, return null
+        // get return transaction
+        it.polito.ezshop.model.BalanceOperation returnT = accountBook.getTransaction(returnId);
+
+        // return false if return transaction doesn't exist
+        if (!(returnT instanceof ReturnTransaction)) {
+            return false;
+        }
+
+        // cast return transaction
+        ReturnTransaction returnTransaction = (ReturnTransaction) returnT;
+
+        // return false if return transaction is not in an OPEN state
+        if (returnTransaction.getStatus() != OperationStatus.OPEN) {
+            return false;
+        }
+
+        // get sale transaction
+        it.polito.ezshop.model.BalanceOperation saleT = accountBook.getTransaction(returnTransaction.getSaleTransactionId());
+
+        // cast sale transaction
+        if (!(saleT instanceof it.polito.ezshop.model.SaleTransaction)) {
+            return false;
+        }
+        it.polito.ezshop.model.SaleTransaction saleTransaction = (it.polito.ezshop.model.SaleTransaction) saleT;
+
+        // rollback
+        if (!commit) {
+
+            // delete return transaction from sale transaction
+            saleTransaction.removeReturnTransaction(returnId);
+
+            // delete return transaction from account book
+            accountBook.removeTransaction(returnId);
+
+            // roll back performed successfully
+            writeState();
+            return true;
+        }
+
+        // commit
+        // for each item of the sale transaction
+        for (TicketEntry saleTransactionItem:saleTransaction.getTransactionItems()) {
+
+            // get the corresponding return transaction item
+            ReturnTransactionItem returnTransactionItem = returnTransaction.getTransactionItems().stream()
+                    .filter(rti -> rti.getBarCode().equals(saleTransactionItem.getProductType().getBarCode()))
+                    .findAny()
+                    .orElse(null);
+
+            // if some items of this product were returned we need to increase their amount in the shop and decrease the
+            //  amount in the transaction
+            if (returnTransactionItem != null) {
+
+                // increase the amount in the shop
+                // get product
+                it.polito.ezshop.model.ProductType product = products.stream()
+                        .filter(p -> p.getBarCode().equals(returnTransactionItem.getBarCode()))
+                        .findAny()
                         .orElse(null);
-                it.polito.ezshop.model.ProductType p = products.stream()
-                        // filter products with the given BarCode
-                        .filter(x -> x.getBarCode().equals(ritem.getBarCode()))
-                        // find the first matching product
-                        .findFirst()
-                        // if a matching product is not found, return null
-                        .orElse(null);
-                if (p == null || titem == null) {
-                    return false;
+                // increase available amount if product still exists
+                if (product != null) {
+                    try {
+                        product.setQuantity(product.getQuantity() + returnTransactionItem.getAmount());
+                    } catch (InvalidQuantityException e) {
+                        // this should never happen, quantity can always be increased
+                        throw new Error("Unexpected error encountered when handling return transaction.", e);
+                    }
                 }
-                //change quantity of Product p by adding the returned amount
-                try {
-                    p.setQuantity(p.getQuantity() + ritem.getAmount());
 
-                    //change quantity of Product p inside the transaction by reducing the returned amount
-                    titem.setAmount(titem.getAmount() - ritem.getAmount());
-                    //??? do we need to change the final price or it does automatically after removing the items ???
-                } catch (InvalidQuantityException | IllegalStateException e) {
-                    return false;
+
+                // reduce the amount in the sale transaction
+                try {
+                    saleTransactionItem.setAmount(saleTransactionItem.getAmount() - returnTransactionItem.getAmount());
+                } catch (InvalidQuantityException e) {
+                    // this should never happen, you can't return more products than you purchased
+                    throw new Error("Unexpected error encountered when handling return transaction.", e);
                 }
             }
-            accountBook.setTransactionStatus(returnId, OperationStatus.CLOSED);
-        }
-        else{
-            //anything else to do if commit == false?
-            accountBook.setTransactionStatus(returnId, OperationStatus.CLOSED);
         }
 
+        // set status of return transaction to CLOSED
+        accountBook.setTransactionStatus(returnId, OperationStatus.CLOSED);
+
+        // write state and return successfully
         writeState();
         return true;
     }

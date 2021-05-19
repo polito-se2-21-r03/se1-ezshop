@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SaleTransaction extends Credit {
 
@@ -166,6 +167,10 @@ public class SaleTransaction extends Credit {
 
     public void addReturnTransaction(ReturnTransaction returnTransaction) {
         this.returnTransactions.add(returnTransaction);
+    }
+
+    public void removeReturnTransaction(Integer transactionID) {
+        this.returnTransactions.removeIf(r -> r.getBalanceId() == transactionID);
     }
 
     @Override
