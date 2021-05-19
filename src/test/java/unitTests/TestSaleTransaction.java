@@ -1,6 +1,7 @@
 package unitTests;
 
 import it.polito.ezshop.exceptions.InvalidDiscountRateException;
+import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.*;
 import org.junit.Test;
 
@@ -152,8 +153,12 @@ public class TestSaleTransaction {
         sale.setDiscountRate(saleDiscountRate);
         assertEquals((1 - saleDiscountRate) * total, sale.computeTotal(), 0.01);
 
-        // complete the transaction
-        sale.setStatus(OperationStatus.COMPLETED);
+        // close the transaction
+        sale.setStatus(OperationStatus.CLOSED);
+        sale.setDiscountRate(0.5);
+        assertEquals((1 - 0.5) * total, sale.computeTotal(), 0.01);
+
+        sale.setStatus(OperationStatus.PAID);
         assertThrows(IllegalStateException.class, () -> sale.setDiscountRate(saleDiscountRate));
     }
 
@@ -174,6 +179,15 @@ public class TestSaleTransaction {
         sale.addReturnTransaction(new ReturnTransaction(sale.getBalanceId() + 1, sale.getBalanceId(), LocalDate.now()));
 
         // todo
+    }
+
+    @Test
+    public void testValidateId() throws Exception {
+        for (Integer id : TestHelpers.invalidTransactionIDs) {
+            assertThrows(InvalidTransactionIdException.class, () -> SaleTransaction.validateId(id));
+        }
+
+        SaleTransaction.validateId(1);
     }
 
     @Test

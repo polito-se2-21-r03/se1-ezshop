@@ -5,10 +5,12 @@ import java.util.Objects;
 public class ReturnTransactionItem {
 
     private final ProductType productType;
-    private double pricePerUnit;
-    private int amount;
+    private final double pricePerUnit;
+    private final int amount;
 
     public ReturnTransactionItem(ProductType productType, int amount, double pricePerUnit) {
+        Objects.requireNonNull(productType);
+
         this.productType = productType;
         this.amount = amount;
         this.pricePerUnit = pricePerUnit;
@@ -22,16 +24,8 @@ public class ReturnTransactionItem {
         return this.amount;
     }
 
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
-
     public double getPricePerUnit() {
         return this.pricePerUnit;
-    }
-
-    public void setPricePerUnit(double pricePerUnit) {
-        this.pricePerUnit = pricePerUnit;
     }
 
     public double computeValue() {
