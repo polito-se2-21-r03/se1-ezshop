@@ -22,6 +22,7 @@ import org.junit.runners.Suite;
         TestTicketEntryAdapter.class,
         TestSaleTransaction.class,
         TestSaleTransactionAdapter.class,
+        TestReturnTransactionItem.class,
         // AccountBook
         TestAccountBook.class,
         // Json interface
