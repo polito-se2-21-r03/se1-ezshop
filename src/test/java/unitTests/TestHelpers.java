@@ -33,7 +33,7 @@ public class TestHelpers {
     public static final List<Integer> invalidCustomerIDs = Arrays.asList(null, -1, 0);
     public static final List<String> invalidCustomerCards = Arrays.asList(null, "", "123456789", "12345678901", "123456789a", "123456789A");
     public static final List<Integer> invalidPaymentAmounts = Arrays.asList(-1, 0);
-    public static final List<String> invalidCreditCards = Arrays.asList(null, "", "135895499391449a", "13589549939144", "135895499391443525", "1358954993914492");
+    public static final List<String> invalidCreditCards = Arrays.asList(null, "", "135895499391449a", "13589549939144", "135895499391443525", "1358954993914491");
 
     public static final List<Integer> invalidTicketEntryAmounts = Arrays.asList(-10, -1);
 

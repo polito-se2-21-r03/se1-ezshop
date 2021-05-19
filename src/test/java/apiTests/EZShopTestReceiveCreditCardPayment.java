@@ -1,5 +1,6 @@
 package apiTests;
 
+import it.polito.ezshop.credit_card_circuit.TextualCreditCardCircuit;
 import it.polito.ezshop.data.BalanceOperation;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.Order;
@@ -9,6 +10,7 @@ import it.polito.ezshop.model.OperationStatus;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.SaleTransaction;
 import it.polito.ezshop.model.User;
+import it.polito.ezshop.model.adapters.BalanceOperationAdapter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,8 +20,7 @@ import java.util.stream.Collectors;
 
 import static it.polito.ezshop.utils.Utils.generateId;
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static unitTests.TestHelpers.*;
 
 public class EZShopTestReceiveCreditCardPayment {
@@ -39,7 +40,7 @@ public class EZShopTestReceiveCreditCardPayment {
     private static final String emptyCreditCard = "4716258050958645";
 
     public EZShopTestReceiveCreditCardPayment() throws Exception {
-        admin = new User(0, "Andrea", "123", Role.ADMINISTRATOR);
+        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
     }
 
     /**
@@ -50,6 +51,7 @@ public class EZShopTestReceiveCreditCardPayment {
 
         // reset shop to blanc state
         shop.reset();
+        totalBalance = 0;
 
         // setup authorized user
         shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
@@ -154,7 +156,7 @@ public class EZShopTestReceiveCreditCardPayment {
         assertFalse(shop.receiveCreditCardPayment(orderId, creditCard));
 
         // verify order is still in CLOSED state
-        assertEquals(OperationStatus.CLOSED.name(), shop.getAllOrders().stream()
+        assertEquals("ISSUED", shop.getAllOrders().stream()
                 .filter(b -> b.getBalanceId() == orderId)
                 .map(Order::getStatus)
                 .findAny()
@@ -177,13 +179,13 @@ public class EZShopTestReceiveCreditCardPayment {
 
         // open a sale without closing it
         int openSaleId = shop.startSaleTransaction();
-        assertTrue(shop.addProductToSale(saleId, productCode, 5));
+        assertTrue(shop.addProductToSale(openSaleId, productCode, 5));
 
         // trying to pay for an open sale fails
         assertFalse(shop.receiveCreditCardPayment(openSaleId, creditCard));
 
-        // verify sale is still in OPEN state
-        assertEquals(OperationStatus.OPEN, ((SaleTransaction) shop.getSaleTransaction(saleId)).getStatus());
+        // verify sale is still not paid
+        assertNull(getSaleTransaction(saleId));
 
         // verify system's balance did not change
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -201,10 +203,10 @@ public class EZShopTestReceiveCreditCardPayment {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // trying to pay for a sale with unregistered credit card
-        Assert.assertFalse(shop.receiveCreditCardPayment(saleId, "1358954993914491"));
+        Assert.assertFalse(shop.receiveCreditCardPayment(saleId, "1358954993914492"));
 
-        // verify sale is still in CLOSED state
-        assertEquals(OperationStatus.CLOSED, ((SaleTransaction) shop.getSaleTransaction(saleId)).getStatus());
+        // verify sale is still not paid
+        assertNull(getSaleTransaction(saleId));
 
         // verify system's balance did not change
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -222,8 +224,8 @@ public class EZShopTestReceiveCreditCardPayment {
         // trying to pay for a sale with credit card with insufficient funds
         Assert.assertFalse(shop.receiveCreditCardPayment(saleId, emptyCreditCard));
 
-        // verify sale is still in CLOSED state
-        assertEquals(OperationStatus.CLOSED, ((SaleTransaction) shop.getSaleTransaction(saleId)).getStatus());
+        // verify sale hasn't been paid yet
+        assertNull(getSaleTransaction(saleId));
 
         // verify system's balance did not change
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -241,12 +243,12 @@ public class EZShopTestReceiveCreditCardPayment {
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
 
-        // verify receive correct change when paying for sale
+        // pay transaction successfully
         assertTrue(shop.receiveCreditCardPayment(saleId, creditCard));
         totalBalance += toBePaid;
 
         // verify sale is in state PAID/COMPLETED
-        assertEquals(OperationStatus.COMPLETED, ((SaleTransaction) shop.getSaleTransaction(saleId)).getStatus());
+        assertEquals(OperationStatus.COMPLETED, getSaleTransaction(saleId).getStatus());
 
         // verify system's balance did update correctly
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -286,5 +288,13 @@ public class EZShopTestReceiveCreditCardPayment {
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
 
         // TODO: check credit card balance
+    }
+
+    private it.polito.ezshop.model.BalanceOperation getSaleTransaction(int sid) throws Exception {
+        return shop.getCreditsAndDebits(null, null).stream()
+                .filter(b -> b.getBalanceId() == sid)
+                .map(b -> ((BalanceOperationAdapter) b).getTransaction())
+                .findAny()
+                .orElse(null);
     }
 }

@@ -1,11 +1,14 @@
 package it.polito.ezshop.data;
 
+import it.polito.ezshop.credit_card_circuit.CreditCardCircuit;
+import it.polito.ezshop.credit_card_circuit.TextualCreditCardCircuit;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.TicketEntry;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.*;
@@ -22,6 +25,11 @@ public class EZShop implements EZShopInterface {
      * Simple persistence layer for EZShop.
      */
     private JsonInterface persistenceLayer;
+
+    /**
+     * Credit card circuit handling credit card payments
+     */
+    private CreditCardCircuit creditCardCircuit = new TextualCreditCardCircuit("CreditCards.txt");
 
     /**
      * List of all the users registered in EZShop.
@@ -90,6 +98,15 @@ public class EZShop implements EZShopInterface {
     }
 
     /**
+     * Set the credit card circuit that should be used to handle credit card payments for the shop
+     *
+     * @param creditCardCircuit credit card circuit used for payments
+     */
+    public void setCreditCardCircuit(CreditCardCircuit creditCardCircuit) {
+        this.creditCardCircuit = creditCardCircuit;
+    }
+
+    /**
      * Write current state to the persistence layer
      */
     private void writeState () {
@@ -110,6 +127,7 @@ public class EZShop implements EZShopInterface {
         this.customerList.reset();
         this.products.clear();
         this.accountBook.reset();
+        this.clock = Clock.systemDefaultZone();
 
         writeState();
     }
@@ -1171,24 +1189,53 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean receiveCreditCardPayment(Integer ticketNumber, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
+
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        //if the  number is less than or equal to 0 or if it is null
+        // if the number is less than or equal to 0 or if it is null
         if(ticketNumber == null || ticketNumber.compareTo(0) <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
-        //if the credit card number is empty, null or if luhn algorithm does not validate the credit card
-        if(creditCard.isEmpty() || !isValidCreditCardNumber(creditCard) )
+        // if the credit card number is empty, null or if luhn algorithm does not validate the credit card
+        if(!isValidCreditCardNumber(creditCard))
             throw new InvalidCreditCardException("Invalid credit card.");
 
-        //get the sale price information
-        double salePrice = accountBook.getTransaction(ticketNumber).getMoney();
+        // get sale from account book
+        it.polito.ezshop.model.BalanceOperation sale = accountBook.getTransaction(ticketNumber);
 
-        /* The credit card should be registered in the system.
-        *  */
+        // return false if sale does not exist
+        if (!(sale instanceof it.polito.ezshop.model.SaleTransaction)) {
+            return false;
+        }
 
-        // TODO: add writeState()
+        // return false if state is not CLOSED
+        if (sale.getStatus() != OperationStatus.CLOSED) {
+            return false;
+        }
+
+        // get the price to be paid by card
+        double saleValue = sale.getMoney();
+
+        // return false if the credit card has insufficient balance
+        if (!creditCardCircuit.checkAvailability(creditCard, saleValue)) {
+            return false;
+        }
+
+        // try to reduce funds on credit card for payment, return false on failure
+        try {
+            if (!creditCardCircuit.addDebit(creditCard, saleValue)) {
+                return false;
+            }
+        } catch (IOException e) {
+            // return false if there was an issue reading the credit card file
+            return false;
+        }
+
+        // change transaction status to COMPLETED and automatically updated shop balance
+        accountBook.setTransactionStatus(ticketNumber, OperationStatus.COMPLETED);
+
+        // return successfully
         return true;
     }
 
