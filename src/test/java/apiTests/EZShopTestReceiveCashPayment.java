@@ -222,8 +222,7 @@ public class EZShopTestReceiveCashPayment {
     }
 
     /**
-     * Tests that if the SaleTransaction has already been paid, no new payment is made and the given cash is returned in
-     * full as change.
+     * Tests that if the SaleTransaction has already been paid, no new payment is made and an error value is returned
      */
     @Test
     public void testPayCompletedSale() throws Exception {
@@ -235,9 +234,8 @@ public class EZShopTestReceiveCashPayment {
         assertEquals(0, shop.receiveCashPayment(saleId, toBePaid), 0.001);
         totalBalance += toBePaid;
 
-        // try to pay for sale second time returns full amount of cash as change
-        double change = 3;
-        assertEquals(toBePaid + change, shop.receiveCashPayment(saleId, toBePaid + change), 0.001);
+        // try to pay for sale second time returns -1
+        assertEquals(-1, shop.receiveCashPayment(saleId, toBePaid), 0.001);
 
         // verify sale remains in state PAID/COMPLETED
         assertTrue(isTransactionInAccountBook(saleId));

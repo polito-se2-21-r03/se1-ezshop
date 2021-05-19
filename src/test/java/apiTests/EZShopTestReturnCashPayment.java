@@ -5,12 +5,14 @@ import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.Order;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.*;
+import it.polito.ezshop.model.adapters.BalanceOperationAdapter;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 
+import static org.junit.Assert.assertNull;
 import static unitTests.TestHelpers.*;
 import static it.polito.ezshop.utils.Utils.generateId;
 import static org.junit.Assert.assertEquals;
@@ -42,6 +44,7 @@ public class EZShopTestReturnCashPayment {
 
         // reset shop to blanc state
         shop.reset();
+        totalBalance = 0;
 
         // setup authorized user
         shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
@@ -165,8 +168,8 @@ public class EZShopTestReturnCashPayment {
         // trying to receive cash payment for a still open return fails
         assertEquals(-1, shop.returnCashPayment(openReturnId), 0.001);
 
-        // verify return is still in OPEN state
-        assertEquals(OperationStatus.OPEN, getStatusOfReturn(returnId));
+        // verify return has not been recorded into the account book
+        assertNull(getStatusOfTransaction(openReturnId));
 
         // verify system's balance did not change
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -187,14 +190,15 @@ public class EZShopTestReturnCashPayment {
         totalBalance -= returnedValue;
 
         // verify return is in state PAID/COMPLETED
-        assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
+        assertEquals(OperationStatus.COMPLETED, getStatusOfTransaction(returnId));
 
         // verify system's balance did update correctly
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
     }
 
     /**
-     * Tests that if the ReturnTransaction has already been completed, requesting cash for the same return gives 0 cash
+     * Tests that if the ReturnTransaction has already been completed, requesting to return the same transaction for a
+     * second time returns an error value
      */
     @Test
     public void testReturnCompletedReturnAgain() throws Exception {
@@ -206,11 +210,11 @@ public class EZShopTestReturnCashPayment {
         assertEquals(returnedValue, shop.returnCashPayment(returnId), 0.001);
         totalBalance -= returnedValue;
 
-        // try to ask for return a second time gives 0 as amount of cash to be returned
-        assertEquals(0, shop.returnCashPayment(returnId), 0.001);
+        // try to ask for return a second time returns -1
+        assertEquals(-1, shop.returnCashPayment(returnId), 0.001);
 
         // verify return remains in state PAID/COMPLETED
-        assertEquals(OperationStatus.COMPLETED, getStatusOfReturn(returnId));
+        assertEquals(OperationStatus.COMPLETED, getStatusOfTransaction(returnId));
 
         // verify system's balance did not update a second time
         assertEquals(totalBalance, shop.computeBalance(), 0.001);
@@ -223,10 +227,10 @@ public class EZShopTestReturnCashPayment {
      * @return the Operation status of the return transaction as a String,
      *         null if not found
      */
-    private static OperationStatus getStatusOfReturn(int returnId) throws Exception {
+    private static OperationStatus getStatusOfTransaction(int returnId) throws Exception {
         return shop.getCreditsAndDebits(null, null).stream()
                 .filter(b -> b.getBalanceId() == returnId)
-                .map(b -> ((ReturnTransaction) b).getStatus())
+                .map(b -> ((BalanceOperationAdapter) b).getTransaction().getStatus())
                 .findAny()
                 .orElse(null);
     }

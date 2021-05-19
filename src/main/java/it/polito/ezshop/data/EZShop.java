@@ -1114,14 +1114,9 @@ public class EZShop implements EZShopInterface {
             return -1;
         }
 
-        // return -1 if transaction is still open
-        if (balanceOperation.getStatus() == OperationStatus.OPEN) {
+        // return -1 if transaction is not in closed state
+        if (balanceOperation.getStatus() != OperationStatus.CLOSED) {
             return -1;
-        }
-
-        // return full amount of cash, if transaction has already been paid
-        if (balanceOperation.getStatus().affectsBalance()) {
-            return cash;
         }
 
         // calculate change
@@ -1164,6 +1159,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public double returnCashPayment(Integer returnId) throws InvalidTransactionIdException, UnauthorizedException {
+
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
@@ -1171,23 +1167,25 @@ public class EZShop implements EZShopInterface {
         if(returnId == null || returnId.compareTo(0) <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
-        //get the transaction and sale price information
-        ReturnTransaction returnTransaction = accountBook.getReturnTransactions().stream()
-                .filter(x -> x.getBalanceId() == returnId)
-                .findFirst()
-                .orElse(null);
+        // get transaction
+        it.polito.ezshop.model.BalanceOperation balanceOperation = accountBook.getTransaction(returnId);
 
-        assert returnTransaction != null;
-        double returnAmount = returnTransaction.getMoney();
-
-        //if the return transaction is not ended,
-        if(returnTransaction.getStatus() == OperationStatus.OPEN)
+        // return -1 if return transaction does not exist
+        if (!(balanceOperation instanceof ReturnTransaction)) {
             return -1;
-        //the money returned to the customer
-        else
-            return returnAmount;
+        }
 
-        // TODO: add writeState()
+        // return -1 if state is not closed
+        if (balanceOperation.getStatus() != OperationStatus.CLOSED) {
+            return -1;
+        }
+
+        // set status of transaction to completed and automatically update balance
+        accountBook.setTransactionStatus(returnId, OperationStatus.COMPLETED);
+
+        // persist state and return on success
+        writeState();
+        return Math.abs(balanceOperation.getMoney());
     }
 
     @Override

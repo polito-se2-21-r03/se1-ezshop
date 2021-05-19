@@ -1,10 +1,10 @@
 package apiTests;
 
-import it.polito.ezshop.data.BalanceOperation;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.SaleTransaction;
 import it.polito.ezshop.data.TicketEntry;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
+import it.polito.ezshop.model.BalanceOperation;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.adapters.BalanceOperationAdapter;
 import org.junit.Before;
@@ -138,6 +138,8 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
      */
     @Test
     public void testCommitSuccessfully2() throws Exception {
+
+        // store state before return transaction
         double initialBalance = shop.computeBalance();
         double initialSaleTransactionValue = Math.abs(getSaleTransaction(sid2).getMoney());
         double expectedReturnValue = computeValue(product2.getPricePerUnit(), SALE_2_PRODUCT_2_RETURN_AMOUNT,
@@ -189,13 +191,11 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
         assertFalse(shop.endReturnTransaction(rid1, true));
     }
 
-    private it.polito.ezshop.model.SaleTransaction getSaleTransaction(int sid) throws Exception {
-        BalanceOperation sale = shop.getCreditsAndDebits(null, null).stream().filter(b -> b.getBalanceId() == sid).findAny().orElse(null);
-        if (sale == null || !sale.getType().equals(BalanceOperationAdapter.SALE)) {
-            fail("Sale transaction not found");
-        }
-        //
-        assertTrue(sale instanceof BalanceOperationAdapter);
-        return (it.polito.ezshop.model.SaleTransaction) ((BalanceOperationAdapter) sale).getTransaction();
+    private BalanceOperation getSaleTransaction(int sid) throws Exception {
+        return shop.getCreditsAndDebits(null, null).stream()
+                .filter(b -> b.getBalanceId() == sid)
+                .map(b -> ((BalanceOperationAdapter) b).getTransaction())
+                .findAny()
+                .orElse(null);
     }
 }
