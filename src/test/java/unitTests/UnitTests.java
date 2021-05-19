@@ -27,7 +27,10 @@ import org.junit.runners.Suite;
         TestReturnTransactionItem.class,
         // Utils
         TestUtils.class,
-        TestIsValidCreditCardNumber.class
+        TestIsValidCreditCardNumber.class,
+        // CreditCard
+        TestCreditCard.class,
+        TestCreditCardCircuit.class
 })
 public class UnitTests {
 }
