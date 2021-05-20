@@ -411,7 +411,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
         // check that product ID is valid
-        if (productId <= 0) {
+        if (productId == null || productId <= 0) {
             throw new InvalidProductIdException("Product ID must be positive integer");
         }
 

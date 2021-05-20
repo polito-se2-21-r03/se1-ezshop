@@ -45,7 +45,7 @@ public class EZShopTestUpdateQuantity {
         shop.createProductType("desc", "12345678901231", 10.0, "note");
         target = shop.getProductTypeByBarCode(barcode);
         // set initial quantity
-        target.setQuantity(100);
+
     }
     /**
      * Tests that access rights are handled correctly by updateQuantity.
@@ -53,9 +53,49 @@ public class EZShopTestUpdateQuantity {
     @Test
     public void testAuthorization() throws Throwable {
         Method targetMethod = EZShop.class.getMethod("updateQuantity", Integer.class, int.class);
-        Object[] params = {target.getId(), target.getQuantity()};
+        Object[] params = {target.getId(), 100};
         Role[] allowedRoles = new Role[]{Role.ADMINISTRATOR, Role.SHOP_MANAGER};
 
         testAccessRights(targetMethod, params, allowedRoles);
+    }
+    /**
+     * If the id is null|negative|zero, the method should throw InvalidProductIdException
+     */
+    @Test()
+    public void testInvalidId() {
+        // boundary values for the id parameter
+        Arrays.asList(null, -1, 0).forEach((value) -> {
+            // for each boundary value check that the correct exception is thrown
+            assertThrows(InvalidProductIdException.class, () -> {
+                // try to update a product with the boundary value
+                shop.updateQuantity(value, 100);
+            });
+        });
+    }
+    /**
+     * Test valid updateQuantity
+     */
+    @Test()
+    public void testValidUpdateQuantity() throws InvalidProductIdException, UnauthorizedException, InvalidProductCodeException {
+        ProductType updatedProduct;
+
+        int newQuantity = 200;
+        int oldQuantity = target.getQuantity();
+        // update the quantity of the product
+        assertTrue(shop.updateQuantity(target.getId(), newQuantity));
+
+        // retrieve the updated product
+        updatedProduct = shop.getProductTypeByBarCode(target.getBarCode());
+        assertNotNull(updatedProduct);
+        assertEquals(newQuantity + oldQuantity, updatedProduct.getProductDescription());
+    }
+
+    /**
+     * If no products with given product id exists, the method should return false.
+     */
+    @Test()
+    public void testNonExistingId() throws InvalidProductIdException, UnauthorizedException {
+        assertFalse(shop.updateQuantity(target.getId() + 1, target.getQuantity())
+        );
     }
 }
