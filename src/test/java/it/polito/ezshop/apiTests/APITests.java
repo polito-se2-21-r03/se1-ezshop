@@ -15,6 +15,9 @@ import org.junit.runners.Suite;
         EZShopTestGetProductTypeByBarCode.class,
         EZShopTestGetProductTypesByDescription.class,
         // FR 4
+        EZShopTestUpdateQuantity.class,
+        EZShopTestUpdatePosition.class,
+        EZShopTestIssueOrder.class,
         // FR 5
         EZShopTestDefineCustomer.class,
         EZShopTestModifyCustomer.class,

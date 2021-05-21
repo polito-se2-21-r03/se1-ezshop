@@ -80,6 +80,7 @@ public class EZShopTestGetProductTypeByBarCode {
         });
     }
 
+
     /**
      * If a product with the given code does not exists, the method should return null.
      */

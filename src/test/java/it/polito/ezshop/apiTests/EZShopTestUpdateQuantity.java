@@ -27,12 +27,11 @@ public class EZShopTestUpdateQuantity {
     }
 
     private ProductType target;
-
     @Before
     public void beforeEach() throws
-            InvalidProductCodeException, InvalidProductDescriptionException, InvalidQuantityException, InvalidPricePerUnitException, InvalidProductIdException,
-            InvalidOrderIdException, UnauthorizedException, InvalidUsernameException, InvalidPasswordException,
-            InvalidRoleException {
+            InvalidProductCodeException, InvalidProductDescriptionException, InvalidQuantityException, InvalidPricePerUnitException,
+            InvalidProductIdException, InvalidOrderIdException, UnauthorizedException, InvalidUsernameException, InvalidPasswordException,
+            InvalidLocationException, InvalidRoleException {
         // reset the state of EZShop
         shop.reset();
         // create a new user
@@ -44,7 +43,10 @@ public class EZShopTestUpdateQuantity {
         String barcode = "12345678901231";
         shop.createProductType("desc", "12345678901231", 10.0, "note");
         target = shop.getProductTypeByBarCode(barcode);
+        // set initial position
+        shop.updatePosition(target.getId(), "1-2-3");
         // set initial quantity
+        target.setQuantity(100);
 
     }
     /**
@@ -79,15 +81,18 @@ public class EZShopTestUpdateQuantity {
     public void testValidUpdateQuantity() throws InvalidProductIdException, UnauthorizedException, InvalidProductCodeException {
         ProductType updatedProduct;
 
-        int newQuantity = 200;
-        int oldQuantity = target.getQuantity();
+        Integer newQuantity = 200;
+        Integer oldQuantity = target.getQuantity();
         // update the quantity of the product
         assertTrue(shop.updateQuantity(target.getId(), newQuantity));
 
         // retrieve the updated product
         updatedProduct = shop.getProductTypeByBarCode(target.getBarCode());
         assertNotNull(updatedProduct);
-        assertEquals(newQuantity + oldQuantity, updatedProduct.getProductDescription());
+        Integer totalQuantity = newQuantity+oldQuantity;
+        assertEquals(totalQuantity,
+                target.getQuantity());
+
     }
 
     /**
