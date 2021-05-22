@@ -2,7 +2,6 @@ package it.polito.ezshop.apiTests;
 
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.ProductType;
-import it.polito.ezshop.model.AccountBook;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.*;
 import org.junit.Before;
@@ -25,7 +24,7 @@ public class EZShopTestIssueOrder {
             e.printStackTrace();
         }
     }
-    private Order target;
+
     private ProductType product;
     @Before
     public void beforeEach() throws
@@ -50,7 +49,7 @@ public class EZShopTestIssueOrder {
     @Test
     public void testAuthorization() throws Throwable {
         Method targetMethod = EZShop.class.getMethod("issueOrder", String.class, int.class, double.class);
-        Object[] params = {product.getBarCode(), 100, 10.0};
+        Object[] params = {product.getBarCode(), 100, 5.0};
         Role[] allowedRoles = new Role[]{Role.ADMINISTRATOR, Role.SHOP_MANAGER};
 
         testAccessRights(targetMethod, params, allowedRoles);
@@ -66,7 +65,7 @@ public class EZShopTestIssueOrder {
             // for each boundary value check that the correct exception is thrown
             assertThrows(InvalidProductCodeException.class, () -> {
                 // try to update a product with the boundary value
-                shop.issueOrder(value, 100, 10.0);
+                shop.issueOrder(value, 100, 5.0);
             });
         });
     }
@@ -80,7 +79,7 @@ public class EZShopTestIssueOrder {
             // for each boundary value check that the correct exception is thrown
             assertThrows(InvalidQuantityException.class, () -> {
                 // try to update a product with the boundary value
-                shop.issueOrder(product.getBarCode(), value, 10.0);
+                shop.issueOrder(product.getBarCode(), value, 5.0);
             });
         });
     }
@@ -105,7 +104,7 @@ public class EZShopTestIssueOrder {
     @Test()
     public void testNonExistingProduct() throws UnauthorizedException, InvalidQuantityException,
             InvalidProductCodeException, InvalidPricePerUnitException {
-        Integer id = shop.issueOrder("9788879924337", 100, 10.0);
+        Integer id = shop.issueOrder("9788879924337", 100, 5.0);
         assertNotNull(id);
         assertEquals(new Integer(-1), id);
     }
@@ -113,9 +112,11 @@ public class EZShopTestIssueOrder {
     @Test()
     public void testValidIssueOrder() throws UnauthorizedException, InvalidQuantityException,
             InvalidProductCodeException, InvalidPricePerUnitException {
-        Integer id = shop.issueOrder(product.getBarCode(), 100, 10.0);
+        Integer id = shop.issueOrder(product.getBarCode(), 100, 5.0);
         assertNotNull(id);
-
+        assertTrue(id > 0);
     }
+
+
 
 }

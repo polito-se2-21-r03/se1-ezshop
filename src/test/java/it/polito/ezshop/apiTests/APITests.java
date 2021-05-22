@@ -18,6 +18,9 @@ import org.junit.runners.Suite;
         EZShopTestUpdateQuantity.class,
         EZShopTestUpdatePosition.class,
         EZShopTestIssueOrder.class,
+        EZShopTestPayOrderFor.class,
+        EZShopTestPayOrder.class,
+
         // FR 5
         EZShopTestDefineCustomer.class,
         EZShopTestModifyCustomer.class,

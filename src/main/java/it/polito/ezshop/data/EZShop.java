@@ -545,6 +545,7 @@ public class EZShop implements EZShopInterface {
         // rollback issuing of order if funds are insufficient for paying
         if (!orderPayedSuccessfully) {
             accountBook.removeTransaction(orderId);
+            return -1;
         }
 
         writeState();
@@ -555,7 +556,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException {
         // verify orderId is valid ID
-        if (orderId <= 0) {
+        if (orderId == null || orderId <= 0) {
             throw new InvalidOrderIdException("Order ID must be positive integer");
         }
 
@@ -576,7 +577,7 @@ public class EZShop implements EZShopInterface {
         }
 
         // ensure sufficient funds in the account book
-        if (!accountBook.checkAvailability(order.getMoney())) {
+        if (!accountBook.checkAvailability(-order.getMoney())) {
             return false;
         }
 
