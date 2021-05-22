@@ -4,6 +4,7 @@ import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.ProductType;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.*;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -100,9 +101,6 @@ public class EZShopTestPayOrder {
         // check that balance is actually 4000.0 euros
         assertEquals(4000.0, shop.computeBalance(), 0.001);
         assertTrue(shop.payOrder(target));
-
-        // I'd like to check if Operation status of the order is actually paid but i cannot do this. Something like the line above
-        // assertEquals(OperationStatus.PAID, target);
 
     }
 }
