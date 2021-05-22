@@ -1,6 +1,5 @@
 package it.polito.ezshop.apiTests;
 
-import it.polito.ezshop.unitTests.UnitTests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 

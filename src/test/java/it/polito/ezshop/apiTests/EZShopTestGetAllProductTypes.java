@@ -1,6 +1,7 @@
 package it.polito.ezshop.apiTests;
 
 import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.data.ProductType;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.Role;
@@ -24,15 +25,15 @@ public class EZShopTestGetAllProductTypes {
     private static final String PRODUCT_CODE_2 = "1234567890128";
     private static final String PRODUCT_CODE_3 = "123456789012";
 
-    private static final EZShop shop = new EZShop();
-    private static User admin;
+    private static final String PRODUCT_DESCRIPTION = "description";
+    private static final double PRODUCT_PRICE = 10.0;
+    private static final String PRODUCT_NOTE = "note";
 
-    static {
-        try {
-            admin = new User(1, "Admin", "123", Role.ADMINISTRATOR);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private final EZShopInterface shop = new EZShop();
+    private final User admin;
+
+    public EZShopTestGetAllProductTypes() throws Exception {
+        admin = new User(1, "Admin", "123", Role.ADMINISTRATOR);
     }
 
     @Before
@@ -46,7 +47,7 @@ public class EZShopTestGetAllProductTypes {
     }
 
     /**
-     * Tests that access rights are handled correctly by getProductTypeByBarCode.
+     * Tests that access rights are handled correctly by getAllProductTypes.
      */
     @Test
     public void testAuthorization() throws Throwable {
@@ -70,9 +71,9 @@ public class EZShopTestGetAllProductTypes {
         assertEquals(0, products.size());
 
         // insert a few products
-        shop.createProductType("desc", PRODUCT_CODE_1, 10.0, "note");
-        shop.createProductType("desc", PRODUCT_CODE_2, 10.0, "note");
-        shop.createProductType("desc", PRODUCT_CODE_3, 10.0, "note");
+        shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE_1, PRODUCT_PRICE, PRODUCT_NOTE);
+        shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE_2, PRODUCT_PRICE, PRODUCT_NOTE);
+        shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE_3, PRODUCT_PRICE, PRODUCT_NOTE);
 
         products = shop.getAllProductTypes();
         assertNotNull(products);
@@ -84,5 +85,4 @@ public class EZShopTestGetAllProductTypes {
         assertTrue(barcodes.contains(PRODUCT_CODE_2));
         assertTrue(barcodes.contains(PRODUCT_CODE_3));
     }
-
 }

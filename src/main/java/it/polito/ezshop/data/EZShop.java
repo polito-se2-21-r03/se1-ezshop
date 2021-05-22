@@ -318,6 +318,18 @@ public class EZShop implements EZShopInterface {
             throw new InvalidProductIdException("Invalid product id less or equal to 0");
         }
 
+        if (newDescription == null || newDescription.equals("")) {
+            throw new InvalidProductDescriptionException("Invalid description");
+        }
+
+        if (!isValidBarcode(newCode)) {
+            throw new InvalidProductCodeException("Invalid Bar Code");
+        }
+
+        if (newPrice <= 0) {
+            throw new InvalidPricePerUnitException("Price per Unit must be greater or equal than zero");
+        }
+
         if (products.stream().anyMatch(x -> !(x.getId() == id) && x.getBarCode().equals(newCode))) {
             return false;
         }
