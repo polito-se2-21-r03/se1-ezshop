@@ -604,7 +604,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean recordOrderArrival(Integer orderId) throws InvalidOrderIdException, UnauthorizedException, InvalidLocationException {
         // check that orderId is valid ID
-        if (orderId <= 0) {
+        if (orderId == null || orderId <= 0) {
             throw new InvalidOrderIdException("Order ID must be positive integer");
         }
 
@@ -631,8 +631,8 @@ public class EZShop implements EZShopInterface {
                 .orElse(null);
 
         // verify ordered product exists
-        if (orderedProduct == null) {
-            throw new InvalidLocationException("The product specified in this order does not exist");
+        if (orderedProduct == null){
+            return false;
         }
 
         // update product quantity
