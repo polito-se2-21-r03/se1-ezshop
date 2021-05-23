@@ -171,7 +171,7 @@ public class EZShopTestUpdateProduct {
      * Test valid updates
      */
     @Test()
-    public void testValidUpdates() throws Exception {
+    public void testUpdateProductSuccessfully() throws Exception {
         ProductType updatedProduct;
 
         // update the properties of the product, except the barcode
