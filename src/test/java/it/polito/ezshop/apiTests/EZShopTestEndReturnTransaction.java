@@ -1,7 +1,8 @@
 package it.polito.ezshop.apiTests;
 
+import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.data.EZShop;
-import it.polito.ezshop.data.SaleTransaction;
+import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.BalanceOperation;
 import it.polito.ezshop.model.Role;
@@ -17,17 +18,21 @@ import static org.junit.Assert.*;
 /**
  * Tests on the EZShop.endReturnTransaction(Integer, boolean) method.
  */
-public class EZShopTestEndReturnTransaction extends EZShopTestBase {
+public class EZShopTestEndReturnTransaction {
 
-    private static final Integer SALE_1_PRODUCT_1_RETURN_AMOUNT = 1;
     private static final Integer SALE_1_PRODUCT_1_AMOUNT = 3;
     private static final Integer SALE_1_PRODUCT_2_AMOUNT = 2;
+    private static final Integer SALE_1_PRODUCT_1_RETURN_AMOUNT = 1;
+    private static final Integer SALE_1_PRODUCT_1_RETURN_AMOUNT_2 = SALE_1_PRODUCT_1_AMOUNT;
 
     private static final Integer SALE_2_PRODUCT_2_RETURN_AMOUNT = 4;
     private static final Integer SALE_2_PRODUCT_2_AMOUNT = 4;
     private static final Integer SALE_2_PRODUCT_3_AMOUNT = 1;
     private static final double SALE_2_PRODUCT_2_DISCOUNT_RATE = .25;
     private static final double SALE_2_DISCOUNT_RATE = .12;
+
+    // interface of EZShop
+    private final EZShopInterface shop = new EZShop();
 
     // sale transaction 1, return transaction 1
     private Integer sid1, rid1;
@@ -37,10 +42,18 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
 
     @Before
     public void beforeEach() throws Exception {
-        super.reset();
+        // reset the state of EZShop
+        shop.reset();
+        // create a new user
+        shop.createUser(TestHelpers.admin.getUsername(), TestHelpers.admin.getPassword(),
+                TestHelpers.admin.getRole().getValue());
+        // and log in with that user
+        shop.login(TestHelpers.admin.getUsername(), TestHelpers.admin.getPassword());
 
-        // add a product1 to the shop
-        addProducts(product1, product2, product3);
+        // add product1, product2 and product3 to the shop
+        TestHelpers.addProductToShop(shop, TestHelpers.product1);
+        TestHelpers.addProductToShop(shop, TestHelpers.product2);
+        TestHelpers.addProductToShop(shop, TestHelpers.product3);
 
         // create sale transaction 1 and add product1 and product2 to it
         sid1 = shop.startSaleTransaction();
@@ -87,8 +100,10 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
      */
     @Test()
     public void testInvalidId() {
-        testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs,
-                (value) -> shop.endReturnTransaction(value, true));
+        // test invalid values for the transaction id parameter
+        for (Integer value : TestHelpers.invalidTransactionIDs) {
+            assertThrows(InvalidTransactionIdException.class, () -> shop.endReturnTransaction(value, true));
+        }
     }
 
     /**
@@ -96,6 +111,7 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
      */
     @Test()
     public void testNonExistingReturnTransaction() throws Exception {
+        assertFalse(shop.endReturnTransaction(sid1, true));
         assertFalse(shop.endReturnTransaction(rid1 + 1, true));
     }
 
@@ -104,11 +120,10 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
      */
     @Test
     public void testCommitSuccessfully1() throws Exception {
-
         // store state before return transaction
         double initialBalance = shop.computeBalance();
         double initialSaleTransactionValue = Math.abs(getSaleTransaction(sid1).getMoney());
-        double expectedReturnValue = computeValue(product1.getPricePerUnit(), SALE_1_PRODUCT_1_RETURN_AMOUNT, 0, 0);
+        double expectedReturnValue = product1.getPricePerUnit() * SALE_1_PRODUCT_1_RETURN_AMOUNT;
 
         // commit the return transaction
         assertTrue(shop.endReturnTransaction(rid1, true));
@@ -126,10 +141,10 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
 
         // verify that the total of the sale transaction was updated correctly
         double expectedNewTotal = initialSaleTransactionValue - expectedReturnValue;
-        assertEquals(expectedNewTotal, saleTransaction.computeTotal(), DOUBLE_COMPARISON_THRESHOLD);
+        assertEquals(expectedNewTotal, saleTransaction.computeTotal(), 0.01);
 
         // verify that the balance was NOT updated
-        assertEquals(initialBalance, shop.computeBalance(), DOUBLE_COMPARISON_THRESHOLD);
+        assertEquals(initialBalance, shop.computeBalance(), 0.01);
 
         // try to commit/rollback again -> the method should return false
         assertFalse(shop.endReturnTransaction(rid1, true));
@@ -141,12 +156,11 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
      */
     @Test
     public void testCommitSuccessfully2() throws Exception {
-
         // store state before return transaction
         double initialBalance = shop.computeBalance();
         double initialSaleTransactionValue = Math.abs(getSaleTransaction(sid2).getMoney());
-        double expectedReturnValue = computeValue(product2.getPricePerUnit(), SALE_2_PRODUCT_2_RETURN_AMOUNT,
-                SALE_2_PRODUCT_2_DISCOUNT_RATE,SALE_2_DISCOUNT_RATE);
+        double expectedReturnValue = product2.getPricePerUnit() * SALE_2_PRODUCT_2_RETURN_AMOUNT *
+                (1.0 - SALE_2_PRODUCT_2_DISCOUNT_RATE) * (1.0 - SALE_2_DISCOUNT_RATE);
 
         // commit the return transaction
         assertTrue(shop.endReturnTransaction(rid2, true));
@@ -179,7 +193,6 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
      */
     @Test
     public void testRollback() throws Exception {
-
         // get the initial total of the sale transaction
         double initialTotal = Math.abs(getSaleTransaction(sid1).getMoney());
 
@@ -190,7 +203,6 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
         it.polito.ezshop.model.SaleTransaction saleTransaction = (it.polito.ezshop.model.SaleTransaction) getSaleTransaction(sid1);
 
         // verify that the sale transaction was not updated
-        SaleTransaction st = shop.getSaleTransaction(sid1);
         int delta = SALE_1_PRODUCT_1_AMOUNT - saleTransaction.getTransactionItems().stream()
                 .filter(x -> x.getProductType().getBarCode().equals(product1.getBarCode()))
                 .map(it.polito.ezshop.model.TicketEntry::getAmount).findAny().orElse(-1);
@@ -200,6 +212,46 @@ public class EZShopTestEndReturnTransaction extends EZShopTestBase {
         // the transaction should not exist anymore -> the method should return false
         assertFalse(shop.endReturnTransaction(rid1, false));
         assertFalse(shop.endReturnTransaction(rid1, true));
+    }
+
+    /**
+     * Open multiple return transactions for sale 1. Each return transaction on its own
+     * is valid (in terms of returned amount). Committing all the return transactions should result in
+     * an error.
+     *
+     * return transaction 1: return 1 unit of product 1 --> OK
+     * return transaction 2: return 3 units of product 1 --> OK
+     * return transactions 1 + 2: return 4 units of product 1 --> NOK
+     */
+    @Test
+    public void testMultipleReturnTransaction () throws Exception {
+        double initialSaleTransactionValue = Math.abs(getSaleTransaction(sid1).getMoney());
+        double expectedReturnValue = product1.getPricePerUnit() * SALE_1_PRODUCT_1_RETURN_AMOUNT;
+
+        // create another return transaction for sale 1
+        int rid2 = shop.startReturnTransaction(sid1);
+        shop.returnProduct(rid2, product1.getBarCode(), SALE_1_PRODUCT_1_RETURN_AMOUNT_2);
+
+        // try to commit both rid1 and rid2
+        assertTrue(shop.endReturnTransaction(rid1, true));
+        assertFalse(shop.endReturnTransaction(rid2, true));
+
+        // get the sale transaction for which the return was made
+        it.polito.ezshop.model.SaleTransaction saleTransaction = (it.polito.ezshop.model.SaleTransaction) getSaleTransaction(sid1);
+
+        // compute the number of items that were returned
+        int delta = SALE_1_PRODUCT_1_AMOUNT - saleTransaction.getTransactionItems().stream()
+                .filter(x -> x.getProductType().getBarCode().equals(product1.getBarCode()))
+                .map(it.polito.ezshop.model.TicketEntry::getAmount).findAny().orElse(0);
+
+        // verify that the amount of items returned is correct
+        assertEquals((int) SALE_1_PRODUCT_1_RETURN_AMOUNT, delta);
+
+        // verify that the total of the sale transaction was updated correctly
+        double expectedNewTotal = initialSaleTransactionValue - expectedReturnValue;
+        assertEquals(expectedNewTotal, saleTransaction.computeTotal(), 0.01);
+
+        // TODO: need additional checks?
     }
 
     private BalanceOperation getSaleTransaction(int sid) throws Exception {
