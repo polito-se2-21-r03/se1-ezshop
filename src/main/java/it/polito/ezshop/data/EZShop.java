@@ -76,6 +76,26 @@ public class EZShop implements EZShopInterface {
             this.products.addAll(persistenceLayer.readProducts());
             this.customerList = persistenceLayer.readCustomerList();
             this.accountBook = persistenceLayer.readAccountBook();
+
+            this.accountBook.getSaleTransactions().forEach(sale -> {
+                // iterate over all transaction
+                sale.getTransactionItems().forEach(ti -> {
+                    // set the product type in the ticket entry to the actual product reference
+                    this.products.stream()
+                            .filter(x -> x.getId() == ti.getProductType().getId())
+                            .findFirst().ifPresent(ti::setProductType);
+                });
+            });
+
+            this.accountBook.getReturnTransactions().forEach(_return -> {
+                // iterate over all transaction
+                _return.getTransactionItems().forEach(ti -> {
+                    // set the product type in the item to the actual product reference
+                    this.products.stream()
+                            .filter(x -> x.getId() == ti.getProductType().getId())
+                            .findFirst().ifPresent(ti::setProductType);
+                });
+            });
         } catch (Exception ex) {
             // exceptions are ignored
         }
@@ -273,6 +293,7 @@ public class EZShop implements EZShopInterface {
                 // if one user is found return it, otherwise return null
                 .orElse(null);
 
+        if (currentUser == null) return null;
         return new UserAdapter(currentUser);
     }
 
