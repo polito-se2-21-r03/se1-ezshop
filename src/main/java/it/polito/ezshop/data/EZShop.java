@@ -79,8 +79,6 @@ public class EZShop implements EZShopInterface {
         } catch (Exception ex) {
             // exceptions are ignored
         }
-
-        this.creditCardCircuit.init();
     }
 
     /**
@@ -141,6 +139,9 @@ public class EZShop implements EZShopInterface {
         this.products.clear();
         this.accountBook.reset();
         this.clock = Clock.systemDefaultZone();
+
+        // reset the credit card system
+        this.creditCardCircuit.reset();
 
         writeState();
     }

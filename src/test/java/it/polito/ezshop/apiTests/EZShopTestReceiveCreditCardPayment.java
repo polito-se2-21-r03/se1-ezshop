@@ -60,7 +60,6 @@ public class EZShopTestReceiveCreditCardPayment {
         Files.copy(Paths.get(TextualCreditCardCircuit.CLEAN_TEXT_FILE), Paths.get(creditCardsFile), REPLACE_EXISTING);
         // create a new credit card circuit
         fakeCreditCardCircuit = new TextualCreditCardCircuit(creditCardsFile);
-        fakeCreditCardCircuit.init();
 
         // reset shop to blank state
         shop.reset();

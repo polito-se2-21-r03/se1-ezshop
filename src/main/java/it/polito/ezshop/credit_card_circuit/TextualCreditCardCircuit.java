@@ -10,6 +10,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
 public class TextualCreditCardCircuit implements CreditCardCircuit {
 
     public static final String CLEAN_TEXT_FILE = "CreditCards-original.txt";
@@ -22,6 +24,7 @@ public class TextualCreditCardCircuit implements CreditCardCircuit {
 
     public TextualCreditCardCircuit(String path) {
         this.path = path;
+        this.init();
     }
 
     /**
@@ -31,14 +34,33 @@ public class TextualCreditCardCircuit implements CreditCardCircuit {
         return Collections.unmodifiableList(creditCards);
     }
 
-    @Override
-    public void init() {
+    private void init() {
         if (this.creditCards.size() == 0) {
             try {
                 this.creditCards.addAll(readFile());
             } catch (IOException ignored) {
             }
         }
+    }
+
+    /**
+     * Clear the current list of credit cards.
+     * Replace current file with the clean version.
+     * Reload the list of credit cards.
+     */
+    @Override
+    public void reset() {
+        // remove the current credit cards
+        this.creditCards.clear();
+
+        try {
+            // restore the original file
+            Files.copy(Paths.get(TextualCreditCardCircuit.CLEAN_TEXT_FILE), Paths.get(path), REPLACE_EXISTING);
+        } catch (IOException ignored) {
+        }
+
+        // load the credit cards from the file
+        this.init();
     }
 
     @Override

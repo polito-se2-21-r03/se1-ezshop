@@ -3,10 +3,11 @@ package it.polito.ezshop.credit_card_circuit;
 import java.io.IOException;
 
 public interface CreditCardCircuit {
+
     /**
-     * This method should initialize the credit card system.
+     * This method resets the credit card system
      */
-    public void init();
+    public void reset();
 
     /**
      * This method should validate card with luhn algorithm
