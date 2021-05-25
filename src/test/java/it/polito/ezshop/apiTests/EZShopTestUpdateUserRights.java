@@ -17,7 +17,7 @@ import static it.polito.ezshop.utils.Utils.generateId;
 import static org.junit.Assert.*;
 
 /**
- * Tests on the EZShop.createUser() method.
+ * Tests on the EZShop.updateUserRights() method.
  */
 public class EZShopTestUpdateUserRights {
 
@@ -76,14 +76,18 @@ public class EZShopTestUpdateUserRights {
 
 
         // verify correct exception is thrown
-        testInvalidValues(InvalidUserIdException.class, invalidUserIDs, shop::deleteUser);
+        testInvalidValues(InvalidUserIdException.class, invalidUserIDs,
+                (userID) -> shop.updateUserRights(userID, user2Role));
 
     }
     /**
      * Tests that an InvalidRoleException is thrown if the user role is empty, null or not among the set of admissible values
      */
     @Test
-    public void testInvalidRoleException() {
+    public void testInvalidRoleException() throws InvalidPasswordException, InvalidUsernameException {
+
+        // login with sufficient rights
+        shop.login(admin.getUsername(), admin.getPassword());
 
         // verify correct exception is thrown
         testInvalidValues(InvalidRoleException.class, invalidUserRoles,
