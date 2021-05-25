@@ -17,7 +17,7 @@ import static it.polito.ezshop.TestHelpers.*;
 import static org.junit.Assert.*;
 
 /**
- * Tests on the EZShop.createUser() method.
+ * Tests on the EZShop.getAllUsers() method.
  */
 public class EZShopTestGetAllUsers {
 
@@ -56,8 +56,8 @@ public class EZShopTestGetAllUsers {
      */
     @Test
     public void testAuthorization() throws Throwable {
-        Method createUser = EZShop.class.getMethod("deleteUser", Integer.class);
-        testAccessRights(createUser, new Object[]{1},
+        Method getAllUsers = EZShop.class.getMethod("getAllUsers");
+        testAccessRights(getAllUsers, new Object[]{1},
                 new Role[]{Role.ADMINISTRATOR});
     }
     /**

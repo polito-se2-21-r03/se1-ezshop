@@ -17,9 +17,9 @@ import static it.polito.ezshop.utils.Utils.generateId;
 import static org.junit.Assert.*;
 
 /**
- * Tests on the EZShop.deleteUser() method.
+ * Tests on the EZShop.createUser() method.
  */
-public class EZShopTestDeleteUser {
+public class EZShopTestUpdateUserRights {
 
 
     private final EZShopInterface shop = new EZShop();
@@ -33,7 +33,7 @@ public class EZShopTestDeleteUser {
     private static Integer user1ID;
     private static Integer user2ID;
 
-    public EZShopTestDeleteUser() throws Exception {
+    public EZShopTestUpdateUserRights() throws Exception {
         admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
     }
 
@@ -57,17 +57,16 @@ public class EZShopTestDeleteUser {
         shop.logout();
     }
     /**
-     * Tests that access rights are handled correctly by deleteUser.
+     * Tests that access rights are handled correctly by updateUserRights.
      */
     @Test
     public void testAuthorization() throws Throwable {
-        Method deleteUser = EZShop.class.getMethod("deleteUser", Integer.class);
-        testAccessRights(deleteUser, new Object[]{1},
+        Method updateUserRights = EZShop.class.getMethod("updateUserRights", Integer.class, String.class);
+        testAccessRights(updateUserRights, new Object[]{1},
                 new Role[]{Role.ADMINISTRATOR});
     }
     /**
      * Tests that an InvalidUserIdException is throw if id is less than or equal to 0 or if it is null.
-     *
      */
     @Test
     public void testInvalidUserIdException() throws InvalidPasswordException, InvalidUsernameException {
@@ -81,30 +80,22 @@ public class EZShopTestDeleteUser {
 
     }
     /**
-     * Tests deleting a user successfully
+     * Tests that an InvalidRoleException is thrown if the user role is empty, null or not among the set of admissible values
      */
     @Test
-    public void testDeleteUserSuccessfully() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException, InvalidUserIdException {
-        // login with sufficient rights
-        shop.login(admin.getUsername(), admin.getPassword());
+    public void testInvalidRoleException() {
 
-        // delete user successfully
-        assertTrue(shop.deleteUser(user1ID));
+        // verify correct exception is thrown
+        testInvalidValues(InvalidRoleException.class, invalidUserRoles,
+                (userRole) -> shop.updateUserRights(user1ID, userRole));
 
-        // verify user does not exist anymore
-        assertEquals(2, shop.getAllUsers().size());
-        assertNull(shop.getUser(user1ID));
-
-        // verify other user still exist
-        assertEquals(user2ID, shop.getUser(user2ID).getId());
-        assertEquals(user2Name, shop.getUser(user2ID).getUsername());
     }
     /**
-     * Tests that false is returned if no user with that ID exists
+     * Tests that return false if the user does not exist
      */
     @Test
     public void testFalseIfUserDoesNotExist() throws InvalidPasswordException, InvalidUsernameException,
-            UnauthorizedException, InvalidUserIdException {
+            UnauthorizedException, InvalidUserIdException, InvalidRoleException {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -116,9 +107,29 @@ public class EZShopTestDeleteUser {
                         .collect(Collectors.toList()));
 
         // return false when user does not exist
-        assertFalse(shop.deleteUser(nonExistentId));
+        assertFalse(shop.updateUserRights(nonExistentId, user2Role));
 
-        // verify no users have been deleted
-        assertEquals(3, shop.getAllUsers().size());
+
+    }
+    /**
+     * Tests that return true
+     */
+    @Test
+    public void testUpdateUserRightsFinishSuccessfully() throws InvalidPasswordException, InvalidUsernameException,
+            UnauthorizedException, InvalidUserIdException, InvalidRoleException {
+
+        // login with sufficient rights
+        shop.login(admin.getUsername(), admin.getPassword());
+
+        //new role
+        String role = "SHOP_MANAGER";
+
+        //return true if update successfully
+        boolean result = shop.updateUserRights(user2ID, role);
+        assertTrue(result);
+
+        //check role change successfully
+        assertEquals(role, shop.getUser(user2ID).getRole());
+
     }
 }
