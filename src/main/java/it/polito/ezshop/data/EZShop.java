@@ -528,6 +528,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer issueOrder(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
+
         // check that barcode is valid
         if (!isValidBarcode(productCode)) {
             throw new InvalidProductCodeException("Product code must follow specification");
@@ -570,35 +571,58 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer payOrderFor(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
-        // issue the order
-        int orderId = this.issueOrder(productCode, quantity, pricePerUnit);
 
-        // verify order was issued correctly
-        if (orderId <= 0) {
+        // check that barcode is valid
+        if (!isValidBarcode(productCode)) {
+            throw new InvalidProductCodeException("Product code must follow specification");
+        }
+
+        // check that quantity is positive value
+        if (quantity <= 0) {
+            throw new InvalidQuantityException("Quantity must be positive integer");
+        }
+
+        // check that price is positive value
+        if (pricePerUnit <= 0) {
+            throw new InvalidPricePerUnitException("Price must be positive double");
+        }
+
+        // verify access rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
+        // verify product exists
+        it.polito.ezshop.model.ProductType product = products.stream()
+                .filter(p -> p.getBarCode().equals(productCode))
+                .findAny()
+                .orElse(null);
+        if (product == null) {
             return -1;
         }
 
-        // try to pay order
-        boolean orderPayedSuccessfully;
-        try {
-            orderPayedSuccessfully = this.payOrder(orderId);
-        } catch (InvalidOrderIdException e) {
+        // create Order object
+        int orderID = accountBook.generateNewId();
+        LocalDate date = LocalDate.now(clock);
+        it.polito.ezshop.model.Order order = new it.polito.ezshop.model.Order(orderID, date, productCode, pricePerUnit, quantity);
+
+        // ensure sufficient funds in the account book
+        if (!accountBook.checkAvailability(Math.abs(order.getMoney()))) {
             return -1;
         }
 
-        // rollback issuing of order if funds are insufficient for paying
-        if (!orderPayedSuccessfully) {
-            accountBook.removeTransaction(orderId);
-            return -1;
-        }
+        // set order state to PAID
+        order.setStatus(OperationStatus.PAID);
+
+        // record order in account book and update balance automatically
+        accountBook.addTransaction(order);
 
         writeState();
         // return order ID on success
-        return orderId;
+        return orderID;
     }
 
     @Override
     public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException {
+
         // verify orderId is valid ID
         if (orderId == null || orderId <= 0) {
             throw new InvalidOrderIdException("Order ID must be positive integer");
