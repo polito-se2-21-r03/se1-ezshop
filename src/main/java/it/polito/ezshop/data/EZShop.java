@@ -376,10 +376,18 @@ public class EZShop implements EZShopInterface {
             return false;
         }
 
+        String oldBarcode = product.getBarCode();
+
         product.setProductDescription(newDescription);
         product.setBarCode(newCode);
         product.setPricePerUnit(newPrice);
         product.setNote(newNote);
+
+        // if the barcode of the product is changed, propagate the change to the orders list
+        if (!oldBarcode.equals(newCode)) {
+            // update the barcode of the product in the orders list
+            this.accountBook.updateBarcodeInOrders(oldBarcode, newCode);
+        }
 
         writeState();
 

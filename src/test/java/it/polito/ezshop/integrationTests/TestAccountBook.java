@@ -529,6 +529,16 @@ public class TestAccountBook {
         assertNull(accountBook.getTransaction(accountBook.generateNewId()));
     }
 
+    /**
+     * Test that updateBarcodeInOrders correctly updates a product's barcode
+     * in the orders list.
+     */
+    @Test
+    public void testUpdateBarcodeInOrders () {
+        accountBook.updateBarcodeInOrders("xx", "new");
+        assertEquals("new", ((Order) accountBook.getTransaction(order1.getBalanceId())).getProductCode());
+    }
+
     @Test
     public void testEqualsHashCode() throws Exception {
         AccountBook obj = new AccountBook();
