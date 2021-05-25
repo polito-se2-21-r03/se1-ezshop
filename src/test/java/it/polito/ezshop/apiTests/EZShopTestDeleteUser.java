@@ -26,7 +26,7 @@ public class EZShopTestDeleteUser {
     private static User admin;
     private static final String user1Name = "Pietro";
     private static final String user2Name = "Andrea";
-    private static final String password1 = "123";
+    private static final String password1 = "234";
     private static final String password2 = "456";
     private static final String user1Role = "SHOP_MANAGER";
     private static final String user2Role = "CASHIER";
@@ -49,7 +49,7 @@ public class EZShopTestDeleteUser {
         shop.login(admin.getUsername(), admin.getPassword());
 
 
-        // add two user to shop
+        // add two user more to shop after then total (3)
         user1ID = shop.createUser(user1Name, password1, user1Role);
         user2ID = shop.createUser(user2Name, password2, user2Role);
 
@@ -91,7 +91,7 @@ public class EZShopTestDeleteUser {
         assertTrue(shop.deleteUser(user1ID));
 
         // verify user does not exist anymore
-        assertEquals(0, shop.getAllUsers().size());
+        assertEquals(2, shop.getAllUsers().size());
         assertNull(shop.getUser(user1ID));
 
         // verify other user still exist
@@ -118,6 +118,6 @@ public class EZShopTestDeleteUser {
         assertFalse(shop.deleteUser(nonExistentId));
 
         // verify no users have been deleted
-        assertEquals(2, shop.getAllUsers().size());
+        assertEquals(3, shop.getAllUsers().size());
     }
 }
