@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 /**
  * Tests on the EZShop.createUser() method.
  */
-public class EZShopTestDeleteUser {
+public class EZShopTestGetUser {
 
 
     private final EZShopInterface shop = new EZShop();
@@ -33,7 +33,7 @@ public class EZShopTestDeleteUser {
     private static Integer user1ID;
     private static Integer user2ID;
 
-    public EZShopTestDeleteUser() throws Exception {
+    public EZShopTestGetUser() throws Exception {
         admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
     }
 
@@ -67,7 +67,6 @@ public class EZShopTestDeleteUser {
     }
     /**
      * Tests that an InvalidUserIdException is throw if id is less than or equal to 0 or if it is null.
-     *
      */
     @Test
     public void testInvalidUserIdException() throws InvalidPasswordException, InvalidUsernameException {
@@ -81,30 +80,10 @@ public class EZShopTestDeleteUser {
 
     }
     /**
-     * Tests deleting a user successfully
+     * Tests that null is returned if no user with the given ID exists
      */
     @Test
-    public void testDeleteUserSuccessfully() throws InvalidPasswordException, InvalidUsernameException, UnauthorizedException, InvalidUserIdException {
-        // login with sufficient rights
-        shop.login(admin.getUsername(), admin.getPassword());
-
-        // delete user successfully
-        assertTrue(shop.deleteUser(user1ID));
-
-        // verify user does not exist anymore
-        assertEquals(2, shop.getAllUsers().size());
-        assertNull(shop.getUser(user1ID));
-
-        // verify other user still exist
-        assertEquals(user2ID, shop.getUser(user2ID).getId());
-        assertEquals(user2Name, shop.getUser(user2ID).getUsername());
-    }
-    /**
-     * Tests that false is returned if no user with that ID exists
-     */
-    @Test
-    public void testFalseIfUserDoesNotExist() throws InvalidPasswordException, InvalidUsernameException,
-            UnauthorizedException, InvalidUserIdException {
+    public void testNullIfUserNotExists() throws Exception {
 
         // login with sufficient rights
         shop.login(admin.getUsername(), admin.getPassword());
@@ -116,9 +95,24 @@ public class EZShopTestDeleteUser {
                         .collect(Collectors.toList()));
 
         // return false when user does not exist
-        assertFalse(shop.deleteUser(nonExistentId));
+        assertNull(shop.getUser(nonExistentId));
+    }
+    /**
+     * Tests that user is returned correctly
+     */
+    @Test
+    public void testUserReturnedSuccessfully() throws Exception {
 
-        // verify no users have been deleted
-        assertEquals(3, shop.getAllUsers().size());
+        // login with sufficient rights
+        shop.login(admin.getUsername(), admin.getPassword());
+
+        // get user
+        it.polito.ezshop.data.User user = shop.getUser(EZShopTestGetUser.user1ID);
+
+        // verify that user data is correct
+        assertEquals(EZShopTestGetUser.user1ID, user.getId());
+        assertEquals(EZShopTestGetUser.user1Name, user.getUsername());
+        assertEquals(EZShopTestGetUser.user1Role, user.getRole());
+        assertEquals(EZShopTestGetUser.password1, user.getPassword());
     }
 }
