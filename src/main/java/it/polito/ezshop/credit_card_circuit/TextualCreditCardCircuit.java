@@ -118,12 +118,9 @@ public class TextualCreditCardCircuit implements CreditCardCircuit {
             return false;
         }
 
-        if (card.updateBalance(amount)) {
-            updateFile(card);
-            return true;
-        }
-
-        return false;
+        // return true if the balance update is successful
+        // and the operation was correctly recorded in the file
+        return card.updateBalance(amount) && updateFile(card);
     }
 
     /**
@@ -183,8 +180,8 @@ public class TextualCreditCardCircuit implements CreditCardCircuit {
 
             try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path), StandardCharsets.UTF_8)) {
                 writer.write(fileContent, 0, fileContent.length());
+                return true;
             } catch (IOException ignored) {
-                return false;
             }
 
         } catch (IOException ignored) {

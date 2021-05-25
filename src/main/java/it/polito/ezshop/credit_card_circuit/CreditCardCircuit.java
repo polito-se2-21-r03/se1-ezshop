@@ -7,7 +7,7 @@ public interface CreditCardCircuit {
     /**
      * This method resets the credit card system
      */
-    public void reset();
+    void reset();
 
     /**
      * This method should validate card with luhn algorithm
@@ -17,7 +17,7 @@ public interface CreditCardCircuit {
      * @return true if credit card is validated
      *         false if it is not
      */
-    public boolean validateCode(String creditCardCode);
+    boolean validateCode(String creditCardCode);
 
     /**
      * This method should check the amount of credit card and return true if there is enough amount of money
@@ -28,7 +28,7 @@ public interface CreditCardCircuit {
      * @return true if credit card's amount is available
      *         false if it is not
      */
-    public boolean checkAvailability(String creditCardCode, double amount);
+    boolean checkAvailability(String creditCardCode, double amount);
 
     /**
      * This method should add debit to the credit card
@@ -40,7 +40,7 @@ public interface CreditCardCircuit {
      * @return true if the operation is completed successfully
      *         false if the amount is less than zero or if the operation is not completed successfully.
      */
-    public boolean addDebit(String creditCardCode, double amount) throws IOException;
+    boolean addDebit(String creditCardCode, double amount);
 
     /**
      * This method should add credit to the credit card
@@ -52,5 +52,5 @@ public interface CreditCardCircuit {
      * @return true if the operation is completed successfully
      *         false if the amount is less than zero or if the operation is not completed successfully.
      */
-    public boolean addCredit(String creditCardCode, double amount) throws IOException;
+    boolean addCredit(String creditCardCode, double amount);
 }

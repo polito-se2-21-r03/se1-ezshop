@@ -8,7 +8,6 @@ import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -646,9 +645,7 @@ public class EZShop implements EZShopInterface {
 
         // verify that order exists
         it.polito.ezshop.model.BalanceOperation transactionWithId = accountBook.getTransaction(orderId);
-        if (transactionWithId == null || !it.polito.ezshop.model.Order.class.isAssignableFrom(transactionWithId.getClass())) {
-            return false;
-        }
+        if (!(transactionWithId instanceof it.polito.ezshop.model.Order)) return false;
 
         // verify that Order was either paid for or has already been completed
         it.polito.ezshop.model.Order order = (it.polito.ezshop.model.Order) transactionWithId;
@@ -666,6 +663,11 @@ public class EZShop implements EZShopInterface {
         // verify ordered product exists
         if (orderedProduct == null){
             return false;
+        }
+
+        // verify the product is assigned to a location
+        if (orderedProduct.getPosition() == null) {
+            throw new InvalidLocationException();
         }
 
         // update product quantity
@@ -1213,12 +1215,11 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public double receiveCashPayment(Integer ticketNumber, double cash) throws InvalidTransactionIdException, InvalidPaymentException, UnauthorizedException {
-
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         //if the  number is less than or equal to 0 or if it is null
-        if(ticketNumber == null || ticketNumber.compareTo(0) <= 0)
+        if(ticketNumber == null || ticketNumber <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
         //if the cash is less than or equal to 0
@@ -1255,12 +1256,11 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean receiveCreditCardPayment(Integer ticketNumber, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
-
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         // if the number is less than or equal to 0 or if it is null
-        if(ticketNumber == null || ticketNumber.compareTo(0) <= 0)
+        if(ticketNumber == null || ticketNumber <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
         // if the credit card number is empty, null or if luhn algorithm does not validate the credit card
@@ -1289,12 +1289,7 @@ public class EZShop implements EZShopInterface {
         }
 
         // try to reduce funds on credit card for payment, return false on failure
-        try {
-            if (!creditCardCircuit.addDebit(creditCard, saleValue)) {
-                return false;
-            }
-        } catch (IOException e) {
-            // return false if there was an issue reading the credit card file
+        if (!creditCardCircuit.addDebit(creditCard, saleValue)) {
             return false;
         }
 
@@ -1313,7 +1308,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         //if the  number is less than or equal to 0 or if it is null
-        if(returnId == null || returnId.compareTo(0) <= 0)
+        if(returnId == null || returnId <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
         // get transaction
@@ -1344,7 +1339,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         // if the  number is less than or equal to 0 or if it is null
-        if(returnId == null || returnId.compareTo(0) <= 0)
+        if(returnId == null || returnId <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
         //if the credit card number is empty, null or if luhn algorithm does not validate the credit card
@@ -1368,11 +1363,7 @@ public class EZShop implements EZShopInterface {
         double returnValue = Math.abs(returnT.getMoney());
 
         // try to add funds to credit card, return -1 if operation fails
-        try {
-            if (!creditCardCircuit.addCredit(creditCard, returnValue)) {
-                return -1;
-            }
-        } catch (IOException e) {
+        if (!creditCardCircuit.addCredit(creditCard, returnValue)) {
             return -1;
         }
 
