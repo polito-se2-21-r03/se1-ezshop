@@ -1,10 +1,10 @@
 # Integration and API Test Documentation
 
-Authors:
+Authors: Can Karacomak (s287864), Alessandro Loconsolo (s244961), Julian Neubert (s288423), Simone Alberto Peirone (s286886)
 
-Date:
+Date: 26/05/2021
 
-Version:
+Version: 1.0
 
 # Contents
 
@@ -44,6 +44,33 @@ methods are tested at the same time.
 
    <define below a table for each integration step. For each integration step report the group of classes under test, and the names of
      JUnit test cases applied to them> JUnit test classes should be here src/test/java/it/polito/ezshop
+
+## Step 0: Unit tests
+
+| Classes  | JUnit test cases |
+|----------|------------------|
+| it.polito.ezshop.model.adapters.BalanceOperationAdapter | it.polito.ezshop.unitTests.TestBalanceOperationAdapter.* |
+| it.polito.ezshop.model.CreditCard | it.polito.ezshop.unitTests.TestCreditCard.* |
+| it.polito.ezshop.model.CreditCardCircuit | it.polito.ezshop.unitTests.TestCreditCardCircuit.* |
+| it.polito.ezshop.model.Customer | it.polito.ezshop.unitTests.TestCustomer.* |
+| it.polito.ezshop.model.adapters.CustomerAdapter | it.polito.ezshop.unitTests.TestCustomerAdapter.* |
+| it.polito.ezshop.model.LoyaltyCard | it.polito.ezshop.unitTests.TestLoyaltyCard.* |
+| it.polito.ezshop.model.OperationStatus | it.polito.ezshop.unitTests.TestOperationStatus.* |
+| it.polito.ezshop.model.Order | it.polito.ezshop.unitTests.TestOrder.* |
+| it.polito.ezshop.model.adapters.OrderAdapter | it.polito.ezshop.unitTests.TestOrderAdapter.* |
+| it.polito.ezshop.model.Position | it.polito.ezshop.unitTests.TestPosition.* |
+| it.polito.ezshop.model.ProductType | it.polito.ezshop.unitTests.TestProductType.* |
+| it.polito.ezshop.model.adapters.ProductTypeAdapter | it.polito.ezshop.unitTests.TestProductTypeAdapter.* |
+| it.polito.ezshop.model.ReturnTransaction | it.polito.ezshop.unitTests.TestReturnTransaction.* |
+| it.polito.ezshop.model.ReturnTransactionItem | it.polito.ezshop.unitTests.TestReturnTransactionItem.* |
+| it.polito.ezshop.model.SaleTransaction | it.polito.ezshop.unitTests.TestSaleTransaction.* |
+| it.polito.ezshop.model.adapters.SaleTransactionAdapter | it.polito.ezshop.unitTests.TestSaleTransactionAdapter.* |
+| it.polito.ezshop.model.TicketEntry |  it.polito.ezshop.unitTests.TestTicketEntry.* |
+| it.polito.ezshop.model.adapters.TicketEntryAdapter | it.polito.ezshop.unitTests.TestTicketEntryAdapter.* |
+| it.polito.ezshop.model.User | it.polito.ezshop.unitTests.TestUser.* |
+| it.polito.ezshop.model.adapters.UserAdapter | it.polito.ezshop.unitTests.TestUserAdapter.* |
+| it.polito.ezshop.model.Utils |  it.polito.ezshop.unitTests.TestUtilsIsValidBarcode.* |
+| |  it.polito.ezshop.unitTests.TestUtilsIsValidCreditCardNumber.* |
 
 ## Step 1: AccountBook + CustomerList
 
@@ -140,9 +167,9 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 
 | Scenario ID | Functional Requirements covered | JUnit  Test(s) | 
 | ----------- | ------------------------------- | ----------- | 
-| 1.1         | FR3                             | it.polito.ezshop.apiTests.EZShopTestCreateProductType.testCreateProductTypeSuccessfully |             
-| 1.2         | FR3                             | it.polito.ezshop.apiTests.EZShopTestUpdateProduct.testUpdateProductSuccessfully |             
-| 1.3         | FR3                             | it.polito.ezshop.apiTests.EZShopTestUpdateProduct.testUpdateProductSuccessfully |             
+| 1.1         | FR3.1                           | it.polito.ezshop.apiTests.EZShopTestCreateProductType.testCreateProductTypeSuccessfully |             
+| 1.2         | FR3.1                           | it.polito.ezshop.apiTests.EZShopTestUpdateProduct.testUpdateProductSuccessfully |             
+| 1.3         | FR3.1                           | it.polito.ezshop.apiTests.EZShopTestUpdateProduct.testUpdateProductSuccessfully |             
 | 2.1         |                                 |             |             
 | 2.2         |                                 |             |             
 | 3.1         |                                 |             |
@@ -154,47 +181,55 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 | 4.4         |                                 |             |
 | 5.1         |                                 |             |
 | 5.2         |                                 |             |
-| 6.1         | FR6                             | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully |
-| 6.2         | FR6                             | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestApplyDiscountRateToProduct.testApplyDiscountRateSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully |
-| 6.3         | FR6                             | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestApplyDiscountRateToSale.testApplyDiscountRateSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully |
-| 6.4         | FR6                             | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestComputePointsForSale.testComputePointsForSaleSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestModifyPointsOnCard.testAddPointsToCard |
-| 6.5         | FR6                             | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestDeleteSaleTransaction.testDeleteSaleTransactionSuccessfully |
-| 6.6         | FR6                             | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestGetSaleTransaction.testGetSaleTransactionSuccessfully |
-|             |                                 | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
+| 6.1         | FR6.1                           | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
+|             | FR6.2                           | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
+|             | FR6.10                          | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
+|             | FR7.1, FR6.11                   | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
+|             | FR7.2, FR6.11                   | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully |
+| 6.2         | FR6.1                           | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
+|             | FR6.2                           | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
+|             | FR6.5                           | it.polito.ezshop.apiTests.EZShopTestApplyDiscountRateToProduct.testApplyDiscountRateSuccessfully |
+|             | FR6.10                          | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
+|             | FR7.1, FR6.11                   | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
+|             | FR7.2, FR6.11                   | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully |
+| 6.3         | FR6.1                           | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
+|             | FR6.2                           | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
+|             | FR6.4                           | it.polito.ezshop.apiTests.EZShopTestApplyDiscountRateToSale.testApplyDiscountRateSuccessfully |
+|             | FR6.10                          | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
+|             | FR7.2, FR6.11                   | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully |
+| 6.4         | FR6.1                           | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
+|             | FR6.2                           | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
+|             | FR6.10                          | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
+|             | FR6.6                           | it.polito.ezshop.apiTests.EZShopTestComputePointsForSale.testComputePointsForSaleSuccessfully |
+|             | FR7.1, FR6.11                   | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
+|             | FR7.2, FR6.11                   | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully |
+|             | FR5.7                           | it.polito.ezshop.apiTests.EZShopTestModifyPointsOnCard.testAddPointsToCard |
+| 6.5         | FR6.1                           | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
+|             | FR6.2                           | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
+|             | FR6.10                          | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
+|             | FR6.15                          | it.polito.ezshop.apiTests.EZShopTestDeleteSaleTransaction.testDeleteSaleTransactionSuccessfully |
+| 6.6         | FR6.1                           | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
+|             | FR6.2                           | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
+|             | FR6.10                          | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
+|             | FR6.9                           | it.polito.ezshop.apiTests.EZShopTestGetSaleTransaction.testGetSaleTransactionSuccessfully |
+|             | FR7.1                           | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
 | 7.1         |                                 |             |
 | 7.2         |                                 |             |
 | 7.3         |                                 |             |
 | 7.4         |                                 |             |
-| 8.1         |                                 |             |
-| 8.2         |                                 |             |
+| 8.1         | FR6.12                          | it.polito.ezshop.apiTests.EZShopTestStartReturnTransaction.testStartReturnTransactionSuccessfully |
+|             | FR6.13                          | it.polito.ezshop.apiTests.EZShopTestReturnProduct.testReturnProductSuccessfully |
+|             | FR6.14                          | it.polito.ezshop.apiTests.EZShopTestEndReturnTransaction.testEndReturnTransactionSuccessfully1 |
+|             | FR6.14                          | it.polito.ezshop.apiTests.EZShopTestEndReturnTransaction.testEndReturnTransactionSuccessfully2 |
+|             | FR7.3, FR6.15                   | it.polito.ezshop.apiTests.EZShopTestReturnCashPayment.testReturnCashSuccessfully |
+| 8.2         | FR6.12                          | it.polito.ezshop.apiTests.EZShopTestStartReturnTransaction.testStartReturnTransactionSuccessfully |
+|             | FR6.13                          | it.polito.ezshop.apiTests.EZShopTestReturnProduct.testReturnProductSuccessfully |
+|             | FR6.14                          | it.polito.ezshop.apiTests.EZShopTestEndReturnTransaction.testEndReturnTransactionSuccessfully1 |
+|             | FR6.14                          | it.polito.ezshop.apiTests.EZShopTestEndReturnTransaction.testEndReturnTransactionSuccessfully2 |
+|             | FR7.4, FR6.15                   | it.polito.ezshop.apiTests.EZShopTestReturnCreditCardPayment.testReturnSuccessfully |
 | 9.1         |                                 |             |
-| 10.1        |                                 |             |
-| 10.2        |                                 |             |
+| 10.1        | FR7.4                           | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully 
+| 10.2        | FR7.3                           | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
 
 
 # Coverage of Non Functional Requirements

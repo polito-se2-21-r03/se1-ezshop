@@ -119,7 +119,7 @@ public class EZShopTestEndReturnTransaction {
      * Commit a return transaction
      */
     @Test
-    public void testCommitSuccessfully1() throws Exception {
+    public void testEndReturnTransactionSuccessfully1() throws Exception {
         // store state before return transaction
         double initialBalance = shop.computeBalance();
         double initialSaleTransactionValue = Math.abs(getSaleTransaction(sid1).getMoney());
@@ -155,7 +155,7 @@ public class EZShopTestEndReturnTransaction {
      * Commit a return transaction
      */
     @Test
-    public void testCommitSuccessfully2() throws Exception {
+    public void testEndReturnTransactionSuccessfully2() throws Exception {
         // store state before return transaction
         double initialBalance = shop.computeBalance();
         double initialSaleTransactionValue = Math.abs(getSaleTransaction(sid2).getMoney());
