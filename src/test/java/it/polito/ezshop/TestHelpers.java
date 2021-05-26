@@ -195,14 +195,14 @@ public class TestHelpers {
     /**
      * This method tests whether the access rights for a given EZShop API function are managed correctly.
      * If an authentication bug is found, Assert.fail() is called.
+     * Note: this method resets its EZShop instance for each role test and thus only works if the method raises the
+     *        UnauthorizedException before any other exception
      *
      * @param apiMethod    method of the EZShop API
      * @param parameters   parameters that should be passed to the API method
      * @param allowedRoles array of all roles that are allowed to call the API method
      * @throws Throwable throws any Exception that is not an UnauthorizedException
      */
-    // TODO: this method resets its EZShop instance for each role test and thus only works if the method checks user
-    //  access rights before any other action is take due to potentially invalid parameters
     public static void testAccessRights(Method apiMethod, Object[] parameters, Role[] allowedRoles) throws Throwable {
 
         // fail if the method can be invoked without any logged in user
