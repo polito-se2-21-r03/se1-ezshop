@@ -57,7 +57,7 @@ public class EZShopTestGetAllUsers {
     @Test
     public void testAuthorization() throws Throwable {
         Method deleteUser = EZShop.class.getMethod("getAllUsers");
-        testAccessRights(deleteUser, new Object[]{1},
+        testAccessRights(deleteUser, new Object[]{},
                 new Role[]{Role.ADMINISTRATOR});
     }
     /**

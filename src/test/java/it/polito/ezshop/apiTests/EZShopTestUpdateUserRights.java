@@ -62,7 +62,7 @@ public class EZShopTestUpdateUserRights {
     @Test
     public void testAuthorization() throws Throwable {
         Method updateUserRights = EZShop.class.getMethod("updateUserRights", Integer.class, String.class);
-        testAccessRights(updateUserRights, new Object[]{1},
+        testAccessRights(updateUserRights, new Object[]{2},
                 new Role[]{Role.ADMINISTRATOR});
     }
     /**
