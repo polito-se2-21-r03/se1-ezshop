@@ -144,16 +144,7 @@ methods are tested at the same time.
 <If needed, define here additional scenarios for the application. Scenarios should be named
  referring the UC in the OfficialRequirements that they detail>
 
-## Scenario UCx.y
-
-| Scenario |  name |
-| ------------- |:-------------:| 
-|  Precondition     |  |
-|  Post condition     |   |
-| Step#        | Description  |
-|  1     |  ... |  
-|  2     |  ... |
-
+*No additional scenarios added*
 
 
 # Coverage of Scenarios and FR
@@ -170,17 +161,23 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 | 1.1         | FR3.1                           | it.polito.ezshop.apiTests.EZShopTestCreateProductType.testCreateProductTypeSuccessfully |             
 | 1.2         | FR3.1                           | it.polito.ezshop.apiTests.EZShopTestUpdateProduct.testUpdateProductSuccessfully |             
 | 1.3         | FR3.1                           | it.polito.ezshop.apiTests.EZShopTestUpdateProduct.testUpdateProductSuccessfully |             
-| 2.1         |                                 |             |             
-| 2.2         |                                 |             |             
-| 3.1         |                                 |             |
-| 3.2         |                                 |             |
-| 3.3         |                                 |             |
-| 4.1         |                                 |             |
-| 4.2         |                                 |             |
-| 4.3         |                                 |             |
-| 4.4         |                                 |             |
-| 5.1         |                                 |             |
-| 5.2         |                                 |             |
+| 2.1         | FR1.1                           | it.polito.ezshop.apiTests.EZShopTestCreateUser.testCreateUserSuccesfully |
+| 2.2         | FR1.3                           | it.polito.ezshop.apiTests.EZShopTestGetAllUsers.testGetUsersSuccessfully |
+|             | FR1.4                           | it.polito.ezshop.apiTests.EZShopTestGetUser.testUserReturnedSuccessfully |
+|             | FR1.2                           | it.polito.ezshop.apiTests.EZShopTestDeleteUser.testDeleteUserSuccessfully |
+| 2.3         | FR1.3                           | it.polito.ezshop.apiTests.EZShopTestGetAllUsers.testGetUsersSuccessfully |
+|             | FR1.4                           | it.polito.ezshop.apiTests.EZShopTestGetUser.testUserReturnedSuccessfully |
+|             | FR1.1                           | it.polito.ezshop.apiTests.EZShopTestUpdateUserRights.testUpdateUserRightsFinishSuccessfully |
+| 3.1         | FR4.3                           | it.polito.ezshop.apiTests.EZShopTestIssueOrder.testValidIssueOrder |
+| 3.2         | FR4.4                           | it.polito.ezshop.apiTests.EZShopTestPayOrderFor.testValidPayOrderFor |
+| 3.3         | FR4.7                           | it.polito.ezshop.apiTests.EZShopTestRecordOrderArrival.testValidRecordOrderArrival |
+| 4.1         | FR5.1                           | it.polito.ezshop.apiTests.EZShopTestDefineCustomer.testDefineManyCustomersSuccessfully |
+| 4.2         | FR5.5                           | it.polito.ezshop.apiTests.EZShopTestCreateCard.testValidCardNumberReturned |
+|             | FR5.6                           | it.polito.ezshop.apiTests.EZShopTestAttachCardToCustomer.testAttachCardsToCustomers |
+| 4.3         | FR5.1/FR5.6                     | it.polito.ezshop.apiTests.EZShopTestModifyCustomer.testDetachCardFromCustomer |
+| 4.4         | FR5.1                           | it.polito.ezshop.apiTests.EZShopTestModifyCustomer.* |
+| 5.1         | FR1.5                           | **todo** |
+| 5.2         | FR1.5                           | **todo** |
 | 6.1         | FR6.1                           | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
 |             | FR6.2                           | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
 |             | FR6.10                          | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
@@ -213,10 +210,10 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |             | FR6.10                          | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
 |             | FR6.9                           | it.polito.ezshop.apiTests.EZShopTestGetSaleTransaction.testGetSaleTransactionSuccessfully |
 |             | FR7.1                           | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
-| 7.1         |                                 |             |
-| 7.2         |                                 |             |
-| 7.3         |                                 |             |
-| 7.4         |                                 |             |
+| 7.1         | FR7.2                           | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully |
+| 7.2         | FR7.2                           | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testInvalidCreditCardException |
+| 7.3         | FR7.2                           | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testNotEnoughBalance |
+| 7.4         | FR7.1                           | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully            |
 | 8.1         | FR6.12                          | it.polito.ezshop.apiTests.EZShopTestStartReturnTransaction.testStartReturnTransactionSuccessfully |
 |             | FR6.13                          | it.polito.ezshop.apiTests.EZShopTestReturnProduct.testReturnProductSuccessfully |
 |             | FR6.14                          | it.polito.ezshop.apiTests.EZShopTestEndReturnTransaction.testEndReturnTransactionSuccessfully1 |
@@ -227,7 +224,7 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |             | FR6.14                          | it.polito.ezshop.apiTests.EZShopTestEndReturnTransaction.testEndReturnTransactionSuccessfully1 |
 |             | FR6.14                          | it.polito.ezshop.apiTests.EZShopTestEndReturnTransaction.testEndReturnTransactionSuccessfully2 |
 |             | FR7.4, FR6.15                   | it.polito.ezshop.apiTests.EZShopTestReturnCreditCardPayment.testReturnSuccessfully |
-| 9.1         |                                 |             |
+| 9.1         | FR8.3                           | it.polito.ezshop.apiTests.EZShopTestGetCreditsAndDebits.testGetAll |
 | 10.1        | FR7.4                           | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully 
 | 10.2        | FR7.3                           | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
 
