@@ -17,7 +17,6 @@ import static org.junit.Assert.*;
 
 /**
  * Tests on the EZShop.deleteProductType() method.
- * TODO: product has already been attached to orders/transactions. What should be the behaviour of deleteProductType?
  */
 public class EZShopTestDeleteProductType {
 

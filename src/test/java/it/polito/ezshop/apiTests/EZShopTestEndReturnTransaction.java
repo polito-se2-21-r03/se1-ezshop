@@ -250,8 +250,6 @@ public class EZShopTestEndReturnTransaction {
         // verify that the total of the sale transaction was updated correctly
         double expectedNewTotal = initialSaleTransactionValue - expectedReturnValue;
         assertEquals(expectedNewTotal, saleTransaction.computeTotal(), 0.01);
-
-        // TODO: need additional checks?
     }
 
     private BalanceOperation getSaleTransaction(int sid) throws Exception {

@@ -84,7 +84,6 @@ public class EZShopTestAddProductToSale {
 
     /**
      * If the amount is less than 0, the method should throw InvalidQuantityException
-     * TODO: what if the amount is zero?
      */
     @Test()
     public void testInvalidAmount() {

@@ -178,8 +178,6 @@ public class TestSaleTransaction {
         SaleTransaction sale = new SaleTransaction(1, LocalDate.now(), null, 0.0);
 
         sale.addReturnTransaction(new ReturnTransaction(sale.getBalanceId() + 1, sale.getBalanceId(), LocalDate.now()));
-
-        // todo
     }
 
     @Test

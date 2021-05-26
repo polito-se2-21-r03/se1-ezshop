@@ -26,7 +26,6 @@ public class TicketEntryAdapter implements it.polito.ezshop.data.TicketEntry {
     @Override
     public void setBarCode(String barCode) {
         try {
-            // TODO: dangerous operation
             ticketEntry.getProductType().setBarCode(barCode);
         } catch (InvalidProductCodeException e) {
             throw new IllegalArgumentException(e);
