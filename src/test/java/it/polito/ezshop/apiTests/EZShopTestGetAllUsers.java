@@ -25,7 +25,7 @@ public class EZShopTestGetAllUsers {
     private final EZShopInterface shop = new EZShop();
     private static User admin;
     private static final String user1Name = "Pietro";
-    private static final String user2Name = "Andrea";
+    private static final String user2Name = "Leonardo";
     private static final String password1 = "234";
     private static final String password2 = "456";
     private static final String user1Role = "ShopManager";
@@ -87,7 +87,7 @@ public class EZShopTestGetAllUsers {
 
         // verify that correct amount of users have been returned
         List<it.polito.ezshop.data.User> users = shop.getAllUsers();
-        assertEquals(2, users.size());
+        assertEquals(3, users.size());
 
         // get returned users
         it.polito.ezshop.data.User returnedUser1 = users.stream()

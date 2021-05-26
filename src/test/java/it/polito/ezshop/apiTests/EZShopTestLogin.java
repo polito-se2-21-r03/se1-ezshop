@@ -53,7 +53,7 @@ public class EZShopTestLogin {
     public void testInvalidUserPasswordException() {
 
         // verify correct exception is thrown
-        testInvalidValues(InvalidUserPasswordException.class, invalidUserPassword,
+        testInvalidValues(InvalidPasswordException.class, invalidUserPassword,
                 (password) -> shop.login(user1.getUsername(), password));
 
     }

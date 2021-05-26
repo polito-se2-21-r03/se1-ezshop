@@ -25,7 +25,7 @@ public class EZShopTestDeleteUser {
     private final EZShopInterface shop = new EZShop();
     private static User admin;
     private static final String user1Name = "Pietro";
-    private static final String user2Name = "Andrea";
+    private static final String user2Name = "Leonardo";
     private static final String password1 = "234";
     private static final String password2 = "456";
     private static final String user1Role = "ShopManager";
