@@ -99,7 +99,7 @@ public class TestCustomerList {
         String newName3 = "Letizia Bruno";
 
         // Customer 1 //
-        assertTrue(customerList.modifyCustomer(id1, newName1, ""));
+        assertTrue(customerList.modifyCustomer(id1, newName1, null));
         // check that only the name was changed
         assertEquals(newName1, customerList.getCustomer(id1).getCustomerName());
         assertEquals(l1, customerList.getCustomer(id1).getCard().getCode());
@@ -111,11 +111,13 @@ public class TestCustomerList {
         assertEquals(newLoyalty2, customerList.getCustomer(id2).getCard().getCode());
 
         // Customer 3 //
-        assertTrue(customerList.modifyCustomer(id3, newName3, null));
+        assertTrue(customerList.modifyCustomer(id3, newName3, ""));
         // check that both changed
         assertEquals(newName3, customerList.getCustomer(id3).getCustomerName());
         // in particular, check that the card is deleted
         assertNull(customerList.getCustomer(id3).getCard());
+        // verify the card was actually removed from the system
+        assertTrue(customerList.loyaltyCards.stream().noneMatch(x -> x.getCode().equals(l3)));
 
         // Now, if I edit the customer with a name that has been taken it should return me FALSE
         assertFalse(customerList.modifyCustomer(id3, "Luigi Bianchi", ""));
@@ -172,30 +174,28 @@ public class TestCustomerList {
     }
 
     @Test
-    public void testEqualsHashCode() throws Exception {   // UNCOMPLETED
+    public void testEqualsHashCode() throws Exception {
         CustomerList obj = new CustomerList();
 
-        // add a few transactions
-        int obj_id1 = customerList.addCustomer("Alberto Carlos Riva");
-        String obj_l1 = customerList.generateNewLoyaltyCard();
-        int obj_id2 = customerList.addCustomer("Juan Garcia");
-        String obj_l2 = customerList.generateNewLoyaltyCard();
-        customerList.attachCardToCustomer(obj_id1, obj_l1);
-        customerList.attachCardToCustomer(obj_id2, obj_l2);
+        // add a few customers and loyalty cards
+        int obj_id1 = obj.addCustomer("Alberto Carlos Riva");
+        String obj_l1 = obj.generateNewLoyaltyCard();
+        int obj_id2 = obj.addCustomer("Juan Garcia");
+        String obj_l2 = obj.generateNewLoyaltyCard();
+        obj.attachCardToCustomer(obj_id1, obj_l1);
+        obj.attachCardToCustomer(obj_id2, obj_l2);
 
+        // create a CustomerList with the same users and loyalty cards as obj
         CustomerList same = new CustomerList();
+        same.getAllCustomers().addAll(obj.getAllCustomers());
+        same.loyaltyCards.addAll(obj.loyaltyCards);
 
-        // add a few transactions
-        same.attachCardToCustomer(obj_id1, obj_l1);
-        same.attachCardToCustomer(obj_id2, obj_l2);
-
-        AccountBook different = new AccountBook();
-
-        // add a transaction
-        different.addTransaction(new Debit(same.generateNewId(), LocalDate.now(), 20.0, OperationStatus.PAID));
+        // create a different CustomerList
+        CustomerList different = new CustomerList();
+        different.addCustomer("Alberto Carlos Riva");
+        different.addCustomer("Juan Garcia");
 
         assertNotEquals(obj, null);
-        assertNotEquals(obj, "boost coverage");
 
         assertEquals(obj, obj);
 

@@ -193,6 +193,7 @@ public class EZShopTestModifyCustomer {
 
         // verify that customer has no attached card
         assertNull(shop.getCustomer(customer1ID).getCustomerCard());
+        assertFalse(shop.modifyPointsOnCard(card1, 1));
     }
 
     /**
@@ -293,33 +294,4 @@ public class EZShopTestModifyCustomer {
         assertEquals(card2, shop.getCustomer(customer1ID).getCustomerCard());
     }
 
-    /**
-     * Test that changing the customer a card is attached to doesn't change the card's points
-     */
-    @Test
-    public void testCardPointsArePersistent() throws InvalidPasswordException, InvalidUsernameException,
-            InvalidCustomerIdException, InvalidCustomerNameException, UnauthorizedException, InvalidCustomerCardException {
-
-        // login with sufficient rights
-        shop.login(admin.getUsername(), admin.getPassword());
-
-        // attach card to customer
-        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, card1));
-
-        // add points to card
-        int pointsOnCard = 100;
-        assertTrue(shop.modifyPointsOnCard(card1, pointsOnCard));
-
-        // detach card from customer
-        assertTrue(shop.modifyCustomer(customer1ID, customer1Name, ""));
-
-        // attach card to different customer
-        assertTrue(shop.modifyCustomer(customer2ID, customer2Name, card1));
-
-        // verify that points on card still remains the same
-        assertEquals(new Integer(pointsOnCard), shop.getCustomer(customer2ID).getPoints());
-
-        // verify that first customer no longer has points
-        assertEquals(new Integer(0), shop.getCustomer(customer1ID).getPoints());
-    }
 }
