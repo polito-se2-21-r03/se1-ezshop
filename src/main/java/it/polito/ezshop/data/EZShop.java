@@ -8,10 +8,12 @@ import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static it.polito.ezshop.utils.Utils.*;
@@ -73,11 +75,29 @@ public class EZShop implements EZShopInterface {
             this.products.addAll(persistenceLayer.readProducts());
             this.customerList = persistenceLayer.readCustomerList();
             this.accountBook = persistenceLayer.readAccountBook();
+
+            this.accountBook.getSaleTransactions().forEach(sale -> {
+                // iterate over all transaction
+                sale.getTransactionItems().forEach(ti -> {
+                    // set the product type in the ticket entry to the actual product reference
+                    this.products.stream()
+                            .filter(x -> x.getId() == ti.getProductType().getId())
+                            .findFirst().ifPresent(ti::setProductType);
+                });
+            });
+
+            this.accountBook.getReturnTransactions().forEach(_return -> {
+                // iterate over all transaction
+                _return.getTransactionItems().forEach(ti -> {
+                    // set the product type in the item to the actual product reference
+                    this.products.stream()
+                            .filter(x -> x.getId() == ti.getProductType().getId())
+                            .findFirst().ifPresent(ti::setProductType);
+                });
+            });
         } catch (Exception ex) {
             // exceptions are ignored
         }
-
-        this.creditCardCircuit.init();
     }
 
     /**
@@ -122,6 +142,14 @@ public class EZShop implements EZShopInterface {
         }
     }
 
+    /**
+     * Get the internal account book (use for testing purposes only)
+     * @return a reference to the account book
+     */
+    public AccountBook getAccountBook() {
+        return this.accountBook;
+    }
+
     @Override
     public void reset() {
         this.users.clear();
@@ -130,6 +158,9 @@ public class EZShop implements EZShopInterface {
         this.products.clear();
         this.accountBook.reset();
         this.clock = Clock.systemDefaultZone();
+
+        // reset the credit card system
+        this.creditCardCircuit.reset();
 
         writeState();
     }
@@ -261,6 +292,7 @@ public class EZShop implements EZShopInterface {
                 // if one user is found return it, otherwise return null
                 .orElse(null);
 
+        if (currentUser == null) return null;
         return new UserAdapter(currentUser);
     }
 
@@ -344,10 +376,18 @@ public class EZShop implements EZShopInterface {
             return false;
         }
 
+        String oldBarcode = product.getBarCode();
+
         product.setProductDescription(newDescription);
         product.setBarCode(newCode);
         product.setPricePerUnit(newPrice);
         product.setNote(newNote);
+
+        // if the barcode of the product is changed, propagate the change to the orders list
+        if (!oldBarcode.equals(newCode)) {
+            // update the barcode of the product in the orders list
+            this.accountBook.updateBarcodeInOrders(oldBarcode, newCode);
+        }
 
         writeState();
 
@@ -496,6 +536,7 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer issueOrder(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
+
         // check that barcode is valid
         if (!isValidBarcode(productCode)) {
             throw new InvalidProductCodeException("Product code must follow specification");
@@ -538,35 +579,58 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public Integer payOrderFor(String productCode, int quantity, double pricePerUnit) throws InvalidProductCodeException, InvalidQuantityException, InvalidPricePerUnitException, UnauthorizedException {
-        // issue the order
-        int orderId = this.issueOrder(productCode, quantity, pricePerUnit);
 
-        // verify order was issued correctly
-        if (orderId <= 0) {
+        // check that barcode is valid
+        if (!isValidBarcode(productCode)) {
+            throw new InvalidProductCodeException("Product code must follow specification");
+        }
+
+        // check that quantity is positive value
+        if (quantity <= 0) {
+            throw new InvalidQuantityException("Quantity must be positive integer");
+        }
+
+        // check that price is positive value
+        if (pricePerUnit <= 0) {
+            throw new InvalidPricePerUnitException("Price must be positive double");
+        }
+
+        // verify access rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
+        // verify product exists
+        it.polito.ezshop.model.ProductType product = products.stream()
+                .filter(p -> p.getBarCode().equals(productCode))
+                .findAny()
+                .orElse(null);
+        if (product == null) {
             return -1;
         }
 
-        // try to pay order
-        boolean orderPayedSuccessfully;
-        try {
-            orderPayedSuccessfully = this.payOrder(orderId);
-        } catch (InvalidOrderIdException e) {
+        // create Order object
+        int orderID = accountBook.generateNewId();
+        LocalDate date = LocalDate.now(clock);
+        it.polito.ezshop.model.Order order = new it.polito.ezshop.model.Order(orderID, date, productCode, pricePerUnit, quantity);
+
+        // ensure sufficient funds in the account book
+        if (!accountBook.checkAvailability(Math.abs(order.getMoney()))) {
             return -1;
         }
 
-        // rollback issuing of order if funds are insufficient for paying
-        if (!orderPayedSuccessfully) {
-            accountBook.removeTransaction(orderId);
-            return -1;
-        }
+        // set order state to PAID
+        order.setStatus(OperationStatus.PAID);
+
+        // record order in account book and update balance automatically
+        accountBook.addTransaction(order);
 
         writeState();
         // return order ID on success
-        return orderId;
+        return orderID;
     }
 
     @Override
     public boolean payOrder(Integer orderId) throws InvalidOrderIdException, UnauthorizedException {
+
         // verify orderId is valid ID
         if (orderId == null || orderId <= 0) {
             throw new InvalidOrderIdException("Order ID must be positive integer");
@@ -613,9 +677,7 @@ public class EZShop implements EZShopInterface {
 
         // verify that order exists
         it.polito.ezshop.model.BalanceOperation transactionWithId = accountBook.getTransaction(orderId);
-        if (transactionWithId == null || !it.polito.ezshop.model.Order.class.isAssignableFrom(transactionWithId.getClass())) {
-            return false;
-        }
+        if (!(transactionWithId instanceof it.polito.ezshop.model.Order)) return false;
 
         // verify that Order was either paid for or has already been completed
         it.polito.ezshop.model.Order order = (it.polito.ezshop.model.Order) transactionWithId;
@@ -633,6 +695,11 @@ public class EZShop implements EZShopInterface {
         // verify ordered product exists
         if (orderedProduct == null){
             return false;
+        }
+
+        // verify the product is assigned to a location
+        if (orderedProduct.getPosition() == null) {
+            throw new InvalidLocationException();
         }
 
         // update product quantity
@@ -781,22 +848,21 @@ public class EZShop implements EZShopInterface {
         it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
         it.polito.ezshop.model.ProductType.validateProductCode(productCode);
 
-        // verify amount is a positive integer value
+        // verify amount is a non-negative integer value
         TicketEntry.validateAmount(amount);
 
         // retrieve the OPEN sale transaction
-        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null || sale.getStatus() != OperationStatus.OPEN){
-            return false;
-        }
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        if (transaction.getStatus() != OperationStatus.OPEN) return false;
+
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
 
         // retrieve the product and verify the quantity on the shelves is greater than amount
         it.polito.ezshop.model.ProductType p = products.stream()
                 .filter(x -> x.getBarCode().equals(productCode) && x.getQuantity() >= amount)
                 .findFirst().orElse(null);
-        if (p == null) {
-            return false;
-        }
+        if (p == null) return false;
 
         try {
             // update the quantity on the shelves
@@ -820,20 +886,19 @@ public class EZShop implements EZShopInterface {
         it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
         it.polito.ezshop.model.ProductType.validateProductCode(productCode);
 
-        // verify amount is a positive integer value
+        // verify amount is a non-negative integer value
         TicketEntry.validateAmount(amount);
 
-        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null || !(sale.getStatus() == OperationStatus.OPEN)) {
-            return false;
-        }
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        if (transaction.getStatus() != OperationStatus.OPEN) return false;
+
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
 
         it.polito.ezshop.model.ProductType product = products.stream()
                 .filter(x -> x.getBarCode().equals(productCode))
                 .findFirst().orElse(null);
-        if (product == null) {
-            return false;
-        }
+        if (product == null) return false;
 
         try {
             if (sale.removeSaleTransactionItem(product, amount)) {
@@ -859,10 +924,11 @@ public class EZShop implements EZShopInterface {
         // validate the discount rate
         TicketEntry.validateDiscount(discountRate);
 
-        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null || !(sale.getStatus() == OperationStatus.OPEN)) {
-            return false;
-        }
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        if (transaction.getStatus() != OperationStatus.OPEN) return false;
+
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
 
         boolean result = sale.applyDiscountToProduct(productCode, discountRate);
 
@@ -879,18 +945,14 @@ public class EZShop implements EZShopInterface {
         // validate the discount rate
         it.polito.ezshop.model.SaleTransaction.validateDiscount(discountRate);
 
-        it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (t == null) {
-            return false;
-        }
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        if (transaction.getStatus() == OperationStatus.PAID || transaction.getStatus() == OperationStatus.COMPLETED) return false;
 
-        // todo: check this condition
-        if (t.getStatus() == OperationStatus.PAID || t.getStatus() == OperationStatus.COMPLETED) {
-            return false;
-        }
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
 
         try {
-            t.setDiscountRate(discountRate);
+            sale.setDiscountRate(discountRate);
             writeState();
             return true;
         } catch (IllegalStateException ex) {
@@ -902,15 +964,12 @@ public class EZShop implements EZShopInterface {
     public int computePointsForSale(Integer transactionId) throws InvalidTransactionIdException, UnauthorizedException {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        if (transactionId == null || transactionId <= 0){
-            throw new InvalidTransactionIdException("Invalid transaction ID");
-        }
-        it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (t == null){
-            return -1;
-        }
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
 
-        return t.computePoints();
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return -1;
+
+        return ((it.polito.ezshop.model.SaleTransaction) transaction).computePoints();
     }
 
     @Override
@@ -918,12 +977,10 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
         it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
 
-        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null || sale.getStatus() != OperationStatus.OPEN){
-            return false;
-        }
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        if (transaction.getStatus() != OperationStatus.OPEN) return false;
 
-        // sale.setMoney(sale.computeTotal());
         accountBook.setTransactionStatus(transactionId, OperationStatus.CLOSED);
 
         writeState();
@@ -935,9 +992,22 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
         it.polito.ezshop.model.SaleTransaction.validateId(saleNumber);
 
-        it.polito.ezshop.model.SaleTransaction t = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(saleNumber);
-        if (t == null || t.getStatus().affectsBalance()){
-            return false;
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(saleNumber);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        if (transaction.getStatus().affectsBalance()) return false;
+
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
+        // restore product quantities
+        for (TicketEntry entry : sale.getTransactionItems()) {
+            products.stream()
+                    .filter(p -> p.getBarCode().equals(entry.getProductType().getBarCode()))
+                    .findAny()
+                    .ifPresent(p -> {
+                        try {
+                            p.setQuantity(p.getQuantity() + entry.getAmount());
+                        } catch (InvalidQuantityException ignored) {
+                        }
+                    });
         }
 
         accountBook.removeTransaction(saleNumber);
@@ -950,40 +1020,34 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
         it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
 
-        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(transactionId);
-        if (sale == null || sale.getStatus() == OperationStatus.OPEN){
-            return null;
-        }
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return null;
+
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
+        if (sale.getStatus() == OperationStatus.OPEN) return null;
 
         return new SaleTransactionAdapter(sale);
     }
 
     @Override
     public Integer startReturnTransaction(Integer saleNumber) throws InvalidTransactionIdException, UnauthorizedException {
-
         // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         // check that sale number is valid ID
-        if (saleNumber == null || saleNumber <= 0) {
-            throw new InvalidTransactionIdException("Invalid Transaction ID");
-        }
+        it.polito.ezshop.model.SaleTransaction.validateId(saleNumber);
 
         // get transaction with ID from account book
         it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(saleNumber);
 
-        // return -1 if transaction does not exist or is not sale transaction
-        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) {
-            return -1;
-        }
+        // return -1 if transaction does not exist or if it is not a sale transaction
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return -1;
 
         // cast to type sale transaction
         it.polito.ezshop.model.SaleTransaction saleTransaction = (it.polito.ezshop.model.SaleTransaction) transaction;
 
         // return -1 if sale transaction has not been paid yet
-        if (!saleTransaction.getStatus().affectsBalance()) {
-            return -1;
-        }
+        if (!saleTransaction.getStatus().affectsBalance()) return -1;
 
         // initialize new return transaction
         int returnId = accountBook.generateNewId();
@@ -1002,31 +1066,30 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean returnProduct(Integer returnId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
-
         // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
-        if(returnId == null || returnId <= 0) {
+        if (returnId == null || returnId <= 0) {
             throw new InvalidTransactionIdException("Invalid Return ID");
         }
         if (!isValidBarcode(productCode)) {
             throw new InvalidProductCodeException("Invalid Bar Code");
         }
-        if (amount <= 0){
+        if (amount <= 0) {
             throw new InvalidQuantityException("Invalid Quantity");
         }
 
-        ReturnTransaction rt = (ReturnTransaction) accountBook.getTransaction(returnId);
-        if(rt == null){
-            return false;
-        }
-        if(!(rt.getStatus() == OperationStatus.OPEN)){
-            return false;
-        }
-        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) accountBook.getTransaction(rt.getSaleTransactionId());
-        if(sale == null){
-            return false;
-        }
+        it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getTransaction(returnId);
+        if (!(returnTransaction instanceof ReturnTransaction)) return false;
+        if (returnTransaction.getStatus() != OperationStatus.OPEN) return false;
+
+        ReturnTransaction _return = (ReturnTransaction) returnTransaction;
+
+        it.polito.ezshop.model.BalanceOperation saleTransaction = accountBook.getTransaction(_return.getSaleTransactionId());
+        if (!(saleTransaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) saleTransaction;
+
         it.polito.ezshop.model.ProductType product = products.stream()
                 // filter products with the given BarCode
                 .filter(x -> x.getBarCode().equals(productCode))
@@ -1034,23 +1097,24 @@ public class EZShop implements EZShopInterface {
                 .findFirst()
                 // if a matching product is not found, return null
                 .orElse(null);
-        if (product == null){
-            return false;
-        }
-        Optional<it.polito.ezshop.model.TicketEntry> entry = sale.getTransactionItems()
-                .stream()
+        if (product == null) return false;
+
+        int amountAlreadyReturned = _return.getTransactionItems().stream()
+                .filter(item -> item.getBarCode().equals(productCode))
+                .mapToInt(ReturnTransactionItem::getAmount).sum();
+
+        TicketEntry ticketEntry = sale.getTransactionItems().stream()
                 .filter(x -> x.getProductType().getBarCode().equals(productCode))
-                .findFirst();
-        if (!entry.isPresent()) {
-            return false;
-        }
+                .findFirst().orElse(null);
 
-        if(amount > entry.get().getAmount()){
-            return false;
-        }
+        // product is not available in the transaction
+        if (ticketEntry == null || ticketEntry.getAmount() == 0) return false;
 
-        double value = entry.get().getPricePerUnit() * (1-entry.get().getDiscountRate()) * (1-sale.getDiscountRate());
-        rt.addReturnTransactionItem(product, amount, value);
+        // verify the total amount returned is below the amount in the sale transaction
+        if ((amount + amountAlreadyReturned) > ticketEntry.getAmount()) return false;
+        
+        double value = ticketEntry.getPricePerUnit() * (1 - ticketEntry.getDiscountRate()) * (1 - sale.getDiscountRate());
+        _return.addReturnTransactionItem(product, amount, value);
 
         writeState();
         return true;
@@ -1058,7 +1122,6 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean endReturnTransaction(Integer returnId, boolean commit) throws InvalidTransactionIdException, UnauthorizedException {
-
         // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
@@ -1068,28 +1131,21 @@ public class EZShop implements EZShopInterface {
         }
 
         // get return transaction
-        it.polito.ezshop.model.BalanceOperation returnT = accountBook.getTransaction(returnId);
+        it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getTransaction(returnId);
 
         // return false if return transaction doesn't exist
-        if (!(returnT instanceof ReturnTransaction)) {
-            return false;
-        }
+        if (!(returnTransaction instanceof ReturnTransaction)) return false;
+        // return false if return transaction is not in an OPEN state
+        if (returnTransaction.getStatus() != OperationStatus.OPEN) return false;
 
         // cast return transaction
-        ReturnTransaction returnTransaction = (ReturnTransaction) returnT;
-
-        // return false if return transaction is not in an OPEN state
-        if (returnTransaction.getStatus() != OperationStatus.OPEN) {
-            return false;
-        }
+        ReturnTransaction _return = (ReturnTransaction) returnTransaction;
 
         // get sale transaction
-        it.polito.ezshop.model.BalanceOperation saleT = accountBook.getTransaction(returnTransaction.getSaleTransactionId());
+        it.polito.ezshop.model.BalanceOperation saleT = accountBook.getTransaction(_return.getSaleTransactionId());
+        if (!(saleT instanceof it.polito.ezshop.model.SaleTransaction)) return false;
 
-        // cast sale transaction
-        if (!(saleT instanceof it.polito.ezshop.model.SaleTransaction)) {
-            return false;
-        }
+        // cast the sale transaction
         it.polito.ezshop.model.SaleTransaction saleTransaction = (it.polito.ezshop.model.SaleTransaction) saleT;
 
         // rollback
@@ -1106,12 +1162,25 @@ public class EZShop implements EZShopInterface {
             return true;
         }
 
+        // before committing verify the quantities of the returned products are valid
+        // the following condition may become false if multiple return transactions are
+        // happening at the same time: the total quantity returned for each product
+        // may exceed the quantity in the sale transaction
+        boolean valid = _return.getTransactionItems().stream().allMatch(rti -> {
+            int qty = saleTransaction.getTransactionItems().stream()
+                    .filter(te -> te.getProductType().getBarCode().equals(rti.getBarCode()))
+                    .map(TicketEntry::getAmount).findAny().orElse(-1);
+
+            return rti.getAmount() <= qty;
+        });
+        if (!valid) return false;
+
         // commit
         // for each item of the sale transaction
         for (TicketEntry saleTransactionItem:saleTransaction.getTransactionItems()) {
 
             // get the corresponding return transaction item
-            ReturnTransactionItem returnTransactionItem = returnTransaction.getTransactionItems().stream()
+            ReturnTransactionItem returnTransactionItem = _return.getTransactionItems().stream()
                     .filter(rti -> rti.getBarCode().equals(saleTransactionItem.getProductType().getBarCode()))
                     .findAny()
                     .orElse(null);
@@ -1136,7 +1205,6 @@ public class EZShop implements EZShopInterface {
                     }
                 }
 
-
                 // reduce the amount in the sale transaction
                 try {
                     saleTransactionItem.setAmount(saleTransactionItem.getAmount() - returnTransactionItem.getAmount());
@@ -1157,91 +1225,33 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean deleteReturnTransaction(Integer returnId) throws InvalidTransactionIdException, UnauthorizedException {
-
         // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         // verify returnId
-        if(returnId == null || returnId <= 0) {
+        if (returnId == null || returnId <= 0) {
             throw new InvalidTransactionIdException("Invalid Return ID");
         }
 
-        // get return transaction
-        it.polito.ezshop.model.BalanceOperation returnT = accountBook.getTransaction(returnId);
-
-        // return false if return transaction doesn't exist
-        if (!(returnT instanceof ReturnTransaction)) {
-            return false;
-        }
-
-        // cast return transaction
-        ReturnTransaction returnTransaction = (ReturnTransaction) returnT;
+        it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getTransaction(returnId);
+        if (!(returnTransaction instanceof ReturnTransaction)) return false;
 
         // return false if the return transaction hasn't been paid yet
-        if (!returnTransaction.getStatus().affectsBalance()) {
-            return false;
-        }
+        if (returnTransaction.getStatus().affectsBalance()) return false;
 
-        // get sale transaction
-        it.polito.ezshop.model.BalanceOperation saleT = accountBook.getTransaction(returnTransaction.getSaleTransactionId());
+        this.accountBook.removeTransaction(returnId);
 
-        // cast sale transaction
-        if (!(saleT instanceof it.polito.ezshop.model.SaleTransaction)) {
-            return false;
-        }
-        it.polito.ezshop.model.SaleTransaction saleTransaction = (it.polito.ezshop.model.SaleTransaction) saleT;
-
-        // for each item of the sale transaction
-        for (TicketEntry saleTransactionItem:saleTransaction.getTransactionItems()) {
-
-            // get the corresponding return transaction item
-            ReturnTransactionItem returnTransactionItem = returnTransaction.getTransactionItems().stream()
-                    .filter(rti -> rti.getBarCode().equals(saleTransactionItem.getProductType().getBarCode()))
-                    .findAny()
-                    .orElse(null);
-
-            // if some items of this product were returned we need to decrease their amount in the shop and increase their
-            //  amount in the sale transaction
-            if (returnTransactionItem != null) {
-
-                // decrease the amount in the shop
-                // get product
-                it.polito.ezshop.model.ProductType product = products.stream()
-                        .filter(p -> p.getBarCode().equals(returnTransactionItem.getBarCode()))
-                        .findAny()
-                        .orElse(null);
-                // decrease available amount if product still exists
-                if (product != null) {
-                    try {
-                        product.setQuantity(product.getQuantity() - returnTransactionItem.getAmount());
-                    } catch (InvalidQuantityException e) {
-                        // this should never happen, items can only be added back to the sale if they exist in the shop
-                        throw new Error("Unexpected error encountered when trying to delete return transaction.", e);
-                    }
-                }
-
-                // increase the amount in the sale transaction
-                try {
-                    saleTransactionItem.setAmount(saleTransactionItem.getAmount() + returnTransactionItem.getAmount());
-                } catch (InvalidQuantityException e) {
-                    // this should never happen, you can always increase the amount of products in a sale
-                    throw new Error("Unexpected error encountered when trying to delete return transaction.", e);
-                }
-            }
-
-        }
-
-        return false;
+        writeState();
+        return true;
     }
 
     @Override
     public double receiveCashPayment(Integer ticketNumber, double cash) throws InvalidTransactionIdException, InvalidPaymentException, UnauthorizedException {
-
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         //if the  number is less than or equal to 0 or if it is null
-        if(ticketNumber == null || ticketNumber.compareTo(0) <= 0)
+        if(ticketNumber == null || ticketNumber <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
         //if the cash is less than or equal to 0
@@ -1278,12 +1288,11 @@ public class EZShop implements EZShopInterface {
 
     @Override
     public boolean receiveCreditCardPayment(Integer ticketNumber, String creditCard) throws InvalidTransactionIdException, InvalidCreditCardException, UnauthorizedException {
-
         // It can be invoked only after a user with role "Administrator", "ShopManager" or "Cashier" is logged in.
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         // if the number is less than or equal to 0 or if it is null
-        if(ticketNumber == null || ticketNumber.compareTo(0) <= 0)
+        if(ticketNumber == null || ticketNumber <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
         // if the credit card number is empty, null or if luhn algorithm does not validate the credit card
@@ -1312,12 +1321,7 @@ public class EZShop implements EZShopInterface {
         }
 
         // try to reduce funds on credit card for payment, return false on failure
-        try {
-            if (!creditCardCircuit.addDebit(creditCard, saleValue)) {
-                return false;
-            }
-        } catch (IOException e) {
-            // return false if there was an issue reading the credit card file
+        if (!creditCardCircuit.addDebit(creditCard, saleValue)) {
             return false;
         }
 
@@ -1336,7 +1340,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         //if the  number is less than or equal to 0 or if it is null
-        if(returnId == null || returnId.compareTo(0) <= 0)
+        if(returnId == null || returnId <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
         // get transaction
@@ -1367,7 +1371,7 @@ public class EZShop implements EZShopInterface {
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
         // if the  number is less than or equal to 0 or if it is null
-        if(returnId == null || returnId.compareTo(0) <= 0)
+        if(returnId == null || returnId <= 0)
             throw new InvalidTransactionIdException("Invalid ticket number.");
 
         //if the credit card number is empty, null or if luhn algorithm does not validate the credit card
@@ -1391,11 +1395,7 @@ public class EZShop implements EZShopInterface {
         double returnValue = Math.abs(returnT.getMoney());
 
         // try to add funds to credit card, return -1 if operation fails
-        try {
-            if (!creditCardCircuit.addCredit(creditCard, returnValue)) {
-                return -1;
-            }
-        } catch (IOException e) {
+        if (!creditCardCircuit.addCredit(creditCard, returnValue)) {
             return -1;
         }
 

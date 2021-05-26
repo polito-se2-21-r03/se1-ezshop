@@ -5,15 +5,16 @@ import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.data.ProductType;
 import it.polito.ezshop.exceptions.*;
+import it.polito.ezshop.model.Order;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.time.LocalDate;
 
-import static it.polito.ezshop.TestHelpers.invalidPricesPerUnit;
-import static it.polito.ezshop.TestHelpers.testAccessRights;
+import static it.polito.ezshop.TestHelpers.*;
 import static org.junit.Assert.*;
 
 /**
@@ -171,7 +172,7 @@ public class EZShopTestUpdateProduct {
      * Test valid updates
      */
     @Test()
-    public void testValidUpdates() throws Exception {
+    public void testUpdateProductSuccessfully() throws Exception {
         ProductType updatedProduct;
 
         // update the properties of the product, except the barcode
@@ -238,6 +239,23 @@ public class EZShopTestUpdateProduct {
                 PRODUCT_PRICE_NEW,
                 PRODUCT_NOTE_NEW
         ));
+    }
+
+    /**
+     * Test that the update of a barcode is correctly propagated to the orders list
+     */
+    @Test()
+    public void testUpdateBarcodePropagationToOrders() throws Exception {
+        int orderId = 42;
+
+        // insert an order for product 1 (bypassing the api)
+        ((EZShop) shop).getAccountBook().addTransaction(new Order(orderId, LocalDate.now(), product1.getBarCode(), 1.0, 1));
+
+        // update product 1 with a new barcode
+        assertTrue(shop.updateProduct(productId, PRODUCT_DESCRIPTION_NEW, PRODUCT_CODE_NEW, PRODUCT_PRICE_NEW, PRODUCT_NOTE_NEW));
+
+        // verify that the order for product 1 is updated with the new barcode
+        assertEquals(PRODUCT_CODE_NEW, ((Order) ((EZShop) shop).getAccountBook().getTransaction(orderId)).getProductCode());
     }
 
 }

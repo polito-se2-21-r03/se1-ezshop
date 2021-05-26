@@ -157,7 +157,21 @@ public class JsonInterface {
 
         Type type = new TypeToken<CustomerList>() {
         }.getType();
-        return gson.fromJson(json, type);
+
+        CustomerList cl = gson.fromJson(json, type);
+
+        if (cl != null) {
+            // iterate over all customers
+            cl.getAllCustomers().forEach(customer -> {
+                if (customer.getCard() != null) {
+                    cl.loyaltyCards.stream()
+                            .filter(x -> x.equals(customer.getCard()))
+                            .findFirst().ifPresent(customer::setCard);
+                }
+            });
+        }
+
+        return cl;
     }
 
     /**

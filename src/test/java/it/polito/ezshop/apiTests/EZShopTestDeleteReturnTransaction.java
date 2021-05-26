@@ -1,6 +1,8 @@
 package it.polito.ezshop.apiTests;
 
+import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.Role;
 import org.junit.Before;
@@ -8,36 +10,46 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
-import static it.polito.ezshop.TestHelpers.*;
+import static it.polito.ezshop.TestHelpers.product1;
+import static it.polito.ezshop.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
 
 /**
  * Tests on the EZShop.deleteReturnTransaction(Integer) method.
  */
-// TODO: what is the desired behaviour if deleteReturnTransaction is called before endReturnTransaction?
-public class EZShopTestDeleteReturnTransaction extends EZShopTestBase {
+public class EZShopTestDeleteReturnTransaction {
 
     public static final Integer PRODUCT_RETURN_AMOUNT_1 = 1;
     private static final Integer PRODUCT_TRANSACTION_AMOUNT_1 = 3;
-    private Integer rid;
+
+    // interface of EZShop
+    private final EZShopInterface shop = new EZShop();
+
+    private Integer sid, rid;
 
     @Before
     public void beforeEach() throws Exception {
-        super.reset();
+        // reset the state of EZShop
+        shop.reset();
+        // create a new user
+        shop.createUser(TestHelpers.admin.getUsername(), TestHelpers.admin.getPassword(),
+                TestHelpers.admin.getRole().getValue());
+        // and log in with that user
+        shop.login(TestHelpers.admin.getUsername(), TestHelpers.admin.getPassword());
 
         // add product1 to the shop
-        addProducts(product1);
+        TestHelpers.addProductToShop(shop, TestHelpers.product1);
 
         // create a new transaction and add product1 and product2 to it
-        Integer tid = shop.startSaleTransaction();
-        shop.addProductToSale(tid, product1.getBarCode(), PRODUCT_TRANSACTION_AMOUNT_1);
-        shop.endSaleTransaction(tid);
+        sid = shop.startSaleTransaction();
+        shop.addProductToSale(sid, product1.getBarCode(), PRODUCT_TRANSACTION_AMOUNT_1);
+        shop.endSaleTransaction(sid);
 
         // pay the transaction
-        shop.receiveCashPayment(tid, product1.getPricePerUnit() * PRODUCT_TRANSACTION_AMOUNT_1);
+        shop.receiveCashPayment(sid, product1.getPricePerUnit() * PRODUCT_TRANSACTION_AMOUNT_1);
 
         // create a return transaction
-        rid = shop.startReturnTransaction(tid);
+        rid = shop.startReturnTransaction(sid);
         shop.returnProduct(rid, product1.getBarCode(), PRODUCT_RETURN_AMOUNT_1);
         shop.endReturnTransaction(rid, true);
     }
@@ -58,8 +70,10 @@ public class EZShopTestDeleteReturnTransaction extends EZShopTestBase {
      */
     @Test()
     public void testInvalidId() {
-        testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs,
-                shop::deleteReturnTransaction);
+        // test invalid values for the transaction id parameter
+        for (Integer value : TestHelpers.invalidTransactionIDs) {
+            assertThrows(InvalidTransactionIdException.class, () -> shop.deleteReturnTransaction(value));
+        }
     }
 
     /**
@@ -67,7 +81,17 @@ public class EZShopTestDeleteReturnTransaction extends EZShopTestBase {
      */
     @Test()
     public void testNonExistingReturnTransaction() throws Exception {
+        assertFalse(shop.deleteReturnTransaction(sid));
         assertFalse(shop.deleteReturnTransaction(rid + 1));
+    }
+
+    /**
+     * Delete a non paid return transaction successfully
+     */
+    @Test
+    public void testDeleteNonPaidReturnTransactionSuccessfully() throws Exception {
+        assertTrue(shop.deleteReturnTransaction(rid));
+        assertNull(((EZShop) shop).getAccountBook().getTransaction(rid));
     }
 
     /**
@@ -77,6 +101,7 @@ public class EZShopTestDeleteReturnTransaction extends EZShopTestBase {
     public void testDeletePaidReturnTransactionSuccessfully() throws Exception {
         shop.returnCashPayment(rid);
         assertFalse(shop.deleteReturnTransaction(rid));
+        assertNotNull(((EZShop) shop).getAccountBook().getTransaction(rid));
     }
 
 }

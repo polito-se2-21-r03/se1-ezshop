@@ -191,6 +191,19 @@ public class AccountBook {
     }
 
     /**
+     * Update the barcode of a product in the order list.
+     * @param oldBarcode old barcode to replace
+     * @param newBarcode new barcode
+     */
+    public void updateBarcodeInOrders (String oldBarcode, String newBarcode) {
+        if (oldBarcode != null && newBarcode != null) {
+            this.getOrders().stream()
+                    .filter(o -> o.getProductCode().equals(oldBarcode))
+                    .forEach(o -> o.setProductCode(newBarcode));
+        }
+    }
+
+    /**
      * Reset the account book to its initial state (no transactions, zero balance)
      */
     public void reset() {

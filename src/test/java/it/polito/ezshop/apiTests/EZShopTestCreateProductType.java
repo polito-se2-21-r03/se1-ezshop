@@ -116,7 +116,7 @@ public class EZShopTestCreateProductType {
      * Nominal case (authorized user, valid parameters)
      */
     @Test()
-    public void testValid() throws UnauthorizedException,
+    public void testCreateProductTypeSuccessfully() throws UnauthorizedException,
             InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
         Integer id = shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE);
         assertNotNull(id);

@@ -121,6 +121,12 @@ public class TestJsonInterface {
         readData = ji.readCustomerList();
         assertNotNull(readData);
         assertEquals(writeData, readData);
+
+        // the card associated to customer 1 and the card stored in the list
+        // should be the exact same object
+        LoyaltyCard card1 = readData.loyaltyCards.stream()
+                .filter(card -> card.getCode().equals(cCard1)).findFirst().orElse(null);
+        assertSame(readData.getCustomer(cID1).getCard(), card1);
     }
 
     /**

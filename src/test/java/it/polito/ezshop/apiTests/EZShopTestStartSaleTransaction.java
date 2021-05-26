@@ -1,8 +1,9 @@
 package it.polito.ezshop.apiTests;
 
 import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.exceptions.UnauthorizedException;
-import it.polito.ezshop.model.Role;
+import it.polito.ezshop.model.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,11 +15,23 @@ import static org.junit.Assert.*;
 /**
  * Tests on the EZShop.startSaleTransaction() method.
  */
-public class EZShopTestStartSaleTransaction extends EZShopTestBase {
+public class EZShopTestStartSaleTransaction {
+
+    private final EZShopInterface shop = new EZShop();
+    private final User admin;
+
+    public EZShopTestStartSaleTransaction() throws Exception {
+        admin = new User(1, "Admin", "123", Role.ADMINISTRATOR);
+    }
 
     @Before
     public void beforeEach() throws Exception {
-        super.reset();
+        // reset the state of EZShop
+        shop.reset();
+        // create a new user
+        shop.createUser(admin.getUsername(), admin.getPassword(), admin.getRole().getValue());
+        // and log in with that user
+        shop.login(admin.getUsername(), admin.getPassword());
     }
 
     /**
@@ -37,10 +50,22 @@ public class EZShopTestStartSaleTransaction extends EZShopTestBase {
      */
     @Test
     public void testStartSaleTransactionSuccessfully() throws UnauthorizedException {
+        int transactionsCount = shop.getCreditsAndDebits(null, null).size();
+        double initialBalance = shop.computeBalance();
+
         // start a new sale transaction
         Integer id1 = shop.startSaleTransaction();
         assertNotNull(id1);
         assertTrue(id1 > 0);
+
+        // verify the new balance operation
+        BalanceOperation op = ((EZShop) shop).getAccountBook().getTransaction(id1);
+        assertNotNull(op);
+        assertEquals(OperationStatus.OPEN, op.getStatus());
+        assertEquals(0.0, op.getMoney(), 0.01);
+        assertTrue(op instanceof SaleTransaction);
+        assertEquals(0, ((SaleTransaction) op).getTransactionItems().size());
+        assertEquals(0.0, ((SaleTransaction) op).computeTotal(), 0.01);
 
         // start a new sale transaction
         Integer id2 = shop.startSaleTransaction();
@@ -49,6 +74,11 @@ public class EZShopTestStartSaleTransaction extends EZShopTestBase {
 
         // verify if the two IDs are different
         assertNotEquals(id1, id2);
+
+        // verify the list of transactions didn't change
+        assertEquals(transactionsCount, shop.getCreditsAndDebits(null, null).size());
+        // verify the balance of the shop didn't change
+        assertEquals(initialBalance, shop.computeBalance(), 0.01);
     }
 
 }

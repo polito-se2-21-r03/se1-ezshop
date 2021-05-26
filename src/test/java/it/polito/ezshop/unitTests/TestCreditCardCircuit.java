@@ -37,7 +37,6 @@ public class TestCreditCardCircuit {
     @Test
     public void testLoad () {
         TextualCreditCardCircuit circuit = new TextualCreditCardCircuit(path);
-        circuit.init();
 
         assertEquals(cards, circuit.getCreditCards());
     }
@@ -45,7 +44,6 @@ public class TestCreditCardCircuit {
     @Test
     public void testCheckAvailability () {
         TextualCreditCardCircuit circuit = new TextualCreditCardCircuit(path);
-        circuit.init();
 
         // negative amount -> return false
         assertFalse(circuit.checkAvailability("4485370086510891", -1));
@@ -66,7 +64,6 @@ public class TestCreditCardCircuit {
     @Test
     public void testAddCredit () {
         TextualCreditCardCircuit circuit = new TextualCreditCardCircuit(path);
-        circuit.init();
 
         // add negative amount to "4485370086510891" -> return false
         assertFalse(circuit.addCredit("4485370086510891", -1));
@@ -84,7 +81,6 @@ public class TestCreditCardCircuit {
     @Test
     public void testAddDebit () {
         TextualCreditCardCircuit circuit = new TextualCreditCardCircuit(path);
-        circuit.init();
 
         // remove negative amount to "4485370086510891" -> return false
         assertFalse(circuit.addDebit("4485370086510891", -0.01));
@@ -106,10 +102,28 @@ public class TestCreditCardCircuit {
     @Test
     public void testValidateCode () {
         TextualCreditCardCircuit circuit = new TextualCreditCardCircuit(path);
-        circuit.init();
 
         assertTrue(circuit.validateCode("4716258050958645"));
         assertFalse(circuit.validateCode("4716258050958641"));
+    }
+
+    @Test
+    public void testReset () {
+        TextualCreditCardCircuit circuit = new TextualCreditCardCircuit(path);
+
+        circuit.addDebit("4485370086510891", 10.0);
+        circuit.addCredit("5100293991053009", 10.0);
+        circuit.addCredit("4716258050958645", 2.0);
+
+        assertEquals(140.0, circuit.getBalance("4485370086510891"), 0.01);
+        assertEquals(20.0, circuit.getBalance("5100293991053009"), 0.01);
+        assertEquals(2.0, circuit.getBalance("4716258050958645"), 0.01);
+
+        circuit.reset();
+
+        assertEquals(150.0, circuit.getBalance("4485370086510891"), 0.01);
+        assertEquals(10.0, circuit.getBalance("5100293991053009"), 0.01);
+        assertEquals(0.0, circuit.getBalance("4716258050958645"), 0.01);
     }
 
 }

@@ -3,7 +3,7 @@ package it.polito.ezshop.credit_card_circuit;
 public class VisaCreditCardCircuitAdapter implements CreditCardCircuit{
 
     @Override
-    public void init() {
+    public void reset() {
 
     }
 

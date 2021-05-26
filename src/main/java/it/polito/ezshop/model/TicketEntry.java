@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class TicketEntry {
 
-    private final ProductType productType;
+    private ProductType productType;
     private double pricePerUnit;
     private int amount;
     private double discountRate;
@@ -65,6 +65,10 @@ public class TicketEntry {
 
     public ProductType getProductType() {
         return productType;
+    }
+
+    public void setProductType(ProductType productType) {
+        this.productType = productType;
     }
 
     public int getAmount() {

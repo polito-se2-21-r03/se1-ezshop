@@ -1,6 +1,8 @@
 package it.polito.ezshop.apiTests;
 
+import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.data.SaleTransaction;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.Role;
@@ -15,19 +17,27 @@ import static org.junit.Assert.*;
 /**
  * Tests on the EZShop.getSaleTransaction(Integer) method.
  */
-public class EZShopTestGetSaleTransaction extends EZShopTestBase {
+public class EZShopTestGetSaleTransaction {
+
+    private final EZShopInterface shop = new EZShop();
 
     private Integer tid;
 
     @Before
     public void beforeEach() throws Exception {
-        super.reset();
+        // reset the state of EZShop
+        shop.reset();
+        // create a new user
+        shop.createUser(TestHelpers.admin.getUsername(), TestHelpers.admin.getPassword(),
+                TestHelpers.admin.getRole().getValue());
+        // and log in with that user
+        shop.login(TestHelpers.admin.getUsername(), TestHelpers.admin.getPassword());
 
-        // add a product1 to the shop
-        addProducts(product1);
+        // add product1 to the shop
+        TestHelpers.addProductToShop(shop, TestHelpers.product1);
 
-        // create a new transaction
         tid = shop.startSaleTransaction();
+        // add product1 to the transaction
         shop.addProductToSale(tid, product1.getBarCode(), 1);
     }
 
@@ -47,7 +57,10 @@ public class EZShopTestGetSaleTransaction extends EZShopTestBase {
      */
     @Test()
     public void testInvalidId() {
-        testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs, shop::getSaleTransaction);
+        // test invalid values for the transaction id parameter
+        for (Integer value : TestHelpers.invalidTransactionIDs) {
+            assertThrows(InvalidTransactionIdException.class, () -> shop.getSaleTransaction(value));
+        }
     }
 
     /**
