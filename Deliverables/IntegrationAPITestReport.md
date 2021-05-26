@@ -21,23 +21,23 @@ Version: 1.0
 
 
 
-# Dependency graph 
+# Dependency graph
 
      <report the here the dependency graph of the classes in EzShop, using plantuml>
-     
+
 # Integration approach
 
     <Write here the integration sequence you adopted, in general terms (top down, bottom up, mixed) and as sequence
-    (ex: step1: class A, step 2: class A+B, step 3: class A+B+C, etc)> 
+    (ex: step1: class A, step 2: class A+B, step 3: class A+B+C, etc)>
     <Some steps may  correspond to unit testing (ex step1 in ex above), presented in other document UnitTestReport.md>
     <One step will  correspond to API testing>
 
-The integration tests are performed using a bottom up approach. Starting from the leaf classes tested in the previous 
+The integration tests are performed using a bottom up approach. Starting from the leaf classes tested in the previous
 development phase, the first step tests the intermediate classes AccountBook and CustomerList (step 1). Then, the class
-responsible for data persistence is tested (step 2). As a last step, all the methods implemented in EZShop are tested 
-(step 3). Since these methods are highly dependent one to the other, this last phase follows a mixed approach: all the 
+responsible for data persistence is tested (step 2). As a last step, all the methods implemented in EZShop are tested
+(step 3). Since these methods are highly dependent one to the other, this last phase follows a mixed approach: all the
 methods are tested at the same time.
-    
+
 
 
 #  Tests
@@ -89,7 +89,6 @@ methods are tested at the same time.
 
 ## Step 3: API testing
 
-**TODO**: methods for FR1 are missing
 
 | Classes  | JUnit test cases |
 |----------|------------------|
@@ -134,6 +133,12 @@ methods are tested at the same time.
 | | it.polito.ezshop.apiTests.EZShopTestRecordBalanceUpdate.* |
 | | it.polito.ezshop.apiTests.EZShopTestGetCreditsAndDebits.* |
 | | it.polito.ezshop.apiTests.EZShopTestComputeBalance.* |
+| | it.polito.ezshop.apiTests.EZShopTestCreateUser.* |
+| | it.polito.ezshop.apiTests.EZShopTestDeleteUser.* |
+| | it.polito.ezshop.apiTests.EZShopTestGetUser.* |
+| | it.polito.ezshop.apiTests.EZShopTestGetAllUsers.* |
+| | it.polito.ezshop.apiTests.EZShopTestUpdateUserRights.* |
+| | it.polito.ezshop.apiTests.EZShopTestLogin.* |
 
 
 
@@ -150,14 +155,14 @@ methods are tested at the same time.
 # Coverage of Scenarios and FR
 
 
-<Report in the following table the coverage of  scenarios (from official requirements and from above) vs FR. 
+<Report in the following table the coverage of  scenarios (from official requirements and from above) vs FR.
 Report also for each of the scenarios the (one or more) API JUnit tests that cover it. >
 
 
 
 
-| Scenario ID | Functional Requirements covered | JUnit  Test(s) | 
-| ----------- | ------------------------------- | ----------- | 
+| Scenario ID | Functional Requirements covered | JUnit  Test(s) |
+| ----------- | ------------------------------- | ----------- |
 | 1.1         | FR3.1                           | it.polito.ezshop.apiTests.EZShopTestCreateProductType.testCreateProductTypeSuccessfully |             
 | 1.2         | FR3.1                           | it.polito.ezshop.apiTests.EZShopTestUpdateProduct.testUpdateProductSuccessfully |             
 | 1.3         | FR3.1                           | it.polito.ezshop.apiTests.EZShopTestUpdateProduct.testUpdateProductSuccessfully |             
@@ -176,8 +181,8 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |             | FR5.6                           | it.polito.ezshop.apiTests.EZShopTestAttachCardToCustomer.testAttachCardsToCustomers |
 | 4.3         | FR5.1/FR5.6                     | it.polito.ezshop.apiTests.EZShopTestModifyCustomer.testDetachCardFromCustomer |
 | 4.4         | FR5.1                           | it.polito.ezshop.apiTests.EZShopTestModifyCustomer.* |
-| 5.1         | FR1.5                           | **todo** |
-| 5.2         | FR1.5                           | **todo** |
+| 5.1         | FR1.5                           | it.polito.ezshop.apiTests.EZShopTestLogin.testLoginFinishSuccessfully |
+| 5.2         | FR1.5                           | it.polito.ezshop.apiTests.EZShopTestLogin.testLoginFailed |
 | 6.1         | FR6.1                           | it.polito.ezshop.apiTests.EZShopTestStartSaleTransaction.testStartSaleTransactionSuccessfully |
 |             | FR6.2                           | it.polito.ezshop.apiTests.EZShopTestAddProductToSale.testAddProductsToSaleSuccessfully |
 |             | FR6.10                          | it.polito.ezshop.apiTests.EZShopTestEndSaleTransaction.testEndSaleTransactionSuccessfully |
@@ -225,7 +230,7 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 |             | FR6.14                          | it.polito.ezshop.apiTests.EZShopTestEndReturnTransaction.testEndReturnTransactionSuccessfully2 |
 |             | FR7.4, FR6.15                   | it.polito.ezshop.apiTests.EZShopTestReturnCreditCardPayment.testReturnSuccessfully |
 | 9.1         | FR8.3                           | it.polito.ezshop.apiTests.EZShopTestGetCreditsAndDebits.testGetAll |
-| 10.1        | FR7.4                           | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully 
+| 10.1        | FR7.4                           | it.polito.ezshop.apiTests.EZShopTestReceiveCreditCardPayment.testPayTransactionSuccessfully
 | 10.2        | FR7.3                           | it.polito.ezshop.apiTests.EZShopTestReceiveCashPayment.testPayTransactionSuccessfully |
 
 
@@ -235,10 +240,8 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 <Report in the following table the coverage of the Non Functional Requirements of the application - only those that can be tested with automated testing frameworks.>
 
 
-### 
+###
 
 | Non Functional Requirement | Test name |
 | -------------------------- | --------- |
 |                            |           |
-
-

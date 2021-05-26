@@ -68,3 +68,6 @@ data/*
 ezshop.iml
 
 CreditCards-tests.txt
+
+app_data/*
+!app_data/.git-keep

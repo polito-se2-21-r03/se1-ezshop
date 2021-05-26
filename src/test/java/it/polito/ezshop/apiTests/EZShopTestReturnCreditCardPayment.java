@@ -6,10 +6,12 @@ import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.exceptions.InvalidCreditCardException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.*;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -22,7 +24,7 @@ import static it.polito.ezshop.TestHelpers.*;
 
 public class EZShopTestReturnCreditCardPayment {
 
-    private static final String creditCardsFile = "tmp/CreditCards-tests.txt";
+    private static final String creditCardsFile = "CreditCards-tests.txt";
 
     private static final EZShop shop = new EZShop();
     private static User admin;
@@ -96,6 +98,11 @@ public class EZShopTestReturnCreditCardPayment {
 
         // logout after setup
         shop.logout();
+    }
+
+    @After
+    public void afterEach () throws IOException {
+        Files.deleteIfExists(Paths.get(creditCardsFile));
     }
 
     /**

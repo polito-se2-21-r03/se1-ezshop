@@ -94,12 +94,12 @@ public class CustomerList {
         LoyaltyCard loyaltyCard;
         if (newCard == null) {
 
-            // if newCard is null, delete the card
-            loyaltyCard = null;
+            // if newCard is null, don't update the card
+            loyaltyCard = customer.getCard();
         } else if (newCard.equals("")) {
 
-            // if newCard is empty string, leave card attached to customer
-            loyaltyCard = customer.getCard();
+            // if newCard is empty string, delete the card
+            loyaltyCard = null;
         } else {
 
             // get card from list of cards
@@ -118,6 +118,12 @@ public class CustomerList {
 
         // update values and return successfully
         customer.setCustomerName(newName);
+
+        // remove the loyalty card from the list
+        if (loyaltyCard == null && customer.getCard() != null) {
+            this.loyaltyCards.removeIf(x -> x.getCode().equals(customer.getCard().getCode()));
+        }
+
         customer.setCard(loyaltyCard);
         return true;
     }
