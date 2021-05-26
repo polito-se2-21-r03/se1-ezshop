@@ -22,8 +22,8 @@ public class EZShopTestCreateUser {
     private static final String user2Name = "Andrea";
     private static final String password1 = "123";
     private static final String password2 = "456";
-    private static final String user1Role = "SHOP_MANAGER";
-    private static final String user2Role = "ADMINISTRATOR";
+    private static final String user1Role = "ShopManager";
+    private static final String user2Role = "Administrator";
 
     @Before
     public void beforeEach() throws Exception {
@@ -50,10 +50,10 @@ public class EZShopTestCreateUser {
      * Tests that an InvalidPasswordException is thrown if the user password is null or empty
      */
     @Test
-    public void testInvalidUserPasswordException() {
+    public void testInvalidPasswordException() {
 
         // verify correct exception is thrown
-        testInvalidValues(InvalidUserPasswordException.class, invalidUserPassword,
+        testInvalidValues(InvalidPasswordException.class, invalidUserPassword,
                 (password) -> shop.createUser(user2Name, password, user2Role));
 
     }
@@ -82,13 +82,18 @@ public class EZShopTestCreateUser {
      */
     @Test
     public void testCreateUserSuccesfully() throws InvalidPasswordException, InvalidRoleException, InvalidUsernameException, InvalidUserIdException, UnauthorizedException {
+
+        // create second user
         Integer id2 = shop.createUser(user2Name,password2,user2Role);
 
+        // verify user was created successfully
         assertNotNull(id2);
         assertTrue(id2 > 0);
 
-        //verify the created product
-        User user2 = shop.getUser(id2);
+        // login as user2 to access shop.getUser()
+        User user2 = shop.login(user2Name, password2);
+
+        // verify user was created correctly
         assertNotNull(user2);
         assertEquals(id2, user2.getId());
         assertEquals(user2Name, user2.getUsername());
