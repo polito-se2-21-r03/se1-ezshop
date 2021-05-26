@@ -29,7 +29,7 @@ public class CustomerList {
      */
     public int addCustomer(String name) throws InvalidCustomerNameException {
 
-        // return false if the customer's ID is invalid
+        // return -1 if the customer name is already taken
         if (isCustomerNameTaken(name)) {
             return -1;
         }
@@ -94,12 +94,12 @@ public class CustomerList {
         LoyaltyCard loyaltyCard;
         if (newCard == null) {
 
-            // if newCard is null, leave card attached to customer
-            loyaltyCard = customer.getCard();
+            // if newCard is null, delete the card
+            loyaltyCard = null;
         } else if (newCard.equals("")) {
 
-            // if newCard is empty string, unassign card from customer
-            loyaltyCard = null;
+            // if newCard is empty string, leave card attached to customer
+            loyaltyCard = customer.getCard();
         } else {
 
             // get card from list of cards
