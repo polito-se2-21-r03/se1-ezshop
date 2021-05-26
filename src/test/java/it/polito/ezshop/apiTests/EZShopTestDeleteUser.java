@@ -77,7 +77,8 @@ public class EZShopTestDeleteUser {
 
 
         // verify correct exception is thrown
-        testInvalidValues(InvalidUserIdException.class, invalidUserIDs, shop::deleteUser);
+        testInvalidValues(InvalidUserIdException.class, invalidUserIDs,
+                shop::deleteUser);
 
     }
     /**
