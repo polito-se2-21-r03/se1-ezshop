@@ -139,6 +139,8 @@ methods are tested at the same time.
 | | it.polito.ezshop.apiTests.EZShopTestGetAllUsers.* |
 | | it.polito.ezshop.apiTests.EZShopTestUpdateUserRights.* |
 | | it.polito.ezshop.apiTests.EZShopTestLogin.* |
+| | it.polito.ezshop.apiTests.EZShopTestLogout.* |
+| | it.polito.ezshop.apiTests.EZShopTestReset.* |
 
 
 
