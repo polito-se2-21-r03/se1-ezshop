@@ -5,7 +5,15 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+        EZShopTestReset.class,
         // FR 1
+        EZShopTestCreateUser.class,
+        EZShopTestDeleteUser.class,
+        EZShopTestGetAllUsers.class,
+        EZShopTestGetUser.class,
+        EZShopTestUpdateUserRights.class,
+        EZShopTestLogin.class,
+        EZShopTestLogout.class,
         // FR 3
         EZShopTestCreateProductType.class,
         EZShopTestUpdateProduct.class,
