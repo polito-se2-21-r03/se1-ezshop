@@ -23,27 +23,17 @@ Version: 1.0
 
 # Dependency graph
 
-     <report the here the dependency graph of the classes in EzShop, using plantuml>
+![Dependency graph](images/dep_graph.png)
 
 # Integration approach
 
-    <Write here the integration sequence you adopted, in general terms (top down, bottom up, mixed) and as sequence
-    (ex: step1: class A, step 2: class A+B, step 3: class A+B+C, etc)>
-    <Some steps may  correspond to unit testing (ex step1 in ex above), presented in other document UnitTestReport.md>
-    <One step will  correspond to API testing>
-
 The integration tests are performed using a bottom up approach. Starting from the leaf classes tested in the previous
-development phase, the first step tests the intermediate classes AccountBook and CustomerList (step 1). Then, the class
-responsible for data persistence is tested (step 2). As a last step, all the methods implemented in EZShop are tested
-(step 3). Since these methods are highly dependent one to the other, this last phase follows a mixed approach: all the
+development phase, the first step tests the intermediate classes AccountBook and CustomerList (**step 1**). Then, the class
+responsible for data persistence is tested (**step 2**). As a last step, all the methods implemented in EZShop are tested
+(**step 3**). Since these methods are highly dependent one to the other, this last phase follows a mixed approach: all the
 methods are tested at the same time.
 
-
-
 #  Tests
-
-   <define below a table for each integration step. For each integration step report the group of classes under test, and the names of
-     JUnit test cases applied to them> JUnit test classes should be here src/test/java/it/polito/ezshop
 
 ## Step 0: Unit tests
 
@@ -77,7 +67,7 @@ methods are tested at the same time.
 | Classes  | JUnit test cases |
 |----------|------------------|
 | it.polito.ezshop.model.AccountBook | it.polito.ezshop.integrationTests.TestAccountBook.* |
-| it.polito.ezshop.model.CustomerList | it.polito.ezshop.integrationTests.testCustomerList.* (**TODO**) |
+| it.polito.ezshop.model.CustomerList | it.polito.ezshop.integrationTests.testCustomerList.* |
 
 
 ## Step 2: JsonInterface
@@ -147,21 +137,10 @@ methods are tested at the same time.
 
 # Scenarios
 
-
-<If needed, define here additional scenarios for the application. Scenarios should be named
- referring the UC in the OfficialRequirements that they detail>
-
 *No additional scenarios added*
 
 
 # Coverage of Scenarios and FR
-
-
-<Report in the following table the coverage of  scenarios (from official requirements and from above) vs FR.
-Report also for each of the scenarios the (one or more) API JUnit tests that cover it. >
-
-
-
 
 | Scenario ID | Functional Requirements covered | JUnit  Test(s) |
 | ----------- | ------------------------------- | ----------- |
@@ -238,12 +217,11 @@ Report also for each of the scenarios the (one or more) API JUnit tests that cov
 
 # Coverage of Non Functional Requirements
 
-
-<Report in the following table the coverage of the Non Functional Requirements of the application - only those that can be tested with automated testing frameworks.>
-
-
 ###
 
 | Non Functional Requirement | Test name |
 | -------------------------- | --------- |
-|                            |           |
+| NFR2                       | According to the IntelliJ IDEA test runner all the tests complete in less than 0.5 s. |
+| NFR4                       | it.polito.ezshop.unitTests.TestUtilsIsValidBarcode.* |
+| NFR5                       | it.polito.ezshop.unitTests.TestUtilsIsValidCreditCardNumber.* |
+| NFR6                       | it.polito.ezshop.unitTests.TestLoyaltyCard.testValidateCode<br>it.polito.ezshop.unitTests.TestLoyaltyCard.testGenerateNewCode |
