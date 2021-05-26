@@ -28,8 +28,8 @@ public class EZShopTestGetUser {
     private static final String user2Name = "Andrea";
     private static final String password1 = "234";
     private static final String password2 = "456";
-    private static final String user1Role = "SHOP_MANAGER";
-    private static final String user2Role = "CASHIER";
+    private static final String user1Role = "ShopManager";
+    private static final String user2Role = "Cashier";
     private static Integer user1ID;
 
     public EZShopTestGetUser() throws Exception {
