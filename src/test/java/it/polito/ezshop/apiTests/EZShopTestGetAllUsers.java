@@ -34,7 +34,7 @@ public class EZShopTestGetAllUsers {
     private static Integer user2ID;
 
     public EZShopTestGetAllUsers() throws Exception {
-        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        admin = new User(1, "Andrea", "123", "Administrator");
     }
 
     @Before
@@ -56,8 +56,8 @@ public class EZShopTestGetAllUsers {
      */
     @Test
     public void testAuthorization() throws Throwable {
-        Method getAllUsers = EZShop.class.getMethod("getAllUsers");
-        testAccessRights(getAllUsers, new Object[]{1},
+        Method deleteUser = EZShop.class.getMethod("getAllUsers");
+        testAccessRights(deleteUser, new Object[]{1},
                 new Role[]{Role.ADMINISTRATOR});
     }
     /**

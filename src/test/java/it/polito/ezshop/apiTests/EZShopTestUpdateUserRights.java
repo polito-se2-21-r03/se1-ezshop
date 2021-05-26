@@ -34,7 +34,7 @@ public class EZShopTestUpdateUserRights {
     private static Integer user2ID;
 
     public EZShopTestUpdateUserRights() throws Exception {
-        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        admin = new User(1, "Andrea", "123", "Administrator");
     }
 
     @Before
@@ -126,7 +126,7 @@ public class EZShopTestUpdateUserRights {
         shop.login(admin.getUsername(), admin.getPassword());
 
         //new role
-        String role = "SHOP_MANAGER";
+        String role = "ShopManager";
 
         //return true if update successfully
         boolean result = shop.updateUserRights(user2ID, role);

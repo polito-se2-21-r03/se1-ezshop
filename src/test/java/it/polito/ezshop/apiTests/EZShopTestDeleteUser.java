@@ -34,7 +34,7 @@ public class EZShopTestDeleteUser {
     private static Integer user2ID;
 
     public EZShopTestDeleteUser() throws Exception {
-        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        admin = new User(1, "Andrea", "123", "Administrator");
     }
 
     @Before

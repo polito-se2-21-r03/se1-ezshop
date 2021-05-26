@@ -33,7 +33,7 @@ public class EZShopTestGetUser {
     private static Integer user1ID;
 
     public EZShopTestGetUser() throws Exception {
-        admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
+        admin = new User(1, "Andrea", "123", "Administrator");
     }
 
     @Before
