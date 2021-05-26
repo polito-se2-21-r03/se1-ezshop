@@ -89,7 +89,6 @@ methods are tested at the same time.
 
 ## Step 3: API testing
 
-**TODO**: methods for FR1 are missing
 
 | Classes  | JUnit test cases |
 |----------|------------------|
@@ -134,6 +133,12 @@ methods are tested at the same time.
 | | it.polito.ezshop.apiTests.EZShopTestRecordBalanceUpdate.* |
 | | it.polito.ezshop.apiTests.EZShopTestGetCreditsAndDebits.* |
 | | it.polito.ezshop.apiTests.EZShopTestComputeBalance.* |
+| | it.polito.ezshop.apiTests.EZShopTestCreateUser.* |
+| | it.polito.ezshop.apiTests.EZShopTestDeleteUser.* |
+| | it.polito.ezshop.apiTests.EZShopTestGetUser.* |
+| | it.polito.ezshop.apiTests.EZShopTestGetAllUsers.* |
+| | it.polito.ezshop.apiTests.EZShopTestUpdateUserRights.* |
+| | it.polito.ezshop.apiTests.EZShopTestLogin.* |
 
 
 
