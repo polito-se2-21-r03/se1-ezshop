@@ -37,18 +37,18 @@ public class EZShopTestLogout {
      */
     @Test
     public void testLogoutFinishSuccessfully() throws InvalidPasswordException, InvalidUsernameException {
-
+        //login an user
         shop.login(user1.getUsername(), user1.getPassword());
-
+        //test for logout with success
         assertTrue(shop.logout());
 
     }
     /**
-     * Tests for logout method finishes with success
+     * Tests for logout method finishes with fail
      */
     @Test
     public void testLogoutFailed() {
-
+        // test without any user already login
         assertFalse(shop.logout());
 
     }
