@@ -21,7 +21,7 @@ import static it.polito.ezshop.utils.Utils.*;
 
 public class EZShop implements EZShopInterface {
 
-    public static final String PERSISTENCE_PATH = "tmp/";
+    public static final String PERSISTENCE_PATH = "app_data/";
 
     /**
      * Simple persistence layer for EZShop.

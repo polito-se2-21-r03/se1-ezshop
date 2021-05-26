@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 
 public class TestCreditCardCircuit {
 
-    private static final String path = "tmp/CreditCards-tests.txt";
+    private static final String path = "CreditCards-tests.txt";
 
     private static final List<CreditCard> cards = Arrays.asList(
             new CreditCard("4485370086510891", 150.0),

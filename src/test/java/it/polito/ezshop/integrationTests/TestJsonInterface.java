@@ -3,9 +3,11 @@ package it.polito.ezshop.integrationTests;
 import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +27,11 @@ public class TestJsonInterface {
         product = new ProductType(1, "xx", "213124134135", 10.0, "xx");
 
         ji = JsonInterface.create(dataDirectory);
+        ji.reset();
+    }
+
+    @After
+    public void afterEach() throws IOException {
         ji.reset();
     }
 
