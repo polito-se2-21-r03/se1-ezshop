@@ -3,17 +3,17 @@ package it.polito.ezshop.apiTests;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.ProductType;
 import it.polito.ezshop.exceptions.*;
-import it.polito.ezshop.model.*;
-
+import it.polito.ezshop.model.Role;
+import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import static it.polito.ezshop.TestHelpers.testAccessRights;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class EZShopTestGetAllOrders {
     private static final EZShop shop = new EZShop();
@@ -26,7 +26,7 @@ public class EZShopTestGetAllOrders {
             e.printStackTrace();
         }
     }
-    private ProductType product;
+
     private Integer order1;
     private Integer order2;
     private Integer order3;
@@ -34,8 +34,8 @@ public class EZShopTestGetAllOrders {
     @Before
     public void beforeEach() throws
             InvalidProductCodeException, InvalidProductDescriptionException, InvalidQuantityException, InvalidPricePerUnitException,
-            InvalidProductIdException, InvalidOrderIdException, UnauthorizedException,
-            InvalidUsernameException, InvalidPasswordException, InvalidLocationException, InvalidRoleException {
+            InvalidOrderIdException, UnauthorizedException,
+            InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
         // reset the state of EZShop
         shop.reset();
         // create a new user
@@ -46,7 +46,7 @@ public class EZShopTestGetAllOrders {
         // insert a new product that will be updated later in the tests
         String barcode = "12345678901231";
         shop.createProductType("desc", "12345678901231", 10.0, "note");
-        product = shop.getProductTypeByBarCode(barcode);
+        ProductType product = shop.getProductTypeByBarCode(barcode);
         order1 = shop.issueOrder(product.getBarCode(), 10, 1.0);
         order2 = shop.issueOrder(product.getBarCode(), 20, 2.0);
         order3 = shop.issueOrder(product.getBarCode(), 30, 3.0);

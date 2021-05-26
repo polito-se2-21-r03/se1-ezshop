@@ -31,9 +31,9 @@ public class EZShopTestUpdatePosition {
 
     @Before
     public void beforeEach() throws
-            InvalidProductCodeException, InvalidProductDescriptionException, InvalidQuantityException, InvalidPricePerUnitException,
-            InvalidProductIdException, InvalidOrderIdException, UnauthorizedException,
-            InvalidUsernameException, InvalidPasswordException, InvalidLocationException, InvalidRoleException {
+            InvalidProductCodeException, InvalidProductDescriptionException, InvalidPricePerUnitException,
+            UnauthorizedException,
+            InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
         // reset the state of EZShop
         shop.reset();
         // create a new user

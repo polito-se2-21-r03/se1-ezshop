@@ -13,7 +13,6 @@ import static org.junit.Assert.assertThrows;
 public class TestTicketEntryAdapter {
 
     private final ProductType product;
-    private final int amount = 1;
     private final double discount = 0.2;
 
     public TestTicketEntryAdapter() throws Exception {
@@ -28,7 +27,8 @@ public class TestTicketEntryAdapter {
 
     @Test
     public void testSetters() throws Exception {
-        TicketEntry ticketEntry = new TicketEntry(product, amount, 0.2);
+        int amount1 = 1;
+        TicketEntry ticketEntry = new TicketEntry(product, amount1, 0.2);
         TicketEntryAdapter ticketEntryAdapter = new TicketEntryAdapter(ticketEntry);
 
         // test get/set barcode

@@ -8,13 +8,11 @@ import it.polito.ezshop.model.*;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotEquals;
 
 public class TestTicketEntry {
 
     private final ProductType product;
     private final int amount = 1;
-    private final double discount = 0.2;
 
     public TestTicketEntry() throws Exception {
         product = new ProductType(1, "Coca Cola 1.5L", "123456789012", 1.5,
@@ -40,7 +38,8 @@ public class TestTicketEntry {
         assertEquals(0.0, ticketEntry.getDiscountRate(), 0.01);
 
         ticketEntry = new TicketEntry(product, amount, 0.2);
-        assertEquals(discount, ticketEntry.getDiscountRate(), 0.01);
+        double discount1 = 0.2;
+        assertEquals(discount1, ticketEntry.getDiscountRate(), 0.01);
     }
 
     @Test

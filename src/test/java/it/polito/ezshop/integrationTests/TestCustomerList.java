@@ -1,25 +1,24 @@
 package it.polito.ezshop.integrationTests;
 
-import it.polito.ezshop.exceptions.*;
-import it.polito.ezshop.model.*;
+import it.polito.ezshop.exceptions.InvalidCustomerCardException;
+import it.polito.ezshop.exceptions.InvalidCustomerIdException;
+import it.polito.ezshop.exceptions.InvalidCustomerNameException;
+import it.polito.ezshop.model.CustomerList;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.time.LocalDate;
 
 import static org.junit.Assert.*;
 
 public class TestCustomerList {
-    private CustomerList customerList;
+    private final CustomerList customerList;
     private Integer id1;
     private Integer id2;
     private Integer id3;
     private String l1;
-    private String l2;
     private String l3;
 
 
-    public TestCustomerList() throws InvalidCustomerIdException, InvalidCustomerCardException, InvalidCustomerNameException {
+    public TestCustomerList() {
         customerList = new CustomerList();
 
     }
@@ -32,7 +31,7 @@ public class TestCustomerList {
         id2 = customerList.addCustomer("Luigi Bianchi");
         id3 = customerList.addCustomer("Letizia Bruni");
         l1 = customerList.generateNewLoyaltyCard();
-        l2 = customerList.generateNewLoyaltyCard();
+        String l2 = customerList.generateNewLoyaltyCard();
         l3 = customerList.generateNewLoyaltyCard();
         customerList.attachCardToCustomer(id1, l1);
         customerList.attachCardToCustomer(id3, l2);

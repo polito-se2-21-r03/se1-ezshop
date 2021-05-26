@@ -26,13 +26,12 @@ public class EZShopTestPayOrder {
         }
     }
 
-    private ProductType product;
     private Integer target;
     @Before
     public void beforeEach() throws
             InvalidProductCodeException, InvalidProductDescriptionException, InvalidQuantityException, InvalidPricePerUnitException,
-            InvalidProductIdException, InvalidOrderIdException, UnauthorizedException,
-            InvalidUsernameException, InvalidPasswordException, InvalidLocationException, InvalidRoleException {
+            UnauthorizedException,
+            InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
         // reset the state of EZShop
         shop.reset();
         // create a new user
@@ -43,7 +42,7 @@ public class EZShopTestPayOrder {
         // insert a new product that will be updated later in the tests
         String barcode = "12345678901231";
         shop.createProductType("desc", "12345678901231", 10.0, "note");
-        product = shop.getProductTypeByBarCode(barcode);
+        ProductType product = shop.getProductTypeByBarCode(barcode);
         target = shop.issueOrder(product.getBarCode(), 100, 5.0);
     }
     /**

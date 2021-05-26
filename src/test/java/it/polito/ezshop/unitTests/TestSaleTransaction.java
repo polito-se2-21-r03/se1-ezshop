@@ -13,7 +13,6 @@ import static org.junit.Assert.*;
 
 public class TestSaleTransaction {
 
-    private final int id = 1;
     private final LocalDate date = LocalDate.now();
     private final double saleDiscountRate = 0.2;
 
@@ -33,6 +32,7 @@ public class TestSaleTransaction {
     public void testConstructor() throws InvalidDiscountRateException {
         SaleTransaction sale = new SaleTransaction(1, LocalDate.now());
 
+        int id = 1;
         assertEquals(id, sale.getBalanceId());
         assertEquals(date, sale.getDate());
         assertNotNull(sale.getTransactionItems());

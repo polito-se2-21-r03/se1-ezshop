@@ -4,14 +4,13 @@ import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.data.ProductType;
-import it.polito.ezshop.exceptions.*;
+import it.polito.ezshop.exceptions.InvalidProductIdException;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import static it.polito.ezshop.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;

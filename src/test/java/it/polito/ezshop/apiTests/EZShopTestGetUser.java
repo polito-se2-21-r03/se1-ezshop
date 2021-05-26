@@ -31,7 +31,6 @@ public class EZShopTestGetUser {
     private static final String user1Role = "SHOP_MANAGER";
     private static final String user2Role = "CASHIER";
     private static Integer user1ID;
-    private static Integer user2ID;
 
     public EZShopTestGetUser() throws Exception {
         admin = new User(1, "Andrea", "123", Role.ADMINISTRATOR);
@@ -51,7 +50,7 @@ public class EZShopTestGetUser {
 
         // add two user more to shop after then total (3)
         user1ID = shop.createUser(user1Name, password1, user1Role);
-        user2ID = shop.createUser(user2Name, password2, user2Role);
+        Integer user2ID = shop.createUser(user2Name, password2, user2Role);
 
         // logout after setup
         shop.logout();

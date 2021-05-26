@@ -29,8 +29,7 @@ public class EZShopTestGetAllCustomers {
      * Creates a clean shop instance for each test
      */
     @Before
-    public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException,
-            UnauthorizedException, InvalidCustomerNameException {
+    public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
 
         // reset shop to blanc state
         shop.reset();

@@ -81,7 +81,7 @@ public class EZShopTestCreateUser {
      * Tests for that method return the id of the new user ( > 0 ) and not null.
      */
     @Test
-    public void testCreateUserSuccesfully() throws InvalidPasswordException, InvalidRoleException, InvalidUsernameException, InvalidUserIdException, UnauthorizedException {
+    public void testCreateUserSuccesfully() throws InvalidPasswordException, InvalidRoleException, InvalidUsernameException {
 
         // create second user
         Integer id2 = shop.createUser(user2Name,password2,user2Role);

@@ -29,8 +29,8 @@ public class EZShopTestUpdateQuantity {
     private ProductType target;
     @Before
     public void beforeEach() throws
-            InvalidProductCodeException, InvalidProductDescriptionException, InvalidQuantityException, InvalidPricePerUnitException,
-            InvalidProductIdException, InvalidOrderIdException, UnauthorizedException, InvalidUsernameException, InvalidPasswordException,
+            InvalidProductCodeException, InvalidProductDescriptionException, InvalidPricePerUnitException,
+            InvalidProductIdException, UnauthorizedException, InvalidUsernameException, InvalidPasswordException,
             InvalidLocationException, InvalidRoleException {
         // reset the state of EZShop
         shop.reset();
@@ -81,7 +81,7 @@ public class EZShopTestUpdateQuantity {
     public void testValidUpdateQuantity() throws InvalidProductIdException, UnauthorizedException, InvalidProductCodeException {
         ProductType updatedProduct;
 
-        Integer newQuantity = 200;
+        int newQuantity = 200;
         Integer oldQuantity = target.getQuantity();
         // update the quantity of the product
         assertTrue(shop.updateQuantity(target.getId(), newQuantity));

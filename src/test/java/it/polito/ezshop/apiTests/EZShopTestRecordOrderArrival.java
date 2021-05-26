@@ -26,12 +26,11 @@ public class EZShopTestRecordOrderArrival {
             }
         }
 
-        private ProductType product;
-        private Integer target;
+    private Integer target;
     @Before
     public void beforeEach() throws
             InvalidProductCodeException, InvalidProductDescriptionException, InvalidQuantityException, InvalidPricePerUnitException,
-            InvalidProductIdException, InvalidOrderIdException, UnauthorizedException,
+            InvalidProductIdException, UnauthorizedException,
             InvalidUsernameException, InvalidPasswordException, InvalidLocationException, InvalidRoleException {
         // reset the state of EZShop
         shop.reset();
@@ -43,7 +42,7 @@ public class EZShopTestRecordOrderArrival {
         // insert a new product that will be updated later in the tests
         String barcode = "12345678901231";
         shop.createProductType("desc", "12345678901231", 10.0, "note");
-        product = shop.getProductTypeByBarCode(barcode);
+        ProductType product = shop.getProductTypeByBarCode(barcode);
         shop.updatePosition(product.getId(), "1-2-3");
         target = shop.issueOrder(product.getBarCode(), 100, 5.0);
     }

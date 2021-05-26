@@ -58,7 +58,7 @@ public class EZShopTestAddProductToSale {
      * If the id is null|negative|zero, the method should throw InvalidTransactionIdException
      */
     @Test()
-    public void testInvalidId() throws Exception {
+    public void testInvalidId() {
         // test invalid values for the product id parameter
         for (Integer value : TestHelpers.invalidTransactionIDs) {
             assertThrows(InvalidTransactionIdException.class, () -> {

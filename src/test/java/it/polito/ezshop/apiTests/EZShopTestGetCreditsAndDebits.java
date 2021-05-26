@@ -15,7 +15,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static it.polito.ezshop.TestHelpers.testAccessRights;
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 public class EZShopTestGetCreditsAndDebits {

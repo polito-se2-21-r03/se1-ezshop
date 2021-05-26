@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import static it.polito.ezshop.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;

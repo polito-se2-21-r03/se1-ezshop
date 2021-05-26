@@ -8,9 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertThrows;
 import static it.polito.ezshop.TestHelpers.*;
-import static it.polito.ezshop.TestHelpers.invalidProductAmounts;
 
 public class TestProductTypeAdapter {
 

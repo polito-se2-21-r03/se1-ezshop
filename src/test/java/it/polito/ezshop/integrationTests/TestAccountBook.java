@@ -49,7 +49,7 @@ public class TestAccountBook {
     }
 
     @Before
-    public void beforeEach() throws Exception {
+    public void beforeEach() {
 
         // reset account book
         accountBook.reset();
@@ -540,7 +540,7 @@ public class TestAccountBook {
     }
 
     @Test
-    public void testEqualsHashCode() throws Exception {
+    public void testEqualsHashCode() {
         AccountBook obj = new AccountBook();
 
         Credit credit = new Credit(obj.generateNewId(), LocalDate.now(), 10.0, OperationStatus.PAID);
