@@ -56,7 +56,7 @@ public class TestOrderAdapter {
         // check correct conversion of status
         assertEquals("ISSUED", orderAdapter.getStatus());
         order.setStatus(OperationStatus.COMPLETED);
-        assertEquals("PAYED", orderAdapter.getStatus());
+        assertEquals("COMPLETED", orderAdapter.getStatus());
         order.setStatus(OperationStatus.OPEN);
         assertEquals("OPEN", orderAdapter.getStatus());
     }

@@ -1,6 +1,8 @@
 package it.polito.ezshop.apiTests;
 
+import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.exceptions.UnauthorizedException;
 import it.polito.ezshop.model.Role;
@@ -11,26 +13,34 @@ import java.lang.reflect.Method;
 
 import static it.polito.ezshop.TestHelpers.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * Tests on the EZShop.computePointsForSale(Integer) method.
  */
-public class EZShopTestComputePointsForSale extends EZShopTestBase {
+public class EZShopTestComputePointsForSale {
 
     private static final Double EXPECTED_SALE_DISCOUNT_RATE = 0.5;
     private static final Double EXPECTED_PRODUCT_DISCOUNT_RATE = 0.25;
     private static final Integer EUROS_PER_POINT = 10;
 
+    private final EZShopInterface shop = new EZShop();
+
     private Integer tid;
 
     @Before
     public void beforeEach() throws Exception {
-        super.reset();
+        // reset the state of EZShop
+        shop.reset();
+        // create a new user
+        shop.createUser(TestHelpers.admin.getUsername(), TestHelpers.admin.getPassword(),
+                TestHelpers.admin.getRole().getValue());
+        // and log in with that user
+        shop.login(TestHelpers.admin.getUsername(), TestHelpers.admin.getPassword());
 
         // add product1 to the shop
-        addProducts(product1);
+        TestHelpers.addProductToShop(shop, TestHelpers.product1);
 
-        // create a new transaction
         tid = shop.startSaleTransaction();
     }
 
@@ -50,7 +60,10 @@ public class EZShopTestComputePointsForSale extends EZShopTestBase {
      */
     @Test()
     public void testInvalidId() {
-        testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs, shop::computePointsForSale);
+        // test invalid values for the transaction id parameter
+        for (Integer value : TestHelpers.invalidTransactionIDs) {
+            assertThrows(InvalidTransactionIdException.class, () -> shop.computePointsForSale(value));
+        }
     }
 
     /**

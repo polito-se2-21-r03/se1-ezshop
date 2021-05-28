@@ -1,6 +1,7 @@
 package it.polito.ezshop.apiTests;
 
 import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.data.ProductType;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.Role;
@@ -33,21 +34,18 @@ public class EZShopTestGetProductTypesByDescription {
     private static final String PRODUCT_DESCRIPTION_3 = "Foundation is a science fiction novel by American " +
             "writer Isaac Asimov.";
 
-    private static final EZShop shop = new EZShop();
-    private static User admin;
+    private static final double PRODUCT_PRICE = 10.0;
+    private static final String PRODUCT_NOTE = "note";
 
-    static {
-        try {
-            admin = new User(1, "Admin", "123", Role.ADMINISTRATOR);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private final EZShopInterface shop = new EZShop();
+    private final User admin;
+
+    public EZShopTestGetProductTypesByDescription () throws Exception {
+        admin = new User(1, "Admin", "123", Role.ADMINISTRATOR);
     }
 
     @Before
-    public void beforeEach() throws
-            InvalidPricePerUnitException, InvalidProductDescriptionException, InvalidProductCodeException,
-            UnauthorizedException, InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
+    public void beforeEach() throws Exception {
         // reset the state of EZShop
         shop.reset();
         // create a new user
@@ -56,9 +54,9 @@ public class EZShopTestGetProductTypesByDescription {
         shop.login(admin.getUsername(), admin.getPassword());
 
         // define a few products
-        shop.createProductType(PRODUCT_DESCRIPTION_1, PRODUCT_CODE_1, 10.0, "note");
-        shop.createProductType(PRODUCT_DESCRIPTION_2, PRODUCT_CODE_2, 42.0, "note");
-        shop.createProductType(PRODUCT_DESCRIPTION_3, PRODUCT_CODE_3, 20.0, "note");
+        shop.createProductType(PRODUCT_DESCRIPTION_1, PRODUCT_CODE_1, PRODUCT_PRICE, PRODUCT_NOTE);
+        shop.createProductType(PRODUCT_DESCRIPTION_2, PRODUCT_CODE_2, PRODUCT_PRICE, PRODUCT_NOTE);
+        shop.createProductType(PRODUCT_DESCRIPTION_3, PRODUCT_CODE_3, PRODUCT_PRICE, PRODUCT_NOTE);
     }
 
     /**
@@ -78,6 +76,7 @@ public class EZShopTestGetProductTypesByDescription {
      */
     @Test()
     public void testNullOrEmptyDescription() throws UnauthorizedException {
+        // null should be considered as an empty string
         for (String value : Arrays.asList(null, "")) {
             List<ProductType> products = shop.getProductTypesByDescription(value);
             assertNotNull(products);

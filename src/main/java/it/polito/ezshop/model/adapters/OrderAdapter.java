@@ -56,7 +56,9 @@ public class OrderAdapter implements it.polito.ezshop.data.Order {
 
     @Override
     public String getStatus() {
-        if (order.getStatus() == OperationStatus.PAID || order.getStatus() == OperationStatus.COMPLETED) {
+        if (order.getStatus() == OperationStatus.COMPLETED) {
+            return "COMPLETED";
+        } else if (order.getStatus() == OperationStatus.PAID) {
             return "PAYED";
         } else if (order.getStatus() == OperationStatus.CLOSED) {
             return "ISSUED";

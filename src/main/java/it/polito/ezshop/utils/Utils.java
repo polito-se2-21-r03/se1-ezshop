@@ -1,8 +1,6 @@
 package it.polito.ezshop.utils;
 
-import java.io.*;
 import java.util.List;
-import java.util.Scanner;
 import java.util.UUID;
 
 public class Utils {

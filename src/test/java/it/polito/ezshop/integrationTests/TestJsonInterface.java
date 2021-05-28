@@ -3,9 +3,11 @@ package it.polito.ezshop.integrationTests;
 import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +27,11 @@ public class TestJsonInterface {
         product = new ProductType(1, "xx", "213124134135", 10.0, "xx");
 
         ji = JsonInterface.create(dataDirectory);
+        ji.reset();
+    }
+
+    @After
+    public void afterEach() throws IOException {
         ji.reset();
     }
 
@@ -121,6 +128,12 @@ public class TestJsonInterface {
         readData = ji.readCustomerList();
         assertNotNull(readData);
         assertEquals(writeData, readData);
+
+        // the card associated to customer 1 and the card stored in the list
+        // should be the exact same object
+        LoyaltyCard card1 = readData.loyaltyCards.stream()
+                .filter(card -> card.getCode().equals(cCard1)).findFirst().orElse(null);
+        assertSame(readData.getCustomer(cID1).getCard(), card1);
     }
 
     /**

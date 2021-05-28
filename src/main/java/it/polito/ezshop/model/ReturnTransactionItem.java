@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class ReturnTransactionItem {
 
-    private final ProductType productType;
+    private ProductType productType;
     private final double pricePerUnit;
     private final int amount;
 
@@ -14,6 +14,14 @@ public class ReturnTransactionItem {
         this.productType = productType;
         this.amount = amount;
         this.pricePerUnit = pricePerUnit;
+    }
+
+    public ProductType getProductType() {
+        return productType;
+    }
+
+    public void setProductType(ProductType productType) {
+        this.productType = productType;
     }
 
     public String getBarCode() {

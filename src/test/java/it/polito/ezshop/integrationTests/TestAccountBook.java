@@ -49,7 +49,7 @@ public class TestAccountBook {
     }
 
     @Before
-    public void beforeEach() throws Exception {
+    public void beforeEach() {
 
         // reset account book
         accountBook.reset();
@@ -529,8 +529,18 @@ public class TestAccountBook {
         assertNull(accountBook.getTransaction(accountBook.generateNewId()));
     }
 
+    /**
+     * Test that updateBarcodeInOrders correctly updates a product's barcode
+     * in the orders list.
+     */
     @Test
-    public void testEqualsHashCode() throws Exception {
+    public void testUpdateBarcodeInOrders () {
+        accountBook.updateBarcodeInOrders("xx", "new");
+        assertEquals("new", ((Order) accountBook.getTransaction(order1.getBalanceId())).getProductCode());
+    }
+
+    @Test
+    public void testEqualsHashCode() {
         AccountBook obj = new AccountBook();
 
         Credit credit = new Credit(obj.generateNewId(), LocalDate.now(), 10.0, OperationStatus.PAID);

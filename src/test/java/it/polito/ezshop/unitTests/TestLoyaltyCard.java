@@ -37,7 +37,7 @@ public class TestLoyaltyCard {
     }
 
     @Test
-    public void testIsValidCode() throws Exception {
+    public void testIsValidCode() {
         for (String code : TestHelpers.invalidCustomerCards) {
             assertFalse(LoyaltyCard.isValidCode(code));
         }

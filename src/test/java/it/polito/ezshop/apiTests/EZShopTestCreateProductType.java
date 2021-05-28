@@ -1,15 +1,19 @@
 package it.polito.ezshop.apiTests;
 
+import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.data.ProductType;
-import it.polito.ezshop.exceptions.*;
+import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
+import it.polito.ezshop.exceptions.InvalidProductCodeException;
+import it.polito.ezshop.exceptions.InvalidProductDescriptionException;
+import it.polito.ezshop.exceptions.UnauthorizedException;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.User;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import static it.polito.ezshop.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
@@ -24,19 +28,15 @@ public class EZShopTestCreateProductType {
     private static final double PRODUCT_PRICE = 1.0;
     private static final String PRODUCT_NOTE = "note";
 
-    private static final EZShop shop = new EZShop();
-    private static User admin;
+    private final EZShopInterface shop = new EZShop();
+    private final User admin;
 
-    static {
-        try {
-            admin = new User(1, "Admin", "123", Role.ADMINISTRATOR);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public EZShopTestCreateProductType() throws Exception {
+        admin = new User(1, "Admin", "123", Role.ADMINISTRATOR);
     }
 
     @Before
-    public void beforeEach() throws InvalidUsernameException, InvalidPasswordException, InvalidRoleException {
+    public void beforeEach() throws Exception {
         // reset the state of EZShop
         shop.reset();
         // create a new user
@@ -46,7 +46,7 @@ public class EZShopTestCreateProductType {
     }
 
     /**
-     * Tests that access rights are handled correctly by deleteProductType.
+     * Tests that access rights are handled correctly by createProductType.
      */
     @Test
     public void testAuthorization() throws Throwable {
@@ -62,71 +62,83 @@ public class EZShopTestCreateProductType {
      * If the description is null|empty, the method should throw InvalidProductDescriptionException
      */
     @Test()
-    public void testInvalidDescription() {
-        // boundary values for the description parameter
-        Arrays.asList(null, "").forEach((value) -> {
-            // for each boundary value check that the correct exception is thrown
+    public void testInvalidDescription() throws Exception {
+        // invalid values for the description parameter
+        // for each invalid description check that the correct exception is thrown
+        for (String description : TestHelpers.invalidProductDescriptions) {
             assertThrows(InvalidProductDescriptionException.class, () -> {
                 // try to update a product with the boundary value
-                shop.createProductType(value, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE);
+                shop.createProductType(description, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE);
             });
-        });
+
+            // verify no product has been added
+            assertNull(shop.getProductTypeByBarCode(PRODUCT_CODE));
+        }
     }
 
     /**
      * If the code is null|empty|NaN|invalid, the method should throw InvalidProductCodeException
      */
     @Test()
-    public void testInvalidProductCode() {
-        // boundary values for the barcode parameter
-        Arrays.asList(null, "", "123456789B123A", "12345678901232").forEach((value) -> {
-            // for each boundary value check that the correct exception is thrown
+    public void testInvalidProductCode() throws Exception {
+        // invalid values for the barcode parameter
+        // for each invalid value check that the correct exception is thrown
+        for (String code : TestHelpers.invalidProductCodes) {
             assertThrows(InvalidProductCodeException.class, () -> {
                 // try to update a product with the boundary value
-                shop.createProductType(PRODUCT_DESCRIPTION, value, PRODUCT_PRICE, PRODUCT_NOTE);
+                shop.createProductType(PRODUCT_DESCRIPTION, code, PRODUCT_PRICE, PRODUCT_NOTE);
             });
-        });
+
+            // verify no product has been added
+            assertEquals(0, shop.getAllProductTypes().size());
+        }
     }
 
     /**
      * If the price is negative|zero, the method should throw InvalidPricePerUnitException
      */
     @Test()
-    public void testInvalidPrice() {
-        // boundary values for the price parameter
-        Arrays.asList(-10.0, 0.0).forEach((value) -> {
-            // for each boundary value check that the correct exception is thrown
+    public void testInvalidPrice() throws Exception {
+        // invalid values for the price parameter
+        // for each invalid value check that the correct exception is thrown
+        for (double value : TestHelpers.invalidPricesPerUnit) {
             assertThrows(InvalidPricePerUnitException.class, () -> {
                 // try to update a product with the boundary value
                 shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, value, PRODUCT_NOTE);
             });
-        });
+
+            // verify no product has been added
+            assertEquals(0, shop.getAllProductTypes().size());
+        }
     }
 
     /**
      * Nominal case (authorized user, valid parameters)
      */
     @Test()
-    public void testValid() throws UnauthorizedException,
+    public void testCreateProductTypeSuccessfully() throws UnauthorizedException,
             InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException {
         Integer id = shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE);
         assertNotNull(id);
         assertTrue(id > 0);
 
+        // verify the created product
         ProductType p = shop.getProductTypeByBarCode(PRODUCT_CODE);
         assertNotNull(p);
+        assertEquals(id, p.getId());
         assertEquals(PRODUCT_DESCRIPTION, p.getProductDescription());
         assertEquals(PRODUCT_CODE, p.getBarCode());
         assertEquals(PRODUCT_PRICE, p.getPricePerUnit(), 0.001);
         assertEquals(PRODUCT_NOTE, p.getNote());
+        assertNull(p.getLocation());
+        assertEquals((Integer) 0, p.getQuantity());
     }
 
     /**
      * If a product with the same barcode already exists, the method should return -1
      */
     @Test()
-    public void testDuplicatedBarcode() throws UnauthorizedException, InvalidProductDescriptionException,
-            InvalidProductCodeException, InvalidPricePerUnitException {
+    public void testDuplicatedBarcode() throws Exception {
         Integer id = shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, PRODUCT_PRICE, PRODUCT_NOTE);
         assertNotNull(id);
         assertTrue(id > 0);
@@ -140,18 +152,20 @@ public class EZShopTestCreateProductType {
      * If the note is null, an empty string should be saved.
      */
     @Test()
-    public void testNullNote() throws UnauthorizedException, InvalidProductDescriptionException,
-            InvalidProductCodeException, InvalidPricePerUnitException {
+    public void testNullNote() throws Exception {
         Integer id = shop.createProductType(PRODUCT_DESCRIPTION, PRODUCT_CODE, PRODUCT_PRICE, null);
         assertNotNull(id);
         assertTrue(id > 0);
 
         ProductType p = shop.getProductTypeByBarCode(PRODUCT_CODE);
         assertNotNull(p);
+        assertEquals(id, p.getId());
         assertEquals(PRODUCT_DESCRIPTION, p.getProductDescription());
         assertEquals(PRODUCT_CODE, p.getBarCode());
         assertEquals(PRODUCT_PRICE, p.getPricePerUnit(), 0.001);
         assertEquals("", p.getNote());
+        assertNull(p.getLocation());
+        assertEquals((Integer) 0, p.getQuantity());
     }
 
 }

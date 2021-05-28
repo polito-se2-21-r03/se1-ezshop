@@ -55,7 +55,7 @@ public class TestCreditCard {
     }
 
     @Test
-    public void testEqualsHashCode() throws Exception {
+    public void testEqualsHashCode() {
         CreditCard obj = new CreditCard("4485370086510891", 150.0);
         CreditCard same = new CreditCard("4485370086510891", 150.0);
         CreditCard different = new CreditCard("4716258050958645", 0.0);

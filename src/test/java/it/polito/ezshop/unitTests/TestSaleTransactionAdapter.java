@@ -35,7 +35,7 @@ public class TestSaleTransactionAdapter {
     }
 
     @Test
-    public void testSetters() throws Exception {
+    public void testSetters() {
         SaleTransactionAdapter adapter = new SaleTransactionAdapter(sale);
 
         // test get/set ticket number

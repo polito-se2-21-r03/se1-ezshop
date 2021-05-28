@@ -1,6 +1,8 @@
 package it.polito.ezshop.apiTests;
 
+import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.Role;
 import org.junit.Before;
@@ -8,26 +10,37 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
-import static it.polito.ezshop.TestHelpers.*;
+import static it.polito.ezshop.TestHelpers.product1;
+import static it.polito.ezshop.TestHelpers.testAccessRights;
 import static org.junit.Assert.*;
 
 /**
  * Tests on the EZShop.deleteSaleTransaction(Integer) method.
  */
-public class EZShopTestDeleteSaleTransaction extends EZShopTestBase {
+public class EZShopTestDeleteSaleTransaction {
 
+    private static final int PRODUCT1_AMOUNT = 1;
+    private final EZShopInterface shop = new EZShop();
     private Integer tid;
 
     @Before
     public void beforeEach() throws Exception {
-        super.reset();
+        // reset the state of EZShop
+        shop.reset();
+        // create a new user
+        shop.createUser(TestHelpers.admin.getUsername(), TestHelpers.admin.getPassword(),
+                TestHelpers.admin.getRole().getValue());
+        // and log in with that user
+        shop.login(TestHelpers.admin.getUsername(), TestHelpers.admin.getPassword());
 
-        // add product1 to the shop
-        addProducts(product1);
+        // add product1, product2 and product3 to the shop
+        TestHelpers.addProductToShop(shop, TestHelpers.product1);
+        TestHelpers.addProductToShop(shop, TestHelpers.product2);
+        TestHelpers.addProductToShop(shop, TestHelpers.product3);
 
-        // create a new transaction and add product1 to it
         tid = shop.startSaleTransaction();
-        shop.addProductToSale(tid, product1.getBarCode(), 1);
+        // add products product1 to the transaction
+        shop.addProductToSale(tid, product1.getBarCode(), PRODUCT1_AMOUNT);
     }
 
     /**
@@ -46,7 +59,10 @@ public class EZShopTestDeleteSaleTransaction extends EZShopTestBase {
      */
     @Test()
     public void testInvalidId() {
-        testInvalidValues(InvalidTransactionIdException.class, invalidTransactionIDs, shop::deleteSaleTransaction);
+        // test invalid values for the transaction id parameter
+        for (Integer value : TestHelpers.invalidTransactionIDs) {
+            assertThrows(InvalidTransactionIdException.class, () -> shop.deleteSaleTransaction(value));
+        }
     }
 
     /**
@@ -75,8 +91,13 @@ public class EZShopTestDeleteSaleTransaction extends EZShopTestBase {
      */
     @Test
     public void testDeleteSaleTransactionSuccessfully() throws Exception {
+        int initialQtyProduct1 = shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity();
+
         assertTrue(shop.deleteSaleTransaction(tid));
         assertNull(shop.getSaleTransaction(tid));
+
+        int finalQtyProduct1 = shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity();
+        assertEquals(initialQtyProduct1 + PRODUCT1_AMOUNT, finalQtyProduct1);
     }
 
 }
