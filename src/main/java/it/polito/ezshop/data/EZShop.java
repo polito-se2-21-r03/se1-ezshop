@@ -506,13 +506,14 @@ public class EZShop implements EZShopInterface {
                 .findAny()
                 .orElse(null);
 
-        // if product does not exist return false
-        if (product == null) {
-            return false;
-        }
-
         // if newPos is null or empty string, unassign position from product
         if (newPos == null || newPos.equals("")) {
+
+            // if product does not exist return false
+            if (product == null) {
+                return false;
+            }
+
             product.setPosition(null);
             writeState();
             return true;
@@ -523,6 +524,11 @@ public class EZShop implements EZShopInterface {
 
         // return false if position is already taken by different product
         if (products.stream().anyMatch(p -> position.equals(p.getPosition()))) {
+            return false;
+        }
+
+        // if product does not exist return false
+        if (product == null) {
             return false;
         }
 
