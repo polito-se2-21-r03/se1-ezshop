@@ -12,12 +12,14 @@ on April 30, discuss whether the design could be improved>
 with all elements explosed, all dependencies, NO tangles; and report it here as a picture>
 ```
 
+![LSM](images/LSM.png)
+
 # Structural over complexity chart
 ```
 <Applying Structure 101 to your project, version to be delivered on june 4, produce the structural over complexity chart; and report it here as a picture>
 ```
 
-
+![Structural over complexity](images/structural_over_complexity.png)
 
 # Size metrics
 
@@ -29,11 +31,11 @@ with all elements explosed, all dependencies, NO tangles; and report it here as 
 
 | Metric                                    | Measure |
 | ----------------------------------------- | ------- |
-| Packages                                  |         |
-| Classes (outer)                           |         |
-| Classes (all)                             |         |
-| NI (number of bytecode instructions)      |         |
-| LOC (non comment non blank lines of code) |         |
+| Packages                                  | 10      |
+| Classes (outer)                           | 62      |
+| Classes (all)                             | 65      |
+| NI (number of bytecode instructions)      | 8617    |
+| LOC (non comment non blank lines of code) | 3705    |
 
 
 
@@ -45,8 +47,8 @@ with all elements explosed, all dependencies, NO tangles; and report it here as 
 
 | Item | Tangled | Fat  | Size | XS   |
 | ---- | ------- | ---- | ---- | ---- |
-|      |         |      |      |      |
-|      |         |      |      |      |
+| it.polito.ezshop | 1% | 9 | 8617 | 78 |
+| it.polito.ezshop.data.EZShop | | 213 | 3033 | 1324 |
 
 
 
@@ -56,6 +58,8 @@ with all elements explosed, all dependencies, NO tangles; and report it here as 
 <Report screen captures of the package-level tangles by opening the items in the "composition perspective" 
 (double click on the tangle from the Views->Complexity page)>
 ```
+
+![Tangle](images/tangle.png)
 
 # Summary analysis
 ```
