@@ -31,7 +31,10 @@ package "it.polito.ezshop" {}
 
 package "GUI" {}
 package "data" {}
-package "model" {}
+package "model" {
+    package "adapter" {}
+    package "persistence" {}
+    }
 package "exceptions" {}
 package "credit_card_circuit" {}
 package "utils" {}
