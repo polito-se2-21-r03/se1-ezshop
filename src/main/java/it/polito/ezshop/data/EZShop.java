@@ -726,8 +726,10 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean recordOrderArrivalRFID(Integer orderId, String RFIDfrom) throws InvalidOrderIdException, UnauthorizedException, 
 InvalidLocationException, InvalidRFIDException {
+        boolean match = products.stream().anyMatch(p -> p.RFIDexists(RFIDfrom));
         return false;
     }
+
     @Override
     public List<Order> getAllOrders() throws UnauthorizedException {
         // verify access rights

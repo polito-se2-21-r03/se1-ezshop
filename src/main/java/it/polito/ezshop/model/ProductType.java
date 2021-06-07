@@ -2,11 +2,18 @@ package it.polito.ezshop.model;
 
 import it.polito.ezshop.exceptions.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static it.polito.ezshop.utils.Utils.isValidBarcode;
 
 public class ProductType {
+
+    /**
+     * DUMMY_RFID represents a product not associated with a valid RFID
+     */
+    public static final String DUMMY_RFID = "dummy_RFID";
 
     private final int id;
     private int quantity;
@@ -15,6 +22,8 @@ public class ProductType {
     private String productDescription;
     private String barCode;
     private double pricePerUnit;
+
+    private final List<String> RFIDs = new ArrayList<>();
 
     public ProductType(Integer id, String productDescription, String barCode, Double pricePerUnit, String note) throws
             InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, InvalidProductIdException, InvalidQuantityException {
@@ -116,16 +125,19 @@ public class ProductType {
     }
 
     public int getQuantity() {
-        return this.quantity;
+        return this.RFIDs.size();
     }
 
     /**
      * Set available quantity of this product
      *
+     * TODO: remove this method
+     *
      * @param quantity quantity to be set
      * @throws InvalidQuantityException thrown if quantity is negative
      * @throws IllegalStateException    thrown if no position has been defined
      */
+    @Deprecated
     public void setQuantity(Integer quantity) throws InvalidQuantityException, IllegalStateException {
         if (quantity == null || quantity < 0) {
             throw new InvalidQuantityException("Product quantity must non-negative");
@@ -154,6 +166,23 @@ public class ProductType {
         } else {
             this.position = new Position(position);
         }
+    }
+
+    public boolean addRFID (String RFID) {
+        if (!RFID.equals(DUMMY_RFID) && RFIDs.contains(RFID)) {
+            return false;
+        }
+
+        RFIDs.add(RFID);
+        return true;
+    }
+
+    public boolean removeRFID (String RFID) {
+        return RFIDs.remove(RFID);
+    }
+
+    public boolean RFIDexists (String RFID) {
+        return RFIDs.contains(RFID);
     }
 
     public boolean equals(Object o) {

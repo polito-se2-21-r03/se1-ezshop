@@ -1,5 +1,7 @@
 package it.polito.ezshop.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ReturnTransactionItem {
@@ -7,6 +9,8 @@ public class ReturnTransactionItem {
     private ProductType productType;
     private final double pricePerUnit;
     private final int amount;
+
+    private List<String> rfids = new ArrayList<>();
 
     public ReturnTransactionItem(ProductType productType, int amount, double pricePerUnit) {
         Objects.requireNonNull(productType);

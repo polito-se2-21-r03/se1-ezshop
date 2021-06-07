@@ -4,14 +4,18 @@ import it.polito.ezshop.exceptions.InvalidDiscountRateException;
 import it.polito.ezshop.exceptions.InvalidPricePerUnitException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class TicketEntry {
 
     private ProductType productType;
     private double pricePerUnit;
-    private int amount;
+    private int amount; // = 3
     private double discountRate;
+
+    private List<String> rfids = new ArrayList<>(); // rfids = { "1", "2", "3"}
 
     public TicketEntry(ProductType productType, int amount) throws InvalidQuantityException {
         // verify productType is not null
