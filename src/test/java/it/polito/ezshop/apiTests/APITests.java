@@ -42,7 +42,9 @@ import org.junit.runners.Suite;
         // FR 6
         EZShopTestStartSaleTransaction.class,
         EZShopTestAddProductToSale.class,
+        EZShopTestAddProductToSaleRFID.class,
         EZShopTestDeleteProductFromSale.class,
+        EZShopTestDeleteProductFromSaleRFID.class,
         EZShopTestApplyDiscountRateToProduct.class,
         EZShopTestApplyDiscountRateToSale.class,
         EZShopTestComputePointsForSale.class,

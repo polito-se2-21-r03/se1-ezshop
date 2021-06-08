@@ -7,6 +7,7 @@ import it.polito.ezshop.data.SaleTransaction;
 import it.polito.ezshop.data.TicketEntry;
 import it.polito.ezshop.exceptions.InvalidProductCodeException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
+import it.polito.ezshop.exceptions.InvalidRFIDException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.Role;
 import org.junit.Before;
@@ -18,14 +19,18 @@ import static it.polito.ezshop.TestHelpers.*;
 import static org.junit.Assert.*;
 
 /**
- * Tests on the EZShop.deleteProductFromSale method.
+ * Tests on the EZShop.deleteProductFromSaleRFID method.
  */
-public class EZShopTestDeleteProductFromSale {
+public class EZShopTestDeleteProductFromSaleRFID {
 
-    private static final Integer PRODUCT_TRANSACTION_AMOUNT_1 = 5;
-    private static final Integer PRODUCT_TRANSACTION_AMOUNT_2 = 5;
     private final EZShopInterface shop = new EZShop();
     private Integer tid;
+
+    private final String RFIDNotExisting = "123123123123";
+    private final String P1_RFID0 = "000000000123";
+    private final String P1_RFID1 = "000000000124";
+    private final String P2_RFID0 = "000000000128";
+    private final String P3_RFID0 = "000000000129";
 
     @Before
     public void beforeEach() throws Exception {
@@ -44,9 +49,20 @@ public class EZShopTestDeleteProductFromSale {
 
         tid = shop.startSaleTransaction();
 
+        shop.recordBalanceUpdate(1000.0);
+        int oid = shop.payOrderFor(TestHelpers.product1.getBarCode(), 2, 10.0);
+        shop.recordOrderArrivalRFID(oid, P1_RFID0);
+
+        oid = shop.payOrderFor(TestHelpers.product2.getBarCode(), 1, 10.0);
+        shop.recordOrderArrivalRFID(oid, P2_RFID0);
+
+        oid = shop.payOrderFor(TestHelpers.product3.getBarCode(), 1, 10.0);
+        shop.recordOrderArrivalRFID(oid, P3_RFID0);
+
         // add product1 and product2 to the transaction
-        shop.addProductToSale(tid, product1.getBarCode(), PRODUCT_TRANSACTION_AMOUNT_1);
-        shop.addProductToSale(tid, product2.getBarCode(), PRODUCT_TRANSACTION_AMOUNT_2);
+        shop.addProductToSaleRFID(tid, P1_RFID0);
+        shop.addProductToSaleRFID(tid, P1_RFID1);
+        shop.addProductToSaleRFID(tid, P2_RFID0);
     }
 
     /**
@@ -54,9 +70,8 @@ public class EZShopTestDeleteProductFromSale {
      */
     @Test
     public void testAuthorization() throws Throwable {
-        Method targetMethod = EZShop.class.getMethod("deleteProductFromSale",
-                Integer.class, String.class, int.class);
-        Object[] params = {tid, product2.getBarCode(), PRODUCT_TRANSACTION_AMOUNT_2};
+        Method targetMethod = EZShop.class.getMethod("deleteProductFromSaleRFID", Integer.class, String.class);
+        Object[] params = {tid, P1_RFID0};
 
         testAccessRights(targetMethod, params, Role.values());
     }
@@ -70,35 +85,21 @@ public class EZShopTestDeleteProductFromSale {
         for (Integer value : TestHelpers.invalidTransactionIDs) {
             assertThrows(InvalidTransactionIdException.class, () -> {
                 // remove product from sale
-                shop.deleteProductFromSale(value, product1.getBarCode(), 1);
+                shop.deleteProductFromSaleRFID(value, P1_RFID0);
             });
         }
     }
 
     /**
-     * If the code is null|empty|NaN|invalid, the method should throw InvalidProductCodeException
+     * If the RFID is null|empty|NaN|invalid, the method should throw InvalidRFIDException
      */
     @Test()
     public void testInvalidProductCode() {
-        // test values for the product code parameter
-        for (String value : TestHelpers.invalidProductCodes) {
-            assertThrows(InvalidProductCodeException.class, () -> {
+        // test values for the RFID parameter
+        for (String value : invalidRFIDs) {
+            assertThrows(InvalidRFIDException.class, () -> {
                 // remove product from sale
-                shop.deleteProductFromSale(tid, value, 1);
-            });
-        }
-    }
-
-    /**
-     * If the amount is less than 0, the method should throw InvalidQuantityException
-     */
-    @Test()
-    public void testInvalidAmount() {
-        // test invalid values for the amount parameter
-        for (Integer value : TestHelpers.invalidTicketEntryAmounts) {
-            assertThrows(InvalidQuantityException.class, () -> {
-                // remove product from sale
-                shop.deleteProductFromSale(tid, product1.getBarCode(), value);
+                shop.deleteProductFromSaleRFID(tid, P1_RFID0);
             });
         }
     }
@@ -112,27 +113,6 @@ public class EZShopTestDeleteProductFromSale {
     }
 
     /**
-     * If the quantity of product in the transaction cannot satisfy the request, the method should return false
-     */
-    @Test()
-    public void testAmountAboveQuantity() throws Exception {
-        Integer initialQtyOnShelves = shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity();
-
-        // try to remove the current amount of product + 1
-        assertFalse(shop.deleteProductFromSale(tid, product1.getBarCode(), 1 + PRODUCT_TRANSACTION_AMOUNT_1));
-
-        // verify the quantity of product in the transaction did not change
-        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) ((EZShop)shop).getAccountBook().getTransaction(tid);
-        Integer qty = sale.getTransactionItems().stream()
-                .filter(x -> x.getProductType().getBarCode().equals(product1.getBarCode()))
-                .map(it.polito.ezshop.model.TicketEntry::getAmount).findFirst().orElse(-1);
-        assertEquals(PRODUCT_TRANSACTION_AMOUNT_1, qty);
-
-        // verify the quantity of product1 on the shelves did not change
-        assertEquals(initialQtyOnShelves, shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity());
-    }
-
-    /**
      * If the transaction is not open, the method should return false
      */
     @Test()
@@ -142,21 +122,21 @@ public class EZShopTestDeleteProductFromSale {
         // close the transaction...
         shop.endSaleTransaction(tid);
         // ...and try to remove a product
-        assertFalse(shop.deleteProductFromSale(tid, product1.getBarCode(), PRODUCT_TRANSACTION_AMOUNT_1));
+        assertFalse(shop.deleteProductFromSaleRFID(tid, P1_RFID0));
 
         // pay the transaction...
         SaleTransaction sale = shop.getSaleTransaction(tid);
         shop.receiveCashPayment(tid, sale.getPrice());
 
         // ...and try to remove a product
-        assertFalse(shop.deleteProductFromSale(tid, product1.getBarCode(), PRODUCT_TRANSACTION_AMOUNT_1));
+        assertFalse(shop.deleteProductFromSaleRFID(tid, P1_RFID0));
 
         // verify the quantity of product in the transaction did not change
         sale = shop.getSaleTransaction(tid);
         Integer qty = sale.getEntries().stream()
                 .filter(x -> x.getBarCode().equals(product1.getBarCode()))
                 .map(TicketEntry::getAmount).findFirst().orElse(-1);
-        assertEquals(PRODUCT_TRANSACTION_AMOUNT_1, qty);
+        assertEquals((Integer) 1, qty);
 
         // verify the quantity of product1 on the shelves did not change
         assertEquals(initialQtyOnShelves, shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity());
@@ -170,34 +150,33 @@ public class EZShopTestDeleteProductFromSale {
         Integer initialInventoryLevelForProduct1 = shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity();
         Integer initialInventoryLevelForProduct2 = shop.getProductTypeByBarCode(product2.getBarCode()).getQuantity();
 
-        // 1. partially remove product 1 from the transaction
-        // compute the amount of product 1 to be removed from the transaction
-        int amountProduct1ToBeRemoved = PRODUCT_TRANSACTION_AMOUNT_1 / 2;
-        assertTrue(shop.deleteProductFromSale(tid, product1.getBarCode(), amountProduct1ToBeRemoved));
+        // 1.1 remove product 1 from the transaction
+        assertTrue(shop.deleteProductFromSaleRFID(tid, P1_RFID0));
 
-        // 1.1 verify that the quantity of PRODUCT_CODE_1 in the inventory is correctly updated
-        int inventoryLevelForProduct1After = shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity();
-        assertEquals(initialInventoryLevelForProduct1 + amountProduct1ToBeRemoved, inventoryLevelForProduct1After);
+        // 1.2 completely remove product 2 from the transaction
+        assertTrue(shop.deleteProductFromSaleRFID(tid, P2_RFID0));
 
-        // 2. completely remove product 2 from the transaction
-        assertTrue(shop.deleteProductFromSale(tid, product2.getBarCode(), PRODUCT_TRANSACTION_AMOUNT_2));
+        // 1.3 verify that the quantity of product 1 in the inventory is correctly updated
+        assertEquals((Integer) (initialInventoryLevelForProduct1 + 1),
+                shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity()
+        );
 
-        // 2.1 verify that the quantity of PRODUCT_CODE_2 in the inventory is correctly updated
-        assertEquals((Integer) (initialInventoryLevelForProduct2 + PRODUCT_TRANSACTION_AMOUNT_2),
+        // 1.3 verify that the quantity of product 2 in the inventory is correctly updated
+        assertEquals((Integer) (initialInventoryLevelForProduct2 + 1),
                 shop.getProductTypeByBarCode(product2.getBarCode()).getQuantity()
         );
 
-        // 3. verify the final status of the transaction
+        // 2. verify the final status of the transaction
         shop.endSaleTransaction(tid);
         SaleTransaction saleTransaction = shop.getSaleTransaction(tid);
 
-        // 3.1 check amount of product 1 in the transaction
+        // 2.1 check amount of product 1 in the transaction
         int amountP1 = saleTransaction.getEntries().stream()
                 .filter(x -> x.getBarCode().equals(product1.getBarCode()))
                 .findAny()
                 .map(TicketEntry::getAmount)
                 .orElse(-1);
-        assertEquals(PRODUCT_TRANSACTION_AMOUNT_1 - amountProduct1ToBeRemoved, amountP1);
+        assertEquals(1, amountP1);
 
         // 3.2 verify product2 was completely removed
         assertFalse(saleTransaction.getEntries().stream().anyMatch(x -> x.getBarCode().equals(product2.getBarCode())));
