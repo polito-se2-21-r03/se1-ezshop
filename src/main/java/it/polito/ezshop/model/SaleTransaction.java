@@ -2,6 +2,7 @@ package it.polito.ezshop.model;
 
 import it.polito.ezshop.exceptions.InvalidDiscountRateException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
+import it.polito.ezshop.exceptions.InvalidRFIDException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 
 import java.time.LocalDate;
@@ -76,7 +77,32 @@ public class SaleTransaction extends Credit {
 
         recomputeBalanceValue();
     }
+    /**
+     * Add a product to the transaction. The transaction must be in the OPEN state.
+     * The balance value of the transaction is updated.
+     *
+     * @param product      to add
+     * @param RFID      of the product to add
+     */
+    public void addSaleTransactionItemRFID(ProductType product, String RFID)
+            throws InvalidRFIDException, IllegalStateException, InvalidQuantityException {
+        if (this.getStatus() != OperationStatus.OPEN) {
+            throw new IllegalStateException("Sale transaction is not OPEN.");
+        }
 
+        TicketEntry entry = this.entries.stream()
+                .filter(x -> x.RFIDexists(RFID))
+                .findAny()
+                .orElse(null);
+
+        if (entry != null) {
+            entry.setAmount(entry.getAmount() + 1);
+        } else {
+            entries.add(new TicketEntry(product, RFID));
+        }
+
+        recomputeBalanceValue();
+    }
     /**
      * Remove a product from the transaction.
      *
@@ -99,6 +125,28 @@ public class SaleTransaction extends Credit {
         } else {
             entries.remove(entry);
         }
+
+        if (status == OperationStatus.OPEN) {
+            recomputeBalanceValue();
+        }
+        return true;
+    }
+
+    public boolean removeSaleTransactionItemRFID(String RFID) throws IllegalStateException, InvalidQuantityException {
+            if (this.getStatus() != OperationStatus.OPEN) {
+                throw new IllegalStateException("Sale transaction is not OPEN.");
+            }
+
+            TicketEntry entry = this.entries.stream()
+                    .filter(x -> x.RFIDexists(RFID))
+                    .findAny()
+                    .orElse(null);
+
+        if (entry == null ) {
+            return false;
+        }
+
+        entry.removeRFID(RFID);
 
         if (status == OperationStatus.OPEN) {
             recomputeBalanceValue();

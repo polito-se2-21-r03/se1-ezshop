@@ -943,6 +943,38 @@ InvalidLocationException, InvalidRFIDException {
 
     @Override
     public boolean addProductToSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, InvalidQuantityException, UnauthorizedException{
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
+        if(!it.polito.ezshop.utils.Utils.isValidRFID(RFID))
+            throw new InvalidRFIDException("Error, Invalid RFID");
+        // retrieve the OPEN sale transaction
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        if (transaction.getStatus() != OperationStatus.OPEN) return false;
+
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
+        // retrieve the product with given RFID
+        it.polito.ezshop.model.ProductType p = products.stream()
+                .filter(x -> x.RFIDexists(RFID))
+                .findFirst().orElse(null);
+
+        if (p == null) return false;
+        else it.polito.ezshop.model.TicketEntry.validateAmount(1);
+
+        try {
+            // remove the product with that RFID from the list of products [updates automatically the quantity on the shelves]
+            p.removeRFID(RFID);
+            // add the product with that RFID in the transaction
+            sale.addSaleTransactionItemRFID(p, RFID);
+
+            writeState();
+            return true;
+        } catch (Exception ignored) {
+            // ignored exception: should never reach this point
+        }
+
+
         return false;
     }
     
@@ -984,6 +1016,36 @@ InvalidLocationException, InvalidRFIDException {
 
     @Override
     public boolean deleteProductFromSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, InvalidQuantityException, UnauthorizedException{
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
+        if(!it.polito.ezshop.utils.Utils.isValidRFID(RFID))
+            throw new InvalidRFIDException("Error, Invalid RFID");
+        // retrieve the OPEN sale transaction
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        if (transaction.getStatus() != OperationStatus.OPEN) return false;
+
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
+        // retrieve the product with given RFID
+        it.polito.ezshop.model.ProductType p = products.stream()
+                .filter(x -> x.RFIDexists(RFID))
+                .findFirst().orElse(null);
+
+        if (p == null) return false;
+        else it.polito.ezshop.model.TicketEntry.validateAmount(1);
+
+        try {
+            if(sale.removeSaleTransactionItemRFID(RFID)) {
+                // add the product with that RFID from the list of products [updates automatically the quantity on the shelves]
+                p.addRFID(RFID);
+            }
+
+            writeState();
+            return true;
+        } catch (Exception ignored) {
+            // ignored exception: should never reach this point
+        }
         return false;
     }
 
