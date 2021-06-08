@@ -76,6 +76,12 @@ public class TestHelpers {
             "13589549939144", "135895499391443525", "1358954993914491");
 
     /**
+     * Invalid RFID codes
+     */
+    public static final List<String> invalidRFIDs = Arrays.asList(null, "", "12345678901a",
+            "a23456789012", "12345678901");
+
+    /**
      * Invalid values for the ticket entry amount
      */
     public static final List<Integer> invalidTicketEntryAmounts = Arrays.asList(-10, -1);

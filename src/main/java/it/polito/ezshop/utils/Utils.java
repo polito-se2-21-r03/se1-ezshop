@@ -142,5 +142,14 @@ public class Utils {
         return checksum % 10 == 0;
     }
 
+    /**
+     * Verify a given RFID is valid (sequence of 12 digits)
+     * @param RFID code to check
+     * @return true if the code is valid, false otherwise
+     */
+    public static boolean isValidRFID (String RFID) {
+        return RFID != null && RFID.matches("\\d{12}");
+    }
+
 }
 

@@ -7,6 +7,7 @@ import it.polito.ezshop.model.TicketEntry;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
+import it.polito.ezshop.utils.Utils;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -726,8 +727,56 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean recordOrderArrivalRFID(Integer orderId, String RFIDfrom) throws InvalidOrderIdException, UnauthorizedException, 
 InvalidLocationException, InvalidRFIDException {
-        boolean match = products.stream().anyMatch(p -> p.RFIDexists(RFIDfrom));
-        return false;
+        // check that orderId is valid ID
+        if (orderId == null || orderId <= 0) {
+            throw new InvalidOrderIdException("Order ID must be positive integer");
+        }
+
+        // verify access rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
+        // verify that order exists
+        it.polito.ezshop.model.BalanceOperation transactionWithId = accountBook.getTransaction(orderId);
+        if (!(transactionWithId instanceof it.polito.ezshop.model.Order)) return false;
+
+        // verify that Order was either paid for or has already been completed
+        it.polito.ezshop.model.Order order = (it.polito.ezshop.model.Order) transactionWithId;
+        OperationStatus previousStatus = order.getStatus();
+        if (!(previousStatus == OperationStatus.PAID || previousStatus == OperationStatus.COMPLETED)) {
+            return false;
+        }
+
+        // find the product that is being reordered
+        it.polito.ezshop.model.ProductType orderedProduct = products.stream()
+                .filter(p -> p.getBarCode().equals(order.getProductCode()))
+                .findAny()
+                .orElse(null);
+
+        // verify ordered product exists
+        if (orderedProduct == null){
+            return false;
+        }
+
+        // verify the product is assigned to a location
+        if (orderedProduct.getPosition() == null) {
+            throw new InvalidLocationException();
+        }
+
+        // update product quantity (generate new RFIDs starting from the given one)
+        List<String> RFIDs = it.polito.ezshop.model.ProductType.generateRFIDs(RFIDfrom, order.getQuantity());
+        // check for the uniqueness of the generated codes
+        if (this.products.stream().anyMatch(p -> RFIDs.stream().anyMatch(p::RFIDexists))) {
+            return false;
+        }
+
+        orderedProduct.addRFIDs(RFIDs);
+
+        // mark order as completed
+        accountBook.setTransactionStatus(orderId, OperationStatus.COMPLETED);
+
+        writeState();
+        // return success of operation
+        return true;
     }
 
     @Override
