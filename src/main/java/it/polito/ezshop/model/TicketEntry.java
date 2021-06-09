@@ -32,6 +32,9 @@ public class TicketEntry {
         this.amount = amount;
         this.pricePerUnit = productType.getPricePerUnit();
         this.discountRate = 0.0;
+        for (int i = 0; i < amount; i++) {
+            this.addRFID(DUMMY_RFID);
+        }
     }
 
     public TicketEntry(ProductType productType, String RFID) throws InvalidRFIDException {
@@ -62,6 +65,9 @@ public class TicketEntry {
         this.amount = amount;
         this.pricePerUnit = productType.getPricePerUnit();
         this.discountRate = discount;
+        for (int i = 0; i < amount; i++) {
+            this.addRFID(DUMMY_RFID);
+        }
     }
 
     public static void validateAmount(int amount) throws InvalidQuantityException {
