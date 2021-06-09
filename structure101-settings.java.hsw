@@ -12,9 +12,7 @@
   <property name="show-needs-to-compile" value="false" />
   <property name="project-type" value="classpath" />
   <property name="hide-externals" value="true" />
-  <classpath>
-    <classpathentry kind="lib" path="target/classes" module="ezshop" displaymodule="ezshop" />
-  </classpath>
+  <classpath />
   <pom-root-files />
   <modules>
     <module name="ezshop" kind="ide-project" />

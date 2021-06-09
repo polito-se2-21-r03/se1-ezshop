@@ -43,9 +43,10 @@ public class TicketEntry {
             throw new InvalidRFIDException("Error, Invalid RFID");
 
         this.productType = productType;
-        this.amount = 1;
+        // this.amount = 1;
         this.pricePerUnit = productType.getPricePerUnit();
         this.discountRate = 0.0;
+        this.addRFID(RFID);
     }
 
     public TicketEntry(ProductType productType, int amount, double discount) throws InvalidQuantityException,
