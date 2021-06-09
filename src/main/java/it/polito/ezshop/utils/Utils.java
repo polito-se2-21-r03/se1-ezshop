@@ -1,5 +1,7 @@
 package it.polito.ezshop.utils;
 
+import it.polito.ezshop.model.ProductType;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -148,7 +150,7 @@ public class Utils {
      * @return true if the code is valid, false otherwise
      */
     public static boolean isValidRFID (String RFID) {
-        return RFID != null && RFID.matches("\\d{12}");
+        return RFID != null && (RFID.equals(ProductType.DUMMY_RFID) || RFID.matches("\\d{12}"));
     }
 
 }

@@ -192,7 +192,7 @@ public class ProductType {
         if (RFID == null) return false;
 
         // check the given RFID is either dummy or valid
-        if (RFID.equals(DUMMY_RFID) || Utils.isValidRFID(RFID)) {
+        if (Utils.isValidRFID(RFID)) {
 
             // check the uniqueness of the RFIDs
             if (!RFID.equals(DUMMY_RFID) && RFIDs.contains(RFID)) {
@@ -204,6 +204,10 @@ public class ProductType {
         }
 
         return false;
+    }
+
+    public List<String> getRFIDs () {
+        return this.RFIDs;
     }
 
     /**
@@ -238,6 +242,33 @@ public class ProductType {
      */
     public boolean RFIDexists (String RFID) {
         return RFIDs.contains(RFID);
+    }
+
+    /**
+     * Pick n RFIDs from the ProductType, possibly starting with the dummy ones.
+     *
+     * @param n number of RFIDs to pick
+     * @return a list of RFIDs
+     */
+    public List<String> pickNRFIDs (int n) {
+        ArrayList<String> retList = new ArrayList<>();
+
+        if (n > this.getQuantity()) {
+            return retList;
+        }
+
+        // first, try to pick DUMMY RFIDs
+        for (; n > 0 && this.RFIDs.remove(DUMMY_RFID); n--) {
+            retList.add(DUMMY_RFID);
+        }
+
+        // then, pick random RFIDs
+        for (; n > 0; n--) {
+            retList.add(this.RFIDs.get(0));
+            this.RFIDs.remove(0);
+        }
+
+        return retList;
     }
 
     public boolean equals(Object o) {

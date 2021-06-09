@@ -12,11 +12,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class TicketEntry {
-    public static final String DUMMY_RFID = "dummy_RFID";
 
     private ProductType productType;
     private double pricePerUnit;
-    private int amount; // = 3
     private double discountRate;
 
     private List<String> RFIDs = new ArrayList<>(); // rfids = { "1", "2", "3"}
@@ -29,11 +27,10 @@ public class TicketEntry {
         validateAmount(amount);
 
         this.productType = productType;
-        this.amount = amount;
         this.pricePerUnit = productType.getPricePerUnit();
         this.discountRate = 0.0;
         for (int i = 0; i < amount; i++) {
-            this.addRFID(DUMMY_RFID);
+            this.addRFID(ProductType.DUMMY_RFID);
         }
     }
 
@@ -62,11 +59,10 @@ public class TicketEntry {
         validateDiscount(discount);
 
         this.productType = productType;
-        this.amount = amount;
         this.pricePerUnit = productType.getPricePerUnit();
         this.discountRate = discount;
         for (int i = 0; i < amount; i++) {
-            this.addRFID(DUMMY_RFID);
+            this.addRFID(ProductType.DUMMY_RFID);
         }
     }
 
@@ -89,7 +85,7 @@ public class TicketEntry {
     }
 
     public double computeTotal() {
-        return (1.0 - discountRate) * amount * pricePerUnit;
+        return (1.0 - discountRate) * getAmount() * pricePerUnit;
     }
 
     public ProductType getProductType() {
@@ -106,7 +102,22 @@ public class TicketEntry {
 
     public void setAmount(int amount) throws InvalidQuantityException {
         validateAmount(amount);
-        this.amount = amount;
+
+        int delta = amount - this.getAmount();
+
+        if (delta >= 0) {
+            // add new products (dummy RFIDs)
+            this.RFIDs.addAll(Collections.nCopies(delta, ProductType.DUMMY_RFID));
+        } else {
+            // remove -delta RFIDs
+            int nToRemove = -delta;
+            // first, try to remove DUMMY RFIDs
+            for (; nToRemove > 0 && this.RFIDs.remove(ProductType.DUMMY_RFID); nToRemove--);
+            // then, remove random RFIDs
+            for (; nToRemove > 0; nToRemove--) {
+                this.RFIDs.remove(0);
+            }
+        }
     }
 
     public double getDiscountRate() {
@@ -127,6 +138,10 @@ public class TicketEntry {
         this.pricePerUnit = pricePerUnit;
     }
 
+    public List<String> getRFIDs () {
+        return this.RFIDs;
+    }
+
     /**
      * Add an RFID to the list
      * @param RFID code to add
@@ -136,10 +151,10 @@ public class TicketEntry {
         if (RFID == null) return false;
 
         // check the given RFID is either dummy or valid
-        if (RFID.equals(DUMMY_RFID) || Utils.isValidRFID(RFID)) {
+        if (Utils.isValidRFID(RFID)) {
 
             // check the uniqueness of the RFIDs
-            if (!RFID.equals(DUMMY_RFID) && RFIDs.contains(RFID)) {
+            if (!RFID.equals(ProductType.DUMMY_RFID) && RFIDs.contains(RFID)) {
                 return false;
             }
 
@@ -167,19 +182,45 @@ public class TicketEntry {
         return RFIDs.contains(RFID);
     }
 
+    /**
+     * Pick n RFIDs from the TicketEntry, possibly starting with the dummy ones.
+     *
+     * @param n number of RFIDs to pick
+     * @return a list of RFIDs
+     */
+    public List<String> pickNRFIDs (int n) {
+        ArrayList<String> retList = new ArrayList<>();
+
+        if (n > this.getAmount()) {
+            return retList;
+        }
+
+        // first, try to pick DUMMY RFIDs
+        for (; n > 0 && this.RFIDs.remove(ProductType.DUMMY_RFID); n--) {
+            retList.add(ProductType.DUMMY_RFID);
+        }
+
+        // then, pick random RFIDs
+        for (; n > 0; n--) {
+            retList.add(this.RFIDs.get(0));
+            this.RFIDs.remove(0);
+        }
+
+        return retList;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TicketEntry that = (TicketEntry) o;
-        return amount == that.amount &&
-                Double.compare(that.pricePerUnit, pricePerUnit) == 0 &&
+        return Double.compare(that.pricePerUnit, pricePerUnit) == 0 &&
                 Double.compare(that.discountRate, discountRate) == 0 &&
                 Objects.equals(productType, that.productType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(productType, amount, discountRate);
+        return Objects.hash(productType, discountRate);
     }
 }

@@ -7,7 +7,6 @@ import it.polito.ezshop.model.TicketEntry;
 import it.polito.ezshop.model.*;
 import it.polito.ezshop.model.adapters.*;
 import it.polito.ezshop.model.persistence.JsonInterface;
-import it.polito.ezshop.utils.Utils;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -927,10 +926,12 @@ InvalidLocationException, InvalidRFIDException {
         if (p == null) return false;
 
         try {
-            // update the quantity on the shelves
-            p.setQuantity(p.getQuantity() - amount);
+            // pick amount RFIDs
+            List<String> RFIDs = p.pickNRFIDs(amount);
             // amount the amount in the transaction
-            sale.addSaleTransactionItem(p, amount);
+            for (String RFID : RFIDs) {
+                sale.addSaleTransactionItemRFID(p, RFID);
+            }
 
             writeState();
             return true;
@@ -1003,7 +1004,6 @@ InvalidLocationException, InvalidRFIDException {
         try {
             if (sale.removeSaleTransactionItem(product, amount)) {
                 // update the quantity on the shelves
-                product.setQuantity(product.getQuantity() + amount);
                 writeState();
                 return true;
             }
@@ -1143,10 +1143,8 @@ InvalidLocationException, InvalidRFIDException {
                     .filter(p -> p.getBarCode().equals(entry.getProductType().getBarCode()))
                     .findAny()
                     .ifPresent(p -> {
-                        try {
-                            p.setQuantity(p.getQuantity() + entry.getAmount());
-                        } catch (InvalidQuantityException ignored) {
-                        }
+                        List<String> RFIDs = entry.pickNRFIDs(entry.getAmount());
+                        p.addRFIDs(RFIDs);
                     });
         }
 

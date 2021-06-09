@@ -58,6 +58,7 @@ public class SaleTransaction extends Credit {
      * @param product      to add
      * @param amount       of the product to add
      */
+    @Deprecated
     public void addSaleTransactionItem(ProductType product, int amount)
             throws InvalidQuantityException, IllegalStateException {
         if (this.getStatus() != OperationStatus.OPEN) {
@@ -110,7 +111,7 @@ public class SaleTransaction extends Credit {
      * @param amount  of the product to remove
      * @return true if the product is removed, false otherwise
      */
-    public boolean removeSaleTransactionItem(ProductType product, int amount) throws InvalidQuantityException {
+    public boolean removeSaleTransactionItem(ProductType product, int amount) {
         TicketEntry entry = entries.stream()
                 .filter(x -> x.getProductType().getBarCode().equals(product.getBarCode()))
                 .findFirst()
@@ -120,9 +121,10 @@ public class SaleTransaction extends Credit {
             return false;
         }
 
-        if (entry.getAmount() > amount) {
-            entry.setAmount(entry.getAmount() - amount);
-        } else {
+        List<String> RFIDs = entry.pickNRFIDs(amount);
+        product.addRFIDs(RFIDs);
+
+        if (entry.getAmount() == 0) {
             entries.remove(entry);
         }
 

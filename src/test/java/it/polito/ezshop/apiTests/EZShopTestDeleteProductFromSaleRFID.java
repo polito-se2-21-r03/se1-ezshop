@@ -136,7 +136,7 @@ public class EZShopTestDeleteProductFromSaleRFID {
         Integer qty = sale.getEntries().stream()
                 .filter(x -> x.getBarCode().equals(product1.getBarCode()))
                 .map(TicketEntry::getAmount).findFirst().orElse(-1);
-        assertEquals((Integer) 1, qty);
+        assertEquals((Integer) 2, qty);
 
         // verify the quantity of product1 on the shelves did not change
         assertEquals(initialQtyOnShelves, shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity());
