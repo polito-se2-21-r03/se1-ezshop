@@ -1027,9 +1027,14 @@ InvalidLocationException, InvalidRFIDException {
         if (transaction.getStatus() != OperationStatus.OPEN) return false;
 
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
+        // find the barcode of the product associated with RFID
+        String barcode = sale.getTransactionItems().stream()
+                .filter(x -> x.RFIDexists(RFID))
+                .map(x -> x.getProductType().getBarCode()).findAny().orElse(null);
+
         // retrieve the product with given RFID
         it.polito.ezshop.model.ProductType p = products.stream()
-                .filter(x -> x.RFIDexists(RFID))
+                .filter(x -> x.getBarCode().equals(barcode))
                 .findFirst().orElse(null);
 
         if (p == null) return false;
@@ -1039,10 +1044,10 @@ InvalidLocationException, InvalidRFIDException {
             if(sale.removeSaleTransactionItemRFID(RFID)) {
                 // add the product with that RFID from the list of products [updates automatically the quantity on the shelves]
                 p.addRFID(RFID);
-            }
 
-            writeState();
-            return true;
+                writeState();
+                return true;
+            }
         } catch (Exception ignored) {
             // ignored exception: should never reach this point
         }

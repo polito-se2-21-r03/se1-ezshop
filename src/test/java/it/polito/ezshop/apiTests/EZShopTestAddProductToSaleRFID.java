@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
-import static it.polito.ezshop.TestHelpers.testAccessRights;
+import static it.polito.ezshop.TestHelpers.*;
 import static org.junit.Assert.*;
 
 /**
@@ -44,13 +44,13 @@ public class EZShopTestAddProductToSaleRFID {
 
         // add product1 and product2 to the shop
         TestHelpers.addProductToShop(shop, TestHelpers.product1);
-        TestHelpers.addProductToShop(shop, TestHelpers.product2);
+        TestHelpers.addProductToShop(shop, product2);
 
         shop.recordBalanceUpdate(1000.0);
         int oid = shop.payOrderFor(TestHelpers.product1.getBarCode(), 2, 10.0);
         shop.recordOrderArrivalRFID(oid, P1_RFID0);
 
-        oid = shop.payOrderFor(TestHelpers.product2.getBarCode(), 1, 10.0);
+        oid = shop.payOrderFor(product2.getBarCode(), 1, 10.0);
         shop.recordOrderArrivalRFID(oid, P2_RFID0);
 
         tid = shop.startSaleTransaction();
@@ -124,13 +124,13 @@ public class EZShopTestAddProductToSaleRFID {
 
         // 1.1 verify that the quantity of product1 in the inventory is correctly updated
         ProductType p1 = shop.getProductTypeByBarCode(TestHelpers.product1.getBarCode());
-        assertEquals((Integer) 0, p1.getQuantity());
+        assertEquals((Integer) product1.getQuantity(), p1.getQuantity());
 
         // 2. add product2
         assertTrue(shop.addProductToSaleRFID(tid, P2_RFID0));
         // 2.1 verify that the quantity of product2 in the inventory is correctly updated
-        ProductType p2 = shop.getProductTypeByBarCode(TestHelpers.product2.getBarCode());
-        assertEquals((Integer) 0, p2.getQuantity());
+        ProductType p2 = shop.getProductTypeByBarCode(product2.getBarCode());
+        assertEquals((Integer) product2.getQuantity(), p2.getQuantity());
 
         // 3. verify the final status of the transaction
         shop.endSaleTransaction(tid);
@@ -146,7 +146,7 @@ public class EZShopTestAddProductToSaleRFID {
 
         // 3.2 check amount of product 2 in the transaction
         int amountP2 = saleTransaction.getEntries().stream()
-                .filter(x -> x.getBarCode().equals(TestHelpers.product2.getBarCode()))
+                .filter(x -> x.getBarCode().equals(product2.getBarCode()))
                 .findAny()
                 .map(TicketEntry::getAmount)
                 .orElse(0);

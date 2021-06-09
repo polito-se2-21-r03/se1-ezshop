@@ -99,7 +99,7 @@ public class EZShopTestDeleteProductFromSaleRFID {
         for (String value : invalidRFIDs) {
             assertThrows(InvalidRFIDException.class, () -> {
                 // remove product from sale
-                shop.deleteProductFromSaleRFID(tid, P1_RFID0);
+                shop.deleteProductFromSaleRFID(tid, value);
             });
         }
     }

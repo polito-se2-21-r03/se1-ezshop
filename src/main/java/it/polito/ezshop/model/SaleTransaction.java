@@ -85,18 +85,18 @@ public class SaleTransaction extends Credit {
      * @param RFID      of the product to add
      */
     public void addSaleTransactionItemRFID(ProductType product, String RFID)
-            throws InvalidRFIDException, IllegalStateException, InvalidQuantityException {
+            throws InvalidRFIDException, IllegalStateException {
         if (this.getStatus() != OperationStatus.OPEN) {
             throw new IllegalStateException("Sale transaction is not OPEN.");
         }
 
         TicketEntry entry = this.entries.stream()
-                .filter(x -> x.RFIDexists(RFID))
-                .findAny()
+                .filter(x -> x.getProductType().getBarCode().equals(product.getBarCode()))
+                .findFirst()
                 .orElse(null);
 
         if (entry != null) {
-            entry.setAmount(entry.getAmount() + 1);
+            entry.addRFID(RFID);
         } else {
             entries.add(new TicketEntry(product, RFID));
         }
@@ -133,20 +133,23 @@ public class SaleTransaction extends Credit {
     }
 
     public boolean removeSaleTransactionItemRFID(String RFID) throws IllegalStateException, InvalidQuantityException {
-            if (this.getStatus() != OperationStatus.OPEN) {
-                throw new IllegalStateException("Sale transaction is not OPEN.");
-            }
+        if (this.getStatus() != OperationStatus.OPEN) {
+            throw new IllegalStateException("Sale transaction is not OPEN.");
+        }
 
-            TicketEntry entry = this.entries.stream()
-                    .filter(x -> x.RFIDexists(RFID))
-                    .findAny()
-                    .orElse(null);
+        TicketEntry entry = this.entries.stream()
+                .filter(x -> x.RFIDexists(RFID))
+                .findAny()
+                .orElse(null);
 
-        if (entry == null ) {
+        if (entry == null) {
             return false;
         }
 
         entry.removeRFID(RFID);
+        if (entry.getAmount() == 0) {
+            this.entries.remove(entry);
+        }
 
         if (status == OperationStatus.OPEN) {
             recomputeBalanceValue();
