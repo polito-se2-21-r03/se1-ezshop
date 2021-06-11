@@ -1,17 +1,16 @@
 package it.polito.ezshop.unitTests;
 
-import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.Position;
 import it.polito.ezshop.model.ProductType;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
 import static it.polito.ezshop.TestHelpers.*;
+import static it.polito.ezshop.utils.Utils.DUMMY_RFID;
+import static org.junit.Assert.*;
 
 public class TestProductType {
 
@@ -168,7 +167,7 @@ public class TestProductType {
 
         product.setQuantity(newQuantity);
         assertEquals(newQuantity, product.getQuantity());
-        assertTrue(product.RFIDexists(ProductType.DUMMY_RFID));
+        assertTrue(product.RFIDexists(DUMMY_RFID));
 
         product.setPosition(newPosition);
         assertEquals(newPosition, product.getPosition());
@@ -216,9 +215,9 @@ public class TestProductType {
         assertTrue(product.RFIDexists(RFID));
 
         // add a dummy RFID
-        assertTrue(product.addRFID(ProductType.DUMMY_RFID));
-        assertTrue(product.addRFID(ProductType.DUMMY_RFID));
-        assertTrue(product.RFIDexists(ProductType.DUMMY_RFID));
+        assertTrue(product.addRFID(DUMMY_RFID));
+        assertTrue(product.addRFID(DUMMY_RFID));
+        assertTrue(product.RFIDexists(DUMMY_RFID));
 
         assertEquals(3, product.getQuantity());
     }
@@ -242,7 +241,7 @@ public class TestProductType {
         ProductType product = new ProductType(id, productDescription, barcode, pricePerUnit, note, 0, position);
 
         product.addDummyRFIDs(3);
-        assertTrue(product.RFIDexists(ProductType.DUMMY_RFID));
+        assertTrue(product.RFIDexists(DUMMY_RFID));
 
         assertEquals(3, product.getQuantity());
     }

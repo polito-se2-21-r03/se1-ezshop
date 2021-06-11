@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static it.polito.ezshop.utils.Utils.DUMMY_RFID;
+
 public class TicketEntry {
 
     private ProductType productType;
@@ -30,7 +32,7 @@ public class TicketEntry {
         this.pricePerUnit = productType.getPricePerUnit();
         this.discountRate = 0.0;
         for (int i = 0; i < amount; i++) {
-            this.addRFID(ProductType.DUMMY_RFID);
+            this.addRFID(DUMMY_RFID);
         }
     }
 
@@ -62,7 +64,7 @@ public class TicketEntry {
         this.pricePerUnit = productType.getPricePerUnit();
         this.discountRate = discount;
         for (int i = 0; i < amount; i++) {
-            this.addRFID(ProductType.DUMMY_RFID);
+            this.addRFID(DUMMY_RFID);
         }
     }
 
@@ -107,12 +109,12 @@ public class TicketEntry {
 
         if (delta >= 0) {
             // add new products (dummy RFIDs)
-            this.RFIDs.addAll(Collections.nCopies(delta, ProductType.DUMMY_RFID));
+            this.RFIDs.addAll(Collections.nCopies(delta, DUMMY_RFID));
         } else {
             // remove -delta RFIDs
             int nToRemove = -delta;
             // first, try to remove DUMMY RFIDs
-            for (; nToRemove > 0 && this.RFIDs.remove(ProductType.DUMMY_RFID); nToRemove--);
+            for (; nToRemove > 0 && this.RFIDs.remove(DUMMY_RFID); nToRemove--);
             // then, remove random RFIDs
             for (; nToRemove > 0; nToRemove--) {
                 this.RFIDs.remove(0);
@@ -154,7 +156,7 @@ public class TicketEntry {
         if (Utils.isValidRFID(RFID)) {
 
             // check the uniqueness of the RFIDs
-            if (!RFID.equals(ProductType.DUMMY_RFID) && RFIDs.contains(RFID)) {
+            if (!RFID.equals(DUMMY_RFID) && RFIDs.contains(RFID)) {
                 return false;
             }
 
@@ -180,33 +182,6 @@ public class TicketEntry {
      */
     public boolean RFIDexists (String RFID) {
         return RFIDs.contains(RFID);
-    }
-
-    /**
-     * Pick n RFIDs from the TicketEntry, possibly starting with the dummy ones.
-     *
-     * @param n number of RFIDs to pick
-     * @return a list of RFIDs
-     */
-    public List<String> pickNRFIDs (int n) {
-        ArrayList<String> retList = new ArrayList<>();
-
-        if (n > this.getAmount()) {
-            return retList;
-        }
-
-        // first, try to pick DUMMY RFIDs
-        for (; n > 0 && this.RFIDs.remove(ProductType.DUMMY_RFID); n--) {
-            retList.add(ProductType.DUMMY_RFID);
-        }
-
-        // then, pick random RFIDs
-        for (; n > 0; n--) {
-            retList.add(this.RFIDs.get(0));
-            this.RFIDs.remove(0);
-        }
-
-        return retList;
     }
 
     @Override

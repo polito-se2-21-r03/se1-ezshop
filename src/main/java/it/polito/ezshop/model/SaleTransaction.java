@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static it.polito.ezshop.utils.Utils.pickNRFIDs;
+
 public class SaleTransaction extends Credit {
 
     private final List<TicketEntry> entries = new ArrayList<>();
@@ -121,7 +123,7 @@ public class SaleTransaction extends Credit {
             return false;
         }
 
-        List<String> RFIDs = entry.pickNRFIDs(amount);
+        List<String> RFIDs = pickNRFIDs(entry.getRFIDs(), amount);
         product.addRFIDs(RFIDs);
 
         if (entry.getAmount() == 0) {

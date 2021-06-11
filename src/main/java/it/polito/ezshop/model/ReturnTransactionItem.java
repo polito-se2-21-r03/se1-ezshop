@@ -1,23 +1,53 @@
 package it.polito.ezshop.model;
 
+import it.polito.ezshop.exceptions.InvalidRFIDException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static it.polito.ezshop.utils.Utils.*;
 
 public class ReturnTransactionItem {
 
     private ProductType productType;
     private final double pricePerUnit;
-    private final int amount;
+    private final List<String> RFIDs = new ArrayList<>();
 
-    private List<String> rfids = new ArrayList<>();
-
-    public ReturnTransactionItem(ProductType productType, int amount, double pricePerUnit) {
+    public ReturnTransactionItem(ProductType productType, int amount, double pricePerUnit) throws IllegalArgumentException {
         Objects.requireNonNull(productType);
 
         this.productType = productType;
-        this.amount = amount;
         this.pricePerUnit = pricePerUnit;
+
+        this.increaseAmount(amount);
+    }
+
+    public ReturnTransactionItem(ProductType productType, double pricePerUnit) {
+        Objects.requireNonNull(productType);
+
+        this.productType = productType;
+        this.pricePerUnit = pricePerUnit;
+    }
+
+    /**
+     * Increase amount of product in return transaction item by adding dummy RFIDs to list of RFIDs
+     *
+     * @param amount number of products that should be added to this return transaction item
+     */
+    public void increaseAmount(int amount) throws IllegalArgumentException {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Can only increase number of products in a return transaction item by a positive amount.");
+        }
+        while (amount > 0) {
+            this.RFIDs.add(DUMMY_RFID);
+            amount--;
+        }
+    }
+
+    public void addRFID(String RFID) throws InvalidRFIDException {
+        validateRFID(RFID);
+        this.RFIDs.add(RFID);
     }
 
     public ProductType getProductType() {
@@ -33,7 +63,7 @@ public class ReturnTransactionItem {
     }
 
     public int getAmount() {
-        return this.amount;
+        return this.RFIDs.size();
     }
 
     public double getPricePerUnit() {
@@ -41,7 +71,7 @@ public class ReturnTransactionItem {
     }
 
     public double computeValue() {
-        return this.amount * this.pricePerUnit;
+        return this.getAmount() * this.pricePerUnit;
     }
 
     @Override
@@ -50,12 +80,12 @@ public class ReturnTransactionItem {
         if (o == null || getClass() != o.getClass()) return false;
         ReturnTransactionItem that = (ReturnTransactionItem) o;
         return Double.compare(that.pricePerUnit, pricePerUnit) == 0
-                && amount == that.amount
+                && RFIDs.equals(that.RFIDs)
                 && Objects.equals(productType, that.productType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(productType, pricePerUnit, amount);
+        return Objects.hash(productType, pricePerUnit, RFIDs);
     }
 }

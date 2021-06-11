@@ -7,17 +7,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
+import static it.polito.ezshop.utils.Utils.DUMMY_RFID;
 import static it.polito.ezshop.utils.Utils.isValidBarcode;
 
 public class ProductType {
-
-    /**
-     * DUMMY_RFID represents a product not associated with a valid RFID
-     */
-    public static final String DUMMY_RFID = "dummy_RFID";
 
     private final int id;
     private Position position;
@@ -242,33 +236,6 @@ public class ProductType {
      */
     public boolean RFIDexists (String RFID) {
         return RFIDs.contains(RFID);
-    }
-
-    /**
-     * Pick n RFIDs from the ProductType, possibly starting with the dummy ones.
-     *
-     * @param n number of RFIDs to pick
-     * @return a list of RFIDs
-     */
-    public List<String> pickNRFIDs (int n) {
-        ArrayList<String> retList = new ArrayList<>();
-
-        if (n > this.getQuantity()) {
-            return retList;
-        }
-
-        // first, try to pick DUMMY RFIDs
-        for (; n > 0 && this.RFIDs.remove(DUMMY_RFID); n--) {
-            retList.add(DUMMY_RFID);
-        }
-
-        // then, pick random RFIDs
-        for (; n > 0; n--) {
-            retList.add(this.RFIDs.get(0));
-            this.RFIDs.remove(0);
-        }
-
-        return retList;
     }
 
     public boolean equals(Object o) {

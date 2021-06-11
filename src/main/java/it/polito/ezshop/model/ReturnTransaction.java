@@ -1,5 +1,7 @@
 package it.polito.ezshop.model;
 
+import it.polito.ezshop.exceptions.InvalidRFIDException;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +40,20 @@ public class ReturnTransaction extends Debit {
     public void addReturnTransactionItem(ProductType product, int amount, double pricePerUnit) {
         if (status == OperationStatus.OPEN) {
             entries.add(new ReturnTransactionItem(product, amount, pricePerUnit));
+            recomputeBalanceValue();
+        }
+    }
+
+    public void addReturnTransactionItemRFID(ProductType product, String RFID, double pricePerUnit) throws InvalidRFIDException {
+        if (status == OperationStatus.OPEN) {
+            ReturnTransactionItem entry = entries.stream().filter(e -> e.getProductType().getId() == product.getId())
+                    .findAny()
+                    .orElse(null);
+            if (entry == null) {
+                entry = new ReturnTransactionItem(product, pricePerUnit);
+                entries.add(entry);
+            }
+            entry.addRFID(RFID);
             recomputeBalanceValue();
         }
     }
