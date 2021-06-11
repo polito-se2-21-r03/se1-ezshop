@@ -2,8 +2,6 @@ package it.polito.ezshop.apiTests;
 
 import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.data.*;
-import it.polito.ezshop.exceptions.InvalidProductCodeException;
-import it.polito.ezshop.exceptions.InvalidQuantityException;
 import it.polito.ezshop.exceptions.InvalidRFIDException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.Role;
@@ -15,6 +13,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 
 import static it.polito.ezshop.TestHelpers.*;
+import static it.polito.ezshop.utils.Utils.DUMMY_RFID;
 import static org.junit.Assert.*;
 
 /**
@@ -181,7 +180,7 @@ public class EZShopTestDeleteProductFromSaleRFID {
         ProductType p3 = shop.getProductTypeByBarCode(product3.getBarCode());
         assertEquals((Integer) 2, p3.getQuantity());
         assertTrue(((ProductTypeAdapter)p3).get().RFIDexists(P3_RFID0));
-        assertTrue(((ProductTypeAdapter)p3).get().RFIDexists(it.polito.ezshop.model.ProductType.DUMMY_RFID));
+        assertTrue(((ProductTypeAdapter)p3).get().RFIDexists(DUMMY_RFID));
 
         // 2. verify the final status of the transaction
         shop.endSaleTransaction(tid);

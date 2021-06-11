@@ -1,9 +1,10 @@
 package it.polito.ezshop.apiTests;
 
 import it.polito.ezshop.TestHelpers;
-import it.polito.ezshop.data.*;
-import it.polito.ezshop.exceptions.InvalidProductCodeException;
-import it.polito.ezshop.exceptions.InvalidQuantityException;
+import it.polito.ezshop.data.EZShop;
+import it.polito.ezshop.data.EZShopInterface;
+import it.polito.ezshop.data.ProductType;
+import it.polito.ezshop.data.SaleTransaction;
 import it.polito.ezshop.exceptions.InvalidRFIDException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.Role;
@@ -15,6 +16,7 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 
 import static it.polito.ezshop.TestHelpers.*;
+import static it.polito.ezshop.utils.Utils.DUMMY_RFID;
 import static org.junit.Assert.*;
 
 /**
@@ -157,7 +159,7 @@ public class EZShopTestAddProductToSaleRFID {
         assertTrue(shop.addProductToSaleRFID(tid, P3_RFID0));
         // 3.1 verify the product with dummy rfid is still there
         ProductType p3 = shop.getProductTypeByBarCode(product3.getBarCode());
-        assertTrue(((ProductTypeAdapter) p3).get().RFIDexists(it.polito.ezshop.model.ProductType.DUMMY_RFID));
+        assertTrue(((ProductTypeAdapter) p3).get().RFIDexists(DUMMY_RFID));
         // 3.2 add another unit of product 3
         assertTrue(shop.addProductToSale(tid, product3.getBarCode(), 1));
         // 3.3 verify that the quantity of product3 in the inventory is correctly updated
@@ -198,7 +200,7 @@ public class EZShopTestAddProductToSaleRFID {
         assertNotNull(te3);
         assertEquals(2, te3.getAmount());
         assertTrue(te3.getRFIDs().contains(P3_RFID0));
-        assertTrue(te3.getRFIDs().contains(it.polito.ezshop.model.ProductType.DUMMY_RFID));
+        assertTrue(te3.getRFIDs().contains(DUMMY_RFID));
     }
 
 }

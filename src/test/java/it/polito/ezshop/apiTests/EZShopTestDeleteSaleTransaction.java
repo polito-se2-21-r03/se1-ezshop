@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 
 import static it.polito.ezshop.TestHelpers.*;
 import static it.polito.ezshop.TestHelpers.product3;
+import static it.polito.ezshop.utils.Utils.DUMMY_RFID;
 import static org.junit.Assert.*;
 
 /**
@@ -147,7 +148,7 @@ public class EZShopTestDeleteSaleTransaction {
         ProductType p3 = shop.getProductTypeByBarCode(product3.getBarCode());
         assertEquals((Integer) 2, p3.getQuantity());
         assertTrue(((ProductTypeAdapter)p3).get().RFIDexists(P3_RFID0));
-        assertTrue(((ProductTypeAdapter)p3).get().RFIDexists(it.polito.ezshop.model.ProductType.DUMMY_RFID));
+        assertTrue(((ProductTypeAdapter)p3).get().RFIDexists(DUMMY_RFID));
     }
 
 }
