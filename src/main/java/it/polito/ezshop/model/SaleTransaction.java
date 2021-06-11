@@ -136,7 +136,7 @@ public class SaleTransaction extends Credit {
         return true;
     }
 
-    public boolean removeSaleTransactionItemRFID(String RFID) throws IllegalStateException, InvalidQuantityException {
+    public boolean removeSaleTransactionItemRFID(String RFID) throws IllegalStateException {
         if (this.getStatus() != OperationStatus.OPEN) {
             throw new IllegalStateException("Sale transaction is not OPEN.");
         }

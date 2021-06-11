@@ -50,6 +50,10 @@ public class ReturnTransactionItem {
         this.RFIDs.add(RFID);
     }
 
+    public List<String> getRFIDs() {
+        return this.RFIDs;
+    }
+
     public ProductType getProductType() {
         return productType;
     }

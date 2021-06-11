@@ -1303,7 +1303,7 @@ InvalidLocationException, InvalidRFIDException {
     }
 
 
-    @Override // TODO RFID
+    @Override
     public boolean endReturnTransaction(Integer returnId, boolean commit) throws InvalidTransactionIdException, UnauthorizedException {
         // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
@@ -1345,18 +1345,19 @@ InvalidLocationException, InvalidRFIDException {
             return true;
         }
 
-        // before committing verify the quantities of the returned products are valid
-        // the following condition may become false if multiple return transactions are
-        // happening at the same time: the total quantity returned for each product
-        // may exceed the quantity in the sale transaction
-        boolean valid = _return.getTransactionItems().stream().allMatch(rti -> {
-            int qty = saleTransaction.getTransactionItems().stream()
-                    .filter(te -> te.getProductType().getBarCode().equals(rti.getBarCode()))
-                    .map(TicketEntry::getAmount).findAny().orElse(-1);
-
-            return rti.getAmount() <= qty;
-        });
-        if (!valid) return false;
+        // verify that all products specified in return transaction are still part of sale transaction.
+        // may be false in case multiple return transactions were open at the same time, since changes are only recorded
+        // after committing
+        if (!_return.getTransactionItems().stream()
+                // true for all return transaction items
+                .allMatch(rti -> saleTransaction.getTransactionItems().stream()
+                        // get the matching ticket entry of sale transaction
+                        .filter(te -> rti.getProductType().getId() == te.getProductType().getId())
+                        // matching ticket entry contains all RFIDs
+                        .allMatch(te -> containsRFIDs(te.getRFIDs(), rti.getRFIDs()))
+                )) {
+            return false;
+        }
 
         // commit
         // for each item of the sale transaction
@@ -1378,23 +1379,14 @@ InvalidLocationException, InvalidRFIDException {
                         .filter(p -> p.getBarCode().equals(returnTransactionItem.getBarCode()))
                         .findAny()
                         .orElse(null);
+
                 // increase available amount if product still exists
                 if (product != null) {
-                    try {
-                        product.setQuantity(product.getQuantity() + returnTransactionItem.getAmount());
-                    } catch (InvalidQuantityException e) {
-                        // this should never happen, quantity can always be increased
-                        throw new Error("Unexpected error encountered when handling return transaction.", e);
-                    }
+                    product.addRFIDs(returnTransactionItem.getRFIDs());
                 }
 
                 // reduce the amount in the sale transaction
-                try {
-                    saleTransactionItem.setAmount(saleTransactionItem.getAmount() - returnTransactionItem.getAmount());
-                } catch (InvalidQuantityException e) {
-                    // this should never happen, you can't return more products than you purchased
-                    throw new Error("Unexpected error encountered when handling return transaction.", e);
-                }
+                saleTransactionItem.removeRFIDs(returnTransactionItem.getRFIDs());
             }
         }
 

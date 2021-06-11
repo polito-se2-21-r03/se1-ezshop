@@ -166,6 +166,7 @@ public class TicketEntry {
 
         return false;
     }
+
     /**
      * Remove one RFID code from the list.
      * @param RFID code to remove
@@ -173,6 +174,12 @@ public class TicketEntry {
      */
     public boolean removeRFID (String RFID) {
         return RFIDs.remove(RFID);
+    }
+
+    public void removeRFIDs(List<String> RFIDs) throws IllegalStateException {
+        for (String rfid:RFIDs) {
+            this.removeRFID(rfid);
+        }
     }
 
     /**

@@ -61,6 +61,26 @@ public class Utils {
     }
 
     /**
+     * Checks if a given list of RFIDs is a subset of another list of RFIDs. Verifies that (1.) all non-dummy RFIDs
+     * from the sub-list are part of the super-list and that (2.) the total amount of RFIDs in the sub-list is less than
+     * that of the super-list.
+     *
+     * @param superRFIDList List of RFIDs that contains subRFIDList
+     * @param subRFIDList List of RFIDs that are contained in superRFIDList
+     * @return whether subRFIDList is a subset of the RFIDs in superRFIDList
+     */
+    public static boolean containsRFIDs(List<String> superRFIDList, List<String> subRFIDList) {
+        if (subRFIDList == null) {
+            return false;
+        }
+        if (subRFIDList.size() > superRFIDList.size()) {
+            return false;
+        }
+        return subRFIDList.stream().filter(rfid -> !DUMMY_RFID.equals(rfid))
+                .allMatch(superRFIDList::contains);
+    }
+
+    /**
      * Check if given barcode is valid according to GTIN-12, GTIN-13 or GTIN-14.
      * Implementation follows the algorithm described at: https://www.gs1.org/services/how-calculate-check-digit-manually
      *
