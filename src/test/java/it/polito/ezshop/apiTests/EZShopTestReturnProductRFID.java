@@ -4,12 +4,10 @@ import it.polito.ezshop.TestHelpers;
 import it.polito.ezshop.data.EZShop;
 import it.polito.ezshop.data.EZShopInterface;
 import it.polito.ezshop.data.ProductType;
-import it.polito.ezshop.data.SaleTransaction;
 import it.polito.ezshop.exceptions.InvalidRFIDException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 import it.polito.ezshop.model.Role;
 import it.polito.ezshop.model.adapters.ProductTypeAdapter;
-import it.polito.ezshop.model.ReturnTransaction;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -187,7 +185,7 @@ public class EZShopTestReturnProductRFID {
         assertEquals((Integer) 0, p2.getQuantity());
 
         // 4. verify the final status of the transaction
-        shop.endReturnTransaction(rid, true);
+        assertTrue(shop.endReturnTransaction(rid, true));
 
         List<ProductType> products = shop.getAllProductTypes();
         // 4.1 check amount of product 1 in the shelves

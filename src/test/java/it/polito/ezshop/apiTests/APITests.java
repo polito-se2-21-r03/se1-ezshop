@@ -54,6 +54,7 @@ import org.junit.runners.Suite;
         EZShopTestGetSaleTransaction.class,
         EZShopTestStartReturnTransaction.class,
         EZShopTestReturnProduct.class,
+        EZShopTestReturnProductRFID.class,
         EZShopTestAddProductToSaleRFID.class,
         EZShopTestEndReturnTransaction.class,
         EZShopTestDeleteReturnTransaction.class,
