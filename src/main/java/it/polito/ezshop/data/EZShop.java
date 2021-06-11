@@ -1215,9 +1215,11 @@ InvalidLocationException, InvalidRFIDException {
 
     @Override
     public boolean returnProduct(Integer returnId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
+
         // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
+        // verify parameters are valid
         if (returnId == null || returnId <= 0) {
             throw new InvalidTransactionIdException("Invalid Return ID");
         }
@@ -1228,17 +1230,27 @@ InvalidLocationException, InvalidRFIDException {
             throw new InvalidQuantityException("Invalid Quantity");
         }
 
+        // get return transaction if it exists and is in OPEN state; return false if not
         it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getTransaction(returnId);
         if (!(returnTransaction instanceof ReturnTransaction)) return false;
         if (returnTransaction.getStatus() != OperationStatus.OPEN) return false;
-
         ReturnTransaction _return = (ReturnTransaction) returnTransaction;
 
+        // get corresponding sale transaction, return false if it does not exist
         it.polito.ezshop.model.BalanceOperation saleTransaction = accountBook.getTransaction(_return.getSaleTransactionId());
         if (!(saleTransaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
-
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) saleTransaction;
 
+        // get ticket entry containing the returned product
+        TicketEntry ticketEntry = sale.getTransactionItems().stream()
+                .filter(x -> x.getProductType().getBarCode().equals(productCode))
+                .findFirst()
+                .orElse(null);
+
+        // product is not available in the transaction
+        if (ticketEntry == null || ticketEntry.getAmount() == 0) return false;
+
+        // get returned product type, return false if it does not exist
         it.polito.ezshop.model.ProductType product = products.stream()
                 // filter products with the given BarCode
                 .filter(x -> x.getBarCode().equals(productCode))
@@ -1248,22 +1260,33 @@ InvalidLocationException, InvalidRFIDException {
                 .orElse(null);
         if (product == null) return false;
 
-        int amountAlreadyReturned = _return.getTransactionItems().stream()
+        // get return transaction item containing the returned product, if it already exists, null otherwise
+        ReturnTransactionItem returnTransactionItem = _return.getTransactionItems().stream()
                 .filter(item -> item.getBarCode().equals(productCode))
-                .mapToInt(ReturnTransactionItem::getAmount).sum();
+                .findAny()
+                .orElse(null);
 
-        TicketEntry ticketEntry = sale.getTransactionItems().stream()
-                .filter(x -> x.getProductType().getBarCode().equals(productCode))
-                .findFirst().orElse(null);
+        // product is not already part of return
+        if (returnTransactionItem == null) {
 
-        // product is not available in the transaction
-        if (ticketEntry == null || ticketEntry.getAmount() == 0) return false;
+            // verify number of returned products is less than sold
+            if (amount > ticketEntry.getAmount()) return false;
 
-        // verify the total amount returned is below the amount in the sale transaction
-        if ((amount + amountAlreadyReturned) > ticketEntry.getAmount()) return false;
-        
-        double value = ticketEntry.getPricePerUnit() * (1 - ticketEntry.getDiscountRate()) * (1 - sale.getDiscountRate());
-        _return.addReturnTransactionItem(product, amount, value);
+            // compute value of one returned product
+            double value = ticketEntry.getPricePerUnit() * (1 - ticketEntry.getDiscountRate()) * (1 - sale.getDiscountRate());
+
+            // add a new return transaction item to the return transaction
+            _return.addReturnTransactionItem(product, amount, value);
+
+        // product is already part of a return transaction item
+        } else {
+
+            // verify the total amount returned is less than the amount in the sale transaction
+            if ((amount + returnTransactionItem.getAmount()) > ticketEntry.getAmount()) return false;
+
+            // increase the amount of returned products to correct value
+            returnTransactionItem.increaseAmount(amount);
+        }
 
         writeState();
         return true;
