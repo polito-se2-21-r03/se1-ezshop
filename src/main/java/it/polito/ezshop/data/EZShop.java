@@ -1283,7 +1283,7 @@ InvalidLocationException, InvalidRFIDException {
             throw new InvalidRFIDException("Invalid RFID");
         }
 
-        // get return transaction if it exists, return false if doesn't exist or not OPEN
+        // get return transaction if it exists; return false if doesn't exist or is not in state OPEN
         it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getTransaction(returnId);
         if (!(returnTransaction instanceof ReturnTransaction)) return false;
         if (returnTransaction.getStatus() != OperationStatus.OPEN) return false;
@@ -1299,9 +1299,16 @@ InvalidLocationException, InvalidRFIDException {
                 .findAny()
                 .orElse(null);
 
-        // return false if RFID was not part of sale
+        // return false if RFID was not part of sale connected to the return transaction
         if (ticketEntry == null) {
             return false;
+        }
+
+        // return true if the product has already been returned
+        if (!RFID.equals(DUMMY_RFID)) {
+            if (_return.getTransactionItems().stream().anyMatch(rti -> rti.getRFIDs().contains(RFID))) {
+                return true;
+            }
         }
 
         // add return transaction item to return transaction
