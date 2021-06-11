@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static it.polito.ezshop.utils.Utils.DUMMY_RFID;
+import static it.polito.ezshop.utils.Utils.containsRFIDs;
 
 public class TicketEntry {
 
@@ -177,6 +178,9 @@ public class TicketEntry {
     }
 
     public void removeRFIDs(List<String> RFIDs) throws IllegalStateException {
+        if (!containsRFIDs(this.RFIDs, RFIDs)) {
+            throw new IllegalArgumentException("The IDs you are trying to remove do not exist");
+        }
         for (String rfid:RFIDs) {
             this.removeRFID(rfid);
         }

@@ -28,6 +28,7 @@ import org.junit.runners.Suite;
         EZShopTestPayOrderFor.class,
         EZShopTestPayOrder.class,
         EZShopTestRecordOrderArrival.class,
+        EZShopTestRecordOrderArrivalRFID.class,
         EZShopTestGetAllOrders.class,
 
         // FR 5
