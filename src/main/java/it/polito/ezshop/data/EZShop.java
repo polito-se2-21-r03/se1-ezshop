@@ -726,6 +726,7 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean recordOrderArrivalRFID(Integer orderId, String RFIDfrom) throws InvalidOrderIdException, UnauthorizedException, 
 InvalidLocationException, InvalidRFIDException {
+
         // check that orderId is valid ID
         if (orderId == null || orderId <= 0) {
             throw new InvalidOrderIdException("Order ID must be positive integer");
@@ -734,14 +735,24 @@ InvalidLocationException, InvalidRFIDException {
         // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
 
-        // verify that order exists
+        // verify RFID is valid
+        if (!isValidRFID(RFIDfrom)) {
+            throw new InvalidRFIDException("RFID must be 12 digit string");
+        }
+
+        // get order if it exists, return false otherwise
         it.polito.ezshop.model.BalanceOperation transactionWithId = accountBook.getTransaction(orderId);
         if (!(transactionWithId instanceof it.polito.ezshop.model.Order)) return false;
-
-        // verify that Order was either paid for or has already been completed
         it.polito.ezshop.model.Order order = (it.polito.ezshop.model.Order) transactionWithId;
+
+        // if order was already completed, return true without modifying anything
+        if (order.getStatus() == OperationStatus.COMPLETED) {
+            return true;
+        }
+
+        // verify that order has already been paid
         OperationStatus previousStatus = order.getStatus();
-        if (!(previousStatus == OperationStatus.PAID || previousStatus == OperationStatus.COMPLETED)) {
+        if (!(previousStatus == OperationStatus.PAID)) {
             return false;
         }
 
