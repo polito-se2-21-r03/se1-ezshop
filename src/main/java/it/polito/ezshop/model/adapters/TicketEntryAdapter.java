@@ -18,6 +18,13 @@ public class TicketEntryAdapter implements it.polito.ezshop.data.TicketEntry {
         this.ticketEntry = entry;
     }
 
+    /**
+     * For debugging purposes only!!!
+     */
+    public TicketEntry get() {
+        return this.ticketEntry;
+    }
+
     @Override
     public String getBarCode() {
         return ticketEntry.getProductType().getBarCode();

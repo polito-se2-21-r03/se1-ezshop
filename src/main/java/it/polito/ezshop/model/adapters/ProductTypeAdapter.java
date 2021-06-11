@@ -3,6 +3,7 @@ package it.polito.ezshop.model.adapters;
 import it.polito.ezshop.exceptions.*;
 import it.polito.ezshop.model.Position;
 import it.polito.ezshop.model.ProductType;
+import it.polito.ezshop.model.TicketEntry;
 
 /**
  * ProductTypeAdapter adapts it.polito.ezshop.model.ProductType to the
@@ -14,6 +15,13 @@ public class ProductTypeAdapter implements it.polito.ezshop.data.ProductType {
 
     public ProductTypeAdapter(ProductType product) {
         this.product = product;
+    }
+
+    /**
+     * For debugging purposes only!!!
+     */
+    public ProductType get() {
+        return this.product;
     }
 
     @Override

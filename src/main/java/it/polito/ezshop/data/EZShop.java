@@ -765,7 +765,7 @@ InvalidLocationException, InvalidRFIDException {
         List<String> RFIDs = it.polito.ezshop.model.ProductType.generateRFIDs(RFIDfrom, order.getQuantity());
         // check for the uniqueness of the generated codes
         if (this.products.stream().anyMatch(p -> RFIDs.stream().anyMatch(p::RFIDexists))) {
-            return false;
+            throw new InvalidRFIDException();
         }
 
         orderedProduct.addRFIDs(RFIDs);
