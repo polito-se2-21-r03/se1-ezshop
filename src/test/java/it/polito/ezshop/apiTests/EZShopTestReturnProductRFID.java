@@ -138,7 +138,7 @@ public class EZShopTestReturnProductRFID {
      */
     @Test()
     public void testClosedOrPaidTransaction() throws Exception {
-        shop.endReturnTransaction(rid, true);
+        assertTrue(shop.endReturnTransaction(rid, true));
         assertFalse(shop.returnProductRFID(rid, P1_RFID0));
     }
 
@@ -149,6 +149,19 @@ public class EZShopTestReturnProductRFID {
     public void testNonExistingTransaction() throws Exception {
         assertFalse(shop.returnProductRFID(rid + 1, P1_RFID0));
         assertFalse(shop.returnProductRFID(sid, P1_RFID0));
+    }
+
+    /**
+     *  Try to return product with a given RFID but meanwhile another product with same RFID is registered in the shop
+     */
+    @Test()
+    public void testSameRFID() throws Exception {
+        int orderid = shop.payOrderFor(TestHelpers.product1.getBarCode(), 1, 10.0);
+        shop.recordOrderArrivalRFID(orderid, P2_RFID0);
+        assertThrows(InvalidRFIDException.class, () -> {
+            // add product to sale
+            shop.returnProductRFID(rid, P2_RFID0);
+        });
     }
 
     /**
@@ -176,13 +189,13 @@ public class EZShopTestReturnProductRFID {
         // 3. add product3 (one unit with RFID and one without)
         assertTrue(shop.returnProductRFID(rid, P3_RFID0));
         // 3.1 verify the product with dummy rfid is still there
-        ProductType p3 = shop.getProductTypeByBarCode(product3.getBarCode());
+        ProductType p3;
         //assertTrue(((ProductTypeAdapter) p3).get().RFIDexists(DUMMY_RFID));
         // 3.2 add another unit of product 3
         assertTrue(shop.returnProduct(rid, product3.getBarCode(), 1));
         // 3.3 verify that the quantity of product3 in the inventory is correctly updated
         p3 = shop.getProductTypeByBarCode(product3.getBarCode());
-        assertEquals((Integer) 0, p2.getQuantity());
+        assertEquals((Integer) 0, p3.getQuantity());
 
         // 4. verify the final status of the transaction
         assertTrue(shop.endReturnTransaction(rid, true));

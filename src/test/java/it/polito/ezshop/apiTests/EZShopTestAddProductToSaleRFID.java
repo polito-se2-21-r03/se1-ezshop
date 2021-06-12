@@ -164,7 +164,7 @@ public class EZShopTestAddProductToSaleRFID {
         assertTrue(shop.addProductToSale(tid, product3.getBarCode(), 1));
         // 3.3 verify that the quantity of product3 in the inventory is correctly updated
         p3 = shop.getProductTypeByBarCode(product3.getBarCode());
-        assertEquals((Integer) 0, p2.getQuantity());
+        assertEquals((Integer) 0, p3.getQuantity());
 
         // 4. verify the final status of the transaction
         shop.endSaleTransaction(tid);

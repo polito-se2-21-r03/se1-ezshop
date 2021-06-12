@@ -1305,6 +1305,9 @@ InvalidLocationException, InvalidRFIDException {
         if (!isValidRFID(RFID)) {
             throw new InvalidRFIDException("Invalid RFID");
         }
+        if (this.products.stream().anyMatch(p -> p.getRFIDs().contains(RFID))) {
+            throw new InvalidRFIDException("Error, a product with this RFID already exists in the shop");
+        }
 
         // get return transaction if it exists; return false if doesn't exist or is not in state OPEN
         it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getTransaction(returnId);
