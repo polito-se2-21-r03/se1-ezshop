@@ -2,12 +2,15 @@ package it.polito.ezshop.model;
 
 import it.polito.ezshop.exceptions.InvalidDiscountRateException;
 import it.polito.ezshop.exceptions.InvalidQuantityException;
+import it.polito.ezshop.exceptions.InvalidRFIDException;
 import it.polito.ezshop.exceptions.InvalidTransactionIdException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static it.polito.ezshop.utils.Utils.pickNRFIDs;
 
 public class SaleTransaction extends Credit {
 
@@ -57,6 +60,7 @@ public class SaleTransaction extends Credit {
      * @param product      to add
      * @param amount       of the product to add
      */
+    @Deprecated
     public void addSaleTransactionItem(ProductType product, int amount)
             throws InvalidQuantityException, IllegalStateException {
         if (this.getStatus() != OperationStatus.OPEN) {
@@ -76,7 +80,32 @@ public class SaleTransaction extends Credit {
 
         recomputeBalanceValue();
     }
+    /**
+     * Add a product to the transaction. The transaction must be in the OPEN state.
+     * The balance value of the transaction is updated.
+     *
+     * @param product      to add
+     * @param RFID      of the product to add
+     */
+    public void addSaleTransactionItemRFID(ProductType product, String RFID)
+            throws InvalidRFIDException, IllegalStateException {
+        if (this.getStatus() != OperationStatus.OPEN) {
+            throw new IllegalStateException("Sale transaction is not OPEN.");
+        }
 
+        TicketEntry entry = this.entries.stream()
+                .filter(x -> x.getProductType().getBarCode().equals(product.getBarCode()))
+                .findFirst()
+                .orElse(null);
+
+        if (entry != null) {
+            entry.addRFID(RFID);
+        } else {
+            entries.add(new TicketEntry(product, RFID));
+        }
+
+        recomputeBalanceValue();
+    }
     /**
      * Remove a product from the transaction.
      *
@@ -84,7 +113,7 @@ public class SaleTransaction extends Credit {
      * @param amount  of the product to remove
      * @return true if the product is removed, false otherwise
      */
-    public boolean removeSaleTransactionItem(ProductType product, int amount) throws InvalidQuantityException {
+    public boolean removeSaleTransactionItem(ProductType product, int amount) {
         TicketEntry entry = entries.stream()
                 .filter(x -> x.getProductType().getBarCode().equals(product.getBarCode()))
                 .findFirst()
@@ -94,10 +123,36 @@ public class SaleTransaction extends Credit {
             return false;
         }
 
-        if (entry.getAmount() > amount) {
-            entry.setAmount(entry.getAmount() - amount);
-        } else {
+        List<String> RFIDs = pickNRFIDs(entry.getRFIDs(), amount);
+        product.addRFIDs(RFIDs);
+
+        if (entry.getAmount() == 0) {
             entries.remove(entry);
+        }
+
+        if (status == OperationStatus.OPEN) {
+            recomputeBalanceValue();
+        }
+        return true;
+    }
+
+    public boolean removeSaleTransactionItemRFID(String RFID) throws IllegalStateException {
+        if (this.getStatus() != OperationStatus.OPEN) {
+            throw new IllegalStateException("Sale transaction is not OPEN.");
+        }
+
+        TicketEntry entry = this.entries.stream()
+                .filter(x -> x.RFIDexists(RFID))
+                .findAny()
+                .orElse(null);
+
+        if (entry == null) {
+            return false;
+        }
+
+        entry.removeRFID(RFID);
+        if (entry.getAmount() == 0) {
+            this.entries.remove(entry);
         }
 
         if (status == OperationStatus.OPEN) {

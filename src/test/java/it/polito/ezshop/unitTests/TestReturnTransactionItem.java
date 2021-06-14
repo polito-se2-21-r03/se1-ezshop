@@ -5,6 +5,11 @@ import it.polito.ezshop.model.ProductType;
 import it.polito.ezshop.model.ReturnTransactionItem;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static it.polito.ezshop.utils.Utils.DUMMY_RFID;
 import static org.junit.Assert.*;
 
 /**
@@ -32,6 +37,20 @@ public class TestReturnTransactionItem {
         assertEquals(product1.getBarCode(), item.getBarCode());
         assertEquals(amount, item.getAmount());
         assertEquals(price, item.getPricePerUnit(), 0.01);
+    }
+
+    @Test
+    public void testIncreaseAmountNegativeValuesRaisesException() {
+        assertThrows(IllegalArgumentException.class, () -> new ReturnTransactionItem(product1, -2, price));
+    }
+
+    @Test
+    public void testIncreaseAmountAddsDummyRFIDs() {
+        int n = 2;
+        ReturnTransactionItem returnTransactionItem = new ReturnTransactionItem(product1, 1.0);
+        returnTransactionItem.increaseAmount(n);
+        List<String> expectedRFIDs = new ArrayList<>(Collections.nCopies(n, DUMMY_RFID));
+        assertEquals(expectedRFIDs, returnTransactionItem.getRFIDs());
     }
 
     @Test

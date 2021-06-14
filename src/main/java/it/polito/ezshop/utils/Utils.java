@@ -1,9 +1,17 @@
 package it.polito.ezshop.utils;
 
+import it.polito.ezshop.exceptions.InvalidRFIDException;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class Utils {
+
+    /**
+     * DUMMY_RFID represents a product not associated with a valid RFID
+     */
+    public static final String DUMMY_RFID = "dummy_RFID";
 
     /**
      * Generate a new (random) integer id which is not already
@@ -22,6 +30,54 @@ public class Utils {
         }
 
         return id;
+    }
+
+    /**
+     * Pick n RFIDs a list of RFIDs, starting with the dummy IDs.
+     *
+     * @param RFIDList the list from which RFIDs are picked
+     * @param n number of RFIDs to pick
+     * @return a list of RFIDs
+     */
+    public static List<String> pickNRFIDs (List<String> RFIDList, int n) {
+        ArrayList<String> retList = new ArrayList<>();
+
+        if (n > RFIDList.size()) {
+            return retList;
+        }
+
+        // first, try to pick DUMMY RFIDs
+        for (; n > 0 && RFIDList.remove(DUMMY_RFID); n--) {
+            retList.add(DUMMY_RFID);
+        }
+
+        // then, pick random RFIDs
+        for (; n > 0; n--) {
+            retList.add(RFIDList.get(0));
+            RFIDList.remove(0);
+        }
+
+        return retList;
+    }
+
+    /**
+     * Checks if a given list of RFIDs is a subset of another list of RFIDs. Verifies that (1.) all non-dummy RFIDs
+     * from the sub-list are part of the super-list and that (2.) the total amount of RFIDs in the sub-list is less than
+     * that of the super-list.
+     *
+     * @param superRFIDList List of RFIDs that contains subRFIDList
+     * @param subRFIDList List of RFIDs that are contained in superRFIDList
+     * @return whether subRFIDList is a subset of the RFIDs in superRFIDList
+     */
+    public static boolean containsRFIDs(List<String> superRFIDList, List<String> subRFIDList) {
+        if (subRFIDList == null) {
+            return false;
+        }
+        if (subRFIDList.size() > superRFIDList.size()) {
+            return false;
+        }
+        return subRFIDList.stream().filter(rfid -> !DUMMY_RFID.equals(rfid))
+                .allMatch(superRFIDList::contains);
     }
 
     /**
@@ -142,5 +198,27 @@ public class Utils {
         return checksum % 10 == 0;
     }
 
+    /**
+     * Verify a given RFID is valid (sequence of 12 digits)
+     *
+     * @param RFID code to check
+     * @return true if the code is valid, false otherwise
+     */
+    public static boolean isValidRFID (String RFID) {
+        return RFID != null && (RFID.equals(DUMMY_RFID) || RFID.matches("\\d{12}"));
+    }
+
+
+    /**
+     * Throws an InvalidRFIDException if the provided RFID is invalid
+     *
+     * @param RFID code to check
+     * @throws InvalidRFIDException if the RFID is not valid
+     */
+    public static void validateRFID (String RFID) throws InvalidRFIDException {
+        if (!isValidRFID(RFID)) {
+            throw new InvalidRFIDException("The provided RFID tag is in an invalid format.");
+        }
+    }
 }
 

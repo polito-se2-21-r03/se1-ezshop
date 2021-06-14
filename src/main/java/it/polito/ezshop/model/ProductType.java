@@ -1,20 +1,26 @@
 package it.polito.ezshop.model;
 
 import it.polito.ezshop.exceptions.*;
+import it.polito.ezshop.utils.Utils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
+import static it.polito.ezshop.utils.Utils.DUMMY_RFID;
 import static it.polito.ezshop.utils.Utils.isValidBarcode;
 
 public class ProductType {
 
     private final int id;
-    private int quantity;
     private Position position;
     private String note;
     private String productDescription;
     private String barCode;
     private double pricePerUnit;
+
+    private final List<String> RFIDs = new ArrayList<>();
 
     public ProductType(Integer id, String productDescription, String barCode, Double pricePerUnit, String note) throws
             InvalidProductDescriptionException, InvalidProductCodeException, InvalidPricePerUnitException, InvalidProductIdException, InvalidQuantityException {
@@ -116,7 +122,7 @@ public class ProductType {
     }
 
     public int getQuantity() {
-        return this.quantity;
+        return this.RFIDs.size();
     }
 
     /**
@@ -133,7 +139,22 @@ public class ProductType {
         if (position == null && quantity > 0) {
             throw new IllegalStateException("Can not set quantity, location must be defined");
         }
-        this.quantity = quantity;
+
+        int delta = quantity - this.getQuantity();
+
+        if (delta >= 0) {
+            // add new products (dummy RFIDs)
+            this.addDummyRFIDs(delta);
+        } else {
+            // remove -delta RFIDs
+            int nToRemove = -delta;
+            // first, try to remove DUMMY RFIDs
+            for (; nToRemove > 0 && this.RFIDs.remove(DUMMY_RFID); nToRemove--);
+            // then, remove random RFIDs
+            for (; nToRemove > 0; nToRemove--) {
+                this.RFIDs.remove(0);
+            }
+        }
     }
 
     public Position getPosition() {
@@ -156,21 +177,111 @@ public class ProductType {
         }
     }
 
+    /**
+     * Add an RFID to the list
+     * @param RFID code to add
+     * @return true if the code was added, false otherwise
+     */
+    public boolean addRFID (String RFID) {
+        if (RFID == null) return false;
+
+        // check the given RFID is either dummy or valid
+        if (Utils.isValidRFID(RFID)) {
+
+            // check the uniqueness of the RFIDs
+            if (!RFID.equals(DUMMY_RFID) && RFIDs.contains(RFID)) {
+                return false;
+            }
+
+            RFIDs.add(RFID);
+            return true;
+        }
+
+        return false;
+    }
+
+    public List<String> getRFIDs () {
+        return this.RFIDs;
+    }
+
+    /**
+     * Add a list of RFIDs
+     * @param RFIDs codes to add
+     */
+    public void addRFIDs (List<String> RFIDs) {
+        this.RFIDs.addAll(RFIDs);
+    }
+
+    /**
+     * Add length dummy RFIDS (see ProductType.addRFIDs)
+     * @param length number of RFIDs to add
+     */
+    public void addDummyRFIDs (int length) {
+        this.RFIDs.addAll(Collections.nCopies(length, DUMMY_RFID));
+    }
+
+    /**
+     * Remove one RFID code from the list.
+     * @param RFID code to remove
+     * @return true if one RFID was removed, false otherwise
+     */
+    public boolean removeRFID (String RFID) {
+        return RFIDs.remove(RFID);
+    }
+
+    /**
+     * Check if a given RFID exists.
+     * @param RFID code to check
+     * @return true if the RFID exists, false otherwise
+     */
+    public boolean RFIDexists (String RFID) {
+        return RFIDs.contains(RFID);
+    }
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ProductType that = (ProductType) o;
         return id == that.id &&
-                quantity == that.quantity &&
                 Objects.equals(position, that.position) &&
                 note.equals(that.note) &&
                 productDescription.equals(that.productDescription) &&
                 barCode.equals(that.barCode) &&
-                pricePerUnit == that.pricePerUnit;
+                pricePerUnit == that.pricePerUnit &&
+                RFIDs.equals(that.RFIDs);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    /**
+     * Generate a list of sequential RFIDs containing max(0, length) elements
+     * @param from starting RFID
+     * @param length number of RFIDs to generate
+     * @return a list of RFIDs
+     */
+    public static List<String> generateRFIDs (String from, int length) throws InvalidRFIDException {
+        if (!Utils.isValidRFID(from)) {
+            throw new InvalidRFIDException();
+        }
+
+        final List<String> newRFIDs = new ArrayList<>();
+
+        // generate the new RFID codes: 000000000111 -> 000000000111, 000000000112, 000000000113, ...
+        long numericRFID = Long.parseLong(from);
+        for (int i = 0; i < length; i++) {
+            // format the number on 12 characters with leading padding zeros
+            long newCode = numericRFID + i;
+            // check if the new RFID generate an overflow
+            if (newCode >= 1e12) {
+                throw new InvalidRFIDException();
+            }
+
+            newRFIDs.add(String.format("%012d", newCode));
+        }
+
+        return newRFIDs;
     }
 }

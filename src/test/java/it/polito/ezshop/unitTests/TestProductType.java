@@ -5,8 +5,12 @@ import it.polito.ezshop.model.Position;
 import it.polito.ezshop.model.ProductType;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.Arrays;
+import java.util.List;
+
 import static it.polito.ezshop.TestHelpers.*;
+import static it.polito.ezshop.utils.Utils.DUMMY_RFID;
+import static org.junit.Assert.*;
 
 public class TestProductType {
 
@@ -163,8 +167,97 @@ public class TestProductType {
 
         product.setQuantity(newQuantity);
         assertEquals(newQuantity, product.getQuantity());
+        assertTrue(product.RFIDexists(DUMMY_RFID));
 
         product.setPosition(newPosition);
         assertEquals(newPosition, product.getPosition());
+    }
+
+    @Test
+    public void testGenerateRFIDs () throws InvalidRFIDException {
+        // test a bunch of invalid RFIDs
+        for (String invalidRFID : invalidRFIDs) {
+            assertThrows(InvalidRFIDException.class, () -> ProductType.generateRFIDs(invalidRFID, 10));
+        }
+
+        // the following RFID should generate an overflow
+        assertThrows(InvalidRFIDException.class, () -> ProductType.generateRFIDs("999999999999", 10));
+
+        List<String> RFIDs = ProductType.generateRFIDs("000000000123", -1);
+        assertNotNull(RFIDs);
+        assertEquals(0, RFIDs.size());
+
+        RFIDs = ProductType.generateRFIDs("000000000123", 0);
+        assertNotNull(RFIDs);
+        assertEquals(0, RFIDs.size());
+
+        RFIDs = ProductType.generateRFIDs("000000000123", 3);
+        assertNotNull(RFIDs);
+        assertEquals("000000000123", RFIDs.get(0));
+        assertEquals("000000000124", RFIDs.get(1));
+        assertEquals("000000000125", RFIDs.get(2));
+    }
+
+    @Test
+    public void testAddRFID () throws Exception {
+        ProductType product = new ProductType(id, productDescription, barcode, pricePerUnit, note, 0, position);
+
+        String RFID = "000000000123";
+
+        // add some invalid RFIDs
+        for (String invalidRFID : invalidRFIDs) {
+            assertFalse(product.addRFID(invalidRFID));
+        }
+
+        // add a valid RFID
+        assertTrue(product.addRFID(RFID));
+        assertFalse(product.addRFID(RFID));
+        assertTrue(product.RFIDexists(RFID));
+
+        // add a dummy RFID
+        assertTrue(product.addRFID(DUMMY_RFID));
+        assertTrue(product.addRFID(DUMMY_RFID));
+        assertTrue(product.RFIDexists(DUMMY_RFID));
+
+        assertEquals(3, product.getQuantity());
+    }
+
+    @Test
+    public void testAddRFIDs () throws Exception {
+        ProductType product = new ProductType(id, productDescription, barcode, pricePerUnit, note, 0, position);
+
+        List<String> RFIDs = Arrays.asList("000000000123", "000000000124", "000000000125");
+
+        product.addRFIDs(RFIDs);
+        assertTrue(product.RFIDexists("000000000123"));
+        assertTrue(product.RFIDexists("000000000124"));
+        assertTrue(product.RFIDexists("000000000125"));
+
+        assertEquals(3, product.getQuantity());
+    }
+
+    @Test
+    public void testDummyRFIDs () throws Exception {
+        ProductType product = new ProductType(id, productDescription, barcode, pricePerUnit, note, 0, position);
+
+        product.addDummyRFIDs(3);
+        assertTrue(product.RFIDexists(DUMMY_RFID));
+
+        assertEquals(3, product.getQuantity());
+    }
+
+    @Test
+    public void testRemoveRFIDs () throws Exception {
+        ProductType product = new ProductType(id, productDescription, barcode, pricePerUnit, note, 0, position);
+
+        List<String> RFIDs = Arrays.asList("000000000123", "000000000124", "000000000125");
+
+        product.addRFIDs(RFIDs);
+        product.removeRFID("000000000123");
+        assertFalse(product.RFIDexists("000000000123"));
+        assertTrue(product.RFIDexists("000000000124"));
+        assertTrue(product.RFIDexists("000000000125"));
+
+        assertEquals(2, product.getQuantity());
     }
 }

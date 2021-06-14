@@ -28,6 +28,7 @@ import org.junit.runners.Suite;
         EZShopTestPayOrderFor.class,
         EZShopTestPayOrder.class,
         EZShopTestRecordOrderArrival.class,
+        EZShopTestRecordOrderArrivalRFID.class,
         EZShopTestGetAllOrders.class,
 
         // FR 5
@@ -42,7 +43,9 @@ import org.junit.runners.Suite;
         // FR 6
         EZShopTestStartSaleTransaction.class,
         EZShopTestAddProductToSale.class,
+        EZShopTestAddProductToSaleRFID.class,
         EZShopTestDeleteProductFromSale.class,
+        EZShopTestDeleteProductFromSaleRFID.class,
         EZShopTestApplyDiscountRateToProduct.class,
         EZShopTestApplyDiscountRateToSale.class,
         EZShopTestComputePointsForSale.class,
@@ -51,6 +54,8 @@ import org.junit.runners.Suite;
         EZShopTestGetSaleTransaction.class,
         EZShopTestStartReturnTransaction.class,
         EZShopTestReturnProduct.class,
+        EZShopTestReturnProductRFID.class,
+        EZShopTestAddProductToSaleRFID.class,
         EZShopTestEndReturnTransaction.class,
         EZShopTestDeleteReturnTransaction.class,
         // FR 7

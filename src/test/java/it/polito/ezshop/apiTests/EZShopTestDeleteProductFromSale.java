@@ -168,7 +168,7 @@ public class EZShopTestDeleteProductFromSale {
     @Test
     public void testDeleteProductFromSaleSuccessfully() throws Exception {
         Integer initialInventoryLevelForProduct1 = shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity();
-        Integer initialInventoryLevelForProduct2 = shop.getProductTypeByBarCode(product1.getBarCode()).getQuantity();
+        Integer initialInventoryLevelForProduct2 = shop.getProductTypeByBarCode(product2.getBarCode()).getQuantity();
 
         // 1. partially remove product 1 from the transaction
         // compute the amount of product 1 to be removed from the transaction

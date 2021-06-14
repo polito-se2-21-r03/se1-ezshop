@@ -184,6 +184,7 @@ class ProductType {
     + notes
     + updateQuantity(int)
     + updatePosition(String)
+    + RFIDs
 }
 
 class Position {
@@ -228,26 +229,25 @@ class SaleTransaction {
     + paymentType /' cash or cc '/
     + discountRate
     + addReturnTransaction()
-    + updateSaleTransactionItem(String, int)
+    + updateTicketEntry(String, int)
     + getTransactionItems()
-    + addSaleTransactionItem(SaleTransactionItem)
+    + addTicketEntry(TicketEntry)
     + computePoints()
 }
 
-class SaleTransactionItem {
+class TicketEntry {
     + product
     + quantity
     + unitPrice
     + discountRate
+    + RFIDs
 }
 
-SaleTransaction -right- "*" SaleTransactionItem
-
-/' (SaleTransaction, ProductType)  .. SaleTransactionItem  '/
+SaleTransaction -right- "*" TicketEntry
 
 SaleTransaction "*" -up- "0..1" LoyaltyCard
 
-SaleTransactionItem "*" -up- ProductType
+TicketEntry "*" -up- ProductType
 
 class ReturnTransaction {
     + startReturnTransaction(Integer)
@@ -259,6 +259,7 @@ class ReturnTransaction {
 class ReturnTransactionItem {
     + quantity
     + returnedValue
+    + RFIDs
 }
 
 ReturnTransaction -down- "*" ReturnTransactionItem
@@ -447,7 +448,7 @@ The *VisaCreditCardCircuitService* implements the Visa Merchant Benchmark REST A
 # Verification traceability matrix
 
 \<for each functional requirement from the requirement document, list which classes concur to implement it>
-| | EZShopInterface | JsonInterface | User | ProductType | SaleTransactionItem | Customer | FidelityCard | CreditCardCircuit | SaleTransaction | ReturnTransaction |Credit | Debit | AccountBook |
+| | EZShopInterface | JsonInterface | User | ProductType | TicketEntry | Customer | FidelityCard | CreditCardCircuit | SaleTransaction | ReturnTransaction |Credit | Debit | AccountBook |
 | :--: |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 | FR1 | X | X | X | | | |
 | FR3 | X | X | X | X | | |

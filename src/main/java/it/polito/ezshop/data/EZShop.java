@@ -726,8 +726,69 @@ public class EZShop implements EZShopInterface {
     @Override
     public boolean recordOrderArrivalRFID(Integer orderId, String RFIDfrom) throws InvalidOrderIdException, UnauthorizedException, 
 InvalidLocationException, InvalidRFIDException {
-        return false;
+
+        // check that orderId is valid ID
+        if (orderId == null || orderId <= 0) {
+            throw new InvalidOrderIdException("Order ID must be positive integer");
+        }
+
+        // verify access rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER);
+
+        // verify RFID is valid
+        if (!isValidRFID(RFIDfrom)) {
+            throw new InvalidRFIDException("RFID must be 12 digit string");
+        }
+
+        // get order if it exists, return false otherwise
+        it.polito.ezshop.model.BalanceOperation transactionWithId = accountBook.getTransaction(orderId);
+        if (!(transactionWithId instanceof it.polito.ezshop.model.Order)) return false;
+        it.polito.ezshop.model.Order order = (it.polito.ezshop.model.Order) transactionWithId;
+
+        // if order was already completed, return true without modifying anything
+        if (order.getStatus() == OperationStatus.COMPLETED) {
+            return true;
+        }
+
+        // verify that order has already been paid
+        OperationStatus previousStatus = order.getStatus();
+        if (!(previousStatus == OperationStatus.PAID)) {
+            return false;
+        }
+
+        // find the product that is being reordered
+        it.polito.ezshop.model.ProductType orderedProduct = products.stream()
+                .filter(p -> p.getBarCode().equals(order.getProductCode()))
+                .findAny()
+                .orElse(null);
+
+        // verify ordered product exists
+        if (orderedProduct == null){
+            return false;
+        }
+
+        // verify the product is assigned to a location
+        if (orderedProduct.getPosition() == null) {
+            throw new InvalidLocationException();
+        }
+
+        // update product quantity (generate new RFIDs starting from the given one)
+        List<String> RFIDs = it.polito.ezshop.model.ProductType.generateRFIDs(RFIDfrom, order.getQuantity());
+        // check for the uniqueness of the generated codes
+        if (this.products.stream().anyMatch(p -> RFIDs.stream().anyMatch(p::RFIDexists))) {
+            throw new InvalidRFIDException();
+        }
+
+        orderedProduct.addRFIDs(RFIDs);
+
+        // mark order as completed
+        accountBook.setTransactionStatus(orderId, OperationStatus.COMPLETED);
+
+        writeState();
+        // return success of operation
+        return true;
     }
+
     @Override
     public List<Order> getAllOrders() throws UnauthorizedException {
         // verify access rights
@@ -876,10 +937,12 @@ InvalidLocationException, InvalidRFIDException {
         if (p == null) return false;
 
         try {
-            // update the quantity on the shelves
-            p.setQuantity(p.getQuantity() - amount);
+            // pick amount RFIDs
+            List<String> RFIDs = pickNRFIDs(p.getRFIDs(), amount);
             // amount the amount in the transaction
-            sale.addSaleTransactionItem(p, amount);
+            for (String RFID : RFIDs) {
+                sale.addSaleTransactionItemRFID(p, RFID);
+            }
 
             writeState();
             return true;
@@ -892,6 +955,38 @@ InvalidLocationException, InvalidRFIDException {
 
     @Override
     public boolean addProductToSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, InvalidQuantityException, UnauthorizedException{
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
+        if(!it.polito.ezshop.utils.Utils.isValidRFID(RFID))
+            throw new InvalidRFIDException("Error, Invalid RFID");
+        // retrieve the OPEN sale transaction
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        if (transaction.getStatus() != OperationStatus.OPEN) return false;
+
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
+        // retrieve the product with given RFID
+        it.polito.ezshop.model.ProductType p = products.stream()
+                .filter(x -> x.RFIDexists(RFID))
+                .findFirst().orElse(null);
+
+        if (p == null) return false;
+        else it.polito.ezshop.model.TicketEntry.validateAmount(1);
+
+        try {
+            // remove the product with that RFID from the list of products [updates automatically the quantity on the shelves]
+            p.removeRFID(RFID);
+            // add the product with that RFID in the transaction
+            sale.addSaleTransactionItemRFID(p, RFID);
+
+            writeState();
+            return true;
+        } catch (Exception ignored) {
+            // ignored exception: should never reach this point
+        }
+
+
         return false;
     }
     
@@ -920,7 +1015,6 @@ InvalidLocationException, InvalidRFIDException {
         try {
             if (sale.removeSaleTransactionItem(product, amount)) {
                 // update the quantity on the shelves
-                product.setQuantity(product.getQuantity() + amount);
                 writeState();
                 return true;
             }
@@ -933,6 +1027,41 @@ InvalidLocationException, InvalidRFIDException {
 
     @Override
     public boolean deleteProductFromSaleRFID(Integer transactionId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, InvalidQuantityException, UnauthorizedException{
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        it.polito.ezshop.model.SaleTransaction.validateId(transactionId);
+        if(!it.polito.ezshop.utils.Utils.isValidRFID(RFID))
+            throw new InvalidRFIDException("Error, Invalid RFID");
+        // retrieve the OPEN sale transaction
+        it.polito.ezshop.model.BalanceOperation transaction = accountBook.getTransaction(transactionId);
+        if (!(transaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        if (transaction.getStatus() != OperationStatus.OPEN) return false;
+
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) transaction;
+        // find the barcode of the product associated with RFID
+        String barcode = sale.getTransactionItems().stream()
+                .filter(x -> x.RFIDexists(RFID))
+                .map(x -> x.getProductType().getBarCode()).findAny().orElse(null);
+
+        // retrieve the product with given RFID
+        it.polito.ezshop.model.ProductType p = products.stream()
+                .filter(x -> x.getBarCode().equals(barcode))
+                .findFirst().orElse(null);
+
+        if (p == null) return false;
+        else it.polito.ezshop.model.TicketEntry.validateAmount(1);
+
+        try {
+            if(sale.removeSaleTransactionItemRFID(RFID)) {
+                // add the product with that RFID from the list of products [updates automatically the quantity on the shelves]
+                p.addRFID(RFID);
+
+                writeState();
+                return true;
+            }
+        } catch (Exception ignored) {
+            // ignored exception: should never reach this point
+        }
         return false;
     }
 
@@ -1025,10 +1154,8 @@ InvalidLocationException, InvalidRFIDException {
                     .filter(p -> p.getBarCode().equals(entry.getProductType().getBarCode()))
                     .findAny()
                     .ifPresent(p -> {
-                        try {
-                            p.setQuantity(p.getQuantity() + entry.getAmount());
-                        } catch (InvalidQuantityException ignored) {
-                        }
+                        List<String> RFIDs = pickNRFIDs(entry.getRFIDs(), entry.getAmount());
+                        p.addRFIDs(RFIDs);
                     });
         }
 
@@ -1088,9 +1215,11 @@ InvalidLocationException, InvalidRFIDException {
 
     @Override
     public boolean returnProduct(Integer returnId, String productCode, int amount) throws InvalidTransactionIdException, InvalidProductCodeException, InvalidQuantityException, UnauthorizedException {
+
         // verify access rights
         verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
 
+        // verify parameters are valid
         if (returnId == null || returnId <= 0) {
             throw new InvalidTransactionIdException("Invalid Return ID");
         }
@@ -1101,17 +1230,27 @@ InvalidLocationException, InvalidRFIDException {
             throw new InvalidQuantityException("Invalid Quantity");
         }
 
+        // get return transaction if it exists and is in OPEN state; return false if not
         it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getTransaction(returnId);
         if (!(returnTransaction instanceof ReturnTransaction)) return false;
         if (returnTransaction.getStatus() != OperationStatus.OPEN) return false;
-
         ReturnTransaction _return = (ReturnTransaction) returnTransaction;
 
+        // get corresponding sale transaction, return false if it does not exist
         it.polito.ezshop.model.BalanceOperation saleTransaction = accountBook.getTransaction(_return.getSaleTransactionId());
         if (!(saleTransaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
-
         it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) saleTransaction;
 
+        // get ticket entry containing the returned product
+        TicketEntry ticketEntry = sale.getTransactionItems().stream()
+                .filter(x -> x.getProductType().getBarCode().equals(productCode))
+                .findFirst()
+                .orElse(null);
+
+        // product is not available in the transaction
+        if (ticketEntry == null || ticketEntry.getAmount() == 0) return false;
+
+        // get returned product type, return false if it does not exist
         it.polito.ezshop.model.ProductType product = products.stream()
                 // filter products with the given BarCode
                 .filter(x -> x.getBarCode().equals(productCode))
@@ -1121,31 +1260,90 @@ InvalidLocationException, InvalidRFIDException {
                 .orElse(null);
         if (product == null) return false;
 
-        int amountAlreadyReturned = _return.getTransactionItems().stream()
+        // get return transaction item containing the returned product, if it already exists, null otherwise
+        ReturnTransactionItem returnTransactionItem = _return.getTransactionItems().stream()
                 .filter(item -> item.getBarCode().equals(productCode))
-                .mapToInt(ReturnTransactionItem::getAmount).sum();
+                .findAny()
+                .orElse(null);
 
-        TicketEntry ticketEntry = sale.getTransactionItems().stream()
-                .filter(x -> x.getProductType().getBarCode().equals(productCode))
-                .findFirst().orElse(null);
+        // product is not already part of return
+        if (returnTransactionItem == null) {
 
-        // product is not available in the transaction
-        if (ticketEntry == null || ticketEntry.getAmount() == 0) return false;
+            // verify number of returned products is less than sold
+            if (amount > ticketEntry.getAmount()) return false;
 
-        // verify the total amount returned is below the amount in the sale transaction
-        if ((amount + amountAlreadyReturned) > ticketEntry.getAmount()) return false;
-        
-        double value = ticketEntry.getPricePerUnit() * (1 - ticketEntry.getDiscountRate()) * (1 - sale.getDiscountRate());
-        _return.addReturnTransactionItem(product, amount, value);
+            // compute value of one returned product
+            double value = ticketEntry.getPricePerUnit() * (1 - ticketEntry.getDiscountRate()) * (1 - sale.getDiscountRate());
+
+            // add a new return transaction item to the return transaction
+            _return.addReturnTransactionItem(product, amount, value);
+
+        // product is already part of a return transaction item
+        } else {
+
+            // verify the total amount returned is less than the amount in the sale transaction
+            if ((amount + returnTransactionItem.getAmount()) > ticketEntry.getAmount()) return false;
+
+            // increase the amount of returned products to correct value
+            returnTransactionItem.increaseAmount(amount);
+        }
 
         writeState();
         return true;
     }
 
     @Override
-    public boolean returnProductRFID(Integer returnId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, UnauthorizedException 
-    {
-        return false;
+    public boolean returnProductRFID(Integer returnId, String RFID) throws InvalidTransactionIdException, InvalidRFIDException, UnauthorizedException {
+
+        // verify access rights
+        verifyCurrentUserRole(Role.ADMINISTRATOR, Role.SHOP_MANAGER, Role.CASHIER);
+
+        // verify returnId and RFID
+        if(returnId == null || returnId <= 0) {
+            throw new InvalidTransactionIdException("Invalid Return ID");
+        }
+        if (!isValidRFID(RFID)) {
+            throw new InvalidRFIDException("Invalid RFID");
+        }
+        if (this.products.stream().anyMatch(p -> p.getRFIDs().contains(RFID))) {
+            throw new InvalidRFIDException("Error, a product with this RFID already exists in the shop");
+        }
+
+        // get return transaction if it exists; return false if doesn't exist or is not in state OPEN
+        it.polito.ezshop.model.BalanceOperation returnTransaction = accountBook.getTransaction(returnId);
+        if (!(returnTransaction instanceof ReturnTransaction)) return false;
+        if (returnTransaction.getStatus() != OperationStatus.OPEN) return false;
+        ReturnTransaction _return = (ReturnTransaction) returnTransaction;
+
+        // get corresponding sale transaction
+        it.polito.ezshop.model.BalanceOperation saleTransaction = accountBook.getTransaction(_return.getSaleTransactionId());
+        if (!(saleTransaction instanceof it.polito.ezshop.model.SaleTransaction)) return false;
+        it.polito.ezshop.model.SaleTransaction sale = (it.polito.ezshop.model.SaleTransaction) saleTransaction;
+
+        // get the ticket entry of the sale with the given RFID or null if RFID was not part of sale
+        TicketEntry ticketEntry = sale.getTransactionItems().stream().filter(te -> te.RFIDexists(RFID))
+                .findAny()
+                .orElse(null);
+
+        // return false if RFID was not part of sale connected to the return transaction
+        if (ticketEntry == null) {
+            return false;
+        }
+
+        // return true if the product has already been returned
+        if (!RFID.equals(DUMMY_RFID)) {
+            if (_return.getTransactionItems().stream().anyMatch(rti -> rti.getRFIDs().contains(RFID))) {
+                return true;
+            }
+        }
+
+        // add return transaction item to return transaction
+        double value = ticketEntry.getPricePerUnit() * (1 - ticketEntry.getDiscountRate()) * (1 - sale.getDiscountRate());
+        _return.addReturnTransactionItemRFID(ticketEntry.getProductType(), RFID, value);
+
+        // return successfully
+        writeState();
+        return true;
     }
 
 
@@ -1191,18 +1389,19 @@ InvalidLocationException, InvalidRFIDException {
             return true;
         }
 
-        // before committing verify the quantities of the returned products are valid
-        // the following condition may become false if multiple return transactions are
-        // happening at the same time: the total quantity returned for each product
-        // may exceed the quantity in the sale transaction
-        boolean valid = _return.getTransactionItems().stream().allMatch(rti -> {
-            int qty = saleTransaction.getTransactionItems().stream()
-                    .filter(te -> te.getProductType().getBarCode().equals(rti.getBarCode()))
-                    .map(TicketEntry::getAmount).findAny().orElse(-1);
-
-            return rti.getAmount() <= qty;
-        });
-        if (!valid) return false;
+        // verify that all products specified in return transaction are still part of sale transaction.
+        // may be false in case multiple return transactions were open at the same time, since changes are only recorded
+        // after committing
+        if (!_return.getTransactionItems().stream()
+                // true for all return transaction items
+                .allMatch(rti -> saleTransaction.getTransactionItems().stream()
+                        // get the matching ticket entry of sale transaction
+                        .filter(te -> rti.getProductType().getId() == te.getProductType().getId())
+                        // matching ticket entry contains all RFIDs
+                        .allMatch(te -> containsRFIDs(te.getRFIDs(), rti.getRFIDs()))
+                )) {
+            return false;
+        }
 
         // commit
         // for each item of the sale transaction
@@ -1224,23 +1423,14 @@ InvalidLocationException, InvalidRFIDException {
                         .filter(p -> p.getBarCode().equals(returnTransactionItem.getBarCode()))
                         .findAny()
                         .orElse(null);
+
                 // increase available amount if product still exists
                 if (product != null) {
-                    try {
-                        product.setQuantity(product.getQuantity() + returnTransactionItem.getAmount());
-                    } catch (InvalidQuantityException e) {
-                        // this should never happen, quantity can always be increased
-                        throw new Error("Unexpected error encountered when handling return transaction.", e);
-                    }
+                    product.addRFIDs(returnTransactionItem.getRFIDs());
                 }
 
                 // reduce the amount in the sale transaction
-                try {
-                    saleTransactionItem.setAmount(saleTransactionItem.getAmount() - returnTransactionItem.getAmount());
-                } catch (InvalidQuantityException e) {
-                    // this should never happen, you can't return more products than you purchased
-                    throw new Error("Unexpected error encountered when handling return transaction.", e);
-                }
+                saleTransactionItem.removeRFIDs(returnTransactionItem.getRFIDs());
             }
         }
 
